@@ -15,7 +15,7 @@ fun Route.articles(service: ArticleService) {
 
     route("/articles") {
 
-        get("/") {
+        get("/all") {
             call.respond(service.getAll())
         }
 
@@ -40,6 +40,13 @@ fun Route.articles(service: ArticleService) {
                 call.respond(selectedArticle)
         }
 
+        get("/") {
+            val result = service.getAll()
+                .filter { it.createdAt >= (call.request.queryParameters["time"]?.toLong() ?: 0) }
+                .filter { article -> call.request.queryParameters["title"]?.let { article.title == it } ?: true }
+            call.respond(if (result.isNotEmpty()) result else HttpStatusCode.NotFound)
+        }
+
         delete("/{uuid}") {
             val selectedUUID = call.parameters["uuid"]
 
@@ -56,13 +63,13 @@ fun Route.articles(service: ArticleService) {
         patch("/{uuid}") {
             val selectedUUID = call.parameters["uuid"]
 
-            val selectedArticle    = service.get(UUID.fromString(selectedUUID))
+            val selectedArticle = service.get(UUID.fromString(selectedUUID))
             val replacementArticle = call.receive<Article>()
 
             if (selectedArticle == null)
                 call.respond(HttpStatusCode.NotFound)
             else {
-                selectedArticle.copy (
+                selectedArticle.copy(
                     title = replacementArticle.title
                 )
 

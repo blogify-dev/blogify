@@ -19,7 +19,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
-fun Application.mainModule(testing: Boolean = false) {
+fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
 
     install(Authentication) {
 
@@ -36,15 +36,9 @@ fun Application.mainModule(testing: Boolean = false) {
     }
 
     routing {
-
         route("/api") {
-
             articles(ArticleService())
-
             users(UserService())
-
         }
-
     }
-
 }
