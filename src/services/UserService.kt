@@ -1,8 +1,6 @@
 package me.benjozork.services
 
-import me.benjozork.resources.Article
 import me.benjozork.resources.User
-import me.benjozork.resources.models.Resource
 import me.benjozork.services.models.Service
 
 import java.util.*
@@ -10,8 +8,8 @@ import java.util.*
 object UserService : Service<User> {
 
     private val userData = mutableSetOf(
-        User(name = "Shrek"),
-        User(name = "Keanu Reeves")
+        User(name = "Shrek", firebaseUid = "itgeuSh4VKShLKr2BtyXz7er5BQ2"),
+        User(name = "Keanu Reeves", firebaseUid = "itgeuSh4VKShLKr2BtyXz7er5BQ3")
     ).associateBy { it.uuid }.toMutableMap()
 
     override suspend fun getAll(): Set<User> {
@@ -32,9 +30,12 @@ object UserService : Service<User> {
         return true
     }
 
-    override suspend fun update(usr: User): Boolean {
-        userData[usr.uuid] = usr
+    override suspend fun update(res: User): Boolean {
+        userData[res.uuid] = res
         return true
     }
 
+    fun getUserByUid(uid: String): User? {
+        return userData.values.find { it.firebaseUid == uid }
+    }
 }
