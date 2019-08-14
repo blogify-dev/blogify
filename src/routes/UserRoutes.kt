@@ -8,14 +8,13 @@ import io.ktor.routing.route
 
 import me.benjozork.services.UserService
 
-fun Route.users(service: UserService) {
-
+fun Route.users() {
     route("/users") {
 
         // Get all users
 
         get("/") {
-            call.respond(service.getAll())
+            call.respond(UserService.getAll())
         }
 
     }

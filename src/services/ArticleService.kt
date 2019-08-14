@@ -4,7 +4,7 @@ import me.benjozork.resources.Article
 import me.benjozork.services.models.Service
 import java.util.*
 
-class ArticleService : Service<Article> {
+object ArticleService : Service<Article> {
 
     private val exampleData = mutableSetOf(
         Article(title = "Bonjour test", createdAt = 1565720325),
@@ -17,25 +17,25 @@ class ArticleService : Service<Article> {
         Article(title = "123 ABCDE", createdAt = 703793925)
     ).associateBy { it.uuid }.toMutableMap()
 
-    override fun getAll(): Set<Article> {
+    override suspend fun getAll(): Set<Article> {
         return exampleData.values.toSet()
     }
 
-    override fun get(id: UUID): Article? {
+    override suspend fun get(id: UUID): Article? {
         return exampleData[id]
     }
 
-    override fun add(res: Article): Boolean {
+    override suspend fun add(res: Article): Boolean {
         exampleData[res.uuid] = res
         return true
     }
 
-    override fun remove(id: UUID): Boolean {
+    override suspend fun remove(id: UUID): Boolean {
         exampleData.remove(id) ?: return false
         return true
     }
 
-    override fun update(res: Article): Boolean {
+    override suspend fun update(res: Article): Boolean {
         exampleData[res.uuid] = res
         return true
     }

@@ -6,14 +6,14 @@ import java.util.*
 
 interface Service<R : Resource> {
 
-    fun getAll(): Set<R>
+    suspend fun getAll(): Set<R>
 
-    fun get(id: UUID): R?
+    suspend fun get(id: UUID): R?
 
-    fun add(res: R): Boolean
+    suspend fun add(res: R): Boolean
 
-    fun remove(id: UUID): Boolean
+    suspend fun remove(id: UUID): Boolean
 
-    fun update(res: R): Boolean
+    suspend fun update(res: R): Boolean
 
 }
