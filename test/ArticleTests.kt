@@ -25,18 +25,19 @@ class ArticleTests() {
     fun `should provide all articles`() {
 
         val exampleData = mutableSetOf (
-            Article(title = "Bonjour test"),
-            Article(title = "Test test"),
-            Article(title = "Test bonjour"),
-            Article(title = "Bonjour bonjour"),
-            Article(title = "Test test"),
-            Article(title = "ABCDE 123"),
-            Article(title = "123 ABCDE")
+            Article(title = "Bonjour test", createdAt = 1565720325),
+            Article(title = "Test test", createdAt = 1565633925),
+            Article(title = "Test bonjour", createdAt = 1557685125),
+            Article(title = "Bonjour bonjour", createdAt = 1565720332),
+            Article(title = "Test test", createdAt = 1555784325),
+            Article(title = "ABCDE 123", createdAt = 3133707525),
+            Article(title = "ABCDE", createdAt = 703793925),
+            Article(title = "123 ABCDE", createdAt = 703793925)
         ).associateBy { it.uuid }.toMutableMap()
 
         withTestApplication({ mainModule(testing = true) }) {
 
-            val request = handleRequest(HttpMethod.Get, "api/articles/") {
+            handleRequest(HttpMethod.Get, "api/articles/all") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
             }.apply {
                 var receivedArticles: Array<Article>? = null
