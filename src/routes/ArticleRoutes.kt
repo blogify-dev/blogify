@@ -5,19 +5,15 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
-
 import me.benjozork.resources.Article
 import me.benjozork.services.ArticleService
 
 import java.util.*
 
-fun Route.articles(service: ArticleService) {
+fun Route.articles() {
+    val service = ArticleService
 
     route("/articles") {
-
-        get("/all") {
-            call.respond(service.getAll())
-        }
 
         post("/") {
             val receivedArticle = call.receive<Article>()

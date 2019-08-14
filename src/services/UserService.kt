@@ -1,31 +1,41 @@
 package me.benjozork.services
 
 import me.benjozork.resources.User
-import me.benjozork.resources.models.Resource
 import me.benjozork.services.models.Service
 
 import java.util.*
 
-class UserService : Service<User> {
+object UserService : Service<User> {
 
-    override fun getAll(): Set<User> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    private val userData = mutableSetOf(
+        User(name = "Shrek", firebaseUid = "itgeuSh4VKShLKr2BtyXz7er5BQ2"),
+        User(name = "Keanu Reeves", firebaseUid = "itgeuSh4VKShLKr2BtyXz7er5BQ3")
+    ).associateBy { it.uuid }.toMutableMap()
+
+    override suspend fun getAll(): Set<User> {
+        return userData.values.toSet()
     }
 
-    override fun get(id: UUID): User {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override suspend fun get(id: UUID): User? {
+        return userData[id]
     }
 
-    override fun add(res: User): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override suspend fun add(res: User): Boolean {
+        userData[res.uuid] = res
+        return true
     }
 
-    override fun remove(id: UUID): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override suspend fun remove(id: UUID): Boolean {
+        userData.remove(id) ?: return false
+        return true
     }
 
-    override fun update(usr: User): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override suspend fun update(res: User): Boolean {
+        userData[res.uuid] = res
+        return true
     }
 
+    fun getUserByUid(uid: String): User? {
+        return userData.values.find { it.firebaseUid == uid }
+    }
 }
