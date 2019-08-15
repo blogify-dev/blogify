@@ -1,8 +1,8 @@
 package blgoify.backend.resources
 
-import blgoify.backend.resources.models.Resource
-
 import com.fasterxml.jackson.annotation.JsonIdentityReference
+
+import blgoify.backend.resources.models.Resource
 
 data class Comment (
     @JsonIdentityReference(alwaysAsId = true) val commenter: User,

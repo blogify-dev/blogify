@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blgoify.backend.resources.models.Resource
-import com.fasterxml.jackson.annotation.JsonIdentityReference
 
 import java.util.*
 

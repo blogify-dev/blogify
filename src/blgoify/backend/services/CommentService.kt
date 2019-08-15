@@ -1,10 +1,10 @@
 package blgoify.backend.services
 
-import blgoify.backend.resources.Article
 import kotlinx.coroutines.runBlocking
 
 import java.util.UUID
 
+import blgoify.backend.resources.Article
 import blgoify.backend.resources.Comment
 import blgoify.backend.resources.User
 import blgoify.backend.services.models.Service
