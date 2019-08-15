@@ -1,6 +1,6 @@
 package me.benjozork.routes
 
-import io.ktor.application.call
+import  io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond

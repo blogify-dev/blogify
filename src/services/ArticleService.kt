@@ -30,7 +30,7 @@ object ArticleService : Service<Article> {
         return exampleData.values.toSet()
     }
 
-    override suspend fun get(id: UUID): Article? {
+    override suspend fun get(id: UUID ): Article? {
         return exampleData[id]
     }
 

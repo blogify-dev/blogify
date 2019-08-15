@@ -8,8 +8,7 @@ import io.ktor.routing.*
 import me.benjozork.resources.Article
 import me.benjozork.routes.articles.articleContent
 import me.benjozork.services.ArticleService
-
-import java.util.*
+import me.benjozork.util.toUUID
 
 fun Route.articles() {
     val service = ArticleService
@@ -29,7 +28,7 @@ fun Route.articles() {
         get("/{uuid}") {
             val selectedUUID = call.parameters["uuid"]
 
-            val selectedArticle = service.get(UUID.fromString(selectedUUID))
+            val selectedArticle = selectedUUID?.toUUID()?.let { service.get(it) }
 
             if (selectedArticle == null)
                 call.respond(HttpStatusCode.NotFound)
@@ -47,7 +46,7 @@ fun Route.articles() {
         delete("/{uuid}") {
             val selectedUUID = call.parameters["uuid"]
 
-            val selectedArticle = service.get(UUID.fromString(selectedUUID))
+            val selectedArticle = selectedUUID?.toUUID()?.let { service.get(it) }
 
             if (selectedArticle == null)
                 call.respond(HttpStatusCode.NotFound)
@@ -60,16 +59,12 @@ fun Route.articles() {
         patch("/{uuid}") {
             val selectedUUID = call.parameters["uuid"]
 
-            val selectedArticle = service.get(UUID.fromString(selectedUUID))
+            val selectedArticle = selectedUUID?.toUUID()?.let { service.get(it) }
             val replacementArticle = call.receive<Article>()
 
             if (selectedArticle == null)
                 call.respond(HttpStatusCode.NotFound)
             else {
-                selectedArticle.copy(
-                    title = replacementArticle.title
-                )
-
                 service.update(replacementArticle)
                 call.respond(HttpStatusCode.OK)
             }
