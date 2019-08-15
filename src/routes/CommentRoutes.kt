@@ -3,7 +3,6 @@ package me.benjozork.routes
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
-import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.routing.*
 import me.benjozork.resources.Comment
@@ -13,14 +12,14 @@ import me.benjozork.util.toUUID
 fun Route.comments() {
     route("/comments") {
         get("/article/{uuid}") {
-            call.parameters["uuid"]?.let {
-                call.respond(CommentService.getForArticle(it.toUUID()))
+            call.parameters["uuid"]?.toUUID()?.let {
+                call.respond(CommentService.getForArticle(it))
             }
         }
 
         get("/user/{uuid}") {
-            call.parameters["uuid"]?.let {
-                call.respond(CommentService.getByUser(it.toUUID()))
+            call.parameters["uuid"]?.toUUID()?.let {
+                call.respond(CommentService.getByUser(it))
             }
         }
 
@@ -51,12 +50,6 @@ fun Route.comments() {
             if (selected == null) {
                 call.respond(HttpStatusCode.NotFound)
             } else {
-                /*replacement.let {
-                    val updated = selected.copy(
-                        content = it
-                    )
-
-                } ?: call.respond(HttpStatusCode.BadRequest)*/
                 CommentService.update(replacement)
                 call.respond(HttpStatusCode.OK)
             }
