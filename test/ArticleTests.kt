@@ -1,5 +1,6 @@
 package me.benjozork
 
+import blgoify.backend.mainModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.ContentType
@@ -9,7 +10,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.withTestApplication
 
-import me.benjozork.resources.Article
+import blgoify.backend.resources.Article
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,15 +23,23 @@ class ArticleTests() {
     @Test
     fun `should provide all articles`() {
 
-        val exampleData = mutableSetOf (
-            Article(title = "Bonjour test", createdAt = 1565720325),
-            Article(title = "Test test", createdAt = 1565633925),
-            Article(title = "Test bonjour", createdAt = 1557685125),
-            Article(title = "Bonjour bonjour", createdAt = 1565720332),
-            Article(title = "Test test", createdAt = 1555784325),
-            Article(title = "ABCDE 123", createdAt = 3133707525),
-            Article(title = "ABCDE", createdAt = 703793925),
-            Article(title = "123 ABCDE", createdAt = 703793925)
+        val exampleData = mutableSetOf(
+            Article(title = "Bonjour test",    createdAt = 1565720325,
+                content = Article.Content("Lorem ipsum dolor sit amet.")),
+            Article(title = "Test test",       createdAt = 1565633925,
+                content = Article.Content("Lorem ipsum dolor sit amet.")),
+            Article(title = "Test bonjour",    createdAt = 1557685125,
+                content = Article.Content("Lorem ipsum dolor sit amet.")),
+            Article(title = "Bonjour bonjour", createdAt = 1565720332,
+                content = Article.Content("Lorem ipsum dolor sit amet.")),
+            Article(title = "Test test",       createdAt = 1555784325,
+                content = Article.Content("Lorem ipsum dolor sit amet.")),
+            Article(title = "ABCDE 123",       createdAt = 3133707525,
+                content = Article.Content("Lorem ipsum dolor sit amet.")),
+            Article(title = "ABCDE",           createdAt = 703793925,
+                content = Article.Content("Lorem ipsum dolor sit amet.")),
+            Article(title = "123 ABCDE",       createdAt = 70379392,
+                content = Article.Content("Lorem ipsum dolor sit amet."))
         ).associateBy { it.uuid }.toMutableMap()
 
         withTestApplication({ mainModule(testing = true) }) {

@@ -1,4 +1,4 @@
-package me.benjozork.routes.articles
+package blgoify.backend.routes.articles
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
@@ -7,7 +7,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 
-import me.benjozork.services.ArticleService
+import blgoify.backend.services.ArticleService
 
 import java.util.UUID
 

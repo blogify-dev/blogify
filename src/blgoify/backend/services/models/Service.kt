@@ -1,6 +1,6 @@
-package me.benjozork.services.models
+package blgoify.backend.services.models
 
-import me.benjozork.resources.models.Resource
+import blgoify.backend.resources.models.Resource
 
 import java.util.*
 

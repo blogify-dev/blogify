@@ -1,14 +1,13 @@
-package me.benjozork.routes
+package blgoify.backend.routes.articles
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
-import me.benjozork.resources.Article
-import me.benjozork.routes.articles.articleContent
-import me.benjozork.services.ArticleService
-import me.benjozork.util.toUUID
+import blgoify.backend.resources.Article
+import blgoify.backend.services.ArticleService
+import blgoify.backend.util.toUUID
 
 fun Route.articles() {
     val service = ArticleService
@@ -71,6 +70,8 @@ fun Route.articles() {
         }
 
         articleContent()
+
+        articleComments()
 
     }
 

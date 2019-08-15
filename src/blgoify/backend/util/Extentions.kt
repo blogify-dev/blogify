@@ -1,4 +1,4 @@
-package me.benjozork.util
+package blgoify.backend.util
 
 import java.util.*
 

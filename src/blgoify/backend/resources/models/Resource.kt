@@ -1,4 +1,4 @@
-package me.benjozork.resources.models
+package blgoify.backend.resources.models
 
 import java.util.*
 

@@ -1,4 +1,4 @@
-package me.benjozork
+package blgoify.backend
 
 import io.ktor.application.*
 import io.ktor.routing.*
@@ -8,9 +8,9 @@ import io.ktor.features.*
 
 import com.fasterxml.jackson.databind.*
 
-import me.benjozork.routes.articles
-import me.benjozork.routes.comments
-import me.benjozork.routes.users
+import blgoify.backend.routes.articles.articles
+import blgoify.backend.routes.articles.articleComments
+import blgoify.backend.routes.users
 
 import org.slf4j.event.Level
 
@@ -38,7 +38,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         route("/api") {
             articles()
             users()
-            comments()
+            articleComments()
         }
     }
 }

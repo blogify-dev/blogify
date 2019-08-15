@@ -1,16 +1,14 @@
-package me.benjozork.resources
+package blgoify.backend.resources
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonProperty.Access.*
+import com.fasterxml.jackson.annotation.JsonIdentityInfo
+import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
-import me.benjozork.resources.models.Resource
+import blgoify.backend.resources.models.Resource
+import com.fasterxml.jackson.annotation.JsonIdentityReference
 
 import java.util.*
-
-/**
- * A constant for now.
- */
-const val ARTICLE_SUMMARY_LENGTH = 100
 
 /**
  * Represents an Article [Resource].
@@ -20,6 +18,7 @@ const val ARTICLE_SUMMARY_LENGTH = 100
  * @property content   The [Content][Article.Content] of the article. Not included in the JSON serialization.
 
  */
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator::class, property = "uuid")
 data class Article (
     val title: String,
     val createdAt: Long = Date().time,
@@ -33,7 +32,7 @@ data class Article (
      * @property summary The summary of the content, obtained by taking the first [ARTICLE_SUMMARY_LENGTH] characters of [text]
      */
     data class Content(val text: String) {
-        val summary = text.take(ARTICLE_SUMMARY_LENGTH)
+        val summary = text.take(100)
     }
 
 }
