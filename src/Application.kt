@@ -7,6 +7,7 @@ import io.ktor.jackson.*
 import io.ktor.features.*
 import com.fasterxml.jackson.databind.*
 import me.benjozork.routes.articles
+import me.benjozork.routes.comments
 import me.benjozork.routes.users
 
 import org.slf4j.event.Level
@@ -35,6 +36,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         route("/api") {
             articles()
             users()
+            comments()
         }
     }
 }
