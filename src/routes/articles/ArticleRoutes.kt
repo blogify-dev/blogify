@@ -6,6 +6,7 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
 import me.benjozork.resources.Article
+import me.benjozork.routes.articles.articleContent
 import me.benjozork.services.ArticleService
 
 import java.util.*
@@ -73,6 +74,8 @@ fun Route.articles() {
                 call.respond(HttpStatusCode.OK)
             }
         }
+
+        articleContent()
 
     }
 
