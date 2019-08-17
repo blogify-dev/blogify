@@ -18,11 +18,9 @@ fun Route.articles() {
         post("/") {
             val receivedArticle = call.receive<Article>()
 
-            if (service.add(receivedArticle)) {
-                call.respond(HttpStatusCode.Created)
-            } else {
-                call.respond(HttpStatusCode.InternalServerError)
-            }
+            service.add(receivedArticle) // Temporary
+
+            call.respond(HttpStatusCode.Created)
         }
 
         get("/{uuid}") {

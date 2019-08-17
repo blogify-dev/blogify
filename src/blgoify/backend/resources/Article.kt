@@ -30,8 +30,10 @@ data class Article (
     val createdBy: User =  runBlocking { UserService.getAll().toList()[0] } /* VERY TEMPORARY */,
 
     @JsonProperty(access = WRITE_ONLY)
-    val content: Content
-) : Resource() {
+    val content: Content,
+
+    override val uuid: UUID = UUID.randomUUID()
+) : Resource(uuid) {
 
     /**
      * Represents the content of an [Article].

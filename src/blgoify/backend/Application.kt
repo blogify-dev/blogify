@@ -12,7 +12,7 @@ import blgoify.backend.routes.articles.articles
 import blgoify.backend.routes.articles.articleComments
 import blgoify.backend.routes.users
 import blgoify.backend.database.Database
-import blgoify.backend.database.tables.Articles
+import blgoify.backend.database.Articles
 
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger

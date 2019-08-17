@@ -20,9 +20,8 @@ object UserService : Service<User> {
         return userData[id]
     }
 
-    override suspend fun add(res: User): Boolean {
+    override suspend fun add(res: User) {
         userData[res.uuid] = res
-        return true
     }
 
     override suspend fun remove(id: UUID): Boolean {

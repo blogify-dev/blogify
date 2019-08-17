@@ -51,9 +51,8 @@ object CommentService : Service<Comment> {
         return exampleData[id]
     }
 
-    override suspend fun add(res: Comment): Boolean {
+    override suspend fun add(res: Comment) {
         exampleData[res.uuid] = res
-        return true
     }
 
     override suspend fun remove(id: UUID): Boolean {
