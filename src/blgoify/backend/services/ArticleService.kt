@@ -24,7 +24,7 @@ object ArticleService : Service<Article> {
     }
 
     override suspend fun add(res: Article) = query {
-        Articles.insert { it[uuid] = res.uuid; it[title] = res.title; }.run { Unit }
+        Articles.insert { it[uuid] = res.uuid; it[title] = res.title; it[createdAt] = res.createdAt; }.run { Unit }
     }
 
     override suspend fun remove(id: UUID): Boolean {
