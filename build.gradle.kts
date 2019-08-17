@@ -12,6 +12,7 @@ plugins {
     kotlin("jvm") version "1.3.41"
 
     id("com.github.johnrengelman.shadow") version "5.1.0"
+    id("com.avast.gradle.docker-compose") version "0.9.4"
 }
 
 group   = "blogify"
@@ -63,7 +64,7 @@ sourceSets["test"].resources.srcDirs("testresources")
 // Fat jar
 
 tasks.withType<Jar> {
-    destinationDir = File("./build/dist/jar/")
+    destinationDirectory.set(File("./build/dist/jar"))
 
     manifest {
         attributes (
@@ -72,4 +73,18 @@ tasks.withType<Jar> {
             )
         )
     }
+}
+
+dockerCompose {
+    useComposeFiles = mutableListOf("./docker-compose.yml")
+
+    projectName = "blogify"
+
+    waitForTcpPorts = true
+    stopContainers  = true
+}
+
+// Local test deploy : this packs the jar and runs the docker-compose config
+tasks.register("localTestDeploy", GradleBuild::class) {
+    tasks = mutableListOf("shadowJar", "composeUp")
 }
