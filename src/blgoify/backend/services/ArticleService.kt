@@ -2,6 +2,7 @@ package blgoify.backend.services
 
 import blgoify.backend.resources.Article
 import blgoify.backend.services.models.Service
+import blgoify.backend.util.query
 
 import java.util.*
 
@@ -35,7 +36,9 @@ object ArticleService : Service<Article> {
     }
 
     override suspend fun add(res: Article): Boolean {
-        exampleData[res.uuid] = res
+        query {
+
+        }
         return true
     }
 

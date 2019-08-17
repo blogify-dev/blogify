@@ -3,9 +3,13 @@ package blgoify.backend.resources
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonProperty.Access.*
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
+import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blgoify.backend.resources.models.Resource
+import blgoify.backend.services.UserService
+
+import kotlinx.coroutines.runBlocking
 
 import java.util.*
 
@@ -19,9 +23,14 @@ import java.util.*
  */
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator::class, property = "uuid")
 data class Article (
-    val title: String,
+    val title:     String,
     val createdAt: Long = Date().time,
-    @JsonProperty(access = WRITE_ONLY) val content: Content
+
+    @JsonIdentityReference(alwaysAsId = true)
+    val createdBy: User =  runBlocking { UserService.getAll().toList()[0] } /* VERY TEMPORARY */,
+
+    @JsonProperty(access = WRITE_ONLY)
+    val content: Content
 ) : Resource() {
 
     /**
