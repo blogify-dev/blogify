@@ -1,11 +1,11 @@
 @file:Suppress("SpellCheckingInspection", "PropertyName")
 
-val ktor_version:    String by project
-val kotlin_version:  String by project
-val logback_version: String by project
-val h2_version:      String by project
-val exposed_version: String by project
-val hikari_version:  String by project
+val ktor_version:      String by project
+val kotlin_version:    String by project
+val logback_version:   String by project
+val pg_driver_version: String by project
+val exposed_version:   String by project
+val hikari_version:    String by project
 
 plugins {
     application
@@ -46,7 +46,7 @@ dependencies {
 
     // Database stuff
 
-    compile("com.h2database:h2:$h2_version")
+    compile("org.postgresql:postgresql:$pg_driver_version")
     compile("org.jetbrains.exposed:exposed:$exposed_version")
     compile("com.zaxxer:HikariCP:$hikari_version")
 
