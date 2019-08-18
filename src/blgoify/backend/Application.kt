@@ -9,7 +9,6 @@ import io.ktor.features.*
 import com.fasterxml.jackson.databind.*
 
 import blgoify.backend.routes.articles.articles
-import blgoify.backend.routes.articles.articleComments
 import blgoify.backend.routes.users
 import blgoify.backend.database.Database
 import blgoify.backend.database.Articles
@@ -66,7 +65,6 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         route("/api") {
             articles()
             users()
-            articleComments()
         }
     }
 }
