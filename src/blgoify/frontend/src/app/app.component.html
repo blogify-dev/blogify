@@ -1,0 +1,30 @@
+<h1>
+  {{title}}
+</h1>
+
+<button (click)= "getArticles()">get articles</button>
+
+<button (click)= "getUsers()">get users</button>
+
+<button (click)= "getComments()">get articles</button>
+
+
+<h4>articles</h4>
+<div *ngFor="let article of articles">
+    <h5 style="margin: 0px; padding: 0px">{{article.title}}</h5>
+    <span>{{article.uuid}}</span>
+</div>
+
+<h4>users</h4>
+<div *ngFor="let user of users">
+    <h5 style="margin: 0px; padding: 0px">{{user.name}}</h5>
+    <span>{{user.uuid}}</span>
+</div>
+
+<h4>comments</h4>
+<div *ngFor="let comment of comments">
+    <h5 style="margin: 0px; padding: 0px">{{comment.content}}</h5>
+    <span>{{comment.article}}</span><br>
+    <span>{{comment.commenter}}</span><br>
+</div>
+
