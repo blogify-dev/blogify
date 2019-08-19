@@ -28,9 +28,10 @@ object Articles : ResourceTable<Article>() {
             uuid      = source[uuid],
             title     = source[title],
             createdAt = source[createdAt],
-            content = transaction {
+            content = Article.Content("This is text", "summ") // Temporary. following is the real code
+            /*transaction {
                 Content.select { Content.article eq source[uuid] }
-            }.mapNotNull { Content.convert(it) }.singleOrNull() ?: error("no content in db for article ${source[uuid]}")
+            }.mapNotNull { Content.convert(it) }.singleOrNull() ?: error("no content in db for article ${source[uuid]}")*/
         )
     }
 
