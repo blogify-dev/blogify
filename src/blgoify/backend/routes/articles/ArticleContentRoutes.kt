@@ -7,7 +7,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 
-import blgoify.backend.services.ArticleService
+import blgoify.backend.services.articles.ArticleService
 
 import java.util.UUID
 

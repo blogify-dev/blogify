@@ -27,7 +27,7 @@ data class Article (
     val createdAt: Long = Date().time,
 
     @JsonIdentityReference(alwaysAsId = true)
-    val createdBy: User =  runBlocking { UserService.getAll().toList()[0] } /* VERY TEMPORARY */,
+    val createdBy: User = runBlocking { UserService.getAll().toList()[0] } /* VERY TEMPORARY */,
 
     @JsonProperty(access = WRITE_ONLY)
     val content: Content,
@@ -39,10 +39,8 @@ data class Article (
      * Represents the content of an [Article].
      *
      * @property text    The text content of the article.
-     * @property summary The summary of the content, obtained by taking the first [ARTICLE_SUMMARY_LENGTH] characters of [text]
+     * @property summary The summary of the content.
      */
-    data class Content(val text: String) {
-        val summary = text.take(100)
-    }
+    data class Content(val text: String, val summary: String)
 
 }

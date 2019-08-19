@@ -7,7 +7,7 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 
 import blgoify.backend.resources.Article
-import blgoify.backend.services.ArticleService
+import blgoify.backend.services.articles.ArticleService
 import blgoify.backend.util.toUUID
 
 fun Route.articles() {
