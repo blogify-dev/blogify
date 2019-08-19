@@ -1,23 +1,27 @@
-package blgoify.backend.services
+package blgoify.backend.services.articles
 
 import blgoify.backend.database.Articles
-import blgoify.backend.database.Articles.toArticle
+import blgoify.backend.database.Articles.convert
 import blgoify.backend.database.Articles.uuid
 import blgoify.backend.resources.Article
 import blgoify.backend.services.models.Service
 import blgoify.backend.util.query
-import org.jetbrains.exposed.sql.*
 
-import java.util.*
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
+
+import java.util.UUID
 
 object ArticleService : Service<Article> {
 
     override suspend fun getAll(): Set<Article> = query {
-        Articles.selectAll().map { toArticle(it) }
+        Articles.selectAll().map { convert(it) }
     }.toSet()
 
     override suspend fun get(id: UUID): Article? = query {
-        Articles.select { uuid eq id }.mapNotNull { toArticle(it) }.singleOrNull()
+        Articles.select { uuid eq id }.mapNotNull { convert(it) }.single()
     }
 
     override suspend fun add(res: Article) = query {
