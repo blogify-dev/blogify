@@ -17,12 +17,20 @@ fun Route.articleComments() {
 
     route("/comments") {
 
+        get("/") {
+            call.respond(CommentService.getAll())
+        }
+
         get("/{uuid}") {
             call.parameters["uuid"]?.let {
                 ArticleService.get(it.toUUID()!!)?.let { article ->
-                    call.respond(CommentService.getForArticle(article))
+                    call.respond(CommentService.getForArticle(article.uuid))
                 } ?: call.respond(HttpStatusCode.NotFound)
             } ?: call.respond(HttpStatusCode.BadRequest)
+        }
+
+        post {
+
         }
 
     }
