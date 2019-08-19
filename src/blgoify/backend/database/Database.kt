@@ -11,13 +11,18 @@ object Database {
 
     private fun configureHikariCP(): HikariDataSource {
         val config = HikariConfig()
-        config.driverClassName      = "org.postgresql.Driver"
-        config.jdbcUrl              = "jdbc:postgresql://db:5432/postgres"
-        config.maximumPoolSize      = 3
-        config.isAutoCommit         = false
-        config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-        config.username             = "postgres"
-        config.password             = ""
+        config.driverClassName        = "org.postgresql.Driver"
+        config.jdbcUrl                = "jdbc:postgresql://db:5432/postgres"
+        config.maximumPoolSize        = 24
+        config.minimumIdle            = 6
+        config.validationTimeout      = 10 * 1000
+        config.connectionTimeout      = 10 * 1000
+        config.maxLifetime            = 30 * 1000
+        config.leakDetectionThreshold = 60 * 1000
+        config.isAutoCommit           = false
+        config.transactionIsolation   = "TRANSACTION_REPEATABLE_READ"
+        config.username               = "postgres"
+        config.password               = ""
         config.validate()
         return HikariDataSource(config)
     }
