@@ -27,7 +27,7 @@ data class Article (
     val createdAt: Long = Date().time,
 
     @JsonIdentityReference(alwaysAsId = true)
-    val createdBy: User =  runBlocking { UserService.getAll().toList()[0] } /* VERY TEMPORARY */,
+    val createdBy: User = runBlocking { UserService.getAll().toList()[0] } /* VERY TEMPORARY */,
 
     @JsonProperty(access = WRITE_ONLY)
     val content: Content,
