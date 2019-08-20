@@ -25,7 +25,7 @@ fun Route.articles() {
         }
 
         get("/{uuid}") {
-            handleSimpleResourceFetch { ArticleService.get(it) }
+            handleSimpleResourceFetch(ArticleService::get)
         }
 
         get("/") {

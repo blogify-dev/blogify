@@ -30,7 +30,7 @@ fun Route.users() {
         // GET a specific user
 
         get("/{uuid}") {
-            handleSimpleResourceFetch { UserService.get(it) }
+            handleSimpleResourceFetch(UserService::get)
         }
 
         // POST a new user
