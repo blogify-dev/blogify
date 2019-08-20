@@ -16,7 +16,7 @@ fun Route.articleContent() {
         val service = ArticleService
 
         get("/{uuid}") {
-            handleSimpleResourceFetch(ArticleService::get, transformFunction = { it.content })
+            handleSimpleResourceFetch(ArticleService::get, transform = { it.content })
         }
 
     }
