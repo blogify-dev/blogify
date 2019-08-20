@@ -1,12 +1,10 @@
 package blgoify.backend.routes.articles
 
-import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
-import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 
+import blgoify.backend.routes.handling.handleSimpleResourceFetch
 import blgoify.backend.services.articles.ArticleService
 
 import java.util.UUID
@@ -18,15 +16,7 @@ fun Route.articleContent() {
         val service = ArticleService
 
         get("/{uuid}") {
-            call.parameters["uuid"]?.let {
-
-                val uuid = UUID.fromString(it)
-
-                service.get(uuid)?.let { article ->
-                    call.respond(article.content)
-                } ?: call.respond(HttpStatusCode.NotFound)
-
-            } ?: call.respond(HttpStatusCode.BadRequest)
+            handleSimpleResourceFetch(ArticleService::get, transformFunction = { it.content })
         }
 
     }
