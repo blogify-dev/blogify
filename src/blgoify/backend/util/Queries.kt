@@ -23,6 +23,8 @@ suspend fun <T> query(block: suspend () -> T): T = withContext(Dispatchers.IO) {
  *
  * **DO NOT USE THIS IN A NESTED QUERY ! (EXPOSED BUG)**
  *
+ * @param block the query block to execute
+ *
  * @see [Dispatchers.IO]
  */
 @Suppress("unused")
