@@ -27,7 +27,7 @@ object UserService : Service<User> {
         Users.select { Users.uuid eq id }.map { convert(it) }.single()
     }
 
-    override suspend fun add(res: User) {
+    override suspend fun add(res: User) = query {
         Users.insert {
             it[uuid] = res.uuid;
             it[name] = res.name

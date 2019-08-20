@@ -1,45 +1,50 @@
-
 import { Component } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
+import { ArticleService } from './services/articles/article.service';
+import { UsersService } from './services/users/users.service';
+import { CommentsService } from './services/comments/comments.service';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'blogify';
+    title = 'blogify';
 
-  private url = 'localhost:8080/api';
+    private urlArticles = '/api/articles';
 
-  private urlArticles = '/api/articles';
+    private urlUsers = '/api/users';
 
-  private urlUsers = '/api/users';
+    private urlComments = '/api/comments/';
 
-  private urlComments = '/api/comments/';
+    articles;
+    users;
+    comments;
+    headers = new HttpHeaders()
+        .append('Content-Type', 'application/json');
 
-  articles;
-  users;
-  comments;
-  headers = new HttpHeaders()
-  .append('Content-Type', 'application/json');
+    constructor(
+        private http: HttpClient,
+        private articleService: ArticleService,
+        private usersService: UsersService,
+        private commnetsService: CommentsService) { }
 
-  constructor(private http: HttpClient) {}
+    async getArticles() {
+        const articlesob = this.articleService.getAllArticles();
+        this.articles = await articlesob.toPromise();
+        console.log(this.articles);
+        return this.articles;
+    }
 
-  async getArticles() {
-    const articlesob = this.http.get(this.urlArticles, {headers: this.headers});
-    this.articles = await articlesob.toPromise();
-    console.log(this.articles);
-    return this.articles;
-  }
+    async getUsers() {
+        this.users = await this.usersService.getAllUsers();
+        console.log(this.users);
+    }
 
-  async getUsers() {
-    this.users = await this.http.get(this.urlUsers, {headers: this.headers}).toPromise();
-    console.log(this.users);
-  }
-
-  async getComments() {
-    this.comments = await this.http.get(`${this.urlComments}85a1841f-143e-44cd-ad55-347207a60726`, {headers: this.headers}).toPromise();
-    console.log(this.comments);
-  }
+    async getComments() {
+        const uuid = '85a1841f-143e-44cd-ad55-347207a60726';
+        this.comments = await this.commnetsService.getCommentsForArticle(uuid).toPromise();
+        console.log(this.comments);
+    }
 }
