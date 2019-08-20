@@ -20,11 +20,16 @@ object CommentService : Service<Comment> {
     }.map { convert(it) }.toSet()
 
     override suspend fun get(id: UUID): Comment? = query {
-        Comments.select { Articles.uuid eq id }.mapNotNull { convert(it) }.singleOrNull()
+        Comments.select { Articles.uuid eq id }.map { convert(it) }.single()
     }
 
     override suspend fun add(res: Comment) = query {
-        Comments.insert { it[uuid] = res.uuid; it[commenter] = res.commenter.uuid; it[article] = res.article.uuid; it[content] = res.content; }.run { Unit }
+        Comments.insert {
+            it[uuid]      = res.uuid;
+            it[commenter] = res.commenter.uuid;
+            it[article]   = res.article.uuid;
+            it[content]   = res.content;
+        }.run { Unit }
     }
 
     override suspend fun remove(id: UUID): Boolean {
