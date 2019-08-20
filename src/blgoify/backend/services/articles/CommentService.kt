@@ -6,6 +6,7 @@ import blgoify.backend.util.query
 import blgoify.backend.database.Comments.convert
 import blgoify.backend.database.Articles
 import blgoify.backend.database.Comments
+import blgoify.backend.util.booleanReturnQuery
 
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
@@ -23,7 +24,7 @@ object CommentService : Service<Comment> {
         Comments.select { Articles.uuid eq id }.map { convert(it) }.single()
     }
 
-    override suspend fun add(res: Comment) = query {
+    override suspend fun add(res: Comment) = booleanReturnQuery {
         Comments.insert {
             it[uuid]      = res.uuid;
             it[commenter] = res.commenter.uuid;

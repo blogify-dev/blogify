@@ -1,7 +1,6 @@
 package blgoify.backend.services.models
 
 import blgoify.backend.resources.models.Resource
-import org.jetbrains.exposed.sql.statements.InsertStatement
 
 import java.util.*
 
@@ -11,7 +10,7 @@ interface Service<R : Resource> {
 
     suspend fun get(id: UUID): R?
 
-    suspend fun add(res: R)
+    suspend fun add(res: R): Boolean
 
     suspend fun remove(id: UUID): Boolean
 

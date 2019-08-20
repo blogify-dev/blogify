@@ -5,6 +5,7 @@ import blgoify.backend.database.Articles.convert
 import blgoify.backend.database.Articles.uuid
 import blgoify.backend.resources.Article
 import blgoify.backend.services.models.Service
+import blgoify.backend.util.booleanReturnQuery
 import blgoify.backend.util.query
 
 import org.jetbrains.exposed.sql.deleteWhere
@@ -24,12 +25,12 @@ object ArticleService : Service<Article> {
         Articles.select { uuid eq id }.mapNotNull { convert(it) }.single()
     }
 
-    override suspend fun add(res: Article) = query {
+    override suspend fun add(res: Article) = booleanReturnQuery {
         Articles.insert { it[uuid] = res.uuid; it[title] = res.title; it[createdAt] = res.createdAt; }.run { Unit }
     }
 
-    override suspend fun remove(id: UUID): Boolean = query {
-        Articles.deleteWhere { uuid eq id }.run { true }
+    override suspend fun remove(id: UUID) = booleanReturnQuery {
+        Articles.deleteWhere { uuid eq id }
     }
 
     override suspend fun update(res: Article): Boolean {

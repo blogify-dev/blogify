@@ -4,6 +4,7 @@ import blgoify.backend.database.Users
 import blgoify.backend.database.Users.convert
 import blgoify.backend.resources.User
 import blgoify.backend.services.models.Service
+import blgoify.backend.util.booleanReturnQuery
 import blgoify.backend.util.query
 
 import org.jetbrains.exposed.sql.insert
@@ -27,7 +28,7 @@ object UserService : Service<User> {
         Users.select { Users.uuid eq id }.map { convert(it) }.single()
     }
 
-    override suspend fun add(res: User) = query {
+    override suspend fun add(res: User) = booleanReturnQuery {
         Users.insert {
             it[uuid] = res.uuid;
             it[name] = res.name
