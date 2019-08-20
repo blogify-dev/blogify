@@ -14,12 +14,12 @@ import io.ktor.util.pipeline.PipelineContext
 import java.util.UUID
 
 suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.handleSimpleResourceFetch (
-    retrieveFunction:  suspend (id: UUID) -> R?,
-    transformFunction: suspend (R)        -> Any = { it }
+    fetch:     suspend (id: UUID)   -> R?,
+    transform: suspend (fetched: R) -> Any = { it }
 ) {
     call.parameters["uuid"]?.let { id ->
-        retrieveFunction.invoke(id.toUUID())?.let { resource ->
-            call.respond(transformFunction.invoke(resource))
+        fetch.invoke(id.toUUID())?.let { resource ->
+            call.respond(transform.invoke(resource))
         } ?: call.respond(HttpStatusCode.NotFound)
     } ?: call.respond(HttpStatusCode.BadRequest)
 }
