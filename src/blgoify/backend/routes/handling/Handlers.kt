@@ -15,7 +15,7 @@ import java.util.UUID
 
 suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.handleSimpleResourceFetch (
     retrieveFunction:  suspend (id: UUID) -> R?,
-    transformFunction: suspend (R)        -> R = { it }
+    transformFunction: suspend (R)        -> Any = { it }
 ) {
     call.parameters["uuid"]?.let { id ->
         retrieveFunction.invoke(id.toUUID())?.let { resource ->
