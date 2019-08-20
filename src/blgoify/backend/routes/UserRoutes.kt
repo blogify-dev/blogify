@@ -11,6 +11,7 @@ import io.ktor.routing.route
 
 import blgoify.backend.resources.User
 import blgoify.backend.services.UserService
+import blgoify.backend.util.handleSimpleResourceFetch
 
 fun Route.users() {
 
@@ -23,11 +24,7 @@ fun Route.users() {
         }
 
         get("/user/{uuid}") {
-            call.parameters["uid"]?.let {
-                UserService.getUserByUid(it)?.let { user ->
-                    call.respond(user)
-                } ?: call.respond(HttpStatusCode.NotFound)
-            } ?: call.respond(HttpStatusCode.BadRequest)
+            handleSimpleResourceFetch { UserService.get(it) }
         }
 
         post("/user") {
