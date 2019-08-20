@@ -8,7 +8,7 @@ import io.ktor.routing.*
 
 import blgoify.backend.resources.Article
 import blgoify.backend.services.articles.ArticleService
-import blgoify.backend.util.handleSimpleResourceFetch
+import blgoify.backend.routes.handling.handleSimpleResourceFetch
 import blgoify.backend.util.toUUID
 
 fun Route.articles() {

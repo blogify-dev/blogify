@@ -1,6 +1,7 @@
-package blgoify.backend.util
+package blgoify.backend.routes.handling
 
 import blgoify.backend.resources.models.Resource
+import blgoify.backend.util.toUUID
 
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
@@ -37,4 +38,4 @@ suspend inline fun <reified R : Resource> PipelineContext<Unit, ApplicationCall>
     } catch (e: ContentTransformationException) {
         call.respond(HttpStatusCode.BadRequest)
     }
-} /* To be changed later */
+}
