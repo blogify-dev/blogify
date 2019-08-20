@@ -5,8 +5,12 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blgoify.backend.resources.models.Resource
 
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator::class, property = "uuid")
+import java.util.UUID
+
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator::class, property = "uuid")
 data class User (
     val name: String,
-    val firebaseUid: String
-) : Resource()
+    /* val firebaseUid: String, */
+
+    override val uuid: UUID = UUID.randomUUID()
+) : Resource(uuid)

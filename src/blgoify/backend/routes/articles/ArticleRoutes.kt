@@ -8,6 +8,7 @@ import io.ktor.routing.*
 
 import blgoify.backend.resources.Article
 import blgoify.backend.services.articles.ArticleService
+import blgoify.backend.util.handleSimpleResourceFetch
 import blgoify.backend.util.toUUID
 
 fun Route.articles() {
@@ -24,14 +25,7 @@ fun Route.articles() {
         }
 
         get("/{uuid}") {
-            val selectedUUID = call.parameters["uuid"]
-
-            val selectedArticle = selectedUUID?.toUUID()?.let { service.get(it) }
-
-            if (selectedArticle == null)
-                call.respond(HttpStatusCode.NotFound)
-            else
-                call.respond(selectedArticle)
+            handleSimpleResourceFetch { ArticleService.get(it) }
         }
 
         get("/") {

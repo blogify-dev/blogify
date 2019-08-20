@@ -13,10 +13,12 @@ import blgoify.backend.routes.users
 import blgoify.backend.database.Database
 import blgoify.backend.database.Articles
 import blgoify.backend.database.Comments
+import blgoify.backend.database.Users
 import blgoify.backend.util.query
-import kotlinx.coroutines.runBlocking
+
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.selectAll
+
+import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
 
@@ -45,7 +47,12 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     Database.init()
 
     runBlocking { query {
-        SchemaUtils.create(Articles, Articles.Content, Comments)
+        SchemaUtils.create (
+            Articles,
+            Articles.Content,
+            Users,
+            Comments
+        )
     }}
 
     routing {
