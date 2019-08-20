@@ -46,7 +46,17 @@ object Articles : ResourceTable<Article>() {
 
     }
 
-    }
+}
+
+object Users : ResourceTable<User>() {
+
+    val uuid = uuid    ("uuid").primaryKey()
+    val name = varchar ("name", 255)
+
+    override suspend fun convert(source: ResultRow) = User (
+        uuid = source[uuid],
+        name = source[name]
+    )
 
 }
 
