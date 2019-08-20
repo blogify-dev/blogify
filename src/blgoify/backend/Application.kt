@@ -43,6 +43,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     }
 
     // Initialize database
+    //test
 
     Database.init()
 
