@@ -9,6 +9,8 @@ import blgoify.backend.services.UserService
 
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
 
 abstract class ResourceTable<R : Resource> : Table() {
 
@@ -26,10 +28,10 @@ object Articles : ResourceTable<Article>() {
         uuid      = source[uuid],
         title     = source[title],
         createdAt = source[createdAt],
-        content = Article.Content("This is text", "summ") // Temporary. following is the real code
-        /*transaction {
+        content = transaction {
             Content.select { Content.article eq source[uuid] }
-        }.mapNotNull { Content.convert(it) }.singleOrNull() ?: error("no content in db for article ${source[uuid]}")*/
+        }.mapNotNull { Content.convert(it) }.singleOrNull() ?: error("no content in db for article ${source[uuid]}")
+    /*Article.Content("This is text", "summ") // Temporary. following is the real code*/
     )
 
     object Content : Table() {

@@ -1,6 +1,7 @@
 package blgoify.backend.services.articles
 
 import blgoify.backend.database.Articles
+import blgoify.backend.database.Articles.Content.article
 import blgoify.backend.database.Articles.convert
 import blgoify.backend.database.Articles.uuid
 import blgoify.backend.resources.Article
@@ -27,6 +28,7 @@ object ArticleService : Service<Article> {
 
     override suspend fun add(res: Article) = booleanReturnQuery {
         Articles.insert { it[uuid] = res.uuid; it[title] = res.title; it[createdAt] = res.createdAt; }.run { Unit }
+        Articles.Content.insert { it[text] = res.content.text; it[summary] = res.content.summary; it[article] = res.uuid }
     }
 
     override suspend fun remove(id: UUID) = booleanReturnQuery {
