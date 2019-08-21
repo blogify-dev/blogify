@@ -30,7 +30,7 @@ object CommentService : Service<Comment> {
             it[commenter] = res.commenter.uuid;
             it[article]   = res.article.uuid;
             it[content]   = res.content;
-        }.run { Unit }
+        }
     }
 
     override suspend fun remove(id: UUID): Boolean {

@@ -32,7 +32,7 @@ object UserService : Service<User> {
         Users.insert {
             it[uuid] = res.uuid;
             it[name] = res.name
-        }.run { Unit }
+        }
     }
 
     override suspend fun remove(id: UUID): Boolean {
