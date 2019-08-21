@@ -44,6 +44,7 @@ fun Route.users() {
                 res = call.receive<User>()
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.InternalServerError)
+                e.printStackTrace()
                 return@post
             }
 
