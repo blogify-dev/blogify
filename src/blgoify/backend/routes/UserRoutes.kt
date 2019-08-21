@@ -9,8 +9,8 @@ import io.ktor.routing.route
 
 import blgoify.backend.resources.User
 import blgoify.backend.services.UserService
-// import blgoify.backend.routes.handling.handleSimpleResourceCreation
-import blgoify.backend.routes.handling.handleSimpleResourceFetch
+import blgoify.backend.routes.handling.handleResourceFetch
+
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 
@@ -30,7 +30,7 @@ fun Route.users() {
         // GET a specific user
 
         get("/{uuid}") {
-            handleSimpleResourceFetch(UserService::get)
+            handleResourceFetch(UserService::get)
         }
 
         // POST a new user

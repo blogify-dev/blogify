@@ -7,43 +7,40 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 
 import blgoify.backend.resources.Article
+import blgoify.backend.routes.handling.handleResourceFetchAll
 import blgoify.backend.services.articles.ArticleService
-import blgoify.backend.routes.handling.handleSimpleResourceFetch
+import blgoify.backend.routes.handling.handleResourceFetch
 import blgoify.backend.util.toUUID
 
 fun Route.articles() {
-    val service = ArticleService
 
     route("/articles") {
+
+        get("/") {
+            handleResourceFetchAll(ArticleService::getAll)
+        }
+
+        get("/{uuid}") {
+            handleResourceFetch(ArticleService::get)
+        }
 
         post("/") {
             val receivedArticle = call.receive<Article>()
 
-            service.add(receivedArticle) // Temporary
+            ArticleService.add(receivedArticle) // Temporary
 
             call.respond(HttpStatusCode.Created)
-        }
-
-        get("/{uuid}") {
-            handleSimpleResourceFetch(ArticleService::get)
-        }
-
-        get("/") {
-            val result = service.getAll()
-                .filter { it.createdAt >= (call.request.queryParameters["time"]?.toLong() ?: 0) }
-                .filter { article -> call.request.queryParameters["title"]?.let { article.title == it } ?: true }
-            call.respond(if (result.isNotEmpty()) result else HttpStatusCode.NotFound)
         }
 
         delete("/{uuid}") {
             val selectedUUID = call.parameters["uuid"]
 
-            val selectedArticle = selectedUUID?.toUUID()?.let { service.get(it) }
+            val selectedArticle = selectedUUID?.toUUID()?.let { ArticleService.get(it) }
 
             if (selectedArticle == null)
                 call.respond(HttpStatusCode.NotFound)
             else {
-                service.remove(selectedArticle.uuid)
+                ArticleService.remove(selectedArticle.uuid)
                 call.respond(HttpStatusCode.OK)
             }
         }
@@ -51,13 +48,13 @@ fun Route.articles() {
         patch("/{uuid}") {
             val selectedUUID = call.parameters["uuid"]
 
-            val selectedArticle = selectedUUID?.toUUID()?.let { service.get(it) }
+            val selectedArticle = selectedUUID?.toUUID()?.let { ArticleService.get(it) }
             val replacementArticle = call.receive<Article>()
 
             if (selectedArticle == null)
                 call.respond(HttpStatusCode.NotFound)
             else {
-                service.update(replacementArticle)
+                ArticleService.update(replacementArticle)
                 call.respond(HttpStatusCode.OK)
             }
         }
