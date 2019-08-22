@@ -10,7 +10,7 @@ It uses `PostgreSQL` as a databse.
 
 ## Building and deploying
 
-The default deploy configuration runs the backend and the databse as `docker-compose` services. A functioning,local, test deployment can be achieved by running the `localTestDeploy` gradle task.
+The default deploy configuration runs the backend and the databse as `docker-compose` services. A functioning, local, test deployment can be achieved by running the `localTestDeploy` gradle task.
 
 ## Core team
 
