@@ -5,16 +5,27 @@ import { HttpClient } from '@angular/common/http';
     providedIn: 'root'
 })
 export class CommentsService {
-    private articlesCommentsEndpint = '/api/articles';
-
+    private articlesCommentsEndpoint = '/api/articles';
 
     constructor(private httpClient: HttpClient) { }
 
     getCommentsForArticle(uuid: string) {
-        return this.httpClient.get(`${this.articlesCommentsEndpint}/${uuid}`);
+        return this.httpClient.get(`${this.articlesCommentsEndpoint}/${uuid}`);
     }
 
-    addComment() {
-        // TODO: Backend not implemented
+    addComment(comment: Comment) {
+        this.httpClient.post(this.articlesCommentsEndpoint, comment);
+    }
+
+    deleteComment(uuid: String) {
+        this.httpClient.delete(`${this.articlesCommentsEndpoint}/${uuid}`);
+    }
+
+    editComment(uuid: String, comment: Comment){
+        this.httpClient.patch(`${this.articlesCommentsEndpoint}/${uuid}`, comment);
+    }
+
+    getCommentContent(uuid: string) {
+      return this.httpClient.get(`${this.articlesCommentsEndpoint}/content/${uuid}`);
     }
 }
