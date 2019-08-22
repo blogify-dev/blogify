@@ -6,3 +6,7 @@ export interface Comment {
     content: string;
     uuid: string;
 }
+
+export interface Content {
+     text: string;
+}
