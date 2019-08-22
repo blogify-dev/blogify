@@ -18,6 +18,7 @@ import java.util.*
  *
  * @property title     The title of the [Article].
  * @property createdAt The time of creation of the [Article], in `UNIX` timestamp format.
+ * @property createdBy The UUID of the [User] author of the article.
  * @property content   The [Content][Article.Content] of the article. Not included in the JSON serialization.
 
  */
@@ -27,7 +28,7 @@ data class Article (
     val createdAt: Long = Date().time,
 
     @JsonIdentityReference(alwaysAsId = true)
-    val createdBy: User = runBlocking { UserService.getAll().toList()[0] } /* VERY TEMPORARY */,
+    val createdBy: UUID,
 
     @JsonProperty(access = WRITE_ONLY)
     val content: Content,
