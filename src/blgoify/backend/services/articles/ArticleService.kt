@@ -30,6 +30,7 @@ object ArticleService : Service<Article> {
             it[uuid]      = res.uuid;
             it[title]     = res.title;
             it[createdAt] = res.createdAt;
+            it[createdBy] = res.createdBy;
         }
         Articles.Content.insert {
             it[text] = res.content.text;
