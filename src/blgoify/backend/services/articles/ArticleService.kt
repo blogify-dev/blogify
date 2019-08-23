@@ -27,14 +27,16 @@ object ArticleService : Service<Article> {
 
     override suspend fun add(res: Article) = booleanReturnQuery {
         Articles.insert {
-            it[uuid]      = res.uuid;
-            it[title]     = res.title;
-            it[createdAt] = res.createdAt;
-            it[createdBy] = res.createdBy;
+            it[uuid]      = res.uuid
+            it[title]     = res.title
+            it[createdAt] = res.createdAt
         }
+
+        val content = res.content()
+
         Articles.Content.insert {
-            it[text] = res.content.text;
-            it[summary] = res.content.summary;
+            it[text]    = content.text
+            it[summary] = content.summary
             it[article] = res.uuid
         }
     }

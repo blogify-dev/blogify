@@ -6,8 +6,8 @@ import blgoify.backend.resources.User
 import blgoify.backend.resources.models.Resource
 import blgoify.backend.services.articles.ArticleService
 import blgoify.backend.services.UserService
-import org.jetbrains.exposed.sql.ReferenceOption
 
+import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.select
@@ -30,16 +30,16 @@ object Articles : ResourceTable<Article>() {
         uuid      = source[uuid],
         title     = source[title],
         createdAt = source[createdAt],
-        createdBy = source[createdBy],
-        content = transaction {
+        createdBy = UserService.get(source[createdBy]) ?: error("no user in db for article ${source[uuid]}"),
+        content   = transaction {
             Content.select { Content.article eq source[uuid] }
         }.mapNotNull { Content.convert(it) }.singleOrNull() ?: error("no content in db for article ${source[uuid]}")
-    /*Article.Content("This is text", "summ") // Temporary. following is the real code*/
     )
 
+    @Suppress("RemoveRedundantQualifierName")
     object Content : Table() {
 
-        val article = uuid ("article").primaryKey().references(uuid, onDelete = ReferenceOption.CASCADE)
+        val article = uuid ("article").primaryKey().references(Articles.uuid, onDelete = ReferenceOption.CASCADE)
         val text    = text ("text")
         val summary = text ("summary")
 

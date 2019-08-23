@@ -5,6 +5,8 @@ import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.util.pipeline.PipelineContext
+import io.ktor.request.ContentTransformationException
+import io.ktor.request.receive
 
 import blgoify.backend.resources.models.Resource
 import blgoify.backend.util.toUUID
@@ -68,13 +70,13 @@ suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
     } ?: call.respond(HttpStatusCode.NotFound)
 }
 
-/* @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
-suspend inline fun <reified R : Resource> CallPipeline.handleSimpleResourceCreation (
+@Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
+suspend inline fun <reified R : Resource> CallPipeline.handleResourceCreation (
     creationFunction: suspend (res: R) -> Boolean
 ) {
     try {
         val rec = call.receive<R>()
-        val res = creationFunction.invoke(rec)
+        val res = creationFunction(rec)
         if (res) {
             call.respond(HttpStatusCode.Created)
         } else {
@@ -83,4 +85,14 @@ suspend inline fun <reified R : Resource> CallPipeline.handleSimpleResourceCreat
     } catch (e: ContentTransformationException) {
         call.respond(HttpStatusCode.BadRequest)
     }
-} // KT-33440 | Doesn't compile when called for now */
+} // KT-33440 | Doesn't compile when lambda called with invoke() for now */
+
+suspend fun <Resource>  CallPipeline.handleResourceDeletion (
+    deletionFunction: suspend (id: UUID) -> Boolean
+) {
+    call.parameters["uuid"]?.let { id ->
+        deletionFunction.invoke(id.toUUID()).takeIf { it }?.let {
+            call.respond(HttpStatusCode.OK)
+        } ?: call.respond(HttpStatusCode.InternalServerError)
+    } ?: call.respond(HttpStatusCode.BadRequest)
+}

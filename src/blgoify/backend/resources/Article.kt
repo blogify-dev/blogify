@@ -1,15 +1,15 @@
 package blgoify.backend.resources
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonProperty.Access.*
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.JsonIdentityReference
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
+import com.fasterxml.jackson.annotation.JsonProperty.Access.*
 
+import blgoify.backend.database.Articles
 import blgoify.backend.resources.models.Resource
-import blgoify.backend.services.UserService
 
-import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.sql.select
 
 import java.util.*
 
@@ -28,7 +28,7 @@ data class Article (
     val createdAt: Long = Date().time,
 
     @JsonIdentityReference(alwaysAsId = true)
-    val createdBy: UUID,
+    val createdBy: User,
 
     @JsonProperty(access = WRITE_ONLY)
     val content: Content,
@@ -43,5 +43,11 @@ data class Article (
      * @property summary The summary of the content.
      */
     data class Content(val text: String, val summary: String)
+
+    suspend fun content(): Content {
+        return Articles.Content.select {
+            Articles.Content.article eq this@Article.uuid
+        }.single().let { Articles.Content.convert(it) }
+    }
 
 }
