@@ -8,11 +8,15 @@ import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
 
-sealed class UsernamePassword
-data class UsernamePasswordCredentials(val username: String, val password: String) : UsernamePassword()
+import blgoify.backend.resources.User
+import blgoify.backend.services.UserService
+
+data class UsernamePasswordCredentials(val username: String, val password: String)
 
 fun Route.auth() {
+
     route("/auth") {
+
         post("/signin") {
             val user = call.receive<UsernamePasswordCredentials>()
             val receivedUser = UserService.getByUsername(user.username)
@@ -21,9 +25,10 @@ fun Route.auth() {
                     call.respond(HttpStatusCode.Accepted)
                 } else {
                     println(it)
-                    call.respond(HttpStatusCode.BadRequest)
+                    call.respond(HttpStatusCode.Forbidden)
                 }
             } ?: call.respond(HttpStatusCode.BadRequest)
+
         }
 
         post("/signup") {
@@ -34,5 +39,7 @@ fun Route.auth() {
                 call.respond(HttpStatusCode.InternalServerError)
             }
         }
+
     }
+
 }
