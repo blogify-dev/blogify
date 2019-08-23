@@ -26,12 +26,6 @@ fun Route.auth() {
             } ?: call.respond(HttpStatusCode.BadRequest)
         }
 
-        get("/{username}") {
-            call.parameters["username"]?.let {
-                call.respond(UserService.getByUsername(it) ?: HttpStatusCode.BadRequest)
-            } ?: call.respond(HttpStatusCode.BadRequest)
-        }
-
         post("/signup") {
             val user = call.receive<User>()
             if (UserService.add(user)) {
