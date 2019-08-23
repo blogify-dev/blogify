@@ -30,8 +30,10 @@ object UserService : Service<User> {
 
     override suspend fun add(res: User) = booleanReturnQuery {
         Users.insert {
-            it[uuid] = res.uuid;
+            it[uuid] = res.uuid
             it[name] = res.name
+            it[username] = res.username
+            it[password] = res.password
         }
     }
 
@@ -43,8 +45,11 @@ object UserService : Service<User> {
         return true
     }
 
-    /*fun getUserByUid(uid: String): User? {
-        return userData.values.find { it.firebaseUid == uid }
-    }*/
+    suspend fun getByUsername(username: String): User? = query {
+        Users.select { Users.username eq username }.map { convert(it) }.single()
+    }
 
+    /*{
+        return User(name= "name", username = username, password = "verystrongpassword6969")
+    }*/
 }

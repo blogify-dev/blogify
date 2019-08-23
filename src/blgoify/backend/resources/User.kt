@@ -4,13 +4,20 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blgoify.backend.resources.models.Resource
-
-import java.util.UUID
+import kotlinx.io.core.toByteArray
+import java.util.*
 
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator::class, property = "uuid")
 data class User (
     val name: String,
-    /* val firebaseUid: String, */
-
+    val username: String,
+    var password: String,
     override val uuid: UUID = UUID.randomUUID()
-) : Resource(uuid)
+) : Resource(uuid) {
+    fun hashPassword(): User {
+        // TODO: Actually hash this. Using base64 for now
+        val user = this
+        user.password = Base64.getEncoder().encodeToString(this.password.toByteArray())
+        return user
+    }
+}

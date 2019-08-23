@@ -14,6 +14,7 @@ import blgoify.backend.database.Database
 import blgoify.backend.database.Articles
 import blgoify.backend.database.Comments
 import blgoify.backend.database.Users
+import blgoify.backend.routes.auth
 import blgoify.backend.util.query
 
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -60,6 +61,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         route("/api") {
             articles()
             users()
+            auth()
         }
     }
 }
