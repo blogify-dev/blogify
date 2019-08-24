@@ -53,6 +53,10 @@ dependencies {
     // Ktor test
 
     testCompile("io.ktor:ktor-server-tests:$ktor_version")
+
+    // Kolor
+
+    compile("com.andreapivetta.kolor:kolor:0.0.2")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
