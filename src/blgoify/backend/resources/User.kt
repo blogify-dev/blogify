@@ -7,7 +7,12 @@ import blgoify.backend.resources.models.Resource
 
 import java.util.UUID
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator::class, property = "uuid")
+@JsonIdentityInfo (
+    scope     = User::class,
+    resolver  = Resource.ObjectResolver::class,
+    generator = ObjectIdGenerators.PropertyGenerator::class,
+    property  = "uuid"
+)
 data class User (
     val name: String,
     /* val firebaseUid: String, */

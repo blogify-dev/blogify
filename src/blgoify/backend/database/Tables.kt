@@ -32,8 +32,8 @@ object Articles : ResourceTable<Article>() {
         createdAt = source[createdAt],
         createdBy = UserService.get(source[createdBy]) ?: error("no user in db for article ${source[uuid]}"),
         content   = transaction {
-            Content.select { Content.article eq source[uuid] }
-        }.mapNotNull { Content.convert(it) }.singleOrNull() ?: error("no content in db for article ${source[uuid]}")
+            Content.select { Content.article eq source[uuid] }.singleOrNull()
+        }?.let { Content.convert(it) } ?: error("no or multiple content in db for article ${source[uuid]}")
     )
 
     @Suppress("RemoveRedundantQualifierName")
