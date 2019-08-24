@@ -8,6 +8,12 @@ Blogify uses `Ktor` on the backend and `Angular` on the frontend.
 
 It uses `PostgreSQL` as a databse.
 
+## Performance
+
+Due to the current age of the project, performance and optimization are not a significant focus.
+
+Currently, our own (very basic) testing shows that the server can handle upwards of 3,000 requests/sec. after warm-up on a listing endpoint.
+
 ## Building and deploying
 
 The default deploy configuration runs the backend and the databse as `docker-compose` services. A functioning, local, test deployment can be achieved by running the `localTestDeploy` gradle task.
@@ -25,6 +31,12 @@ The default deploy configuration runs the backend and the databse as `docker-com
 ### Database
 - Stan Lyakhov
 
+## Disclaimer
+
+This project is in a very early, pre-alpha stage.
+
+Any versions indicated in the startup message starting with `PRX` are not safe to use, not tested and are not guranteed to retain data safely.
+
 ## Contributing
 
-We accpet and enjoy pull requests :)
+We accept pull requests :)
