@@ -6,6 +6,7 @@ val logback_version:   String by project
 val pg_driver_version: String by project
 val exposed_version:   String by project
 val hikari_version:    String by project
+val spring_security_core: String by project
 
 plugins {
     application
@@ -49,6 +50,10 @@ dependencies {
     compile("org.postgresql:postgresql:$pg_driver_version")
     compile("org.jetbrains.exposed:exposed:$exposed_version")
     compile("com.zaxxer:HikariCP:$hikari_version")
+
+    // Spring security for hashing
+
+    compile("org.springframework.security:spring-security-core:$spring_security_core")
 
     // Ktor test
 
