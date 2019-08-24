@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access.*
 
 import blgoify.backend.database.Articles
 import blgoify.backend.resources.models.Resource
+import blgoify.backend.util.query
 
 import org.jetbrains.exposed.sql.select
 
@@ -48,8 +49,8 @@ data class Article (
      */
     data class Content(val text: String, val summary: String)
 
-    suspend fun content(): Content {
-        return Articles.Content.select {
+    suspend fun content(): Content = query {
+        Articles.Content.select {
             Articles.Content.article eq this@Article.uuid
         }.single().let { Articles.Content.convert(it) }
     }
