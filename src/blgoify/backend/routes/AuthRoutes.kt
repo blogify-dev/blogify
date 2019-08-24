@@ -46,7 +46,7 @@ fun Route.auth() {
             call.parameters["token"]?.let { token ->
                 val user = tokenToUsers.filter { it.value == token }.keys.singleOrNull() ?: error("user not found")
                 call.respond(
-                    UserService.get(user.toUUID())?.applyToken(token) ?: HttpStatusCode.BadRequest
+                    UserService.get(user.toUUID())?.applyToken(token)?.hidePassword() ?: HttpStatusCode.BadRequest
                 )
             } ?: call.respond(HttpStatusCode.BadRequest)
         }

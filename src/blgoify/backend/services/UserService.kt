@@ -15,11 +15,6 @@ import java.util.*
 
 object UserService : Service<User> {
 
-    /*private val userData = mutableSetOf(
-        User(name = "Shrek"),
-        User(name = "Keanu Reeves")
-    ).associateBy { it.uuid }.toMutableMap()*/
-
     override suspend fun getAll(): Set<User> = query {
         Users.selectAll().toSet().map { convert(it) }
     }.toSet()
@@ -48,8 +43,4 @@ object UserService : Service<User> {
     suspend fun getByUsername(username: String): User? = query {
         Users.select { Users.username eq username }.map { convert(it) }.single()
     }
-
-    /*{
-        return User(name= "name", username = username, password = "verystrongpassword6969")
-    }*/
 }
