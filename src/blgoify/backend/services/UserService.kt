@@ -21,12 +21,12 @@ object UserService : Service<User> {
     ).associateBy { it.uuid }.toMutableMap()*/
 
     override suspend fun getAll(): Set<User> = query {
-        Users.selectAll().toSet().map { convert(it) }
-    }.toSet()
+        Users.selectAll().toSet()
+    }.map { convert(it) }.toSet()
 
     override suspend fun get(id: UUID): User? = query {
-        Users.select { Users.uuid eq id }.map { convert(it) }.single()
-    }
+        Users.select { Users.uuid eq id }.singleOrNull()
+    }?.let { convert(it) }
 
     override suspend fun add(res: User) = booleanReturnQuery {
         Users.insert {
