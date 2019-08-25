@@ -1,8 +1,12 @@
 package blgoify.backend.routes
 
+import blgoify.backend.auth.encoder
 import blgoify.backend.resources.User
 import blgoify.backend.services.UserService
-import blgoify.backend.util.toUUID
+import blgoify.backend.util.hash
+import blgoify.backend.util.letIn
+import blgoify.backend.util.singleOrNullOrError
+
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
@@ -11,55 +15,94 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import java.util.*
-import kotlin.concurrent.schedule
+import java.util.Base64
+import kotlin.random.Random
 
 /**
  * Model for login credentials
  */
-data class UsernamePasswordCredentials(val username: String, val password: String)
+data class UsernamePasswordCredentials(val username: String, val password: String) {
+
+    /**
+     * Checks the [credentials][UsernamePasswordCredentials] against a [user][User].
+     *
+     * @param user the user to check the credentials against
+     *
+     * @return `true` if the [credentials][UsernamePasswordCredentials] match
+     */
+    fun matchFor(user: User): Boolean {
+        return (username == user.username && encoder.matches(password, user.password))
+    }
+
+    /**
+     * Creates a [user][User] from the [credentials][UsernamePasswordCredentials].
+     */
+    suspend fun createUser(): User {
+        return User (
+            name     = this.username,
+            username = this.username,
+            password = this.password.hash()
+        )
+            .also { created ->
+                if (!UserService.add(created)) {
+                    error("signup couldn't create user")
+                }
+                return created
+            }
+    }
+
+}
 
 fun Route.auth() {
-    val tokenToUsers = mutableMapOf<String, String?>()
-    route("/auth") {
-        post("/signin") {
-            val user = call.receive<UsernamePasswordCredentials>()
-            val receivedUser = UserService.getByUsername(user.username)
-            receivedUser?.let {
-                if (it.username == user.username &&
-                    BCryptPasswordEncoder(12).matches(user.password, it.password)
-                ) {
 
-                    val tokenedUser = it.applyToken("token")
-                    tokenToUsers[it.uuid.toString()] = tokenedUser.temporaryToken
-                    Timer().schedule(100000L) { tokenToUsers.remove(it.uuid.toString()) }
-                    call.respond(tokenedUser.hidePassword())
+    val validTokens = mutableMapOf<String, String>()
+
+    route("/auth") {
+
+        post("/signin") {
+
+            val credentials     = call.receive<UsernamePasswordCredentials>()
+            val credentialsUser = UserService.getMatching { it.username == credentials.username }.singleOrNullOrError()
+
+            credentialsUser?.let { user ->
+
+                if (credentials.matchFor(user)) {
+                    val token = Base64
+                        .getUrlEncoder() // Generate token
+                        .withoutPadding()
+                        .encodeToString(Random.Default.nextBytes(64))
+
+                    validTokens[user.uuid.toString()] = token
+                    validTokens.letIn(3600 * 1000L) { it.remove(user.uuid.toString()) }
+
+                    call.respond(token)
                 } else {
-                    call.respond(HttpStatusCode.Forbidden)
+                    call.respond(HttpStatusCode.Forbidden) // Password doesn't match
                 }
-            } ?: call.respond(HttpStatusCode.BadRequest)
+
+            } ?: call.respond(HttpStatusCode.NotFound)
+
         }
 
         get("/{token}") {
             // TODO: Change this param to header
             call.parameters["token"]?.let { token ->
-                val user = tokenToUsers.filter { it.value == token }.keys.singleOrNull() ?: error("user not found")
-                call.respond(
-                    UserService.get(user.toUUID())?.applyToken(token)?.hidePassword() ?: HttpStatusCode.BadRequest
-                )
+
+                val user = validTokens
+                    .filter { it.value == token } // Check for user with token
+                    .keys.singleOrNullOrError() ?: error("user not found")
+
+                // User is found and only exists once
+
+                call.respond(user)
             } ?: call.respond(HttpStatusCode.BadRequest)
         }
 
         post("/signup") {
-            val user = call.receive<User>()
-            val hashedUser = user.hashPassword()
-            println("signup -> $hashedUser")
-            if (UserService.add(hashedUser)) {
-                call.respond(HttpStatusCode.Created)
-            } else {
-                call.respond(HttpStatusCode.InternalServerError)
-            }
+            val credentials = call.receive<UsernamePasswordCredentials>()
+            val createdUser = credentials.createUser()
+            call.respond(createdUser)
         }
+
     }
 }

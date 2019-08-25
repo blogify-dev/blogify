@@ -40,7 +40,4 @@ object UserService : Service<User> {
         return true
     }
 
-    suspend fun getByUsername(username: String): User? = query {
-        Users.select { Users.username eq username }.map { convert(it) }.single()
-    }
 }

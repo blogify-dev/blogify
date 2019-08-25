@@ -6,8 +6,8 @@ import blgoify.backend.resources.User
 import blgoify.backend.resources.models.Resource
 import blgoify.backend.services.articles.ArticleService
 import blgoify.backend.services.UserService
-import org.jetbrains.exposed.sql.ReferenceOption
 
+import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.select
@@ -55,10 +55,14 @@ object Articles : ResourceTable<Article>() {
 
 object Users : ResourceTable<User>() {
 
-    val uuid = uuid    ("uuid").primaryKey()
-    val name = varchar ("name", 255)
-    val username = varchar("username", 255)
-    val password = varchar("password", 255)
+    val uuid =     uuid    ("uuid").primaryKey()
+    val name =     varchar ("name", 255)
+    val username = varchar ("username", 255)
+    val password = varchar ("password", 255)
+
+    init {
+        index(true, username)
+    }
 
     override suspend fun convert(source: ResultRow) = User (
         uuid = source[uuid],
