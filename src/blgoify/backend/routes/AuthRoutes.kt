@@ -15,7 +15,9 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+
 import java.util.Base64
+
 import kotlin.random.Random
 
 /**
@@ -39,7 +41,7 @@ data class UsernamePasswordCredentials(val username: String, val password: Strin
      */
     suspend fun createUser(): User {
         return User (
-            name     = this.username,
+            name = this.username,
             username = this.username,
             password = this.password.hash()
         )
@@ -53,7 +55,7 @@ data class UsernamePasswordCredentials(val username: String, val password: Strin
 
 }
 
-val validTokens = mutableMapOf<String, String>()
+val validTokens = mutableMapOf<User, String>()
 
 fun Route.auth() {
 
@@ -72,8 +74,8 @@ fun Route.auth() {
                         .withoutPadding()
                         .encodeToString(Random.Default.nextBytes(64))
 
-                    validTokens[user.uuid.toString()] = token
-                    validTokens.letIn(3600 * 1000L) { it.remove(user.uuid.toString()) }
+                    validTokens[user] = token
+                    validTokens.letIn(3600 * 1000L) { it.remove(user) }
 
                     call.respond(token)
                 } else {

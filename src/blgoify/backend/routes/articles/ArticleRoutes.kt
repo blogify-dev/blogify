@@ -7,8 +7,8 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 
 import blgoify.backend.resources.Article
-import blgoify.backend.routes.handling.auth.authenticatedBy
-import blgoify.backend.routes.handling.auth.isUser
+import blgoify.backend.auth.predicates.authenticatedBy
+import blgoify.backend.auth.predicates.isUser
 import blgoify.backend.routes.handling.handleResourceFetchAll
 import blgoify.backend.services.articles.ArticleService
 import blgoify.backend.routes.handling.handleResourceFetch
