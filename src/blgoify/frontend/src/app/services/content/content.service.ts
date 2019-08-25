@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class ContentService {
-  private contentEndpoint = '/api/content';
+  private contentEndpoint = '/articles/content';
 
   constructor(private httpClient: HttpClient) {
   }
