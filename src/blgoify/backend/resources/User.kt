@@ -2,10 +2,11 @@ package blgoify.backend.resources
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
+import com.fasterxml.jackson.annotation.JsonIgnore
 
 import blgoify.backend.resources.models.Resource
 
-import java.util.UUID
+import java.util.*
 
 @JsonIdentityInfo (
     scope     = User::class,
@@ -14,8 +15,10 @@ import java.util.UUID
     property  = "uuid"
 )
 data class User (
-    val name: String,
-    /* val firebaseUid: String, */
+    val name:     String,
+    val username: String,
+
+    @JsonIgnore var password: String, // DO NOT EVER REMOVE THIS ANNOTATION !
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid)

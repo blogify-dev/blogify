@@ -10,6 +10,8 @@ interface Service<R : Resource> {
 
     suspend fun get(id: UUID): R?
 
+    suspend fun getMatching(predicate: (R) -> Boolean): Set<R> = getAll().filter(predicate).toSet()
+
     suspend fun add(res: R): Boolean
 
     suspend fun remove(id: UUID): Boolean

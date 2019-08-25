@@ -1,9 +1,5 @@
 package blgoify.backend
 
-import com.fasterxml.jackson.databind.SerializationFeature
-
-import com.andreapivetta.kolor.cyan
-
 import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.auth.Authentication
@@ -13,15 +9,22 @@ import io.ktor.jackson.jackson
 import io.ktor.routing.route
 import io.ktor.routing.routing
 
-import blgoify.backend.database.Articles
-import blgoify.backend.database.Comments
-import blgoify.backend.database.Database
-import blgoify.backend.database.Users
+import com.andreapivetta.kolor.cyan
+
+import com.fasterxml.jackson.databind.*
+
 import blgoify.backend.routes.articles.articles
 import blgoify.backend.routes.users
+import blgoify.backend.database.Database
+import blgoify.backend.database.Articles
+import blgoify.backend.database.Comments
+import blgoify.backend.database.Users
+import blgoify.backend.routes.auth
 import blgoify.backend.util.query
 
 import org.jetbrains.exposed.sql.SchemaUtils
+
+import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
 
@@ -62,7 +65,6 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     }
 
     // Initialize database
-    //test
 
     Database.init()
 
@@ -79,6 +81,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         route("/api") {
             articles()
             users()
+            auth()
         }
     }
 }

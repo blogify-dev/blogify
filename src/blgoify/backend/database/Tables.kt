@@ -55,12 +55,20 @@ object Articles : ResourceTable<Article>() {
 
 object Users : ResourceTable<User>() {
 
-    val uuid = uuid    ("uuid").primaryKey()
-    val name = varchar ("name", 255)
+    val uuid =     uuid    ("uuid").primaryKey()
+    val name =     varchar ("name", 255)
+    val username = varchar ("username", 255)
+    val password = varchar ("password", 255)
+
+    init {
+        index(true, username)
+    }
 
     override suspend fun convert(source: ResultRow) = User (
         uuid = source[uuid],
-        name = source[name]
+        name = source[name],
+        username = source[username],
+        password = source[password]
     )
 
 }
