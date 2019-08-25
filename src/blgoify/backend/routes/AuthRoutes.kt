@@ -53,9 +53,9 @@ data class UsernamePasswordCredentials(val username: String, val password: Strin
 
 }
 
-fun Route.auth() {
+val validTokens = mutableMapOf<String, String>()
 
-    val validTokens = mutableMapOf<String, String>()
+fun Route.auth() {
 
     route("/auth") {
 

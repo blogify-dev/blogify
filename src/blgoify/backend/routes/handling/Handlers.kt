@@ -9,7 +9,9 @@ import io.ktor.request.ContentTransformationException
 import io.ktor.request.receive
 
 import blgoify.backend.resources.models.Resource
+import blgoify.backend.util.BlogifyDsl
 import blgoify.backend.util.toUUID
+import io.ktor.util.pipeline.PipelineInterceptor
 
 import java.util.UUID
 
@@ -19,12 +21,19 @@ import java.util.UUID
 typealias CallPipeline = PipelineContext<Unit, ApplicationCall>
 
 /**
+ * Represents a server call handler function.
+ */
+
+typealias CallPipeLineFunction = PipelineInterceptor<Unit, ApplicationCall>
+
+/**
  * Adds a handler to a [CallPipeline] that handles fetching a resource.
  *
  * @param R         the type of [Resource] to be fetched
  * @param fetch     the [function][Function] that retrieves the resource
  * @param transform a transformation [function][Function] that transforms the [resource][Resource] before sending it back to the client
  */
+@BlogifyDsl
 suspend fun <R : Resource> CallPipeline.handleResourceFetch (
     fetch:     suspend (id: UUID)   -> R?,
     transform: suspend (fetched: R) -> Any = { it }
@@ -43,6 +52,7 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetch (
  * @param fetch     the [function][Function] that retrieves the resources
  * @param transform a transformation [function][Function] that transforms the [resources][Resource] before sending them back to the client
  */
+@BlogifyDsl
 suspend fun <R : Resource> CallPipeline.handleResourceFetchAll (
     fetch:     suspend ()        -> Collection<R>,
     transform: suspend (elem: R) -> Any = { it }
@@ -59,6 +69,7 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetchAll (
  * @param fetch     the [function][Function] that retrieves the resources using the [ID][UUID] of another resource
  * @param transform a transformation [function][Function] that transforms the [resources][Resource] before sending them back to the client
  */
+@BlogifyDsl
 suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
     fetch:     suspend (id: UUID) -> Collection<R>,
     transform: suspend (elem: R)  -> Any = { it }
@@ -71,6 +82,7 @@ suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
 }
 
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
+@BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.handleResourceCreation (
     creationFunction: suspend (res: R) -> Boolean
 ) {

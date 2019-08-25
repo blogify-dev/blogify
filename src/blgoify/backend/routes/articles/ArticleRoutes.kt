@@ -7,11 +7,14 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 
 import blgoify.backend.resources.Article
+import blgoify.backend.routes.handling.auth.authenticatedBy
+import blgoify.backend.routes.handling.auth.isUser
 import blgoify.backend.routes.handling.handleResourceFetchAll
 import blgoify.backend.services.articles.ArticleService
 import blgoify.backend.routes.handling.handleResourceFetch
 import blgoify.backend.routes.handling.handleResourceCreation
 import blgoify.backend.routes.handling.handleResourceDeletion
+import blgoify.backend.services.UserService
 import blgoify.backend.util.toUUID
 
 fun Route.articles() {
@@ -26,9 +29,9 @@ fun Route.articles() {
             handleResourceFetch(ArticleService::get)
         }
 
-        post("/") {
+        post("/") { authenticatedBy(predicate = isUser(UserService.getAll().toList()[0])) {
             handleResourceCreation(ArticleService::add)
-        }
+        }}
 
         delete("/{uuid}") {
             handleResourceDeletion<Article>(ArticleService::remove)
