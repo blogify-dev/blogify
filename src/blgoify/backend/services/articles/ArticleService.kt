@@ -18,23 +18,26 @@ import java.util.UUID
 object ArticleService : Service<Article> {
 
     override suspend fun getAll(): Set<Article> = query {
-        Articles.selectAll().map { convert(it) }
-    }.toSet()
+        Articles.selectAll().toSet()
+    }.map { convert(it) }.toSet()
 
     override suspend fun get(id: UUID): Article? = query {
-        Articles.select { uuid eq id }.mapNotNull { convert(it) }.single()
-    }
+        Articles.select { uuid eq id }.singleOrNull()
+    }?.let { convert(it) }
 
     override suspend fun add(res: Article) = booleanReturnQuery {
         Articles.insert {
-            it[uuid]      = res.uuid;
-            it[title]     = res.title;
-            it[createdAt] = res.createdAt;
-            it[createdBy] = res.createdBy;
+            it[uuid]      = res.uuid
+            it[title]     = res.title
+            it[createdAt] = res.createdAt
+            it[createdBy] = res.createdBy.uuid
         }
+
+        val content = res.content ?: error("content not captured on article serialize")
+
         Articles.Content.insert {
-            it[text] = res.content.text;
-            it[summary] = res.content.summary;
+            it[text]    = content.text
+            it[summary] = content.summary
             it[article] = res.uuid
         }
     }

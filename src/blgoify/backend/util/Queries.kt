@@ -30,5 +30,5 @@ suspend fun <T> query(block: suspend () -> T): T = withContext(Dispatchers.IO) {
 @Suppress("unused")
 suspend fun <T> booleanReturnQuery(block: suspend () -> T): Boolean {
     return try { query(block); true }
-    catch(e: Exception) { e.printStackTrace(); false }
+           catch(e: Exception) { e.printStackTrace(); false }
 }

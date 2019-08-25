@@ -10,10 +10,7 @@ import io.ktor.routing.route
 import blgoify.backend.resources.User
 import blgoify.backend.services.UserService
 import blgoify.backend.routes.handling.handleResourceFetch
-
-import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
-
+import blgoify.backend.routes.handling.handleResourceCreation
 /**
  * Defines the API routes for interacting with [users][User].
  */
@@ -36,19 +33,7 @@ fun Route.users() {
         // POST a new user
 
         post("/") {
-            /* handleSimpleResourceCreation<User> { UserService.add(it) }
-               Doesn't work for now */
-            val res: User
-
-            try {
-                res = call.receive<User>()
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.InternalServerError)
-                e.printStackTrace()
-                return@post
-            }
-
-            call.respond(if (UserService.add(res)) HttpStatusCode.Created else HttpStatusCode.InternalServerError)
+            handleResourceCreation(UserService::add)
         }
 
     }

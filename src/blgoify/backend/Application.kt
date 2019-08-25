@@ -1,10 +1,15 @@
 package blgoify.backend
 
-import io.ktor.application.*
-import io.ktor.routing.*
-import io.ktor.auth.*
-import io.ktor.jackson.*
-import io.ktor.features.*
+import io.ktor.application.Application
+import io.ktor.application.install
+import io.ktor.auth.Authentication
+import io.ktor.features.CallLogging
+import io.ktor.features.ContentNegotiation
+import io.ktor.jackson.jackson
+import io.ktor.routing.route
+import io.ktor.routing.routing
+
+import com.andreapivetta.kolor.cyan
 
 import com.fasterxml.jackson.databind.*
 
@@ -14,6 +19,7 @@ import blgoify.backend.database.Database
 import blgoify.backend.database.Articles
 import blgoify.backend.database.Comments
 import blgoify.backend.database.Users
+import blgoify.backend.routes.auth
 import blgoify.backend.util.query
 
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -22,11 +28,27 @@ import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
 
+import kotlinx.coroutines.runBlocking
+
+const val version = "PRX1"
+
+const val asciiLogo = """
+    __     __               _  ____      
+   / /_   / /____   ____ _ (_)/ __/__  __
+  / __ \ / // __ \ / __ `// // /_ / / / /
+ / /_/ // // /_/ // /_/ // // __// /_/ / 
+/_.___//_/ \____/ \__, //_//_/   \__, /  
+                 /____/         /____/  
+---- Version $version - Development build -
+"""
+
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
+
+    println(asciiLogo.cyan())
 
     install(Authentication) {
 
@@ -43,7 +65,6 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     }
 
     // Initialize database
-    //test
 
     Database.init()
 
@@ -60,6 +81,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         route("/api") {
             articles()
             users()
+            auth()
         }
     }
 }

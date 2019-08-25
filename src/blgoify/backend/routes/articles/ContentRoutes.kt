@@ -12,7 +12,7 @@ fun Route.articleContent() {
     route("/content/") {
 
         get("/{uuid}") {
-            handleResourceFetch(ArticleService::get, transform = { it.content })
+            handleResourceFetch(ArticleService::get, transform = { it.content() })
         }
 
     }

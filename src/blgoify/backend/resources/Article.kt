@@ -1,15 +1,16 @@
 package blgoify.backend.resources
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonProperty.Access.*
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.JsonIdentityReference
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
+import com.fasterxml.jackson.annotation.JsonProperty.Access.*
 
+import blgoify.backend.database.Articles
 import blgoify.backend.resources.models.Resource
-import blgoify.backend.services.UserService
+import blgoify.backend.util.query
 
-import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.sql.select
 
 import java.util.*
 
@@ -22,16 +23,20 @@ import java.util.*
  * @property content   The [Content][Article.Content] of the article. Not included in the JSON serialization.
 
  */
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator::class, property = "uuid")
+@JsonIdentityInfo (
+    resolver  = Resource.ObjectResolver::class,
+    generator = ObjectIdGenerators.PropertyGenerator::class,
+    property  = "uuid"
+)
 data class Article (
     val title:     String,
     val createdAt: Long = Date().time,
 
     @JsonIdentityReference(alwaysAsId = true)
-    val createdBy: UUID,
+    val createdBy: User,
 
     @JsonProperty(access = WRITE_ONLY)
-    val content: Content,
+    val content: Content?,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid) {
@@ -43,5 +48,11 @@ data class Article (
      * @property summary The summary of the content.
      */
     data class Content(val text: String, val summary: String)
+
+    suspend fun content(): Content = query {
+        Articles.Content.select {
+            Articles.Content.article eq this@Article.uuid
+        }.single().let { Articles.Content.convert(it) }
+    }
 
 }

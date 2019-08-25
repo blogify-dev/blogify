@@ -6,6 +6,7 @@ val logback_version:   String by project
 val pg_driver_version: String by project
 val exposed_version:   String by project
 val hikari_version:    String by project
+val spring_security_core_version: String by project
 
 plugins {
     application
@@ -50,9 +51,17 @@ dependencies {
     compile("org.jetbrains.exposed:exposed:$exposed_version")
     compile("com.zaxxer:HikariCP:$hikari_version")
 
+    // Spring security for hashing
+
+    compile("org.springframework.security:spring-security-core:$spring_security_core_version")
+
     // Ktor test
 
     testCompile("io.ktor:ktor-server-tests:$ktor_version")
+
+    // Kolor
+
+    compile("com.andreapivetta.kolor:kolor:0.0.2")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
