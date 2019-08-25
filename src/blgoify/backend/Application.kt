@@ -30,7 +30,7 @@ import org.slf4j.event.Level
 
 import kotlinx.coroutines.runBlocking
 
-const val version = "PRX0"
+const val version = "PRX1"
 
 const val asciiLogo = """
     __     __               _  ____      
