@@ -6,6 +6,7 @@ import blgoify.backend.resources.User
 import blgoify.backend.resources.models.Resource
 import blgoify.backend.services.articles.ArticleService
 import blgoify.backend.services.UserService
+import blgoify.backend.util.encodeToSet
 
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
@@ -25,12 +26,14 @@ object Articles : ResourceTable<Article>() {
     val title     = varchar ("title", 512)
     val createdAt = long    ("created_at")
     val createdBy = uuid    ("created_by").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
+    val categories = varchar("categories", 512)
 
     override suspend fun convert(source: ResultRow) = Article (
         uuid      = source[uuid],
         title     = source[title],
         createdAt = source[createdAt],
         createdBy = UserService.get(source[createdBy]) ?: error("no user in db for article ${source[uuid]}"),
+        categories = source[categories].encodeToSet(),
         content   = transaction {
             Content.select { Content.article eq source[uuid] }.singleOrNull()
         }?.let { Content.convert(it) } ?: error("no or multiple content in db for article ${source[uuid]}")

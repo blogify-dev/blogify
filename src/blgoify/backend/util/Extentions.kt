@@ -17,3 +17,8 @@ fun String.hash(): String = encoder.encode(this)
 fun <T> T.letIn(time: Long, block: TimerTask.(T) -> Unit) {
     Timer().schedule(time) { block(this@letIn); this.cancel() }
 }
+
+/**
+ * Encodes `,` separated list of categories provided by client to [Set]
+ */
+fun String.encodeToSet(): Set<String> = this.split(",").toSet()

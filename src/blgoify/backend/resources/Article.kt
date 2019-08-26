@@ -23,13 +23,13 @@ import java.util.*
  * @property content   The [Content][Article.Content] of the article. Not included in the JSON serialization.
 
  */
-@JsonIdentityInfo (
-    resolver  = Resource.ObjectResolver::class,
+@JsonIdentityInfo(
+    resolver = Resource.ObjectResolver::class,
     generator = ObjectIdGenerators.PropertyGenerator::class,
-    property  = "uuid"
+    property = "uuid"
 )
-data class Article (
-    val title:     String,
+data class Article(
+    val title: String,
     val createdAt: Long = Date().time,
 
     @JsonIdentityReference(alwaysAsId = true)
@@ -37,7 +37,7 @@ data class Article (
 
     @JsonProperty(access = WRITE_ONLY)
     val content: Content?,
-
+    val categories: Set<String>,
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid) {
 
