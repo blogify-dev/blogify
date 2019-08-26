@@ -1,6 +1,7 @@
 package blgoify.backend.routes
 
 import blgoify.backend.auth.encoder
+import blgoify.backend.database.Users
 import blgoify.backend.resources.User
 import blgoify.backend.services.UserService
 import blgoify.backend.util.hash
@@ -37,8 +38,7 @@ data class UsernamePasswordCredentials(val username: String, val password: Strin
     /**
      * Creates a [user][User] from the [credentials][UsernamePasswordCredentials].
      */
-    suspend fun createUser(): User {
-        return User (
+    suspend fun createUser(): User = User (
             name     = this.username,
             username = this.username,
             password = this.password.hash()
@@ -49,7 +49,7 @@ data class UsernamePasswordCredentials(val username: String, val password: Strin
                 }
                 return created
             }
-    }
+
 
 }
 
@@ -62,7 +62,7 @@ fun Route.auth() {
         post("/signin") {
 
             val credentials     = call.receive<UsernamePasswordCredentials>()
-            val credentialsUser = UserService.getMatching { it.username == credentials.username }.singleOrNullOrError()
+            val credentialsUser = UserService.getMatching(Users) { Users.username eq credentials.username }.singleOrNullOrError()
 
             credentialsUser?.let { user ->
 
