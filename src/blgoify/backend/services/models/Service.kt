@@ -3,6 +3,7 @@ package blgoify.backend.services.models
 import blgoify.backend.database.ResourceTable
 import blgoify.backend.resources.models.Resource
 import blgoify.backend.util.query
+
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.select
