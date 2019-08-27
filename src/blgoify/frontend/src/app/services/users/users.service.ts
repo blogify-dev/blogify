@@ -5,16 +5,16 @@ import { HttpClient } from '@angular/common/http';
     providedIn: 'root'
 })
 export class UsersService {
-    private usersEndpint = '/api/users';
+    private usersEndpoint = '/api/users';
 
     constructor(private httpClient: HttpClient) { }
 
     getUser(uuid: string) {
-        return this.httpClient.get(`${this.usersEndpint}/user/${uuid}`);
+        return this.httpClient.get(`${this.usersEndpoint}/user/${uuid}`);
     }
 
     /* Temporary */
     getAllUsers() {
-        return this.httpClient.get(this.usersEndpint);
+        return this.httpClient.get(this.usersEndpoint);
     }
 }

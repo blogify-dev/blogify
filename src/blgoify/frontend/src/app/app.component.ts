@@ -1,9 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { ArticleService } from './services/articles/article.service';
 import { UsersService } from './services/users/users.service';
 import { CommentsService } from './services/comments/comments.service';
-import {ContentService} from "./services/content/content.service";
+import { ContentService } from "./services/content/content.service";
 
 @Component({
     selector: 'app-root',
@@ -54,7 +54,7 @@ export class AppComponent implements OnInit{
     }
 
     async getUsers() {
-        this.users = await this.usersService.getAllUsers();
+        this.users = await this.usersService.getAllUsers().toPromise();
         console.log(this.users);
     }
 
