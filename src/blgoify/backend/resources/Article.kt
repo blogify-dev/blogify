@@ -24,6 +24,7 @@ import java.util.*
 
  */
 @JsonIdentityInfo(
+    scope = Article::class,
     resolver = Resource.ObjectResolver::class,
     generator = ObjectIdGenerators.PropertyGenerator::class,
     property = "uuid"

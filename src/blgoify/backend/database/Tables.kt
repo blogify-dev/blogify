@@ -6,6 +6,7 @@ import blgoify.backend.resources.User
 import blgoify.backend.resources.models.Resource
 import blgoify.backend.services.articles.ArticleService
 import blgoify.backend.services.UserService
+import blgoify.backend.services.articles.CommentService
 import blgoify.backend.util.encodeToSet
 
 import org.jetbrains.exposed.sql.ReferenceOption
@@ -82,12 +83,14 @@ object Comments : ResourceTable<Comment>() {
     val commenter = uuid ("commenter").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
     val article   = uuid ("article").references(Articles.uuid, onDelete = ReferenceOption.NO_ACTION)
     val content   = text ("content")
+    val parentComment = uuid("parent_comment").nullable()
 
     override suspend fun convert(source: ResultRow) = Comment (
         uuid      = source[uuid],
         content   = source[content],
         article   = ArticleService.get(source[article]) ?: error("article not found on comment retrieve from db"),
-        commenter = UserService.get(source[commenter])  ?: error("user not found on comment retrieve from db")
+        commenter = UserService.get(source[commenter])  ?: error("user not found on comment retrieve from db"),
+        parentComment = source[parentComment]?.let { CommentService.get(it) }
     )
 
 }

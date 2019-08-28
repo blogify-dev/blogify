@@ -6,7 +6,9 @@ import blgoify.backend.util.query
 import blgoify.backend.database.Comments.convert
 import blgoify.backend.database.Articles
 import blgoify.backend.database.Comments
+import blgoify.backend.database.Comments.uuid
 import blgoify.backend.util.booleanReturnQuery
+import org.jetbrains.exposed.sql.deleteWhere
 
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
@@ -21,20 +23,21 @@ object CommentService : Service<Comment> {
     }.map { convert(it) }.toSet()
 
     override suspend fun get(id: UUID): Comment? = query {
-        Comments.select { Articles.uuid eq id }.singleOrNull()
+        Comments.select { uuid eq id }.singleOrNull()
     }?.let { convert(it) }
 
     override suspend fun add(res: Comment) = booleanReturnQuery {
         Comments.insert {
-            it[uuid]      = res.uuid;
-            it[commenter] = res.commenter.uuid;
-            it[article]   = res.article.uuid;
-            it[content]   = res.content;
+            it[uuid]      = res.uuid
+            it[commenter] = res.commenter.uuid
+            it[article]   = res.article.uuid
+            it[content]   = res.content
+            it[parentComment] = res.parentComment?.uuid
         }
     }
 
-    override suspend fun remove(id: UUID): Boolean {
-        return true
+    override suspend fun remove(id: UUID): Boolean = booleanReturnQuery {
+        Comments.deleteWhere { uuid eq id }
     }
 
     override suspend fun update(res: Comment): Boolean {
