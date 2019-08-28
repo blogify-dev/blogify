@@ -1,11 +1,12 @@
 package blgoify.backend.routes.articles
 
-import blgoify.backend.resources.Comment
+import blgoify.backend.database.Comments
 import blgoify.backend.routes.handling.handleIdentifiedResourceFetchAll
 import blgoify.backend.routes.handling.handleResourceCreation
 import blgoify.backend.routes.handling.handleResourceDeletion
 import blgoify.backend.routes.handling.handleResourceFetchAll
 import blgoify.backend.services.articles.CommentService
+
 import io.ktor.routing.*
 
 fun Route.articleComments() {
@@ -17,7 +18,9 @@ fun Route.articleComments() {
         }
 
         get("/{uuid}") {
-            handleIdentifiedResourceFetchAll(CommentService::getForArticle)
+            handleIdentifiedResourceFetchAll(fetch = {
+                CommentService.getMatching(Comments) { Comments.article eq it }
+            })
         }
 
         post {
