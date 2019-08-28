@@ -69,8 +69,8 @@ object Users : ResourceTable<User>() {
     }
 
     override suspend fun convert(source: ResultRow) = User (
-        uuid = source[uuid],
-        name = source[name],
+        uuid     = source[uuid],
+        name     = source[name],
         username = source[username],
         password = source[password]
     )
@@ -86,10 +86,10 @@ object Comments : ResourceTable<Comment>() {
     val parentComment = uuid("parent_comment").nullable()
 
     override suspend fun convert(source: ResultRow) = Comment (
-        uuid      = source[uuid],
-        content   = source[content],
-        article   = ArticleService.get(source[article]) ?: error("article not found on comment retrieve from db"),
-        commenter = UserService.get(source[commenter])  ?: error("user not found on comment retrieve from db"),
+        uuid          = source[uuid],
+        content       = source[content],
+        article       = ArticleService.get(source[article]) ?: error("article not found on comment retrieve from db"),
+        commenter     = UserService.get(source[commenter])  ?: error("user not found on comment retrieve from db"),
         parentComment = source[parentComment]?.let { CommentService.get(it) }
     )
 

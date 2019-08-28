@@ -28,7 +28,7 @@ fun Route.articleComments() {
         }
 
         delete("/{uuid}") {
-            handleResourceDeletion<Comment>(CommentService::remove)
+            handleResourceDeletion(CommentService::remove)
         }
 
     }

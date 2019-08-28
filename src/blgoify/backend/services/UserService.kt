@@ -25,8 +25,8 @@ object UserService : Service<User> {
 
     override suspend fun add(res: User) = booleanReturnQuery {
         Users.insert {
-            it[uuid] = res.uuid
-            it[name] = res.name
+            it[uuid]     = res.uuid
+            it[name]     = res.name
             it[username] = res.username
             it[password] = res.password
         }

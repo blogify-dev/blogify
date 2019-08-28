@@ -29,7 +29,7 @@ import java.util.*
     generator = ObjectIdGenerators.PropertyGenerator::class,
     property = "uuid"
 )
-data class Article(
+data class Article (
     val title: String,
     val createdAt: Long = Date().time,
 

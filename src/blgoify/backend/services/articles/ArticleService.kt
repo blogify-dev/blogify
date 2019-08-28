@@ -27,17 +27,17 @@ object ArticleService : Service<Article> {
 
     override suspend fun add(res: Article) = booleanReturnQuery {
         Articles.insert {
-            it[uuid] = res.uuid
-            it[title] = res.title
-            it[createdAt] = res.createdAt
-            it[createdBy] = res.createdBy.uuid
+            it[uuid]       = res.uuid
+            it[title]      = res.title
+            it[createdAt]  = res.createdAt
+            it[createdBy]  = res.createdBy.uuid
             it[categories] = res.categories.joinToString(separator = ",")
         }
 
         val content = res.content ?: error("content not captured on article serialize")
 
         Articles.Content.insert {
-            it[text] = content.text
+            it[text]    = content.text
             it[summary] = content.summary
             it[article] = res.uuid
         }

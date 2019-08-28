@@ -1,13 +1,12 @@
 package blgoify.backend.util
 
 import blgoify.backend.auth.encoder
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 import java.util.*
+
 import kotlin.concurrent.schedule
 
 fun String.toUUID(): UUID = UUID.fromString(this)
-
 
 fun String.hash(): String = encoder.encode(this)
 

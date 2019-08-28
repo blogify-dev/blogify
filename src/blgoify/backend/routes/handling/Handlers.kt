@@ -5,13 +5,13 @@ import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.util.pipeline.PipelineContext
+import io.ktor.util.pipeline.PipelineInterceptor
 import io.ktor.request.ContentTransformationException
 import io.ktor.request.receive
 
 import blgoify.backend.resources.models.Resource
 import blgoify.backend.util.BlogifyDsl
 import blgoify.backend.util.toUUID
-import io.ktor.util.pipeline.PipelineInterceptor
 
 import java.util.UUID
 
@@ -23,7 +23,6 @@ typealias CallPipeline = PipelineContext<Unit, ApplicationCall>
 /**
  * Represents a server call handler function.
  */
-
 typealias CallPipeLineFunction = PipelineInterceptor<Unit, ApplicationCall>
 
 /**
@@ -92,14 +91,14 @@ suspend inline fun <reified R : Resource> CallPipeline.handleResourceCreation (
         if (res) {
             call.respond(HttpStatusCode.Created)
         } else {
-            call.respond(HttpStatusCode.InternalServerError)
+            call.respond(HttpStatusCode.BadRequest)
         }
     } catch (e: ContentTransformationException) {
         call.respond(HttpStatusCode.BadRequest)
     }
 } // KT-33440 | Doesn't compile when lambda called with invoke() for now */
 
-suspend fun <Resource>  CallPipeline.handleResourceDeletion (
+suspend fun CallPipeline.handleResourceDeletion (
     deletionFunction: suspend (id: UUID) -> Boolean
 ) {
     call.parameters["uuid"]?.let { id ->

@@ -34,13 +34,13 @@ fun Route.articles() {
         }}
 
         delete("/{uuid}") {
-            handleResourceDeletion<Article>(ArticleService::remove)
+            handleResourceDeletion(ArticleService::remove)
         }
 
         patch("/{uuid}") {
             val selectedUUID = call.parameters["uuid"]
 
-            val selectedArticle = selectedUUID?.toUUID()?.let { ArticleService.get(it) }
+            val selectedArticle    = selectedUUID?.toUUID()?.let { ArticleService.get(it) }
             val replacementArticle = call.receive<Article>()
 
             if (selectedArticle == null)
