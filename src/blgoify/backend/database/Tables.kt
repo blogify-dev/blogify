@@ -23,10 +23,10 @@ abstract class ResourceTable<R : Resource> : Table() {
 
 object Articles : ResourceTable<Article>() {
 
-    val uuid      = uuid    ("uuid").primaryKey()
-    val title     = varchar ("title", 512)
-    val createdAt = long    ("created_at")
-    val createdBy = uuid    ("created_by").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
+    val uuid       = uuid    ("uuid").primaryKey()
+    val title      = varchar ("title", 512)
+    val createdAt  = long    ("created_at")
+    val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
     val categories = varchar("categories", 512)
 
     override suspend fun convert(source: ResultRow) = Article (

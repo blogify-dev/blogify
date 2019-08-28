@@ -11,6 +11,7 @@ import blgoify.backend.resources.User
 import blgoify.backend.services.UserService
 import blgoify.backend.routes.handling.handleResourceFetch
 import blgoify.backend.routes.handling.handleResourceCreation
+
 /**
  * Defines the API routes for interacting with [users][User].
  */
