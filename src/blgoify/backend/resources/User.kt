@@ -18,7 +18,7 @@ data class User (
     val name:     String,
     val username: String,
 
-    @JsonIgnore var password: String, //IMPORTANT: DO NOT EVER REMOVE THIS ANNOTATION !
+    @JsonIgnore val password: String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid)

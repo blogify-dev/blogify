@@ -16,7 +16,9 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+
 import java.util.Base64
+
 import kotlin.random.Random
 
 /**
@@ -42,8 +44,7 @@ data class UsernamePasswordCredentials(val username: String, val password: Strin
             name     = this.username,
             username = this.username,
             password = this.password.hash()
-        )
-            .also { created ->
+        ).also { created ->
                 if (!UserService.add(created)) {
                     error("signup couldn't create user")
                 }
@@ -53,9 +54,9 @@ data class UsernamePasswordCredentials(val username: String, val password: Strin
 
 }
 
-fun Route.auth() {
+val validTokens = mutableMapOf<User, String>()
 
-    val validTokens = mutableMapOf<String, String>()
+fun Route.auth() {
 
     route("/auth") {
 
@@ -72,8 +73,8 @@ fun Route.auth() {
                         .withoutPadding()
                         .encodeToString(Random.Default.nextBytes(64))
 
-                    validTokens[user.uuid.toString()] = token
-                    validTokens.letIn(3600 * 1000L) { it.remove(user.uuid.toString()) }
+                    validTokens[user] = token
+                    validTokens.letIn(3600 * 1000L) { it.remove(user) }
 
                     call.respond(token)
                 } else {
