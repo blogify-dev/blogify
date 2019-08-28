@@ -4,12 +4,11 @@ import blgoify.backend.resources.Comment
 import blgoify.backend.services.models.Service
 import blgoify.backend.util.query
 import blgoify.backend.database.Comments.convert
-import blgoify.backend.database.Articles
 import blgoify.backend.database.Comments
 import blgoify.backend.database.Comments.uuid
 import blgoify.backend.util.booleanReturnQuery
-import org.jetbrains.exposed.sql.deleteWhere
 
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -28,10 +27,10 @@ object CommentService : Service<Comment> {
 
     override suspend fun add(res: Comment) = booleanReturnQuery {
         Comments.insert {
-            it[uuid]      = res.uuid
-            it[commenter] = res.commenter.uuid
-            it[article]   = res.article.uuid
-            it[content]   = res.content
+            it[uuid]          = res.uuid
+            it[commenter]     = res.commenter.uuid
+            it[article]       = res.article.uuid
+            it[content]       = res.content
             it[parentComment] = res.parentComment?.uuid
         }
     }
@@ -42,14 +41,6 @@ object CommentService : Service<Comment> {
 
     override suspend fun update(res: Comment): Boolean {
         return true
-    }
-
-    suspend fun getForArticle(article: UUID): List<Comment> = query {
-        Comments.select { Comments.article eq article }.map { convert(it) }
-    }
-
-    suspend fun getByUser(user: UUID): List<Comment> = query {
-        Comments.select { Comments.commenter eq user }.map { convert(it) }
     }
 
 }
