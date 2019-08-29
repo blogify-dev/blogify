@@ -24,11 +24,9 @@ object ArticleService : Service<Article> {
         Articles.selectAll().toSet()
     }.map { convert(it).get() }.toSet()
 
-    override suspend fun get(id: UUID): SuspendableResult<Article, Service.Exception.Fetching> {
-        return query {
-            Articles.select { uuid eq id }.singleOrNullOrError()
-        }?.let { convert(it) } ?: kotlin.run { return SuspendableResult.of { throw Service.Exception.Fetching.NotFound() } }
-    }
+    override suspend fun get(id: UUID): SuspendableResult<Article, Service.Exception.Fetching> = query {
+        Articles.select { uuid eq id }.singleOrNullOrError()
+    }?.let { convert(it) } ?: kotlin.run { return SuspendableResult.of { throw Service.Exception.Fetching.NotFound() } }
 
     override suspend fun add(res: Article) = booleanReturnQuery {
         Articles.insert {
