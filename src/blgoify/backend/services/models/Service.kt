@@ -4,6 +4,9 @@ import blgoify.backend.database.ResourceTable
 import blgoify.backend.resources.models.Resource
 import blgoify.backend.util.query
 
+import com.github.kittinunf.result.Result
+import com.github.kittinunf.result.coroutines.SuspendableResult
+
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.select
@@ -14,10 +17,10 @@ interface Service<R : Resource> {
 
     suspend fun getAll(): Set<R>
 
-    suspend fun get(id: UUID): R?
+    suspend fun get(id: UUID): SuspendableResult<R, Exception.Fetching>
 
     suspend fun getMatching(table: ResourceTable<R>, predicate: SqlExpressionBuilder.() -> Op<Boolean>): Set<R> = query {
-        table.select(predicate).toSet().map { table.convert(it) }.toSet()
+        table.select(predicate).toSet().map { table.convert(it).get() }.toSet()
     }
 
     suspend fun add(res: R): Boolean
@@ -25,5 +28,15 @@ interface Service<R : Resource> {
     suspend fun remove(id: UUID): Boolean
 
     suspend fun update(res: R): Boolean
+
+    open class Exception : kotlin.Exception() {
+
+        open class Fetching : Exception() {
+
+            class NotFound : Fetching()
+
+        }
+
+    }
 
 }

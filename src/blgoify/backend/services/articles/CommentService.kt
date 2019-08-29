@@ -7,6 +7,7 @@ import blgoify.backend.database.Comments.convert
 import blgoify.backend.database.Comments
 import blgoify.backend.database.Comments.uuid
 import blgoify.backend.util.booleanReturnQuery
+import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -19,11 +20,11 @@ object CommentService : Service<Comment> {
 
     override suspend fun getAll(): Set<Comment> = query {
         Comments.selectAll().toSet()
-    }.map { convert(it) }.toSet()
+    }.map { convert(it).get() }.toSet()
 
-    override suspend fun get(id: UUID): Comment? = query {
+    override suspend fun get(id: UUID): SuspendableResult<Comment, Service.Exception.Fetching> = query {
         Comments.select { uuid eq id }.singleOrNull()
-    }?.let { convert(it) }
+    }?.let { convert(it) } ?: error("")
 
     override suspend fun add(res: Comment) = booleanReturnQuery {
         Comments.insert {

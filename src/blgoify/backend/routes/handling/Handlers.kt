@@ -10,8 +10,10 @@ import io.ktor.request.ContentTransformationException
 import io.ktor.request.receive
 
 import blgoify.backend.resources.models.Resource
+import blgoify.backend.services.models.Service
 import blgoify.backend.util.BlogifyDsl
 import blgoify.backend.util.toUUID
+import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import java.util.UUID
 
@@ -34,13 +36,18 @@ typealias CallPipeLineFunction = PipelineInterceptor<Unit, ApplicationCall>
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.handleResourceFetch (
-    fetch:     suspend (id: UUID)   -> R?,
+    fetch:     suspend (id: UUID)   -> SuspendableResult<R, Service.Exception>,
     transform: suspend (fetched: R) -> Any = { it }
 ) {
     call.parameters["uuid"]?.let { id ->
-        fetch.invoke(id.toUUID())?.let { resource ->
-            call.respond(transform.invoke(resource))
-        } ?: call.respond(HttpStatusCode.NotFound)
+        fetch.invoke(id.toUUID()).fold (
+            success = {
+                call.respond(transform.invoke(it))
+            },
+            failure = {
+                call.respond(HttpStatusCode.PayloadTooLarge)
+            }
+        )
     } ?: call.respond(HttpStatusCode.BadRequest)
 }
 
