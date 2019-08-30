@@ -68,16 +68,11 @@
     ],
     "object-literal-sort-keys": false,
     "ordered-imports": false,
-    "quotemark": {
-      "options": [
-        "single"
-      ],
-      "severity": "warn"
-    },
+    "quotemark": [
+      true,
+      "single"
+    ],
     "trailing-comma": false,
-    "no-trailing-whitespace": {
-      "severity": "warning"
-    },
     "no-conflicting-lifecycle": true,
     "no-host-metadata-property": true,
     "no-input-rename": true,
