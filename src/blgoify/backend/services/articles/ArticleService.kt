@@ -1,17 +1,14 @@
 package blgoify.backend.services.articles
 
 import blgoify.backend.database.Articles
+import blgoify.backend.database.Articles.Content.article
 import blgoify.backend.database.Articles.convert
 import blgoify.backend.database.Articles.uuid
 import blgoify.backend.resources.Article
 import blgoify.backend.services.models.Service
 import blgoify.backend.util.booleanReturnQuery
 import blgoify.backend.util.query
-
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 
 import java.util.UUID
 
@@ -47,8 +44,19 @@ object ArticleService : Service<Article> {
         Articles.deleteWhere { uuid eq id }
     }
 
-    override suspend fun update(res: Article): Boolean {
-        return false
+    override suspend fun update(res: Article): Boolean = booleanReturnQuery {
+        Articles.update({ uuid eq res.uuid }) {
+            it[uuid]       = res.uuid
+            it[title]      = res.title
+            it[categories] = res.categories.joinToString(separator = ",")
+        }
+
+        val content = res.content ?: error("content not captured on article serialize")
+
+        Articles.Content.update ({ article eq res.uuid }) {
+            it[text]    = content.text
+            it[summary] = content.summary
+        }
     }
 
 }
