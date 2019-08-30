@@ -1,5 +1,3 @@
 package blgoify.backend.util
 
-import com.github.kittinunf.result.coroutines.SuspendableResult
-
-typealias ResourceResult<Rt, Et> = SuspendableResult<Rt, Et>
+open class BException(causedBy: Exception) : Exception(causedBy)

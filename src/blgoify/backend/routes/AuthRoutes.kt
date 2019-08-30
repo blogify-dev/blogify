@@ -63,9 +63,9 @@ fun Route.auth() {
         post("/signin") {
 
             val credentials     = call.receive<UsernamePasswordCredentials>()
-            val credentialsUser = UserService.getMatching(Users) { Users.username eq credentials.username }.singleOrNullOrError()
+            val credentialsUser = UserService.getMatching(Users) { Users.username eq credentials.username }.get().single()
 
-            credentialsUser?.let { user ->
+            credentialsUser.let { user ->
 
                 if (credentials.matchFor(user)) {
                     val token = Base64

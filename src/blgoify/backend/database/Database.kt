@@ -1,5 +1,6 @@
 package blgoify.backend.database
 
+import blgoify.backend.util.BException
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 
@@ -29,6 +30,14 @@ object Database {
 
     fun init() {
         instance = Database.connect(configureHikariCP())
+    }
+
+    open class Exception(causedBy: kotlin.Exception) : BException(causedBy) {
+
+        class NotFound(causedBy: BException) : Exception(causedBy)
+
+        class MultipleFound(causedBy: BException) : Exception(causedBy)
+
     }
 
 }

@@ -10,10 +10,10 @@ import io.ktor.request.ContentTransformationException
 import io.ktor.request.receive
 
 import blgoify.backend.resources.models.Resource
-import blgoify.backend.services.models.Service
+import blgoify.backend.services.models.ResourceResult
+import blgoify.backend.services.models.ResourceResultSet
 import blgoify.backend.util.BlogifyDsl
 import blgoify.backend.util.toUUID
-import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import java.util.UUID
 
@@ -36,19 +36,19 @@ typealias CallPipeLineFunction = PipelineInterceptor<Unit, ApplicationCall>
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.handleResourceFetch (
-    fetch:     suspend (id: UUID)   -> SuspendableResult<R, Service.Exception>,
+    fetch:     suspend (id: UUID)   -> ResourceResult<R>,
     transform: suspend (fetched: R) -> Any = { it }
 ) {
-    call.parameters["uuid"]?.let { id ->
-        fetch.invoke(id.toUUID()).fold (
+    call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
+        fetch.invoke(id.toUUID()).fold ( // Yes ? Proceed.
             success = {
-                call.respond(transform.invoke(it))
+                call.respond(transform.invoke(it)) // Success ? Then respond with the transform function's result.
             },
             failure = {
-                call.respond(HttpStatusCode.PayloadTooLarge)
+                call.respond(object { val message = it.message }) // Failure ? Error code for now.
             }
         )
-    } ?: call.respond(HttpStatusCode.BadRequest)
+    } ?: call.respond(HttpStatusCode.BadRequest) // No ? Bad Request.
 }
 
 /**
@@ -60,12 +60,20 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetch (
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.handleResourceFetchAll (
-    fetch:     suspend ()        -> Collection<R>,
+    fetch:     suspend ()        -> ResourceResultSet<R>,
     transform: suspend (elem: R) -> Any = { it }
 ) {
-    fetch.invoke().takeIf { it.isNotEmpty() }?.let { set ->
-        call.respond(set.map { transform.invoke(it) })
-    } ?: call.respond(HttpStatusCode.NoContent)
+    fetch.invoke().fold ( // Start by calling the fetching function
+        success = { set -> // Success ? Proceed.
+            set.takeIf { set.isNotEmpty() }?.let { notEmptySet -> // Is the set empty ?
+                call.respond(notEmptySet.map { transform.invoke(it) }) // No ? Then respond with the transform function's result.
+            } ?: call.respond(HttpStatusCode.NoContent) // Yes ? No Content.
+        },
+        failure = {
+            call.respond(object { val message = it.message }) // Failure ? Error code for now.
+        }
+    )
+
 }
 
 /**
@@ -77,16 +85,24 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetchAll (
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
-    fetch:     suspend (id: UUID) -> Collection<R>,
+    fetch:     suspend (id: UUID) -> ResourceResultSet<R>,
     transform: suspend (elem: R)  -> Any = { it }
 ) {
-    call.parameters["uuid"]?.let { id ->
-        fetch.invoke(id.toUUID()).takeIf { it.isNotEmpty() }?.let { set ->
-            call.respond(set.map { transform.invoke(it) })
-        } ?: call.respond(HttpStatusCode.NoContent)
-    } ?: call.respond(HttpStatusCode.NotFound)
+    call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
+        fetch.invoke(id.toUUID()).fold ( // Yes ? Proceed and call the fetching funciton.
+            success = { set -> // Success ? Proceed.
+                set.takeIf { it.isNotEmpty() }?.let { notEmptySet -> // Is the set empty ?
+                    call.respond(notEmptySet.map { transform.invoke(it)}) // No ? Then respond with the transform function's result.
+                } ?: call.respond(HttpStatusCode.NoContent) // Yes ? No Content.
+            },
+            failure = { // Failure ? Error code for now.
+                call.respond(object { val message = it.message })
+            }
+        )
+    } ?: call.respond(HttpStatusCode.BadRequest) // No ? Bad Request.
 }
 
+// TODO result-ify this
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.handleResourceCreation (

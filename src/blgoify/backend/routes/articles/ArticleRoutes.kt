@@ -29,7 +29,7 @@ fun Route.articles() {
             handleResourceFetch({ ArticleService.get(it) })
         }
 
-        post("/") { authenticatedBy(predicate = isUser(UserService.getAll().toList()[0])) {
+        post("/") { authenticatedBy(predicate = isUser(UserService.getAll().get().toList()[0])) {
             handleResourceCreation(ArticleService::add)
         }}
 

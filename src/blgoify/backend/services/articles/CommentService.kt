@@ -6,8 +6,12 @@ import blgoify.backend.util.query
 import blgoify.backend.database.Comments.convert
 import blgoify.backend.database.Comments
 import blgoify.backend.database.Comments.uuid
+import blgoify.backend.services.models.ResourceResult
+import blgoify.backend.services.models.ResourceResultSet
 import blgoify.backend.util.booleanReturnQuery
-import com.github.kittinunf.result.coroutines.SuspendableResult
+
+import com.github.kittinunf.result.coroutines.map
+import com.github.kittinunf.result.coroutines.mapError
 
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -18,13 +22,21 @@ import java.util.UUID
 
 object CommentService : Service<Comment> {
 
-    override suspend fun getAll(): Set<Comment> = query {
-        Comments.selectAll().toSet()
-    }.map { convert(it).get() }.toSet()
+    override suspend fun getAll(): ResourceResultSet<Comment> {
+        return query {
+            Comments.selectAll().toSet()                            // Poll the database
+        }
+            .map      { r -> r.map { convert(it).get() }.toSet() }  // If the query returns a successful result set, convert it
+            .mapError { e -> Service.Exception.Fetching(e) }        // Otherwise, wrap the error in a Service.Exception.Fetching
+    }
 
-    override suspend fun get(id: UUID): SuspendableResult<Comment, Service.Exception.Fetching> = query {
-        Comments.select { uuid eq id }.singleOrNull()
-    }?.let { convert(it) } ?: error("")
+    override suspend fun get(id: UUID): ResourceResult<Comment> {
+        return query {
+            Comments.select { uuid eq id }.single()          // Poll the database
+        }
+            .map      { r -> convert(r).get() }              // If the query returns a successful result, convert it
+            .mapError { e -> Service.Exception.Fetching(e) } // Otherwise, wrap the error in a Service.Exception.Fetching
+    }
 
     override suspend fun add(res: Comment) = booleanReturnQuery {
         Comments.insert {

@@ -1,32 +1,25 @@
 package blgoify.backend.services.articles
 
 import blgoify.backend.database.Articles
-import blgoify.backend.database.Articles.convert
 import blgoify.backend.database.Articles.uuid
 import blgoify.backend.resources.Article
+import blgoify.backend.services.handling.handleResourceDBFetch
+import blgoify.backend.services.handling.handleResourceDBFetchAll
+import blgoify.backend.services.models.ResourceResult
+import blgoify.backend.services.models.ResourceResultSet
 import blgoify.backend.services.models.Service
 import blgoify.backend.util.booleanReturnQuery
-import blgoify.backend.util.query
-import blgoify.backend.util.singleOrNullOrError
-
-import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 
 import java.util.UUID
 
 object ArticleService : Service<Article> {
 
-    override suspend fun getAll(): Set<Article> = query {
-        Articles.selectAll().toSet()
-    }.map { convert(it).get() }.toSet()
+    override suspend fun getAll(): ResourceResultSet<Article> = handleResourceDBFetchAll(Articles)
 
-    override suspend fun get(id: UUID): SuspendableResult<Article, Service.Exception.Fetching> = query {
-        Articles.select { uuid eq id }.singleOrNullOrError()
-    }?.let { convert(it) } ?: kotlin.run { return SuspendableResult.of { throw Service.Exception.Fetching.NotFound() } }
+    override suspend fun get(id: UUID): ResourceResult<Article> = handleResourceDBFetch(Articles, uuid, id)
 
     override suspend fun add(res: Article) = booleanReturnQuery {
         Articles.insert {

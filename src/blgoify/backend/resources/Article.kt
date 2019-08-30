@@ -56,6 +56,6 @@ data class Article (
         Articles.Content.select {
             Articles.Content.article eq this@Article.uuid
         }.single().let { Articles.Content.convert(it) }
-    }
+    }.get()
 
 }
