@@ -7,11 +7,7 @@ import blgoify.backend.database.Comments.convert
 import blgoify.backend.database.Comments
 import blgoify.backend.database.Comments.uuid
 import blgoify.backend.util.booleanReturnQuery
-
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 
 import java.util.UUID
 
@@ -39,8 +35,10 @@ object CommentService : Service<Comment> {
         Comments.deleteWhere { uuid eq id }
     }
 
-    override suspend fun update(res: Comment): Boolean {
-        return true
+    override suspend fun update(res: Comment): Boolean = booleanReturnQuery {
+        Comments.update({ uuid eq res.uuid }) {
+            it[content] = res.content
+        }
     }
 
 }
