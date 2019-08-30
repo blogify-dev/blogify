@@ -40,15 +40,15 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetch (
     transform: suspend (fetched: R) -> Any = { it }
 ) {
     call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
-        fetch.invoke(id.toUUID()).fold ( // Yes ? Proceed.
+        fetch.invoke(id.toUUID()).fold (
             success = {
-                call.respond(transform.invoke(it)) // Success ? Then respond with the transform function's result.
+                call.respond(transform.invoke(it))
             },
             failure = {
-                call.respond(object { val message = it.message }) // Failure ? Error code for now.
+                call.respond(object { val message = it.message }) // Failure ? Send a simple object with the exception message.
             }
         )
-    } ?: call.respond(HttpStatusCode.BadRequest) // No ? Bad Request.
+    } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
 }
 
 /**
@@ -63,14 +63,16 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetchAll (
     fetch:     suspend ()        -> ResourceResultSet<R>,
     transform: suspend (elem: R) -> Any = { it }
 ) {
-    fetch.invoke().fold ( // Start by calling the fetching function
-        success = { set -> // Success ? Proceed.
-            set.takeIf { set.isNotEmpty() }?.let { notEmptySet -> // Is the set empty ?
-                call.respond(notEmptySet.map { transform.invoke(it) }) // No ? Then respond with the transform function's result.
-            } ?: call.respond(HttpStatusCode.NoContent) // Yes ? No Content.
+    fetch.invoke().fold (
+        success = { set ->
+            if (set.isNotEmpty()) {
+                call.respond(set.map { transform.invoke(it) })
+            } else {
+                call.respond(HttpStatusCode.NoContent)
+            }
         },
         failure = {
-            call.respond(object { val message = it.message }) // Failure ? Error code for now.
+            call.respond(object { val message = it.message }) // Failure ? Send a simple object with the exception message.
         }
     )
 
@@ -89,17 +91,19 @@ suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
     transform: suspend (elem: R)  -> Any = { it }
 ) {
     call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
-        fetch.invoke(id.toUUID()).fold ( // Yes ? Proceed and call the fetching funciton.
-            success = { set -> // Success ? Proceed.
-                set.takeIf { it.isNotEmpty() }?.let { notEmptySet -> // Is the set empty ?
-                    call.respond(notEmptySet.map { transform.invoke(it)}) // No ? Then respond with the transform function's result.
-                } ?: call.respond(HttpStatusCode.NoContent) // Yes ? No Content.
+        fetch.invoke(id.toUUID()).fold (
+            success = { set ->
+                if (set.isNotEmpty()) {
+                    call.respond(set.map { transform.invoke(it) })
+                } else {
+                    call.respond(HttpStatusCode.NoContent)
+                }
             },
-            failure = { // Failure ? Error code for now.
-                call.respond(object { val message = it.message })
+            failure = {
+                call.respond(object { val message = it.message }) // Failure ? Send a simple object with the exception message.
             }
         )
-    } ?: call.respond(HttpStatusCode.BadRequest) // No ? Bad Request.
+    } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
 }
 
 // TODO result-ify this
