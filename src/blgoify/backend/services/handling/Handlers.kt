@@ -11,7 +11,6 @@ import com.github.kittinunf.result.coroutines.map
 import com.github.kittinunf.result.coroutines.mapError
 
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.deleteIgnoreWhere
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
