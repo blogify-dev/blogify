@@ -48,6 +48,8 @@ interface Service<R : Resource> {
 
         open class Creating(causedBy: BException) : Exception(causedBy)
 
+        open class Deleting(causedBy: BException) : Exception(causedBy)
+
     }
 
 }
