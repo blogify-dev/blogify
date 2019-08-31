@@ -25,8 +25,8 @@ fun Route.articleComments() {
         }
 
         get("/{uuid}") {
-            handleIdentifiedResourceFetchAll(fetch = { id ->
-                CommentService.getMatching(Comments) { Comments.article eq id }
+            handleIdentifiedResourceFetchAll(fetch = { articleId ->
+                CommentService.getMatching(Comments) { Comments.article eq articleId }
             })
         }
 
