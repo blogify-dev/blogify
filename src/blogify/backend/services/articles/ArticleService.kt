@@ -1,6 +1,7 @@
 package blogify.backend.services.articles
 
 import blogify.backend.database.Articles
+import blogify.backend.database.Articles.Content.article
 import blogify.backend.database.Articles.uuid
 import blogify.backend.resources.Article
 import blogify.backend.services.handling.handleResourceDBDelete
@@ -14,6 +15,7 @@ import blogify.backend.database.handling.query
 import com.github.kittinunf.result.coroutines.mapError
 
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.update
 
 import java.util.UUID
 
@@ -45,8 +47,21 @@ object ArticleService : Service<Article> {
 
     override suspend fun delete(id: UUID) = handleResourceDBDelete(Articles, uuid, id)
 
-    override suspend fun update(res: Article): ResourceResult<Article> {
-        TODO("not implemented !")
-    }
+    override suspend fun update(res: Article): ResourceResult<Article> =
+        query {
+            Articles.update({ uuid eq res.uuid }) {
+                it[uuid] = res.uuid
+                it[title] = res.title
+                it[categories] = res.categories.joinToString(separator = ",")
+            }
+
+            val content = res.content ?: error("content not captured on article serialize")
+
+            Articles.Content.update({ article eq res.uuid }) {
+                it[text] = content.text
+                it[summary] = content.summary
+            }
+            return@query res
+        }.mapError { e -> Service.Exception.Updating(e) }
 
 }
