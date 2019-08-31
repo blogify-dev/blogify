@@ -2,7 +2,7 @@ package blgoify.backend.services.articles
 
 import blgoify.backend.resources.Comment
 import blgoify.backend.services.models.Service
-import blgoify.backend.util.query
+import blgoify.backend.database.handling.query
 import blgoify.backend.database.Comments
 import blgoify.backend.database.Comments.uuid
 import blgoify.backend.services.handling.handleResourceDBDelete

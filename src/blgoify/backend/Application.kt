@@ -20,7 +20,7 @@ import blgoify.backend.database.Articles
 import blgoify.backend.database.Comments
 import blgoify.backend.database.Users
 import blgoify.backend.routes.auth
-import blgoify.backend.util.query
+import blgoify.backend.database.handling.query
 
 import org.jetbrains.exposed.sql.SchemaUtils
 
@@ -73,7 +73,8 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             Users,
             Comments
         )
-    }}
+    }
+    }
 
     routing {
         route("/api") {

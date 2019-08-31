@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access.*
 
 import blgoify.backend.database.Articles
 import blgoify.backend.resources.models.Resource
-import blgoify.backend.util.query
+import blgoify.backend.database.handling.query
 
 import org.jetbrains.exposed.sql.select
 

@@ -3,7 +3,7 @@ package blgoify.backend.services.models
 import blgoify.backend.database.ResourceTable
 import blgoify.backend.resources.models.Resource
 import blgoify.backend.util.BException
-import blgoify.backend.util.query
+import blgoify.backend.database.handling.query
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.mapError

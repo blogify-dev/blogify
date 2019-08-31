@@ -1,4 +1,4 @@
-package blgoify.backend.util
+package blgoify.backend.database.handling
 
 import blgoify.backend.database.Database
 

@@ -9,7 +9,7 @@ import blgoify.backend.services.handling.handleResourceDBFetchAll
 import blgoify.backend.services.models.ResourceResult
 import blgoify.backend.services.models.ResourceResultSet
 import blgoify.backend.services.models.Service
-import blgoify.backend.util.query
+import blgoify.backend.database.handling.query
 
 import com.github.kittinunf.result.coroutines.mapError
 

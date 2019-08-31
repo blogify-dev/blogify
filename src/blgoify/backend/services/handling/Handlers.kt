@@ -5,7 +5,7 @@ import blgoify.backend.resources.models.Resource
 import blgoify.backend.services.models.ResourceResult
 import blgoify.backend.services.models.ResourceResultSet
 import blgoify.backend.services.models.Service
-import blgoify.backend.util.query
+import blgoify.backend.database.handling.query
 
 import com.github.kittinunf.result.coroutines.map
 import com.github.kittinunf.result.coroutines.mapError
