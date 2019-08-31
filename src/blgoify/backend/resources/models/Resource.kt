@@ -12,6 +12,7 @@ import blgoify.backend.services.articles.CommentService
 
 import kotlinx.coroutines.runBlocking
 
+import java.lang.IllegalStateException
 import java.util.*
 
 open class Resource(open val uuid: UUID = UUID.randomUUID()) {
@@ -21,20 +22,35 @@ open class Resource(open val uuid: UUID = UUID.randomUUID()) {
         override fun resolveId(id: ObjectIdGenerator.IdKey?): Any? {
             val uuid = id?.key as UUID
 
+            fun genException(scope: Class<*>, ex: Exception)
+                    = IllegalStateException("exception during resource (type: ${scope.simpleName}) resolve with UUID $uuid : ${ex.message}", ex)
+
             return runBlocking {
                 // Necessary since we're interacting with Java cruft
                 when (id.scope) {
 
                     Article::class.java -> {
-                        return@runBlocking ArticleService.get(uuid)
+                        try {
+                            return@runBlocking ArticleService.get(uuid).get()
+                        } catch (e: Exception) {
+                            throw genException(id.scope, e)
+                        }
                     }
 
                     User::class.java -> {
-                        return@runBlocking UserService.get(uuid)
+                        try {
+                            return@runBlocking UserService.get(uuid).get()
+                        } catch (e: Exception) {
+                            throw genException(id.scope, e)
+                        }
                     }
 
                     Comment::class.java -> {
-                        return@runBlocking CommentService.get(uuid)
+                        try {
+                            return@runBlocking CommentService.get(uuid).get()
+                        } catch (e: Exception) {
+                            throw genException(id.scope, e)
+                        }
                     }
 
                     else -> {
