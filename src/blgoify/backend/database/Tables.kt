@@ -86,7 +86,7 @@ object Comments : ResourceTable<Comment>() {
     val commenter     = uuid ("commenter").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
     val article       = uuid ("article").references(Articles.uuid, onDelete = ReferenceOption.NO_ACTION)
     val content       = text ("content")
-    val parentComment = uuid("parent_comment").nullable()
+    val parentComment = uuid ("parent_comment").nullable()
 
     override suspend fun convert(source: ResultRow) = SuspendableResult.of<Comment, Service.Exception.Fetching> { Comment (
         uuid          = source[uuid],
