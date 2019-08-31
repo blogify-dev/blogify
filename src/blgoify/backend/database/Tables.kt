@@ -62,8 +62,8 @@ object Articles : ResourceTable<Article>() {
 
 object Users : ResourceTable<User>() {
 
-    val uuid =     uuid    ("uuid").primaryKey()
-    val name =     varchar ("name", 255)
+    val uuid     = uuid    ("uuid").primaryKey()
+    val name     = varchar ("name", 255)
     val username = varchar ("username", 255)
     val password = varchar ("password", 255)
 
