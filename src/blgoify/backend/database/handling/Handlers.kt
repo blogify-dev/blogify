@@ -27,22 +27,3 @@ suspend fun <T : Any> query(block: suspend () -> T): SuspendableResult<T, Databa
         }
             .mapError { ex -> Database.Exception(ex) } // We can now wrap that generic exception inside a DBex
 }
-
-/**
- * This function executes a query asynchronously and returns true if no exception occurred.
- *
- * It returns false if an exception occurred and prints the stack trace.
- *
- * **DO NOT USE THIS IN A NESTED QUERY ! (EXPOSED BUG)**
- *
- * @param block the query block to execute
- *
- * @see [Dispatchers.IO]
- */
-@Suppress("unused")
-suspend fun <T : Any> booleanReturnQuery(block: suspend () -> T): Boolean {
-    return query(block).let { it.fold (
-        success = { true  },
-        failure = { false }
-    )}
-}
