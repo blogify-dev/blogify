@@ -129,6 +129,7 @@ suspend inline fun <reified R : Resource> CallPipeline.handleResourceCreation (
     }
 } // KT-33440 | Doesn't compile when lambda called with invoke() for now */
 
+@BlogifyDsl
 suspend fun CallPipeline.handleResourceDeletion (
     deletionFunction: suspend (id: UUID) -> ResourceResult<*>
 ) {
