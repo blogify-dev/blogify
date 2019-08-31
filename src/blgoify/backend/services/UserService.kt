@@ -8,7 +8,9 @@ import blgoify.backend.services.handling.handleResourceDBFetchAll
 import blgoify.backend.services.models.ResourceResult
 import blgoify.backend.services.models.ResourceResultSet
 import blgoify.backend.services.models.Service
-import blgoify.backend.util.booleanReturnQuery
+import blgoify.backend.util.query
+
+import com.github.kittinunf.result.coroutines.mapError
 
 import org.jetbrains.exposed.sql.insert
 
@@ -20,21 +22,23 @@ object UserService : Service<User> {
 
     override suspend fun get(id: UUID): ResourceResult<User> = handleResourceDBFetch(Users, uuid, id)
 
-    override suspend fun add(res: User) = booleanReturnQuery {
+    override suspend fun add(res: User) = query {
         Users.insert {
             it[uuid]     = res.uuid
             it[name]     = res.name
             it[username] = res.username
             it[password] = res.password
         }
+
+        return@query res
+    }.mapError { e -> Service.Exception.Creating(e) }
+
+    override suspend fun remove(id: UUID): ResourceResult<UUID> {
+        TODO("not implemented !")
     }
 
-    override suspend fun remove(id: UUID): Boolean {
-        return true
-    }
-
-    override suspend fun update(res: User): Boolean {
-        return true
+    override suspend fun update(res: User): ResourceResult<User> {
+        TODO("not implemented !")
     }
 
 }

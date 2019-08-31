@@ -30,11 +30,13 @@ interface Service<R : Resource> {
         }.mapError { Exception.Fetching(it) }
     }
 
-    suspend fun add(res: R): Boolean
+    suspend fun add(res: R): ResourceResult<R>
 
-    suspend fun remove(id: UUID): Boolean
+    suspend fun remove(id: UUID): ResourceResult<UUID>
 
-    suspend fun update(res: R): Boolean
+    suspend fun update(res: R): ResourceResult<R>
+
+    // Service exceptions
 
     open class Exception(causedBy: BException) : BException(causedBy) {
 
@@ -43,6 +45,8 @@ interface Service<R : Resource> {
             class NotFound(causedBy: BException) : Fetching(causedBy)
 
         }
+
+        open class Creating(causedBy: BException) : Exception(causedBy)
 
     }
 

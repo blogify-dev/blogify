@@ -45,9 +45,12 @@ data class UsernamePasswordCredentials(val username: String, val password: Strin
             username = this.username,
             password = this.password.hash()
         ).also { created ->
-                if (!UserService.add(created)) {
-                    error("signup couldn't create user")
-                }
+                UserService.add(created).fold (
+                    success = {},
+                    failure = {
+                        error("signup couldn't create user")
+                    }
+                )
                 return created
             }
 

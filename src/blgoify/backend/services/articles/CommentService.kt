@@ -38,7 +38,7 @@ object CommentService : Service<Comment> {
             .mapError { e -> Service.Exception.Fetching(e) } // Otherwise, wrap the error in a Service.Exception.Fetching
     }
 
-    override suspend fun add(res: Comment) = booleanReturnQuery {
+    override suspend fun add(res: Comment) = query {
         Comments.insert {
             it[uuid]          = res.uuid
             it[commenter]     = res.commenter.uuid
@@ -46,14 +46,17 @@ object CommentService : Service<Comment> {
             it[content]       = res.content
             it[parentComment] = res.parentComment?.uuid
         }
-    }
 
-    override suspend fun remove(id: UUID): Boolean = booleanReturnQuery {
+        return@query res
+    }.mapError { e -> Service.Exception.Creating(e) }
+
+    override suspend fun remove(id: UUID): ResourceResult<UUID> = query {
         Comments.deleteWhere { uuid eq id }
-    }
+        return@query id
+    }.mapError { e -> Service.Exception.Creating(e) }
 
-    override suspend fun update(res: Comment): Boolean {
-        return true
+    override suspend fun update(res: Comment): ResourceResult<Comment> {
+        TODO("not implemented !")
     }
 
 }

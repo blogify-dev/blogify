@@ -110,27 +110,36 @@ suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.handleResourceCreation (
-    creationFunction: suspend (res: R) -> Boolean
+    creationFunction: suspend (res: R) -> ResourceResult<R>
 ) {
     try {
         val rec = call.receive<R>()
         val res = creationFunction(rec)
-        if (res) {
-            call.respond(HttpStatusCode.Created)
-        } else {
-            call.respond(HttpStatusCode.BadRequest)
-        }
+
+        res.fold (
+            success = {
+                call.respond(HttpStatusCode.Created)
+            },
+            failure = {
+                call.respond(object { val message = it.message }) // Failure ? Send a simple object with the exception message.
+            }
+        )
     } catch (e: ContentTransformationException) {
         call.respond(HttpStatusCode.BadRequest)
     }
 } // KT-33440 | Doesn't compile when lambda called with invoke() for now */
 
 suspend fun CallPipeline.handleResourceDeletion (
-    deletionFunction: suspend (id: UUID) -> Boolean
+    deletionFunction: suspend (id: UUID) -> ResourceResult<*>
 ) {
     call.parameters["uuid"]?.let { id ->
-        deletionFunction.invoke(id.toUUID()).takeIf { it }?.let {
-            call.respond(HttpStatusCode.OK)
-        } ?: call.respond(HttpStatusCode.InternalServerError)
+        deletionFunction.invoke(id.toUUID()).fold (
+            success = {
+                call.respond(HttpStatusCode.OK)
+            },
+            failure = {
+                call.respond(object { val message = it.message }) // Failure ? Send a simple object with the exception message.
+            }
+        )
     } ?: call.respond(HttpStatusCode.BadRequest)
 }
