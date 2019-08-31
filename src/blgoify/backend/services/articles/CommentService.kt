@@ -8,7 +8,6 @@ import blgoify.backend.database.Comments
 import blgoify.backend.database.Comments.uuid
 import blgoify.backend.services.models.ResourceResult
 import blgoify.backend.services.models.ResourceResultSet
-import blgoify.backend.util.booleanReturnQuery
 
 import com.github.kittinunf.result.coroutines.map
 import com.github.kittinunf.result.coroutines.mapError

@@ -1,6 +1,7 @@
 package blgoify.backend.database
 
 import blgoify.backend.util.BException
+
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 

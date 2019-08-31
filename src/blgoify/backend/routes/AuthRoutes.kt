@@ -1,13 +1,5 @@
 package blgoify.backend.routes
 
-import blgoify.backend.auth.encoder
-import blgoify.backend.database.Users
-import blgoify.backend.resources.User
-import blgoify.backend.services.UserService
-import blgoify.backend.util.hash
-import blgoify.backend.util.letIn
-import blgoify.backend.util.singleOrNullOrError
-
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
@@ -16,6 +8,14 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+
+import blgoify.backend.auth.encoder
+import blgoify.backend.database.Users
+import blgoify.backend.resources.User
+import blgoify.backend.services.UserService
+import blgoify.backend.util.hash
+import blgoify.backend.util.letIn
+import blgoify.backend.util.singleOrNullOrError
 
 import java.util.Base64
 

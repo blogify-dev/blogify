@@ -1,5 +1,10 @@
 package blgoify.backend.routes.articles
 
+import io.ktor.application.call
+import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
+import io.ktor.response.respond
+
 import blgoify.backend.database.Comments
 import blgoify.backend.resources.Comment
 import blgoify.backend.routes.handling.handleIdentifiedResourceFetchAll
@@ -8,11 +13,6 @@ import blgoify.backend.routes.handling.handleResourceDeletion
 import blgoify.backend.routes.handling.handleResourceFetchAll
 import blgoify.backend.services.articles.CommentService
 import blgoify.backend.util.toUUID
-
-import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
-import io.ktor.response.respond
 
 import io.ktor.routing.*
 
