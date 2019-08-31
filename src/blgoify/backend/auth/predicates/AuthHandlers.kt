@@ -64,7 +64,7 @@ fun isUser(user: User): AuthPredicate = { token ->
 @BlogifyDsl
 suspend fun CallPipeline.authenticatedBy(predicate: AuthPredicate, block: CallPipeLineFunction) {
     val header = call.request.header(HttpHeaders.Authorization) ?: run {
-        call.respond(HttpStatusCode.BadRequest) // Header is missing
+        call.respond(HttpStatusCode.Unauthorized) // Header is missing
         return
     }
 
