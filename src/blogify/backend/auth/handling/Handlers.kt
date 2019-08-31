@@ -11,7 +11,7 @@ import blogify.backend.routes.handling.CallPipeLineFunction
 import blogify.backend.routes.handling.CallPipeline
 import blogify.backend.routes.validTokens
 import blogify.backend.util.BlogifyDsl
-import blogify.backend.util.singleOrNullOrError
+import blogify.backend.util.foldForOne
 
 /**
  * Represents a predicate applied on a token.
@@ -34,11 +34,13 @@ typealias UserAuthPredicate = suspend (user: User) -> Boolean
  */
 @BlogifyDsl
 private suspend fun predicateOnUser(token: String, nextPredicate: UserAuthPredicate): Boolean {
-    validTokens
+    return validTokens
         .filterValues { it == token }
-        .keys.singleOrNullOrError()?.let { user ->
-            return nextPredicate.invoke(user)
-        } ?: return false
+        .keys.foldForOne (
+            one      = { u -> nextPredicate.invoke(u); true },
+            multiple = { error("multiple tokens for user") },
+            none     = { false }
+        )
 }
 
 /**

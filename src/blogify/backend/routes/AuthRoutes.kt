@@ -12,7 +12,9 @@ import io.ktor.routing.route
 import blogify.backend.auth.encoder
 import blogify.backend.database.Users
 import blogify.backend.resources.User
+import blogify.backend.routes.handling.respondExceptionMessage
 import blogify.backend.services.UserService
+import blogify.backend.util.foldForOne
 import blogify.backend.util.hash
 import blogify.backend.util.letIn
 import blogify.backend.util.singleOrNullOrError
@@ -65,26 +67,34 @@ fun Route.auth() {
 
         post("/signin") {
 
-            val credentials     = call.receive<UsernamePasswordCredentials>()
-            val credentialsUser = UserService.getMatching(Users) { Users.username eq credentials.username }.get().single()
+            val credentials         = call.receive<UsernamePasswordCredentials>()
+            val matchingCredentials = UserService.getMatching(Users) { Users.username eq credentials.username }
 
-            credentialsUser.let { user ->
+            matchingCredentials.fold (
+                success = { set ->
+                    set.foldForOne (
+                        one = { singleUser ->
+                            if (credentials.matchFor(singleUser)) {
+                                val token = Base64
+                                    .getUrlEncoder() // Generate token
+                                    .withoutPadding()
+                                    .encodeToString(Random.Default.nextBytes(64))
 
-                if (credentials.matchFor(user)) {
-                    val token = Base64
-                        .getUrlEncoder() // Generate token
-                        .withoutPadding()
-                        .encodeToString(Random.Default.nextBytes(64))
+                                validTokens[singleUser] = token
+                                validTokens.letIn(3600 * 1000L) { it.remove(singleUser) }
 
-                    validTokens[user] = token
-                    validTokens.letIn(3600 * 1000L) { it.remove(user) }
-
-                    call.respond(token)
-                } else {
-                    call.respond(HttpStatusCode.Forbidden) // Password doesn't match
+                                call.respond(token)
+                            } else {
+                                call.respond(HttpStatusCode.Forbidden) // Password doesn't match
+                            }
+                        }, multiple = { call.respond(HttpStatusCode.InternalServerError)
+                        }, none     = { call.respond(HttpStatusCode.NotFound)
+                    })
+                },
+                failure = { ex ->
+                    call.respondExceptionMessage(ex)
                 }
-
-            } ?: call.respond(HttpStatusCode.NotFound)
+            )
 
         }
 

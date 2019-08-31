@@ -12,6 +12,7 @@ import io.ktor.request.receive
 import blogify.backend.resources.models.Resource
 import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
+import blogify.backend.services.models.Service
 import blogify.backend.util.BlogifyDsl
 import blogify.backend.util.toUUID
 
@@ -26,6 +27,13 @@ typealias CallPipeline = PipelineContext<Unit, ApplicationCall>
  * Represents a server call handler function.
  */
 typealias CallPipeLineFunction = PipelineInterceptor<Unit, ApplicationCall>
+
+/**
+ * Sends an object describing an exception as a response
+ */
+suspend fun ApplicationCall.respondExceptionMessage(ex: Service.Exception) {
+    respond(HttpStatusCode.InternalServerError, object { val message = ex.message }) // Failure ? Send a simple object with the exception message.
+}
 
 /**
  * Adds a handler to a [CallPipeline] that handles fetching a resource.
@@ -46,8 +54,8 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetch (
             success = {
                 call.respond(transform.invoke(it))
             },
-            failure = {
-                call.respond(HttpStatusCode.InternalServerError, object { val message = it.message }) // Failure ? Send a simple object with the exception message.
+            failure = { ex ->
+                call.respondExceptionMessage(ex)
             }
         )
     } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
@@ -73,11 +81,10 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetchAll (
                 call.respond(HttpStatusCode.NoContent)
             }
         },
-        failure = {
-            call.respond(HttpStatusCode.InternalServerError, object { val message = it.message }) // Failure ? Send a simple object with the exception message.
+        failure = { ex ->
+            call.respondExceptionMessage(ex)
         }
     )
-
 }
 
 /**
@@ -103,8 +110,8 @@ suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
                     call.respond(HttpStatusCode.NoContent)
                 }
             },
-            failure = {
-                call.respond(HttpStatusCode.InternalServerError, object { val message = it.message }) // Failure ? Send a simple object with the exception message.
+            failure = { ex ->
+                call.respondExceptionMessage(ex)
             }
         )
     } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
@@ -129,8 +136,8 @@ suspend inline fun <reified R : Resource> CallPipeline.handleResourceCreation (
             success = {
                 call.respond(HttpStatusCode.Created)
             },
-            failure = {
-                call.respond(HttpStatusCode.InternalServerError, object { val message = it.message }) // Failure ? Send a simple object with the exception message.
+            failure = { ex ->
+                call.respondExceptionMessage(ex)
             }
         )
     } catch (e: ContentTransformationException) {
@@ -154,8 +161,8 @@ suspend fun CallPipeline.handleResourceDeletion (
             success = {
                 call.respond(HttpStatusCode.OK)
             },
-            failure = {
-                call.respond(HttpStatusCode.InternalServerError, object { val message = it.message }) // Failure ? Send a simple object with the exception message.
+            failure = { ex ->
+                call.respondExceptionMessage(ex)
             }
         )
     } ?: call.respond(HttpStatusCode.BadRequest)
