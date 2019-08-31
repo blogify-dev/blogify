@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Article } from '../../models/Article'
+import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -9,11 +10,11 @@ export class ArticleService {
 
     constructor(private httpClient: HttpClient) { }
 
-    getAllArticles() {
-        return this.httpClient.get<Article>('/api/articles/')
+    getAllArticles(): Observable<Article[]> {
+        return this.httpClient.get<Article[]>('/api/articles/')
     }
 
-    getArticleByUUID(uuid: string) {
+    getArticleByUUID(uuid: string): Observable<Article>{
         return this.httpClient.get<Article>(`/api/articles/${uuid}`)
     }
 
@@ -24,7 +25,7 @@ export class ArticleService {
               'Authorization': `Bearer ${userToken}`
             })
           };
-        return this.httpClient.post<Article>(`/api/articles/`, article, httpOptions)
+        return this.httpClient.post(`/api/articles/`, article, httpOptions)
     }
 
     updateArticle(uuid: string, article: Article, userToken: string) {
