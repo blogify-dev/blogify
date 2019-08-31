@@ -23,7 +23,7 @@ fun Route.articles() {
         }
 
         get("/{uuid}") {
-            handleResourceFetch({ ArticleService.get(it) })
+            handleResourceFetch(ArticleService::get)
         }
 
         post("/") { authenticatedBy(predicate = isUser(UserService.getAll().get().toList()[0])) {

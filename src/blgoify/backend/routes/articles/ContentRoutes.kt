@@ -1,5 +1,6 @@
 package blgoify.backend.routes.articles
 
+import blgoify.backend.resources.Article
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
@@ -12,7 +13,7 @@ fun Route.articleContent() {
     route("/content/") {
 
         get("/{uuid}") {
-            handleResourceFetch(fetch = { ArticleService.get(it) }, transform = { it.content() })
+            handleResourceFetch(fetch = ArticleService::get, transform = Article::content)
         }
 
     }

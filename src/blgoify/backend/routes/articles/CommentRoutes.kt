@@ -8,6 +8,7 @@ import blgoify.backend.routes.handling.handleResourceDeletion
 import blgoify.backend.routes.handling.handleResourceFetchAll
 import blgoify.backend.services.articles.CommentService
 import blgoify.backend.util.toUUID
+
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
@@ -24,8 +25,8 @@ fun Route.articleComments() {
         }
 
         get("/{uuid}") {
-            handleIdentifiedResourceFetchAll(fetch = {
-                CommentService.getMatching(Comments) { Comments.article eq it }
+            handleIdentifiedResourceFetchAll(fetch = { id ->
+                CommentService.getMatching(Comments) { Comments.article eq id }
             })
         }
 
