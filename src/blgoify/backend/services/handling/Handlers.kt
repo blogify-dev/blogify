@@ -11,6 +11,8 @@ import com.github.kittinunf.result.coroutines.map
 import com.github.kittinunf.result.coroutines.mapError
 
 import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.deleteIgnoreWhere
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 
@@ -39,7 +41,7 @@ suspend fun <R : Resource> handleResourceDBFetchAll(table: ResourceTable<R>): Re
  *
  * @param table      the [ResourceTable] to query
  * @param uuidColumn the column of [table] containing the [resources][Resource] [UUID]
- * @param id         the [UUID] of the resource to fetch.
+ * @param id         the [UUID] of the resource to fetch
  *
  * @return a [ResourceResultSet] that represents the success of the query, with a Database.Exception wrapped in if necessary.
  */
@@ -49,4 +51,21 @@ suspend fun <R : Resource> handleResourceDBFetch(table: ResourceTable<R>, uuidCo
     }
         .map      { r -> table.convert(r).get() }        // Map the ResultRow to a converted resource. See note above.
         .mapError { e -> Service.Exception.Fetching(e) } // Wrap an eventual DBEx inside a Service exception
+}
+
+/**
+ * Retrieves a certain [resource][Resource] from the DB.
+ *
+ * @param table      the [ResourceTable] to act on
+ * @param uuidColumn the column of [table] containing the [resources][Resource] [UUID]
+ * @param id         the [UUID] of the resource to delete
+ *
+ * @return a [ResourceResult] that represents the success of the deletion, with a Database.Exception wrapped in if necessary.
+ */
+suspend fun <R : Resource> handleResourceDBDelete(table: ResourceTable<R>, uuidColumn: Column<UUID>, id: UUID): ResourceResult<UUID> {
+    return query {
+        table.deleteWhere { uuidColumn eq id } // First, instruct the DB to delete the corresponding row
+        return@query id
+    }
+        .mapError { e -> Service.Exception.Deleting(e) } // Wrap an eventual DBEx inside a Service exception
 }
