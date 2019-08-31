@@ -70,6 +70,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         SchemaUtils.create (
             Articles,
             Articles.Content,
+            Articles.Category,
             Users,
             Comments
         )

@@ -31,7 +31,6 @@ object ArticleService : Service<Article> {
             it[title]      = res.title
             it[createdAt]  = res.createdAt
             it[createdBy]  = res.createdBy.uuid
-            it[categories] = res.categories.joinToString(separator = ",")
         }
 
         val content = res.content ?: error("content not captured on article serialize")
@@ -40,6 +39,15 @@ object ArticleService : Service<Article> {
             it[text]    = content.text
             it[summary] = content.summary
             it[article] = res.uuid
+        }
+
+        val cats = res.categories ?: error("category not captured on article serialize")
+
+        for (cat in cats) {
+            Articles.Category.insert {
+                it[name] = cat.name
+                it[article] = res.uuid
+            }
         }
     }
 

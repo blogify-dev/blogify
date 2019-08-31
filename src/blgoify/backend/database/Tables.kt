@@ -7,7 +7,6 @@ import blgoify.backend.resources.models.Resource
 import blgoify.backend.services.articles.ArticleService
 import blgoify.backend.services.UserService
 import blgoify.backend.services.articles.CommentService
-import blgoify.backend.util.encodeToSet
 
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
@@ -27,17 +26,17 @@ object Articles : ResourceTable<Article>() {
     val title      = varchar ("title", 512)
     val createdAt  = long    ("created_at")
     val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
-    val categories = varchar("categories", 512)
 
     override suspend fun convert(source: ResultRow) = Article (
         uuid      = source[uuid],
         title     = source[title],
         createdAt = source[createdAt],
         createdBy = UserService.get(source[createdBy]) ?: error("no user in db for article ${source[uuid]}"),
-        categories = source[categories].encodeToSet(),
         content   = transaction {
             Content.select { Content.article eq source[uuid] }.singleOrNull()
-        }?.let { Content.convert(it) } ?: error("no or multiple content in db for article ${source[uuid]}")
+        }?.let { Content.convert(it) } ?: error("no or multiple content in db for article ${source[uuid]}"),
+        categories = transaction {
+            Category.select { Category.article eq source[uuid] }.toList()}.map { Category.convert(it) }
     )
 
     @Suppress("RemoveRedundantQualifierName")
@@ -53,6 +52,18 @@ object Articles : ResourceTable<Article>() {
             summary = source[summary]
         )
 
+    }
+
+    @Suppress("RemoveRedundantQualifierName")
+    object Category : Table() {
+
+        val article = uuid("article").primaryKey().references(Articles.uuid, onDelete = ReferenceOption.CASCADE)
+        val name = varchar("name", 255).primaryKey()
+
+        @Suppress("RedundantSuspendModifier")
+        suspend fun convert(source: ResultRow) = Article.Category (
+            name = source[name]
+        )
     }
 
 }
@@ -83,7 +94,7 @@ object Comments : ResourceTable<Comment>() {
     val commenter = uuid ("commenter").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
     val article   = uuid ("article").references(Articles.uuid, onDelete = ReferenceOption.NO_ACTION)
     val content   = text ("content")
-    val parentComment = uuid("parent_comment").nullable()
+    val parentComment = uuid("parent_comment").references(uuid).nullable()
 
     override suspend fun convert(source: ResultRow) = Comment (
         uuid          = source[uuid],
