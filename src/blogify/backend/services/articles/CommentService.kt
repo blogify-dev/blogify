@@ -14,6 +14,7 @@ import blogify.backend.services.models.ResourceResultSet
 import com.github.kittinunf.result.coroutines.mapError
 
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.update
 
 import java.util.UUID
 
@@ -37,8 +38,11 @@ object CommentService : Service<Comment> {
 
     override suspend fun delete(id: UUID) = handleResourceDBDelete(Comments, uuid, id)
 
-    override suspend fun update(res: Comment): ResourceResult<Comment> {
-        TODO("not implemented !")
-    }
+    override suspend fun update(res: Comment): ResourceResult<Comment> = query {
+        Comments.update({ uuid eq res.uuid }) {
+            it[content] = res.content
+        }
+        return@query res
+    }.mapError { e -> Service.Exception.Updating(e) }
 
 }
