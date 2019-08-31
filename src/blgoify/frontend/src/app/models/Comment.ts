@@ -1,5 +1,5 @@
-import { Content } from './Content';
-import  { Article } from './Article';
+import {Content} from './Article';
+import {Article} from './Article';
 
 export interface Comment {
   commenter: string; // Can be user which isn't implemented yet
