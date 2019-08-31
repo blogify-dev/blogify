@@ -3,6 +3,7 @@ package blgoify.backend.services
 import blgoify.backend.database.Users
 import blgoify.backend.database.Users.uuid
 import blgoify.backend.resources.User
+import blgoify.backend.services.handling.handleResourceDBDelete
 import blgoify.backend.services.handling.handleResourceDBFetch
 import blgoify.backend.services.handling.handleResourceDBFetchAll
 import blgoify.backend.services.models.ResourceResult
@@ -33,9 +34,7 @@ object UserService : Service<User> {
         return@query res
     }.mapError { e -> Service.Exception.Creating(e) }
 
-    override suspend fun remove(id: UUID): ResourceResult<UUID> {
-        TODO("not implemented !")
-    }
+    override suspend fun delete(id: UUID) = handleResourceDBDelete(Users, uuid, id)
 
     override suspend fun update(res: User): ResourceResult<User> {
         TODO("not implemented !")

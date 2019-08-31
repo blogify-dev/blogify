@@ -26,12 +26,8 @@ fun Route.articles() {
             handleResourceFetch(ArticleService::get)
         }
 
-        post("/") { authenticatedBy(predicate = isUser(UserService.getAll().get().toList()[0])) {
-            handleResourceCreation(ArticleService::add)
-        }}
-
         delete("/{uuid}") {
-            handleResourceDeletion(ArticleService::remove)
+            handleResourceDeletion(ArticleService::delete)
         }
 
         patch("/{uuid}") {
@@ -47,6 +43,10 @@ fun Route.articles() {
                 call.respond(HttpStatusCode.OK)
             }
         }
+
+        post("/") { authenticatedBy(predicate = isUser(UserService.getAll().get().toList()[0])) {
+            handleResourceCreation(ArticleService::add)
+        }}
 
         articleContent()
 

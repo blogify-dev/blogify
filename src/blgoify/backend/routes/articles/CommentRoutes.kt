@@ -30,12 +30,8 @@ fun Route.articleComments() {
             })
         }
 
-        post {
-            handleResourceCreation(CommentService::add)
-        }
-
         delete("/{uuid}") {
-            handleResourceDeletion(CommentService::remove)
+            handleResourceDeletion(CommentService::delete)
         }
 
         patch("/{uuid}") {
@@ -50,6 +46,10 @@ fun Route.articleComments() {
                 CommentService.update(replacementComment)
                 call.respond(HttpStatusCode.OK)
             }
+        }
+
+        post("/") {
+            handleResourceCreation(CommentService::add)
         }
 
     }

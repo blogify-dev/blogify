@@ -32,7 +32,7 @@ interface Service<R : Resource> {
 
     suspend fun add(res: R): ResourceResult<R>
 
-    suspend fun remove(id: UUID): ResourceResult<UUID>
+    suspend fun delete(id: UUID): ResourceResult<UUID>
 
     suspend fun update(res: R): ResourceResult<R>
 

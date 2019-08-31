@@ -5,6 +5,7 @@ import blgoify.backend.services.models.Service
 import blgoify.backend.util.query
 import blgoify.backend.database.Comments
 import blgoify.backend.database.Comments.uuid
+import blgoify.backend.services.handling.handleResourceDBDelete
 import blgoify.backend.services.handling.handleResourceDBFetch
 import blgoify.backend.services.handling.handleResourceDBFetchAll
 import blgoify.backend.services.models.ResourceResult
@@ -12,7 +13,6 @@ import blgoify.backend.services.models.ResourceResultSet
 
 import com.github.kittinunf.result.coroutines.mapError
 
-import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 
 import java.util.UUID
@@ -35,10 +35,7 @@ object CommentService : Service<Comment> {
         return@query res
     }.mapError { e -> Service.Exception.Creating(e) }
 
-    override suspend fun remove(id: UUID): ResourceResult<UUID> = query {
-        Comments.deleteWhere { uuid eq id }
-        return@query id
-    }.mapError { e -> Service.Exception.Creating(e) }
+    override suspend fun delete(id: UUID) = handleResourceDBDelete(Comments, uuid, id)
 
     override suspend fun update(res: Comment): ResourceResult<Comment> {
         TODO("not implemented !")

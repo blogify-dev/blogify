@@ -43,7 +43,7 @@ object ArticleService : Service<Article> {
         return@query res // So that we return the resource and not an insert statement
     }.mapError { e -> Service.Exception.Creating(e) } // Wrap possible error
 
-    override suspend fun remove(id: UUID) = handleResourceDBDelete(Articles, uuid, id)
+    override suspend fun delete(id: UUID) = handleResourceDBDelete(Articles, uuid, id)
 
     override suspend fun update(res: Article): ResourceResult<Article> {
         TODO("not implemented !")
