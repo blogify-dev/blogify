@@ -28,7 +28,7 @@ fun Route.users() {
         // GET a specific user
 
         get("/{uuid}") {
-            handleResourceFetch(UserService::get)
+            handleResourceFetch({ UserService.get(it) })
         }
 
         // POST a new user

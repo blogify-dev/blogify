@@ -45,9 +45,12 @@ data class UsernamePasswordCredentials(val username: String, val password: Strin
             username = this.username,
             password = this.password.hash()
         ).also { created ->
-                if (!UserService.add(created)) {
-                    error("signup couldn't create user")
-                }
+                UserService.add(created).fold (
+                    success = {},
+                    failure = {
+                        error("signup couldn't create user")
+                    }
+                )
                 return created
             }
 
@@ -63,9 +66,9 @@ fun Route.auth() {
         post("/signin") {
 
             val credentials     = call.receive<UsernamePasswordCredentials>()
-            val credentialsUser = UserService.getMatching(Users) { Users.username eq credentials.username }.singleOrNullOrError()
+            val credentialsUser = UserService.getMatching(Users) { Users.username eq credentials.username }.get().single()
 
-            credentialsUser?.let { user ->
+            credentialsUser.let { user ->
 
                 if (credentials.matchFor(user)) {
                     val token = Base64

@@ -10,6 +10,8 @@ import io.ktor.request.ContentTransformationException
 import io.ktor.request.receive
 
 import blgoify.backend.resources.models.Resource
+import blgoify.backend.services.models.ResourceResult
+import blgoify.backend.services.models.ResourceResultSet
 import blgoify.backend.util.BlogifyDsl
 import blgoify.backend.util.toUUID
 
@@ -34,14 +36,19 @@ typealias CallPipeLineFunction = PipelineInterceptor<Unit, ApplicationCall>
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.handleResourceFetch (
-    fetch:     suspend (id: UUID)   -> R?,
+    fetch:     suspend (id: UUID)   -> ResourceResult<R>,
     transform: suspend (fetched: R) -> Any = { it }
 ) {
-    call.parameters["uuid"]?.let { id ->
-        fetch.invoke(id.toUUID())?.let { resource ->
-            call.respond(transform.invoke(resource))
-        } ?: call.respond(HttpStatusCode.NotFound)
-    } ?: call.respond(HttpStatusCode.BadRequest)
+    call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
+        fetch.invoke(id.toUUID()).fold (
+            success = {
+                call.respond(transform.invoke(it))
+            },
+            failure = {
+                call.respond(object { val message = it.message }) // Failure ? Send a simple object with the exception message.
+            }
+        )
+    } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
 }
 
 /**
@@ -53,12 +60,22 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetch (
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.handleResourceFetchAll (
-    fetch:     suspend ()        -> Collection<R>,
+    fetch:     suspend ()        -> ResourceResultSet<R>,
     transform: suspend (elem: R) -> Any = { it }
 ) {
-    fetch.invoke().takeIf { it.isNotEmpty() }?.let { set ->
-        call.respond(set.map { transform.invoke(it) })
-    } ?: call.respond(HttpStatusCode.NoContent)
+    fetch.invoke().fold (
+        success = { set ->
+            if (set.isNotEmpty()) {
+                call.respond(set.map { transform.invoke(it) })
+            } else {
+                call.respond(HttpStatusCode.NoContent)
+            }
+        },
+        failure = {
+            call.respond(object { val message = it.message }) // Failure ? Send a simple object with the exception message.
+        }
+    )
+
 }
 
 /**
@@ -70,40 +87,59 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetchAll (
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
-    fetch:     suspend (id: UUID) -> Collection<R>,
+    fetch:     suspend (id: UUID) -> ResourceResultSet<R>,
     transform: suspend (elem: R)  -> Any = { it }
 ) {
-    call.parameters["uuid"]?.let { id ->
-        fetch.invoke(id.toUUID()).takeIf { it.isNotEmpty() }?.let { set ->
-            call.respond(set.map { transform.invoke(it) })
-        } ?: call.respond(HttpStatusCode.NoContent)
-    } ?: call.respond(HttpStatusCode.NotFound)
+    call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
+        fetch.invoke(id.toUUID()).fold (
+            success = { set ->
+                if (set.isNotEmpty()) {
+                    call.respond(set.map { transform.invoke(it) })
+                } else {
+                    call.respond(HttpStatusCode.NoContent)
+                }
+            },
+            failure = {
+                call.respond(object { val message = it.message }) // Failure ? Send a simple object with the exception message.
+            }
+        )
+    } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
 }
 
+// TODO result-ify this
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.handleResourceCreation (
-    creationFunction: suspend (res: R) -> Boolean
+    creationFunction: suspend (res: R) -> ResourceResult<R>
 ) {
     try {
         val rec = call.receive<R>()
         val res = creationFunction(rec)
-        if (res) {
-            call.respond(HttpStatusCode.Created)
-        } else {
-            call.respond(HttpStatusCode.BadRequest)
-        }
+
+        res.fold (
+            success = {
+                call.respond(HttpStatusCode.Created)
+            },
+            failure = {
+                call.respond(object { val message = it.message }) // Failure ? Send a simple object with the exception message.
+            }
+        )
     } catch (e: ContentTransformationException) {
         call.respond(HttpStatusCode.BadRequest)
     }
 } // KT-33440 | Doesn't compile when lambda called with invoke() for now */
 
 suspend fun CallPipeline.handleResourceDeletion (
-    deletionFunction: suspend (id: UUID) -> Boolean
+    deletionFunction: suspend (id: UUID) -> ResourceResult<*>
 ) {
     call.parameters["uuid"]?.let { id ->
-        deletionFunction.invoke(id.toUUID()).takeIf { it }?.let {
-            call.respond(HttpStatusCode.OK)
-        } ?: call.respond(HttpStatusCode.InternalServerError)
+        deletionFunction.invoke(id.toUUID()).fold (
+            success = {
+                call.respond(HttpStatusCode.OK)
+            },
+            failure = {
+                call.respond(object { val message = it.message }) // Failure ? Send a simple object with the exception message.
+            }
+        )
     } ?: call.respond(HttpStatusCode.BadRequest)
 }

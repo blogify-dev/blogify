@@ -1,9 +1,16 @@
 package blgoify.backend.util
 
+import blgoify.backend.database.Database
+
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+
+import com.github.kittinunf.result.coroutines.SuspendableResult
+import com.github.kittinunf.result.coroutines.mapError
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import java.lang.Exception
 
 /**
  * This function executes a query asynchronously and returns its result.
@@ -14,7 +21,12 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
  *
  * @see [Dispatchers.IO]
  */
-suspend fun <T> query(block: suspend () -> T): T = withContext(Dispatchers.IO) { newSuspendedTransaction { block() } }
+suspend fun <T : Any> query(block: suspend () -> T): SuspendableResult<T, Database.Exception> {
+        return SuspendableResult.of<T, Exception> { // The transaction can throw any Exception; specify that
+            withContext(Dispatchers.IO) { newSuspendedTransaction { block() } } // Run the transaction
+        }
+            .mapError { ex -> Database.Exception(ex) } // We can now wrap that generic exception inside a DBex
+}
 
 /**
  * This function executes a query asynchronously and returns true if no exception occurred.
@@ -28,7 +40,9 @@ suspend fun <T> query(block: suspend () -> T): T = withContext(Dispatchers.IO) {
  * @see [Dispatchers.IO]
  */
 @Suppress("unused")
-suspend fun <T> booleanReturnQuery(block: suspend () -> T): Boolean {
-    return try { query(block); true }
-           catch(e: Exception) { e.printStackTrace(); false }
+suspend fun <T : Any> booleanReturnQuery(block: suspend () -> T): Boolean {
+    return query(block).let { it.fold (
+        success = { true  },
+        failure = { false }
+    )}
 }
