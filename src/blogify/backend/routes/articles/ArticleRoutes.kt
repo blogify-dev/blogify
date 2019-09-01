@@ -39,8 +39,7 @@ fun Route.articles() {
             if (selectedArticle == null)
                 call.respond(HttpStatusCode.NotFound)
             else {
-                ArticleService.update(replacementArticle)
-                call.respond(HttpStatusCode.OK)
+                call.respond(ArticleService.update(replacementArticle))
             }
         }
 

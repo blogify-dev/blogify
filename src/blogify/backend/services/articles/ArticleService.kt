@@ -13,6 +13,7 @@ import blogify.backend.services.models.Service
 import blogify.backend.database.handling.query
 
 import com.github.kittinunf.result.coroutines.mapError
+import org.jetbrains.exposed.sql.deleteWhere
 
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
@@ -57,7 +58,6 @@ object ArticleService : Service<Article> {
     override suspend fun update(res: Article): ResourceResult<Article> =
         query {
             Articles.update({ uuid eq res.uuid }) {
-                it[uuid] = res.uuid
                 it[title] = res.title
             }
 
@@ -69,7 +69,7 @@ object ArticleService : Service<Article> {
                 it[summary] = content.summary
             }
             val cats = res.categories ?: error("category not captured on article serialize")
-
+            Articles.Category.deleteWhere { Articles.Category.article eq res.uuid }
             for (cat in cats) {
                 Articles.Category.update {
                     it[name] = cat.name
