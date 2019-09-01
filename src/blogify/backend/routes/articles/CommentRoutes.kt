@@ -11,11 +11,11 @@ import blogify.backend.routes.handling.handleIdentifiedResourceFetchAll
 import blogify.backend.routes.handling.handleResourceCreation
 import blogify.backend.routes.handling.handleResourceDeletion
 import blogify.backend.routes.handling.handleResourceFetchAll
+import blogify.backend.routes.handling.respondExceptionMessage
 import blogify.backend.services.articles.CommentService
 import blogify.backend.util.toUUID
 
 import io.ktor.routing.*
-import java.util.*
 
 fun Route.articleComments() {
 
@@ -56,14 +56,12 @@ fun Route.articleComments() {
         get("/tree/{uuid}") {
             call.parameters["uuid"]?.toUUID()?.let { givenUUID ->
                 CommentService.getMatching(Comments) { Comments.parentComment eq givenUUID }
-                    .fold(
+                    .fold (
                         success = {
-                            val tree = mutableSetOf<Comment>()
-                            tree.addAll(it)
-                            call.respond(tree)
-                        },
-                        failure = {
                             call.respond(it)
+                        },
+                        failure = { ex ->
+                            call.respondExceptionMessage(ex)
                         }
                     )
             }

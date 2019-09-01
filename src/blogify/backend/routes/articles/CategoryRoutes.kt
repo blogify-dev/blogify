@@ -8,12 +8,12 @@ import blogify.backend.resources.Article
 import blogify.backend.routes.handling.handleResourceFetch
 import blogify.backend.services.articles.ArticleService
 
-fun Route.articleCategory() {
+fun Route.articleCategories() {
 
-    route("/category/") {
+    route("/categories") {
 
         get("/{uuid}") {
-            handleResourceFetch(fetch = ArticleService::get, transform = Article::category )
+            handleResourceFetch(fetch = ArticleService::get, transform = Article::category)
         }
 
     }

@@ -39,7 +39,7 @@ object Articles : ResourceTable<Article>() {
             Content.select { Content.article eq source[uuid] }.singleOrNull()
         }?.let { Content.convert(it) } ?: error("no or multiple content in db for article ${source[uuid]}"),
         categories = transaction {
-            Category.select { Category.article eq source[uuid] }.toList() }.map { Category.convert(it) }
+            Categories.select { Categories.article eq source[uuid] }.toList() }.map { Categories.convert(it) }
     ) }
 
     @Suppress("RemoveRedundantQualifierName")
@@ -57,15 +57,16 @@ object Articles : ResourceTable<Article>() {
 
     }
     @Suppress("RemoveRedundantQualifierName")
-    object Category : Table() {
+    object Categories : Table() {
 
         val article = uuid("article").primaryKey().references(Articles.uuid, onDelete = ReferenceOption.CASCADE)
-        val name = varchar("name", 255).primaryKey()
+        val name    = varchar("name", 255).primaryKey()
 
         @Suppress("RedundantSuspendModifier")
         suspend fun convert(source: ResultRow) = Article.Category (
             name = source[name]
         )
+
     }
 
 }

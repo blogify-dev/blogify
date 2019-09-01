@@ -13,8 +13,8 @@ import blogify.backend.services.models.Service
 import blogify.backend.database.handling.query
 
 import com.github.kittinunf.result.coroutines.mapError
-import org.jetbrains.exposed.sql.deleteWhere
 
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
 
@@ -44,7 +44,7 @@ object ArticleService : Service<Article> {
         val cats = res.categories ?: error("category not captured on article serialize")
 
         for (cat in cats) {
-            Articles.Category.insert {
+            Articles.Categories.insert {
                 it[name] = cat.name
                 it[article] = res.uuid
             }
@@ -61,17 +61,18 @@ object ArticleService : Service<Article> {
                 it[title] = res.title
             }
 
-
             val content = res.content ?: error("content not captured on article serialize")
 
             Articles.Content.update({ article eq res.uuid }) {
                 it[text] = content.text
                 it[summary] = content.summary
             }
-            val cats = res.categories ?: error("category not captured on article serialize")
-            Articles.Category.deleteWhere { Articles.Category.article eq res.uuid }
+
+            val cats = res.categories
+
+            Articles.Categories.deleteWhere { Articles.Categories.article eq res.uuid }
             for (cat in cats) {
-                Articles.Category.update {
+                Articles.Categories.update {
                     it[name] = cat.name
                 }
             }

@@ -49,7 +49,7 @@ fun Route.articles() {
 
         articleContent()
 
-        articleCategory()
+        articleCategories()
 
         articleComments()
 

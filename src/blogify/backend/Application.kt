@@ -35,7 +35,7 @@ const val asciiLogo = """
   / __ \ / // __ \ / __ `// // /_ / / / /
  / /_/ // // /_/ // /_/ // // __// /_/ / 
 /_.___//_/ \____/ \__, //_//_/   \__, /  
-                 /____/         /____/  
+                 /____/         /____/   
 ---- Version $version - Development build -
 """
 
@@ -73,7 +73,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         SchemaUtils.create (
             Articles,
             Articles.Content,
-            Articles.Category,
+            Articles.Categories,
             Users,
             Comments
         )

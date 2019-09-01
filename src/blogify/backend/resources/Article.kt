@@ -39,8 +39,7 @@ data class Article (
     @JsonProperty(access = WRITE_ONLY)
     val content: Content?,
 
-    @JsonProperty(access = WRITE_ONLY)
-    val categories: List<Category>?,
+    val categories: List<Category>,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid) {
@@ -62,13 +61,14 @@ data class Article (
     /**
      * Represents the categories of an [Article].
      *
-     * @property name    The name content of the category.
+     * @property name The name content of the category.
      */
     data class Category(val name: String)
 
     suspend fun category(): List<Category> = query {
-        Articles.Category.select {
-            Articles.Category.article eq this@Article.uuid
-        }.toList().map{ Articles.Category.convert(it) }
+        Articles.Categories.select {
+            Articles.Categories.article eq this@Article.uuid
+        }.toList().map{ Articles.Categories.convert(it) }
     }.get()
+
 }
