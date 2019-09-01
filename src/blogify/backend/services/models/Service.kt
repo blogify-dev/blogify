@@ -7,10 +7,12 @@ import blogify.backend.database.handling.query
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.mapError
+import kotlinx.coroutines.runBlocking
 
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
 
 import java.util.*
 
@@ -25,8 +27,11 @@ interface Service<R : Resource> {
     suspend fun get(id: UUID): ResourceResult<R>
 
     suspend fun getMatching(table: ResourceTable<R>, predicate: SqlExpressionBuilder.() -> Op<Boolean>): ResourceResultSet<R> {
-        return query {
-            table.select(predicate).toSet().map { table.convert(it).get() }.toSet()
+        return SuspendableResult.of<Set<R>, Exception> {
+            transaction {
+                val query = table.select(predicate).toSet()
+                runBlocking { query.map { table.convert(it).get() }.toSet() }
+            }
         }.mapError { Exception.Fetching(it) }
     }
 
