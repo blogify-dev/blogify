@@ -15,6 +15,7 @@ import blogify.backend.services.articles.CommentService
 import blogify.backend.util.toUUID
 
 import io.ktor.routing.*
+import java.util.*
 
 fun Route.articleComments() {
 
@@ -38,7 +39,7 @@ fun Route.articleComments() {
             val selectedUUID = call.parameters["uuid"]
 
             val replacementComment = call.receive<Comment>()
-            val selectedComment    = selectedUUID?.toUUID()?.let { CommentService.get(it) }
+            val selectedComment = selectedUUID?.toUUID()?.let { CommentService.get(it) }
 
             if (selectedComment == null)
                 call.respond(HttpStatusCode.NotFound)
@@ -50,6 +51,22 @@ fun Route.articleComments() {
 
         post("/") {
             handleResourceCreation(CommentService::add)
+        }
+
+        get("/tree/{uuid}") {
+            call.parameters["uuid"]?.toUUID()?.let { givenUUID ->
+                CommentService.getMatching(Comments) { Comments.parentComment eq givenUUID }
+                    .fold(
+                        success = {
+                            val tree = mutableSetOf<Comment>()
+                            tree.addAll(it)
+                            call.respond(tree)
+                        },
+                        failure = {
+                            call.respond(it)
+                        }
+                    )
+            }
         }
 
     }
