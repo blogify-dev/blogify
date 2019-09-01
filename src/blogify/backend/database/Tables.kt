@@ -34,7 +34,7 @@ object Articles : ResourceTable<Article>() {
         uuid       = source[uuid],
         title      = source[title],
         createdAt  = source[createdAt],
-        createdBy  = UserService.get(source[createdBy]).get() ?: error("no user in db for article ${source[uuid]}"),
+        createdBy  = UserService.get(source[createdBy]).get(),
         content    = transaction {
             Content.select { Content.article eq source[uuid] }.singleOrNull()
         }?.let { Content.convert(it) } ?: error("no or multiple content in db for article ${source[uuid]}"),
@@ -102,8 +102,8 @@ object Comments : ResourceTable<Comment>() {
     override suspend fun convert(source: ResultRow) = SuspendableResult.of<Comment, Service.Exception.Fetching> { Comment (
         uuid          = source[uuid],
         content       = source[content],
-        article       = ArticleService.get(source[article]).get() ?: error("article not found on comment retrieve from db"),
-        commenter     = UserService.get(source[commenter]).get()  ?: error("user not found on comment retrieve from db"),
+        article       = ArticleService.get(source[article]).get(),
+        commenter     = UserService.get(source[commenter]).get(),
         parentComment = source[parentComment]?.let { CommentService.get(it).get() }
     ) }
 
