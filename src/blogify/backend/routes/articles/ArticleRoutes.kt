@@ -50,6 +50,8 @@ fun Route.articles() {
 
         articleContent()
 
+        articleCategory()
+
         articleComments()
 
     }

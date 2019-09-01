@@ -39,7 +39,8 @@ data class Article (
     @JsonProperty(access = WRITE_ONLY)
     val content: Content?,
 
-    val categories: Set<String>,
+    @JsonProperty(access = WRITE_ONLY)
+    val categories: List<Category>?,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid) {
@@ -58,4 +59,16 @@ data class Article (
         }.single().let { Articles.Content.convert(it) }
     }.get()
 
+    /**
+     * Represents the categories of an [Article].
+     *
+     * @property name    The name content of the category.
+     */
+    data class Category(val name: String)
+
+    suspend fun category(): List<Category> = query {
+        Articles.Category.select {
+            Articles.Category.article eq this@Article.uuid
+        }.toList().map{ Articles.Category.convert(it) }
+    }.get()
 }
