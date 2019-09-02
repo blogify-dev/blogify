@@ -24,7 +24,7 @@ export class AuthService {
 
     async getUser(uuid: string, userToken: string): Promise<User> {
         const cUser = await this.currentUser
-        if (cUser != undefined && cUser.uuid === uuid) {
+        if (cUser != undefined /*&& cUser.uuid === uuid*/) {
             return this.currentUser
         } else {
             return this.requestUser(uuid, userToken).toPromise()

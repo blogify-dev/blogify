@@ -9,7 +9,7 @@ import {User} from "../../models/User";
 })
 export class RegisterComponent implements OnInit {
 
-  user: User = {uuid: '', password: '', info: '', username: ''};
+  user: User = {/*uuid: '',*/ password: '', /*info: '',*/ username: ''};
 
   constructor(private authService: AuthService) {
     this.ngOnInit();

@@ -7,9 +7,9 @@ export class UsernamePasswordCredentials {
 
 export class User {
   constructor(
-    public uuid: string,
+    //public uuid: string,
     public username: string,
-    public info: string,
+    //public info: string,
     public password?: string
   ) {
   }
