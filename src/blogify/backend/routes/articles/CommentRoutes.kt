@@ -16,6 +16,7 @@ import blogify.backend.services.articles.CommentService
 import blogify.backend.util.toUUID
 
 import io.ktor.routing.*
+import org.jetbrains.exposed.sql.and
 
 fun Route.articleComments() {
 
@@ -27,7 +28,7 @@ fun Route.articleComments() {
 
         get("/{uuid}") {
             handleIdentifiedResourceFetchAll(fetch = { articleId ->
-                CommentService.getMatching(Comments) { Comments.article eq articleId }
+                CommentService.getMatching(Comments) { Comments.article eq articleId and Comments.parentComment.isNull() }
             })
         }
 
