@@ -13,25 +13,10 @@ import { LoginComponent } from "../login/login.component";
 export class HomeComponent implements OnInit {
   title = 'blogify';
 
-  articles: Article[];
-
-
-  constructor(private articleService: ArticleService, private router: Router) {
-  }
 
 ngOnInit(): void {
 }
 
-  getAllArticles() {
-    this.articleService.getAllArticles().subscribe((it) => {
-        this.articles = it;
-        console.log(this.articles)
-    })
 
-  }
-
-  createNewArticle() {
-    return this.articleService.getAllArticles()
-  }
 
 }
