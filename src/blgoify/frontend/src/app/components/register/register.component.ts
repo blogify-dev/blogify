@@ -9,7 +9,7 @@ import {User} from "../../models/User";
 })
 export class RegisterComponent implements OnInit {
 
-  user: User;
+  user: User = {uuid: '', password: '', info: '', username: ''};
 
   constructor(private authService: AuthService) {
     this.ngOnInit();
@@ -20,7 +20,8 @@ export class RegisterComponent implements OnInit {
 
   //TODO: add async methods for client display
   register(){
-    this.authService.register(this.user).subscribe((it: any) => {
+      console.log(this.user)
+    this.authService.register(this.user).subscribe((it) => {
       this.user = it;
       console.log(this.user)
       return this.user;

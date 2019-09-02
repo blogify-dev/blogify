@@ -10,6 +10,7 @@ export class User {
     public uuid: string,
     public username: string,
     public info: string,
+    public password?: string
   ) {
   }
 }
