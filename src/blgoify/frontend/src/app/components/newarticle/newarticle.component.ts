@@ -13,13 +13,19 @@ export class NewarticleComponent implements OnInit {
 
   articles: Article;
   token: string;
+  uuid: string;
 
 
   constructor(private articleService: ArticleService, private router: Router) {
   }
 
   createNewArticle() {
-    return this.articleService.createNewArticle(this.articles, this.token);
+    return this.articleService.createNewArticle(this.articles, this.token).toPromise();
+  }
+
+  updateArticle(){
+    return this.articleService.updateArticle(this.uuid, this.articles, this.token).toPromise();
+
   }
 
   getAllArticles() {
