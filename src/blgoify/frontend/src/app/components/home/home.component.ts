@@ -22,14 +22,6 @@ export class HomeComponent implements OnInit {
 ngOnInit(): void {
 }
 
-  toLoginPage(){
-    this.router.navigateByUrl('/auth/signin').then(r => Promise);
-  }
-
-  toRegisterPage(){
-    this.router.navigateByUrl('/auth/signup').then(r => Promise);
-  }
-
   getAllArticles() {
     this.articleService.getAllArticles().subscribe((it) => {
         this.articles = it;

@@ -4,7 +4,22 @@
       Welcome to {{ title }}!
     </h1>
 </div>
-<button (click)="toLoginPage()">Login</button>
-<button (click)="toRegisterPage()">Register</button>
+
+<div class="Navigation">
+  <a href="../../index.html">Home</a>
+  <br>
+  <a href="/login">Login</a>
+  <br>
+  <a href="/register">Register</a>
+  <br>
+  <a href="/search">Search</a>
+  <br>
+  <a href="/new-article">New Article</a>
+  <br>
+  <a href="/profile/:uuid">Profile</a>
+
+</div>
 
 <p>lets get this bread</p>
+
+<router-outlet></router-outlet>

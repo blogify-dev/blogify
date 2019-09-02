@@ -23,6 +23,7 @@ export class RegisterComponent implements OnInit {
     this.authService.register(this.user).subscribe((it: any) => {
       this.user = it;
       console.log(this.user)
+      return this.user;
     })
   }
 }
