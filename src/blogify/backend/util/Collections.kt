@@ -22,15 +22,19 @@ fun <T> Iterable<T>.singleOrNullOrError(): T? {
 /**
  * Allows to specify a function to execute depending on whether a collection has exactly one item, multiple items or no items.
  */
-suspend fun <Ct, Rt> Collection<Ct>.foldForOne (
+suspend fun <Ct, Rt> Iterable<Ct>.foldForOne (
     one:      suspend (Ct) -> Rt,
-    multiple: suspend (Collection<Ct>) -> Rt,
+    multiple: suspend (Iterable<Ct>) -> Rt,
     none:     suspend () -> Rt
 ) : Rt {
-    return when  {
-        size == 1    -> one(first())
-        isNotEmpty() -> multiple(this)
-        isEmpty()    -> none()
-        else         -> error("impossible state")
+    val iter = iterator()
+    if (!iter.hasNext()) {
+        return none()
+    }
+    val e = iter.next()
+    return if (iter.hasNext()) {
+        multiple(this)
+    } else {
+        one(e)
     }
 }
