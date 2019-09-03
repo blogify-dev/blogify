@@ -1,3 +1,5 @@
+@file:Suppress("RemoveRedundantQualifierName")
+
 package blogify.backend.database
 
 import blogify.backend.resources.Article
@@ -83,23 +85,20 @@ object Users : ResourceTable<User>() {
 
     override suspend fun convert(source: ResultRow) = SuspendableResult.of<User, Service.Exception.Fetching> { User (
         uuid     = source[uuid],
-        info     = transaction {
-            UserInfo.select { UserInfo.user eq uuid }.singleOrNull()?. let { UserInfo.convert(it) } ?: error("")
-        },
         username = source[username],
         password = source[password]
     ) }
 
     object UserInfo: Table() {
 
-        val user = uuid("user").primaryKey().references(uuid, onDelete = ReferenceOption.CASCADE)
-        val email = varchar("email", 255)
-        val name = varchar("name", 255)
+        val user  = uuid    ("user").primaryKey().references(uuid, onDelete = ReferenceOption.CASCADE)
+        val email = varchar ("email", 255)
+        val name  = varchar ("name", 255)
 
-        fun convert(source: ResultRow) = User.PersonalInformation(
-            name = source[name],
-            email = source[email]
-        )
+        suspend fun convert(source: ResultRow) = SuspendableResult.of<User.PersonalInformation, Service.Exception.Fetching> { User.PersonalInformation (
+            email = source[email],
+            name = source[name]
+        )}
     }
 
 }
