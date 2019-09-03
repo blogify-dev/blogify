@@ -4,6 +4,7 @@ import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
+import io.ktor.routing.*
 
 import blogify.backend.database.Comments
 import blogify.backend.resources.Comment
@@ -15,7 +16,6 @@ import blogify.backend.routes.handling.respondExceptionMessage
 import blogify.backend.services.articles.CommentService
 import blogify.backend.util.toUUID
 
-import io.ktor.routing.*
 import org.jetbrains.exposed.sql.and
 
 fun Route.articleComments() {
@@ -56,7 +56,8 @@ fun Route.articleComments() {
 
         get("/tree/{uuid}") {
             call.parameters["uuid"]?.toUUID()?.let { givenUUID ->
-                CommentService.getMatching(Comments) { Comments.parentComment eq givenUUID }
+                CommentService
+                    .getMatching(Comments) { Comments.parentComment eq givenUUID }
                     .fold (
                         success = {
                             call.respond(it)
@@ -65,7 +66,7 @@ fun Route.articleComments() {
                             call.respondExceptionMessage(ex)
                         }
                     )
-            }
+            } ?: call.respond(HttpStatusCode.BadRequest)
         }
 
     }
