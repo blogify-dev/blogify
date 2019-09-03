@@ -1,4 +1,4 @@
-package blogify.backend.routes
+package blogify.backend.routes.users
 
 import io.ktor.routing.Route
 import io.ktor.routing.get
@@ -35,6 +35,8 @@ fun Route.users() {
         post("/") {
             handleResourceCreation(UserService::add)
         }
+
+        userInfo()
 
     }
 
