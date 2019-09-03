@@ -38,25 +38,34 @@ data class UsernamePasswordCredentials(val username: String, val password: Strin
     fun matchFor(user: User): Boolean {
         return (username == user.username && encoder.matches(password, user.password))
     }
+}
 
+data class RegisterCredentials(
+    val name: String,
+    val username: String,
+    val password: String,
+    val email: String
+) {
     /**
-     * Creates a [user][User] from the [credentials][UsernamePasswordCredentials].
+     * Creates a [user][User] from the [credentials][RegisterCredentials].
+     * @return The created user
      */
-    suspend fun createUser(): User = User (
-            name     = this.username,
-            username = this.username,
-            password = this.password.hash()
-        ).also { created ->
-                UserService.add(created).fold (
-                    success = {},
-                    failure = {
-                        error("signup couldn't create user")
-                    }
-                )
-                return created
+    suspend fun createUser(): User = User(
+        info = User.PersonalInformation(
+            name = this.name,
+            email = this.email
+        ),
+        username = this.username,
+        password = this.password.hash()
+    ).also { created ->
+        UserService.add(created).fold(
+            success = {},
+            failure = {
+                error("$it: signup couldn't create user")
             }
-
-
+        )
+        return created
+    }
 }
 
 val validTokens = mutableMapOf<User, String>()
@@ -67,12 +76,12 @@ fun Route.auth() {
 
         post("/signin") {
 
-            val credentials         = call.receive<UsernamePasswordCredentials>()
+            val credentials = call.receive<UsernamePasswordCredentials>()
             val matchingCredentials = UserService.getMatching(Users) { Users.username eq credentials.username }
 
-            matchingCredentials.fold (
+            matchingCredentials.fold(
                 success = { set ->
-                    set.foldForOne (
+                    set.foldForOne(
                         one = { singleUser ->
                             if (credentials.matchFor(singleUser)) {
                                 val token = Base64
@@ -87,9 +96,11 @@ fun Route.auth() {
                             } else {
                                 call.respond(HttpStatusCode.Forbidden) // Password doesn't match
                             }
-                        }, multiple = { call.respond(HttpStatusCode.InternalServerError)
-                        }, none     = { call.respond(HttpStatusCode.NotFound)
-                    })
+                        }, multiple = {
+                            call.respond(HttpStatusCode.InternalServerError)
+                        }, none = {
+                            call.respond(HttpStatusCode.NotFound)
+                        })
                 },
                 failure = { ex ->
                     call.respondExceptionMessage(ex)
@@ -99,7 +110,6 @@ fun Route.auth() {
         }
 
         get("/{token}") {
-            // TODO: Change this param to header
             call.parameters["token"]?.let { token ->
 
                 val user = validTokens
@@ -113,7 +123,8 @@ fun Route.auth() {
         }
 
         post("/signup") {
-            val credentials = call.receive<UsernamePasswordCredentials>()
+            val credentials = call.receive<RegisterCredentials>()
+            println("credentials -> $credentials")
             val createdUser = credentials.createUser()
             call.respond(createdUser)
         }

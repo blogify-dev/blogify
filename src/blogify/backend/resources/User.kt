@@ -15,10 +15,12 @@ import java.util.*
     property  = "uuid"
 )
 data class User (
-    val name:     String,
+    val info: PersonalInformation,
     val username: String,
 
     @JsonIgnore val password: String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
 
     override val uuid: UUID = UUID.randomUUID()
-) : Resource(uuid)
+) : Resource(uuid) {
+    data class PersonalInformation(val name: String, val email: String)
+}

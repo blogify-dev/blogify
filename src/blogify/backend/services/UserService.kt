@@ -26,9 +26,14 @@ object UserService : Service<User> {
     override suspend fun add(res: User) = query {
         Users.insert {
             it[uuid]     = res.uuid
-            it[name]     = res.name
             it[username] = res.username
             it[password] = res.password
+        }
+
+        Users.UserInfo.insert {
+            it[user] = res.uuid
+            it[email] = res.info.email
+            it[name] = res.info.name
         }
 
         return@query res

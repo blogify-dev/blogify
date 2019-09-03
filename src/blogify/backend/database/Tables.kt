@@ -74,7 +74,6 @@ object Articles : ResourceTable<Article>() {
 object Users : ResourceTable<User>() {
 
     val uuid     = uuid    ("uuid").primaryKey()
-    val name     = varchar ("name", 255)
     val username = varchar ("username", 255)
     val password = varchar ("password", 255)
 
@@ -84,10 +83,24 @@ object Users : ResourceTable<User>() {
 
     override suspend fun convert(source: ResultRow) = SuspendableResult.of<User, Service.Exception.Fetching> { User (
         uuid     = source[uuid],
-        name     = source[name],
+        info     = transaction {
+            UserInfo.select { UserInfo.user eq uuid }.singleOrNull()?. let { UserInfo.convert(it) } ?: error("")
+        },
         username = source[username],
         password = source[password]
     ) }
+
+    object UserInfo: Table() {
+
+        val user = uuid("user").primaryKey().references(uuid, onDelete = ReferenceOption.CASCADE)
+        val email = varchar("email", 255)
+        val name = varchar("name", 255)
+
+        fun convert(source: ResultRow) = User.PersonalInformation(
+            name = source[name],
+            email = source[email]
+        )
+    }
 
 }
 
