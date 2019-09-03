@@ -30,12 +30,6 @@ object UserService : Service<User> {
             it[password] = res.password
         }
 
-        Users.UserInfo.insert {
-            it[user] = res.uuid
-            it[email] = res.info.email
-            it[name] = res.info.name
-        }
-
         return@query res
     }.mapError { e -> Service.Exception.Creating(e) }
 

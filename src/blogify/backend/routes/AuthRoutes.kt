@@ -19,6 +19,9 @@ import blogify.backend.util.hash
 import blogify.backend.util.letIn
 import blogify.backend.util.singleOrNullOrError
 
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.transactions.transaction
+
 import java.util.Base64
 
 import kotlin.random.Random
@@ -40,30 +43,36 @@ data class UsernamePasswordCredentials(val username: String, val password: Strin
     }
 }
 
-data class RegisterCredentials(
-    val name: String,
+data class RegisterCredentials (
     val username: String,
     val password: String,
-    val email: String
+    val name:     String,
+    val email:    String
 ) {
     /**
      * Creates a [user][User] from the [credentials][RegisterCredentials].
      * @return The created user
      */
     suspend fun createUser(): User = User(
-        info = User.PersonalInformation(
-            name = this.name,
-            email = this.email
-        ),
         username = this.username,
         password = this.password.hash()
-    ).also { created ->
+    ).also { created -> // We need to add user info and register the new object
+
         UserService.add(created).fold(
             success = {},
             failure = {
                 error("$it: signup couldn't create user")
             }
         )
+
+        transaction {
+            Users.UserInfo.insert {
+                it[user]  = created.uuid
+                it[name]  = this@RegisterCredentials.name
+                it[email] = this@RegisterCredentials.email
+            }
+        }
+
         return created
     }
 }
