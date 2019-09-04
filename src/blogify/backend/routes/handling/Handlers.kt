@@ -52,7 +52,7 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetch (
     call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
         fetch.invoke(id.toUUID()).fold (
             success = {
-                call.respond(transform.invoke(it))
+                call.respond(transform.invoke(it)) // TODO : if an error occurs in transform, it is not caught
             },
             failure = { ex ->
                 call.respondExceptionMessage(ex)
