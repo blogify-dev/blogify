@@ -44,7 +44,6 @@ object Articles : ResourceTable<Article>() {
             Categories.select { Categories.article eq source[uuid] }.toList() }.map { Categories.convert(it) }
     ) }
 
-    @Suppress("RemoveRedundantQualifierName")
     object Content : Table() {
 
         val article = uuid ("article").primaryKey().references(Articles.uuid, onDelete = ReferenceOption.CASCADE)
@@ -58,7 +57,7 @@ object Articles : ResourceTable<Article>() {
         )
 
     }
-    @Suppress("RemoveRedundantQualifierName")
+
     object Categories : Table() {
 
         val article = uuid("article").primaryKey().references(Articles.uuid, onDelete = ReferenceOption.CASCADE)
