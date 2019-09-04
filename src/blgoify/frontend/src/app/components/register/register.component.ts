@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from "../../services/auth/auth.service";
-import {User} from "../../models/User";
+import { RegisterCredentials } from "../../models/User";
 
 @Component({
   selector: 'app-register',
@@ -9,7 +9,7 @@ import {User} from "../../models/User";
 })
 export class RegisterComponent implements OnInit {
 
-  user: User = {/*uuid: '',*/ password: '', /*info: '',*/ username: ''};
+  user: RegisterCredentials = { name: '', username: '', password: '', email: '' };
 
   constructor(private authService: AuthService) {
     this.ngOnInit();

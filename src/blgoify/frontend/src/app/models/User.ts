@@ -1,16 +1,22 @@
-export class UsernamePasswordCredentials {
+export class User{
+  constructor(
+    public name: string,
+    public email: string
+  ) {}
+}
+
+export class LoginCredentials {
   constructor(
     public username: string,
     public password: string,
   ) {}
 }
 
-export class User {
+export class RegisterCredentials {
   constructor(
-    //public uuid: string,
-    public username: string,
-    //public info: string,
-    public password?: string
-  ) {
-  }
+      public name: string,
+      public username: string,
+      public password: string,
+      public email: string
+  ) {}
 }

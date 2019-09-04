@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { User } from 'src/app/models/User';
+import { RegisterCredentials } from 'src/app/models/User';
 
 @Component({
     selector: 'app-profile',
@@ -11,13 +11,13 @@ import { User } from 'src/app/models/User';
 })
 export class ProfileComponent implements OnInit, OnDestroy {
     token: string;
-    routeMapSubscribtion: Subscription;
-    user: User;
+    routeMapSubscription: Subscription;
+    user: RegisterCredentials;
 
     constructor(private activatedRoute: ActivatedRoute, private authService: AuthService) { }
 
     ngOnInit() {
-        this.routeMapSubscribtion = this.activatedRoute.paramMap.subscribe(async (map) => {
+        this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const userUUID = map.get('uuid');
             console.log(this.token)
             this.user = await this.authService.getUser(userUUID, (await this.authService.currentUserToken))
@@ -26,7 +26,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.routeMapSubscribtion.unsubscribe()
+        this.routeMapSubscription.unsubscribe()
     }
 
 }

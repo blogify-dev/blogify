@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from "../../services/auth/auth.service";
-import { UsernamePasswordCredentials } from '../../models/User';
+import { LoginCredentials } from '../../models/User';
 import { Observable } from "rxjs";
 
 @Component({
@@ -10,7 +10,7 @@ import { Observable } from "rxjs";
 })
 export class LoginComponent implements OnInit {
 
-    user: UsernamePasswordCredentials = { username: '', password: '' };
+    user: LoginCredentials = { username: '', password: '' };
 
     constructor(private authService: AuthService) {
         this.ngOnInit();
