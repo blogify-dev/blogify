@@ -93,7 +93,7 @@ fun Route.auth() {
 
             matchingCredentials.fold(
                 success = { set ->
-                    set.foldForOne(
+                    set.foldForOne (
                         one = { singleUser ->
                             if (credentials.matchFor(singleUser)) {
                                 val token = Base64
