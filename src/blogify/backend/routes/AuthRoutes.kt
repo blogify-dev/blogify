@@ -29,14 +29,17 @@ import kotlin.random.Random
 /**
  * Model for login credentials
  */
-data class UsernamePasswordCredentials(val username: String, val password: String) {
+data class LoginCredentials (
+    val username: String,
+    val password: String
+) {
 
     /**
-     * Checks the [credentials][UsernamePasswordCredentials] against a [user][User].
+     * Checks the [credentials][LoginCredentials] against a [user][User].
      *
      * @param user the user to check the credentials against
      *
-     * @return `true` if the [credentials][UsernamePasswordCredentials] match
+     * @return `true` if the [credentials][LoginCredentials] match
      */
     fun matchFor(user: User): Boolean {
         return (username == user.username && encoder.matches(password, user.password))
@@ -85,7 +88,7 @@ fun Route.auth() {
 
         post("/signin") {
 
-            val credentials = call.receive<UsernamePasswordCredentials>()
+            val credentials = call.receive<LoginCredentials>()
             val matchingCredentials = UserService.getMatching(Users) { Users.username eq credentials.username }
 
             matchingCredentials.fold(
