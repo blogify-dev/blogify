@@ -91,7 +91,7 @@ fun Route.auth() {
             val credentials = call.receive<LoginCredentials>()
             val matchingCredentials = UserService.getMatching(Users) { Users.username eq credentials.username }
 
-            matchingCredentials.fold(
+            matchingCredentials.fold (
                 success = { set ->
                     set.foldForOne (
                         one = { singleUser ->
