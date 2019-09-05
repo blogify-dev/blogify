@@ -7,7 +7,7 @@ export class Article {
         public content: Content,
         public createdBy: User,
         public createdAt: number,
-        public categories: string[],
+        public categories: object[],
     ) { }
 }
 

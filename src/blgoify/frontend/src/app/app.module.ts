@@ -10,7 +10,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { HomeComponent } from './components/home/home.component';
 import { RouterModule } from "@angular/router";
-import { NewarticleComponent } from './components/newarticle/newarticle.component';
+import { NewArticleComponent } from './components/newarticle/new-article.component';
 import { SearchComponent } from './components/search/search.component';
 
 
@@ -21,7 +21,7 @@ import { SearchComponent } from './components/search/search.component';
     RegisterComponent,
     ProfileComponent,
     HomeComponent,
-    NewarticleComponent,
+    NewArticleComponent,
     SearchComponent
   ],
   imports: [
