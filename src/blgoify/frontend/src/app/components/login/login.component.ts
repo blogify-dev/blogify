@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from "../../services/auth/auth.service";
-import { LoginCredentials } from '../../models/User';
+import { LoginCredentials, User } from '../../models/User';
 
 @Component({
     selector: 'app-login',
@@ -9,7 +9,8 @@ import { LoginCredentials } from '../../models/User';
 })
 export class LoginComponent implements OnInit {
 
-    user: LoginCredentials = { username: '', password: '' };
+    loginCredentials: LoginCredentials = { username: '', password: '' };
+    user: User;
 
     constructor(private authService: AuthService) {
         this.ngOnInit();
@@ -19,11 +20,12 @@ export class LoginComponent implements OnInit {
     }
 
     async login() {
-        const token = await this.authService.login(this.user).toPromise();
+        const token = await this.authService.login(this.loginCredentials).toPromise();
         console.log(token);
         const uuid = await this.authService.getUserUUID(token).toPromise();
-        console.log(this.authService.getUser(uuid.uuid));
-        console.log(this.user)
+        this.user = await this.authService.getUser(uuid.uuid);
+        console.log(this.user);
+        console.log(this.loginCredentials)
     }
 
 }

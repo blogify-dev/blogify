@@ -2,9 +2,13 @@
 
 <div>
 
-  <span>Username</span>: <input type="text" name="user" [(ngModel)]="user.username"><br>
-  <span>Password</span>: <input type="text" name="pass" [(ngModel)]="user.password"><br>
+  <span>Username</span>: <input type="text" name="user" [(ngModel)]="loginCredentials.username"><br>
+  <span>Password</span>: <input type="text" name="pass" [(ngModel)]="loginCredentials.password"><br>
 
 </div>
 
 <button (click)="login()">Login</button>
+
+<div>loginCredentials: {{loginCredentials | json}}</div>
+
+<div>user: {{user | json}}</div>
