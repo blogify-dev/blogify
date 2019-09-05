@@ -104,7 +104,7 @@ fun Route.auth() {
                                 validTokens[singleUser] = token
                                 validTokens.letIn(3600 * 1000L) { it.remove(singleUser) }
 
-                                call.respond(token)
+                                call.respond(object {val token = token})
                             } else {
                                 call.respond(HttpStatusCode.Forbidden) // Password doesn't match
                             }
