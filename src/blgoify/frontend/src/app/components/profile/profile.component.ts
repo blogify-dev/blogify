@@ -10,7 +10,6 @@ import { User } from 'src/app/models/User';
     styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit, OnDestroy {
-    token: string;
     routeMapSubscription: Subscription;
     user: User;
 
@@ -19,9 +18,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const userUUID = map.get('uuid');
-            console.log(this.token);
             this.user = await this.authService.getUser(userUUID);
             console.log(userUUID);
+            console.log(this.user)
         })
     }
 
