@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Article } from '../../models/Article'
+import { Article, Content } from '../../models/Article'
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -50,6 +50,10 @@ export class ArticleService {
 
     deleteArticle(uuid: string, userToken: string) {
         return this.httpClient.delete(`api/articles/${uuid}`)
+    }
+
+    getArticleContent(uuid: string) {
+        return this.httpClient.get<Content>(`/api/articles/content/${uuid}`)
     }
 
 }
