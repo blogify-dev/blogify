@@ -1,5 +1,7 @@
 <p>new-article works!</p>
 
 <input [(ngModel)]="article.title">
-<input [(ngModel)]="content.text">
+<input [(ngModel)]="article.content.text">
 <button (click)="createNewArticle()">Create New Article</button>
+
+<div>article: {{article | json}}</div>

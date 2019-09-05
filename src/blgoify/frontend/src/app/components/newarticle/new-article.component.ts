@@ -9,14 +9,11 @@ import { AuthService } from "../../services/auth/auth.service";
     styleUrls: ['./new-article.component.scss']
 })
 export class NewArticleComponent implements OnInit {
-    content: Content = {
-        text: 'text', summary: 'summ'
-    };
     article: Article = {
-        uuid: '0911b916-8cee-49bd-be13-9bf4c6694cc1',
+        uuid: '9c22b1ea-983c-48db-abd3-bd9c70a9816e',
         title: '',
         categories: [{name: "yo"}, {'name': "nice"}], // TODO: Get these from UI
-        content: this.content,
+        content: new Content('text', 'summm'),
         createdBy: {username: 'un', uuid: 'a4003e55-6a2a-45d0-949d-41f13112caa9'},
         createdAt: Date.now()
     };
@@ -26,7 +23,7 @@ export class NewArticleComponent implements OnInit {
 
     createNewArticle() {
         // TODO: Get this token automatically
-        const token = 'bV_GnFUPpJ2Dm1Ttg2h6AL0eLnS40JcjwnjX869haaP0yrlZGITisOOkuAFWCOhIC8c5jMuwWWHjJCA9KBo7QQ';
+        const token = 'n5r_kM33TIlGuvlsB-8GLMmmmDqYbRuvng7ZMze7dktUJsUmQMHP0MH7vSEChPoRhGzo6_rle4sr5Jf_Vrf8nw';
         return this.articleService.createNewArticle(this.article, token).toPromise();
     }
 

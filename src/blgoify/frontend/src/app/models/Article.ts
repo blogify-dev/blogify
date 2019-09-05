@@ -11,7 +11,9 @@ export class Article {
     ) { }
 }
 
-export interface Content {
-    text: string;
-    summary: string;
+export class Content {
+    constructor(
+    public text: string,
+    public summary: string,
+) { }
 }
