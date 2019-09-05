@@ -23,3 +23,12 @@
 <p>lets get this bread</p>
 
 <p>How about we write better code, then get the bread</p>
+
+<div>
+    <div *ngFor="let article of articles">
+        <h5>Title:  {{article.title}}</h5>
+        <p>Categories: {{article.categories | json}}</p>
+        <span>uuid: {{article.uuid}}</span>
+
+    </div>
+</div>
