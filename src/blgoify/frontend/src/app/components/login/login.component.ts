@@ -9,7 +9,7 @@ import { LoginCredentials, User } from '../../models/User';
 })
 export class LoginComponent implements OnInit {
 
-    loginCredentials: LoginCredentials = { username: '', password: '' };
+    loginCredentials: LoginCredentials = {username: '', password: ''};
     user: User;
 
     constructor(private authService: AuthService) {

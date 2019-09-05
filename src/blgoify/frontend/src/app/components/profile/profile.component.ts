@@ -13,7 +13,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     routeMapSubscription: Subscription;
     user: User;
 
-    constructor(private activatedRoute: ActivatedRoute, private authService: AuthService) { }
+    constructor(private activatedRoute: ActivatedRoute, private authService: AuthService) {
+    }
 
     ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {

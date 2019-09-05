@@ -10,7 +10,8 @@ export class AuthService {
     currentUserToken: Promise<UserToken>;
     currentUser: Promise<User>;
 
-    constructor(private httpClient: HttpClient) { }
+    constructor(private httpClient: HttpClient) {
+    }
 
     login(user: LoginCredentials) {
         const token = this.httpClient.post<UserToken>('/api/auth/signin', user);
@@ -32,8 +33,8 @@ export class AuthService {
     }
 
     private requestUser(uuid: string): Observable<User> {
-          const user = this.httpClient.get<User>(`/api/users/${uuid}`);
-          this.currentUser = user.toPromise();
+        const user = this.httpClient.get<User>(`/api/users/${uuid}`);
+        this.currentUser = user.toPromise();
         return user
     }
 
@@ -44,7 +45,7 @@ export class AuthService {
 }
 
 interface UserToken {
-  token: string
+    token: string
 }
 
 interface UserUUID {
