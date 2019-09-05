@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from "../../services/auth/auth.service";
 import { LoginCredentials } from '../../models/User';
-import { Observable } from "rxjs";
 
 @Component({
     selector: 'app-login',
@@ -19,11 +18,12 @@ export class LoginComponent implements OnInit {
     ngOnInit() {
     }
 
-    login() {
-        this.authService.login(this.user).subscribe((it) => {
-            console.log(it)
-            console.log(this.user)
-        })
+    async login() {
+        const token = await this.authService.login(this.user).toPromise();
+        console.log(token);
+        const uuid = await this.authService.getUserUUID(token).toPromise();
+        console.log(this.authService.getUser(uuid.uuid));
+        console.log(this.user)
     }
 
 }
