@@ -1,4 +1,4 @@
-import {User} from "./User";
+import { User } from "./User";
 
 export class Article {
     constructor(
@@ -8,12 +8,14 @@ export class Article {
         public createdBy: User,
         public createdAt: number,
         public categories: object[],
-    ) { }
+    ) {
+    }
 }
 
 export class Content {
     constructor(
-    public text: string,
-    public summary: string,
-) { }
+        public text: string,
+        public summary: string,
+    ) {
+    }
 }
