@@ -6,7 +6,7 @@ All-in-one blogging engine powered by Ktor and Angular.
 
 Blogify uses `Ktor` on the backend and `Angular` on the frontend.
 
-It uses `PostgreSQL` as a databse.
+It uses `PostgreSQL` as a database.
 
 ## Performance
 
@@ -16,7 +16,7 @@ Currently, our own (very basic) testing shows that the server can handle upwards
 
 ## Building and deploying
 
-The default deploy configuration runs the backend and the databse as `docker-compose` services. A functioning, local, test deployment can be achieved by running the `localTestDeploy` gradle task.
+The default deploy configuration runs the backend and the database as `docker-compose` services. A functioning, local, test deployment can be achieved by running the `localTestDeploy` gradle task.
 
 ## Core team
 
@@ -35,7 +35,7 @@ The default deploy configuration runs the backend and the databse as `docker-com
 
 This project is in a very early, pre-alpha stage.
 
-Any versions indicated in the startup message starting with `PRX` are not safe to use, not tested and are not guranteed to retain data safely.
+Any versions indicated in the startup message starting with `PRX` are not safe to use, not tested and are not guaranteed to retain data safely.
 
 ## Contributing
 
