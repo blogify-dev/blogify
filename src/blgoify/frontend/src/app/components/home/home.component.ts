@@ -10,16 +10,11 @@ import { Article } from '../../models/Article'
 })
 export class HomeComponent implements OnInit {
     title = 'blogify';
-    articles: Article[];
 
-    constructor(private articleService: ArticleService) {
+    constructor() {
     }
 
-
     ngOnInit() {
-        this.articleService.getAllArticles().subscribe(it => {
-            this.articles = it
-        })
     }
 
 

@@ -1,4 +1,3 @@
-<!--The content below is only a placeholder and can be replaced.-->
 <div style="text-align:center">
     <h1>
       Welcome to {{ title }}!
@@ -24,10 +23,5 @@
 
 <p>How about we write better code, then get the bread</p>
 
-<div>
-    <div *ngFor="let article of articles">
-        <h5>Title:  {{article.title}}</h5>
-        <p>uuid: {{article.uuid}}</p>
-        <button routerLink="/article/{{article.uuid}}">Show more</button>
-    </div>
-</div>
+<app-show-all-articles></app-show-all-articles>
+

@@ -1,0 +1,9 @@
+<p>show-all-articles works!</p>
+
+<div>
+    <div *ngFor="let article of articles">
+        <h5>Title:  {{article.title}}</h5>
+        <p>uuid: {{article.uuid}}</p>
+        <button routerLink="/article/{{article.uuid}}">Show more</button>
+    </div>
+</div>
