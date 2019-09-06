@@ -106,7 +106,7 @@ fun Route.auth() {
 
                                 call.respond(object {val token = token})
                             } else {
-                                call.respond(HttpStatusCode.Forbidden) // Password doesn't match
+                                call.respond(HttpStatusCode.Forbidden, object {val reason = "Invalid username/password"}) // Password doesn't match
                             }
                         }, multiple = {
                             call.respond(HttpStatusCode.InternalServerError)
