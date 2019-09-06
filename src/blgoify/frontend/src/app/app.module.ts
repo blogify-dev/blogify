@@ -12,6 +12,7 @@ import { HomeComponent } from './components/home/home.component';
 import { RouterModule } from "@angular/router";
 import { NewArticleComponent } from './components/newarticle/new-article.component';
 import { SearchComponent } from './components/search/search.component';
+import { ShowArticleComponent } from './components/show-article/show-article.component';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { SearchComponent } from './components/search/search.component';
     ProfileComponent,
     HomeComponent,
     NewArticleComponent,
-    SearchComponent
+    SearchComponent,
+    ShowArticleComponent
   ],
   imports: [
     BrowserModule,
