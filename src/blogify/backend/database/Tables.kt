@@ -19,6 +19,8 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
+import java.lang.IllegalStateException
+
 abstract class ResourceTable<R : Resource> : Table() {
 
     abstract suspend fun convert(source: ResultRow): SuspendableResult<R, Service.Exception.Fetching>
@@ -39,7 +41,8 @@ object Articles : ResourceTable<Article>() {
         createdBy  = UserService.get(source[createdBy]).get(),
         content    = transaction {
             Content.select { Content.article eq source[uuid] }.singleOrNull()
-        }?.let { Content.convert(it) } ?: error("no or multiple content in db for article ${source[uuid]}"),
+        }?.let { Content.convert(it) }
+            ?: throw Database.Exception(IllegalStateException("no or multiple content in db for article ${source[uuid]}")),
         categories = transaction {
             Categories.select { Categories.article eq source[uuid] }.toList() }.map { Categories.convert(it) }
     ) }
