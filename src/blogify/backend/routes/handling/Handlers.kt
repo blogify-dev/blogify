@@ -1,3 +1,5 @@
+@file:Suppress("DuplicatedCode")
+
 package blogify.backend.routes.handling
 
 import io.ktor.application.ApplicationCall
@@ -15,6 +17,8 @@ import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.util.BlogifyDsl
 import blogify.backend.util.toUUID
+
+import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import java.util.UUID
 
@@ -51,12 +55,15 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetch (
 ) {
     call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
         fetch.invoke(id.toUUID()).fold (
-            success = {
-                call.respond(transform.invoke(it)) // TODO : if an error occurs in transform, it is not caught
+            success = { fetched ->
+                SuspendableResult.of<Any, Service.Exception> {
+                    transform.invoke(fetched) // Cover for any errors in transform()
+                }.fold (
+                    success = call::respond,
+                    failure = call::respondExceptionMessage
+                )
             },
-            failure = { ex ->
-                call.respondExceptionMessage(ex)
-            }
+            failure = call::respondExceptionMessage
         )
     } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
 }
@@ -74,16 +81,19 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetchAll (
     transform: suspend (elem: R) -> Any = { it }
 ) {
     fetch.invoke().fold (
-        success = { set ->
-            if (set.isNotEmpty()) {
-                call.respond(set.map { transform.invoke(it) })
+        success = { fetchedSet ->
+            if (fetchedSet.isNotEmpty()) {
+                SuspendableResult.of<Set<Any>, Service.Exception> {
+                    fetchedSet.map { transform.invoke(it) }.toSet() // Cover for any errors in transform()
+                }.fold (
+                    success = call::respond,
+                    failure = call::respondExceptionMessage
+                )
             } else {
                 call.respond(HttpStatusCode.NoContent)
             }
         },
-        failure = { ex ->
-            call.respondExceptionMessage(ex)
-        }
+        failure = call::respondExceptionMessage
     )
 }
 
@@ -103,16 +113,19 @@ suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
 ) {
     call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
         fetch.invoke(id.toUUID()).fold (
-            success = { set ->
-                if (set.isNotEmpty()) {
-                    call.respond(set.map { transform.invoke(it) })
+            success = { fetchedSet ->
+                if (fetchedSet.isNotEmpty()) {
+                    SuspendableResult.of<Set<Any>, Service.Exception> {
+                        fetchedSet.map { transform.invoke(it) }.toSet() // Cover for any errors in transform()
+                    }.fold (
+                        success = call::respond,
+                        failure = call::respondExceptionMessage
+                    )
                 } else {
                     call.respond(HttpStatusCode.NoContent)
                 }
             },
-            failure = { ex ->
-                call.respondExceptionMessage(ex)
-            }
+            failure = call::respondExceptionMessage
         )
     } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
 }
@@ -136,9 +149,7 @@ suspend inline fun <reified R : Resource> CallPipeline.handleResourceCreation (
             success = {
                 call.respond(HttpStatusCode.Created)
             },
-            failure = { ex ->
-                call.respondExceptionMessage(ex)
-            }
+            failure = call::respondExceptionMessage
         )
     } catch (e: ContentTransformationException) {
         call.respond(HttpStatusCode.BadRequest)
@@ -161,9 +172,7 @@ suspend fun CallPipeline.handleResourceDeletion (
             success = {
                 call.respond(HttpStatusCode.OK)
             },
-            failure = { ex ->
-                call.respondExceptionMessage(ex)
-            }
+            failure = call::respondExceptionMessage
         )
     } ?: call.respond(HttpStatusCode.BadRequest)
 }
