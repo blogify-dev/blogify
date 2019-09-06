@@ -19,7 +19,7 @@ object Database {
         config.minimumIdle            = 6
         config.validationTimeout      = 10 * 1000
         config.connectionTimeout      = 10 * 1000
-        config.maxLifetime            = 30 * 1000
+        config.maxLifetime            = 30 * 60 * 1000
         config.leakDetectionThreshold = 60 * 1000
         config.isAutoCommit           = false
         config.transactionIsolation   = "TRANSACTION_REPEATABLE_READ"
