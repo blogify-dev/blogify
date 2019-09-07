@@ -1,7 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 /* We're working with the body tag, and so with the WHOLE page */
-body
-{
-  background-color: black;
-  color: white;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    list-style: none;
+    text-decoration: none;
 }

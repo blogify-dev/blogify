@@ -15,6 +15,7 @@ import { SearchComponent } from './components/search/search.component';
 import { ShowArticleComponent } from './components/show-article/show-article.component';
 import { ShowAllArticlesComponent } from './components/show-all-articles/show-all-articles.component';
 import { CommentComponent } from './components/comment/comment.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
 
 
 @NgModule({
@@ -28,7 +29,8 @@ import { CommentComponent } from './components/comment/comment.component';
     SearchComponent,
     ShowArticleComponent,
     ShowAllArticlesComponent,
-    CommentComponent
+    CommentComponent,
+    NavbarComponent
   ],
   imports: [
     BrowserModule,
