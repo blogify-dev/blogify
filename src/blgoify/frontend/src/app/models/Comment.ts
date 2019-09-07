@@ -1,9 +1,9 @@
-import {Content} from './Article';
-import {Article} from './Article';
-
-export interface Comment {
-  commenter: string; // Can be user which isn't implemented yet
-  article: Article; // Can be uuid string of the article. Don't know which one to use
-  content: Content;
-  uuid: string;
+export class Comment {
+    constructor(
+        public commenter: string,
+        public article: string,
+        public content: string,
+        public uuid: string,
+    ) {
+    }
 }

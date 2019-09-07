@@ -14,6 +14,7 @@ import { NewArticleComponent } from './components/newarticle/new-article.compone
 import { SearchComponent } from './components/search/search.component';
 import { ShowArticleComponent } from './components/show-article/show-article.component';
 import { ShowAllArticlesComponent } from './components/show-all-articles/show-all-articles.component';
+import { CommentComponent } from './components/comment/comment.component';
 
 
 @NgModule({
@@ -26,7 +27,8 @@ import { ShowAllArticlesComponent } from './components/show-all-articles/show-al
     NewArticleComponent,
     SearchComponent,
     ShowArticleComponent,
-    ShowAllArticlesComponent
+    ShowAllArticlesComponent,
+    CommentComponent
   ],
   imports: [
     BrowserModule,

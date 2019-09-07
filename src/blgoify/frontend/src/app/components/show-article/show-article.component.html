@@ -10,4 +10,7 @@
     <p>UUID: {{article.uuid}}</p>
     <p>Created at: {{convertTimeStampToHumanDate(article.createdAt)}}</p>
     <p>Created by {{articleAuthor.username}}</p>
+
+    <h4>comments:</h4>
+    <app-comment [articleUUID]="article.uuid"></app-comment>
 </div>
