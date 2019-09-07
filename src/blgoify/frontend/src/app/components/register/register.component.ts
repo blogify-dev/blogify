@@ -27,4 +27,10 @@ export class RegisterComponent implements OnInit {
       return this.user;
     })
   }
+
+    // async register2() {
+    //     await this.authService.register(this.user).toPromise();
+    //     console.log(this.user);
+    //     console.log(this.user);
+    // }
 }

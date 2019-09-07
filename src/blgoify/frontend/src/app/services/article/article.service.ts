@@ -2,11 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Article, Content } from '../../models/Article'
 import { Observable } from 'rxjs';
+import {AuthService} from "../auth/auth.service";
+import {User} from "../../models/User";
 
 @Injectable({
     providedIn: 'root'
 })
 export class ArticleService {
+
+    auth: AuthService;
 
     constructor(private httpClient: HttpClient) {
     }
@@ -19,7 +23,7 @@ export class ArticleService {
         return this.httpClient.get<Article>(`/api/articles/${uuid}`)
     }
 
-    createNewArticle(article: Article, userToken: string) {
+    createNewArticle(article: Article, userToken: string , user: User) { //
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',

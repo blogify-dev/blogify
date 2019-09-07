@@ -11,13 +11,18 @@ import { User } from "../../models/User";
 })
 export class NewArticleComponent implements OnInit {
 
-    user: User;
+    auth: AuthService;
+
+    user: User = {
+        username: 'lucy',
+        uuid: '5fb72569-2086-46b8-b8a9-828fe5ce1bb6'
+    };
 
 
     article: Article = {
         uuid:'5fb72569-2086-46b8-b8a9-828fe5ce1bb6' /*'9c22b1ea-983c-48db-abd3-bd9c70a9816e'*/,
         title: '',
-        username: 'un',
+        username: 'lucy',
         categories: [], // TODO: Get these from UI
         content: new Content('', ''),
         createdBy: {username: 'lucy', uuid: '5fb72569-2086-46b8-b8a9-828fe5ce1bb6'},
@@ -31,8 +36,8 @@ export class NewArticleComponent implements OnInit {
 
     createNewArticle() {
         // TODO: Get this token automatically
-        const token = 'n5r_kM33TIlGuvlsB-8GLMmmmDqYbRuvng7ZMze7dktUJsUmQMHP0MH7vSEChPoRhGzo6_rle4sr5Jf_Vrf8nw';
-        return this.articleService.createNewArticle(this.article, token).subscribe((it: any)=>{
+        const token = this.auth.currentUserToken; /*'aBMkKh7gyNEAL8cCOCCkXV2QoxgcUvv5hBzA3fibbAOC-_opUR_RVSssSH0g6_59Blrrem_XvS44CgRFqPMLIw'*/
+        return this.articleService.createNewArticle(this.article, token, this.user).subscribe((it: any)=>{ //cant pass in interface
             this.article = it;
         });
     }
