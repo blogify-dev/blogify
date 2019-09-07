@@ -8,9 +8,10 @@
                 <h3 class="read-more">
                     <a class="read-more" routerLink="/article/{{article.uuid}}">Read More</a>
                 </h3>
-                <!-- <h4 class="comment-ammount">Comments: <span class="comment-bold-number">4</span></h4>-->
+                <!-- TODO: Actually impalement this-->
+                <h4 class="comment-ammount">Comments: <span class="comment-bold-number">4</span></h4>
                 <p class="tag-text">Tags</p>
-                    <pre *ngFor="let tag of article.categories">{{tag.name}}    </pre>
+                    <span *ngFor="let tag of article.categories">{{tag.name}}, </span>
             </div>
         </div>
 
