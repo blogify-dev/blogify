@@ -1,26 +1,18 @@
-<!--<div>
-    <div *ngFor="let article of articles">
-        <h5>Title:  {{article.title}}</h5>
-        <p>uuid: {{article.uuid}}</p>
-        <button routerLink="/article/{{article.uuid}}">Show more</button>
-    </div>
-</div>-->
 <section class="main">
     <section class="posts">
 
         <div class="post-list">
             <div class="post-content" *ngFor="let article of articles">
                 <h1 class="post-title">{{article.title}}</h1>
-                <h4 class="posted-by">Posted by  {{article.createdBy}} </h4>
+                <h4 class="posted-by">Posted by  {{article.username}} </h4>
                 <h3 class="read-more">
                     <a class="read-more" routerLink="/article/{{article.uuid}}">Read More</a>
                 </h3>
-<!--                <h4 class="comment-ammount">Comments: <span class="comment-bold-number">4</span></h4>-->
-                <p  class="tag-text">Tags</p>
+                <!-- <h4 class="comment-ammount">Comments: <span class="comment-bold-number">4</span></h4>-->
+                <p class="tag-text">Tags</p>
+                    <pre *ngFor="let tag of article.categories">{{tag.name}}    </pre>
             </div>
-
         </div>
 
     </section>
-
 </section>

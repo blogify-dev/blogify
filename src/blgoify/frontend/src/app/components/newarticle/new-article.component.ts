@@ -17,10 +17,11 @@ export class NewArticleComponent implements OnInit {
     article: Article = {
         uuid:'5fb72569-2086-46b8-b8a9-828fe5ce1bb6' /*'9c22b1ea-983c-48db-abd3-bd9c70a9816e'*/,
         title: '',
+        username: 'un',
         categories: [], // TODO: Get these from UI
         content: new Content('', ''),
         createdBy: {username: 'lucy', uuid: '5fb72569-2086-46b8-b8a9-828fe5ce1bb6'},
-        createdAt: Date.now()
+        createdAt: Date.now(),
     };
 
 
