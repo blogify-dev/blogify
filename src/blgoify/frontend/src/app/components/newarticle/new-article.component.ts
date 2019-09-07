@@ -36,8 +36,9 @@ export class NewArticleComponent implements OnInit {
 
     createNewArticle() {
         // TODO: Get this token automatically
-        const token = this.auth.currentUserToken; /*'aBMkKh7gyNEAL8cCOCCkXV2QoxgcUvv5hBzA3fibbAOC-_opUR_RVSssSH0g6_59Blrrem_XvS44CgRFqPMLIw'*/
-        return this.articleService.createNewArticle(this.article, token, this.user).subscribe((it: any)=>{ //cant pass in interface
+        const placeholderToken = 'aBMkKh7gyNEAL8cCOCCkXV2QoxgcUvv5hBzA3fibbAOC-_opUR_RVSssSH0g6_59Blrrem_XvS44CgRFqPMLIw'
+        const token = this.auth.currentUserToken;
+        return this.articleService.createNewArticle(this.article, placeholderToken, this.user).subscribe((it: any)=>{ //cant pass in interface
             this.article = it;
         });
     }

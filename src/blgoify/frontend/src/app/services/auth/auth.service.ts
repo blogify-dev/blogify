@@ -8,13 +8,14 @@ import { Observable } from 'rxjs';
 })
 export class AuthService {
     currentUserToken: Promise<UserToken>;
+    //currentToken: string;
     currentUser: Promise<User>;
 
     constructor(private httpClient: HttpClient) {
     }
 
     login(user: LoginCredentials) {
-        const token = this.httpClient.post<UserToken>('/api/auth/signin', user);
+        const token = this.httpClient.post<UserToken>('/api/auth/signin',  user);
         this.currentUserToken = token.toPromise();
         return token
     }
