@@ -30,23 +30,22 @@ export class ArticleService {
         return this.httpClient.get<Article>(`/api/articles/${uuid}`)
     }
 
-    createNewArticle(article: Article, userToken: string) { //
+    createNewArticle(article: Article, userToken: string) {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${userToken}`
             })
         };
-        const {uuid, createdAt, content, title, categories, username} = article;
+        const {uuid, content, title, categories} = article;
         const newArticle = {
             uuid: uuid,
-            createdAt: createdAt,
             content: content,
             title: title,
             categories: categories,
             createdBy: article.createdBy.uuid,
-            username: username
         };
+        console.log("yes");
         return this.httpClient.post(`/api/articles/`, newArticle, httpOptions)
     }
 
