@@ -1,27 +1,31 @@
 @import "../../../assets/styles/fonts";
 
-.navbar {
-    display: flex;
-    justify-content: space-between;
+//noinspection ALL
+#navbar-list {
+    display:        flex;
+    flex-direction:  row;
+    justify-content: end;
 
-    text-align: center;
-
-    padding: 3% 2%;
+    padding: 4em 3em;
 
     background: white;
 
-    -webkit-box-shadow: 0px -2px 24px -2px rgba(0,0,0,0.44);
-    -moz-box-shadow: 0px -2px 24px -2px rgba(0,0,0,0.44);
-    box-shadow: 0px -2px 24px -2px rgba(0,0,0,0.44);
+    -webkit-box-shadow: 0px -2px 24px -2px rgba(0, 0, 0, 0.44);
+       -moz-box-shadow: 0px -2px 24px -2px rgba(0, 0, 0, 0.44);
+            box-shadow: 0px -2px 24px -2px rgba(0, 0, 0, 0.44);
 
-    .navlink {
+    .navbar-link {
+
+        padding-left: 2em;
+
+        &#home {
+            margin-right: auto;
+            padding: 0;
+        }
+
         color: black;
         font-family: $lexenda;
+        font-size: 1.25em;
     }
-    .blogify {
-        font-size: 30px;
-    }
-    .login {
-        font-size: 20px;
-    }
+
 }

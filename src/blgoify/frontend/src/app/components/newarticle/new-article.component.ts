@@ -10,6 +10,7 @@ import { User } from "../../models/User";
     styleUrls: ['./new-article.component.scss']
 })
 export class NewArticleComponent implements OnInit {
+
     user: User = {
         username: 'lucy',
         uuid: '5fb72569-2086-46b8-b8a9-828fe5ce1bb6'

@@ -28,11 +28,15 @@ export class ShowArticleComponent implements OnInit {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const articleUUID = map.get('uuid');
             console.log(articleUUID);
+
             this.article = await this.articleService.getArticleByUUID(articleUUID).toPromise();
             console.log(this.article);
+
             this.articleContent = await this.articleService.getArticleContent(articleUUID).toPromise();
             console.log(this.articleContent);
+
             this.articleAuthor = await this.userService.getUser(this.article.createdBy.toString()).toPromise()
+            console.log(this.articleAuthor.username);
         })
     }
 

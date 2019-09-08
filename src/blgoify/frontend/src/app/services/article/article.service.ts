@@ -16,11 +16,11 @@ export class ArticleService {
         const articles = await articlesObs.toPromise();
         const out: Article[] = [];
         for (const it of articles) {
-            const a = it;
+            const copy = it;
             const createdBy = `${it.createdBy}`;
             console.log(createdBy);
-            a.createdBy = await this.authService.getUser(createdBy);
-            out.push(a);
+            copy.createdBy = await this.authService.getUser(createdBy);
+            out.push(copy);
         }
         console.log(out);
         return out
