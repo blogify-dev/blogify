@@ -40,7 +40,6 @@ data class Article (
     val content: Content?,
 
     val categories: List<Category>,
-    val username: String,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid) {

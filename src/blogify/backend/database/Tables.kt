@@ -34,20 +34,17 @@ object Articles : ResourceTable<Article>() {
     val createdAt  = long    ("created_at")
     val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
 
-    override suspend fun convert(source: ResultRow) = SuspendableResult.of<Article, Service.Exception.Fetching> {
-        val user = UserService.get(source[createdBy]).get()
-        Article (
-            uuid       = source[uuid],
-            title      = source[title],
-            createdAt  = source[createdAt],
-            createdBy  = user,
-            username = user.username,
-            content    = transaction {
-                Content.select { Content.article eq source[uuid] }.singleOrNull()
-            }?.let { Content.convert(it) }
-                ?: throw Database.Exception(IllegalStateException("no or multiple content in db for article ${source[uuid]}")),
-            categories = transaction {
-                Categories.select { Categories.article eq source[uuid] }.toList() }.map { Categories.convert(it) }
+    override suspend fun convert(source: ResultRow) = SuspendableResult.of<Article, Service.Exception.Fetching> { Article (
+        uuid       = source[uuid],
+        title      = source[title],
+        createdAt  = source[createdAt],
+        createdBy  = UserService.get(source[createdBy]).get(),
+        content    = transaction {
+            Content.select { Content.article eq source[uuid] }.singleOrNull()
+        }?.let { Content.convert(it) }
+            ?: throw Database.Exception(IllegalStateException("no or multiple content in db for article ${source[uuid]}")),
+        categories = transaction {
+            Categories.select { Categories.article eq source[uuid] }.toList() }.map { Categories.convert(it) }
     ) }
 
     object Content : Table() {
