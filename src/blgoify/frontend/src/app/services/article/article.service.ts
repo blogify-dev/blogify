@@ -2,21 +2,28 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Article, Content } from '../../models/Article'
 import { Observable } from 'rxjs';
-import {AuthService} from "../auth/auth.service";
-import {User} from "../../models/User";
+import { AuthService } from "../auth/auth.service";
 
 @Injectable({
     providedIn: 'root'
 })
 export class ArticleService {
-
-    auth: AuthService;
-
-    constructor(private httpClient: HttpClient) {
+    constructor(private httpClient: HttpClient, private authService: AuthService) {
     }
 
-    getAllArticles(): Observable<Article[]> {
-        return this.httpClient.get<Article[]>('/api/articles/')
+    async getAllArticles() {
+        const articlesObs = this.httpClient.get<Article[]>('/api/articles/');
+        const articles = await articlesObs.toPromise();
+        const out: Article[] = [];
+        for (const it of articles) {
+            const a = it;
+            const createdBy = `${it.createdBy}`;
+            console.log(createdBy);
+            a.createdBy = await this.authService.getUser(createdBy);
+            out.push(a);
+        }
+        console.log(out);
+        return out
     }
 
     getArticleByUUID(uuid: string): Observable<Article> {

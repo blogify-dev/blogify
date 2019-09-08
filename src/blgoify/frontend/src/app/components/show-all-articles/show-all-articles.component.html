@@ -4,7 +4,7 @@
         <div class="post-list">
             <div class="post-content" *ngFor="let article of articles">
                 <h1 class="post-title">{{article.title}}</h1>
-                <h4 class="posted-by">Posted by  {{article.username}} </h4>
+                <h4 class="posted-by">Posted by  {{article.createdBy.username}} </h4>
                 <h3 class="read-more">
                     <a class="read-more" routerLink="/article/{{article.uuid}}">Read More</a>
                 </h3>

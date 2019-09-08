@@ -14,7 +14,7 @@ export class ShowAllArticlesComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.articleService.getAllArticles().subscribe(it => {
+        this.articleService.getAllArticles().then(it => {
             this.articles = it
         })
     }
