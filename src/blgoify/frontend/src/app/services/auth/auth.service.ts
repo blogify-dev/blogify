@@ -1,23 +1,24 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
-    currentUserToken: Promise<UserToken>;
-    //currentToken: string;
+    private currentUserToken_ = new BehaviorSubject('');
     currentUser: Promise<User>;
 
     constructor(private httpClient: HttpClient) {
     }
 
-    login(user: LoginCredentials) {
-        const token = this.httpClient.post<UserToken>('/api/auth/signin',  user);
-        this.currentUserToken = token.toPromise();
-        return token
+    async login(user: LoginCredentials) {
+        const token = this.httpClient.post<UserToken>('/api/auth/signin', user);
+        const it = await token.toPromise();
+        console.log(`it.token: ${it.token}`);
+        this.currentUserToken_.next(it.token);
+        return it
     }
 
     register(user: RegisterCredentials) {
@@ -43,7 +44,11 @@ export class AuthService {
         return this.httpClient.get<UserUUID>(`/api/auth/${token.token}`)
     }
 
+    get userToken(): string {
+        return this.currentUserToken_.getValue()
+    }
 }
+
 
 interface UserToken {
     token: string

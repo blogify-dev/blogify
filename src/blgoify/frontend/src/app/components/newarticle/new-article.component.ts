@@ -10,9 +10,6 @@ import { User } from "../../models/User";
     styleUrls: ['./new-article.component.scss']
 })
 export class NewArticleComponent implements OnInit {
-
-    auth: AuthService;
-
     user: User = {
         username: 'lucy',
         uuid: '5fb72569-2086-46b8-b8a9-828fe5ce1bb6'
@@ -20,15 +17,14 @@ export class NewArticleComponent implements OnInit {
 
 
     article: Article = {
-        uuid:'5fb72569-2086-46b8-b8a9-828fe5ce1bb6' /*'9c22b1ea-983c-48db-abd3-bd9c70a9816e'*/,
+        uuid: '5fb72569-2086-46b8-b8a9-828fe5ce1bb6' /*'9c22b1ea-983c-48db-abd3-bd9c70a9816e'*/,
         title: '',
-        username: 'lucy',
+        username: 'un',
         categories: [], // TODO: Get these from UI
         content: new Content('', ''),
-        createdBy: {username: 'lucy', uuid: '5fb72569-2086-46b8-b8a9-828fe5ce1bb6'},
+        createdBy: { username: 'un', uuid: '747e5b83-72e7-4842-b373-918710fb3d86' },
         createdAt: Date.now(),
     };
-
 
 
     constructor(private articleService: ArticleService, private authService: AuthService) {
@@ -36,14 +32,16 @@ export class NewArticleComponent implements OnInit {
 
     createNewArticle() {
         // TODO: Get this token automatically
-        const placeholderToken = 'aBMkKh7gyNEAL8cCOCCkXV2QoxgcUvv5hBzA3fibbAOC-_opUR_RVSssSH0g6_59Blrrem_XvS44CgRFqPMLIw'
-        const token = this.auth.currentUserToken;
-        return this.articleService.createNewArticle(this.article, placeholderToken, this.user).subscribe((it: any)=>{ //cant pass in interface
+
+        const token = this.authService.userToken;
+        console.log(token);
+        return this.articleService.createNewArticle(this.article, token).subscribe((it: any) => { //cant pass in interface
             this.article = it;
         });
+
     }
 
-    async ngOnInit() {
+    ngOnInit() {
         //console.log(await this.authService.currentUserToken)
     }
 

@@ -23,7 +23,7 @@ export class ArticleService {
         return this.httpClient.get<Article>(`/api/articles/${uuid}`)
     }
 
-    createNewArticle(article: Article, userToken: string , user: User) { //
+    createNewArticle(article: Article, userToken: string) { //
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',

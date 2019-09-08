@@ -9,7 +9,7 @@ import { LoginCredentials, User } from '../../models/User';
 })
 export class LoginComponent implements OnInit {
 
-    loginCredentials: LoginCredentials = {username: '', password: ''};
+    loginCredentials: LoginCredentials = { username: '', password: '' };
     user: User;
 
     constructor(private authService: AuthService) {
@@ -20,12 +20,13 @@ export class LoginComponent implements OnInit {
     }
 
     async login() {
-        const token = await this.authService.login(this.loginCredentials).toPromise();
+        const token = await this.authService.login(this.loginCredentials);
         console.log(token);
         const uuid = await this.authService.getUserUUID(token).toPromise();
         this.user = await this.authService.getUser(uuid.uuid);
         console.log(this.user);
-        console.log(this.loginCredentials)
+        console.log(this.loginCredentials);
+        console.log(this.authService.userToken);
     }
 
 }
