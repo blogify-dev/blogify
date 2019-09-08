@@ -30,14 +30,15 @@ export class ArticleService {
                 'Authorization': `Bearer ${userToken}`
             })
         };
-        const {uuid, createdAt, content, title, categories} = article;
+        const {uuid, createdAt, content, title, categories, username} = article;
         const newArticle = {
             uuid: uuid,
             createdAt: createdAt,
             content: content,
             title: title,
             categories: categories,
-            createdBy: article.createdBy.uuid
+            createdBy: article.createdBy.uuid,
+            username: username
         };
         return this.httpClient.post(`/api/articles/`, newArticle, httpOptions)
     }

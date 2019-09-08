@@ -17,7 +17,7 @@ export class NewArticleComponent implements OnInit {
 
 
     article: Article = {
-        uuid: '5fb72569-2086-46b8-b8a9-828fe5ce1bb6' /*'9c22b1ea-983c-48db-abd3-bd9c70a9816e'*/,
+        uuid: '037881da-f134-4e0f-866c-118048f73c18' /*'9c22b1ea-983c-48db-abd3-bd9c70a9816e'*/,
         title: '',
         username: 'un',
         categories: [], // TODO: Get these from UI
@@ -31,14 +31,9 @@ export class NewArticleComponent implements OnInit {
     }
 
     createNewArticle() {
-        // TODO: Get this token automatically
-
         const token = this.authService.userToken;
         console.log(token);
-        return this.articleService.createNewArticle(this.article, token).subscribe((it: any) => { //cant pass in interface
-            this.article = it;
-        });
-
+        return this.articleService.createNewArticle(this.article, token)
     }
 
     ngOnInit() {
