@@ -8,7 +8,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class AuthService {
     private currentUserToken_ = new BehaviorSubject('');
-    currentUser: Promise<User>;
+    private readonly dummyUser = new User('', '')
+    private currentUser_ = new BehaviorSubject(this.dummyUser);
 
     constructor(private httpClient: HttpClient) {
     }
@@ -25,18 +26,10 @@ export class AuthService {
         return this.httpClient.post<RegisterCredentials>('/api/auth/signup', user);
     }
 
-    async getUser(uuid: string): Promise<User> {
-        const cUser = await this.currentUser;
-        if (cUser != undefined /*&& cUser.uuid === uuid*/) {
-            return this.currentUser
-        } else {
-            return this.requestUser(uuid).toPromise()
-        }
-    }
-
-    private requestUser(uuid: string): Observable<User> {
-        const user = this.httpClient.get<User>(`/api/users/${uuid}`);
-        this.currentUser = user.toPromise();
+    private async requestUser(uuid: string) {
+        const userObservable = this.httpClient.get<User>(`/api/users/${uuid}`);
+        const user = await userObservable.toPromise();
+        this.currentUser_.next(user);
         return user
     }
 
@@ -46,6 +39,14 @@ export class AuthService {
 
     get userToken(): string {
         return this.currentUserToken_.getValue()
+    }
+
+    async getUser(uuid: string): Promise<User> {
+        const cUserVal = this.currentUser_.getValue();
+        if (cUserVal == this.dummyUser || cUserVal.username == '') {
+            await this.requestUser(uuid)
+        }
+        return this.currentUser_.getValue()
     }
 }
 
