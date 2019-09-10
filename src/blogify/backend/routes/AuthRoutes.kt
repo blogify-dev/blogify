@@ -130,7 +130,7 @@ fun Route.auth() {
 
                 // User is found and only exists once
 
-                call.respond(user)
+                call.respond(user.uuid)
             } ?: call.respond(HttpStatusCode.BadRequest)
         }
 
