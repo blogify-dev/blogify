@@ -18,7 +18,7 @@ export class NewArticleComponent implements OnInit {
 
 
     article: Article = {
-        uuid: '327150b2-4416-4aa2-96d5-1cd4a623b2fb' /*'9c22b1ea-983c-48db-abd3-bd9c70a9816e'*/,
+        uuid: '62fef444-570f-46e0-96b4-31a41238049b' /*'9c22b1ea-983c-48db-abd3-bd9c70a9816e'*/,
         title: '',
         categories: [], // TODO: Get these from UI
         content: new Content('', ''),
@@ -34,7 +34,7 @@ export class NewArticleComponent implements OnInit {
         const token = this.authService.userToken;
         console.log(token);
         console.log(this.article);
-        const obs = this.articleService.createNewArticle(this.article, token)
+        const obs = this.articleService.createNewArticle(this.article, token);
         obs.subscribe(it => console.log(it))
     }
 
