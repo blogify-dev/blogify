@@ -16,7 +16,6 @@ export class NewArticleComponent implements OnInit {
         uuid: '5fb72569-2086-46b8-b8a9-828fe5ce1bb6'
     };
 
-
     article: Article = {
         uuid: '327150b2-4416-4aa2-96d5-1cd4a623b2fb' /*'9c22b1ea-983c-48db-abd3-bd9c70a9816e'*/,
         title: '',
