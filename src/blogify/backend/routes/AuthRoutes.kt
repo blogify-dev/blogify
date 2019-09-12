@@ -10,6 +10,7 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 
 import blogify.backend.auth.encoder
+import blogify.backend.auth.jwt.generateJWT
 import blogify.backend.database.Users
 import blogify.backend.resources.User
 import blogify.backend.routes.handling.respondExceptionMessage
@@ -96,10 +97,7 @@ fun Route.auth() {
                     set.foldForOne ( // We got a set of matching users
                         one = { singleUser ->
                             if (credentials.matchFor(singleUser)) {
-                                val token = Base64
-                                    .getUrlEncoder() // Generate token
-                                    .withoutPadding()
-                                    .encodeToString(Random.Default.nextBytes(64))
+                                val token = generateJWT(singleUser)
 
                                 validTokens[singleUser] = token
                                 validTokens.letIn(3600 * 1000L) { it.remove(singleUser) }
