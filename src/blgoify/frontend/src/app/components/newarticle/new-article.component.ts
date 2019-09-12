@@ -17,7 +17,7 @@ export class NewArticleComponent implements OnInit {
     };
 
     article: Article = {
-        uuid: '327150b2-4416-4aa2-96d5-1cd4a623b2fb' /*'9c22b1ea-983c-48db-abd3-bd9c70a9816e'*/,
+        uuid: '651fc79a-70cf-47ec-b85d-bac83df4cd15' /*'9c22b1ea-983c-48db-abd3-bd9c70a9816e'*/,
         title: '',
         categories: [], // TODO: Get these from UI
         content: new Content('', ''),
@@ -33,8 +33,8 @@ export class NewArticleComponent implements OnInit {
         const token = this.authService.userToken;
         console.log(token);
         console.log(this.article);
-        const obs = this.articleService.createNewArticle(this.article, token)
-        obs.subscribe(it => console.log(it))
+        const obs = this.articleService.createNewArticle(this.article, token);
+        obs.then(it => console.log(it))
     }
 
     ngOnInit() {

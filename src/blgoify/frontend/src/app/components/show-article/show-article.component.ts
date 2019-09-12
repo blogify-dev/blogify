@@ -3,8 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Article, Content } from "../../models/Article";
 import { ArticleService } from "../../services/article/article.service";
 import { Subscription } from 'rxjs';
-import { UsersService } from "../../services/users/users.service";
 import { User } from "../../models/User";
+import { AuthService } from "../../services/auth/auth.service";
 
 @Component({
     selector: 'app-show-article',
@@ -20,7 +20,7 @@ export class ShowArticleComponent implements OnInit {
     constructor(
         private activatedRoute: ActivatedRoute,
         private articleService: ArticleService,
-        private userService: UsersService
+        private authService: AuthService
     ) {
     }
 
@@ -35,7 +35,7 @@ export class ShowArticleComponent implements OnInit {
             this.articleContent = await this.articleService.getArticleContent(articleUUID).toPromise();
             console.log(this.articleContent);
 
-            this.articleAuthor = await this.userService.getUser(this.article.createdBy.toString()).toPromise()
+            this.articleAuthor = await this.authService.getUser(this.article.createdBy.toString());
             console.log(this.articleAuthor.username);
         })
     }

@@ -10,6 +10,7 @@ export class AuthService {
     private currentUserToken_ = new BehaviorSubject('');
     private readonly dummyUser = new User('', '')
     private currentUser_ = new BehaviorSubject(this.dummyUser);
+    private currentUserUuid_ = new BehaviorSubject('');
 
     constructor(private httpClient: HttpClient) {
     }
@@ -33,12 +34,19 @@ export class AuthService {
         return user
     }
 
-    getUserUUID(token: UserToken): Observable<UserUUID> {
-        return this.httpClient.get<UserUUID>(`/api/auth/${token.token}`)
+    async getUserUUID(token: string) {
+        const userUUIDObservable = this.httpClient.get<UserUUID>(`/api/auth/${token}`);
+        const uuid = await userUUIDObservable.toPromise();
+        this.currentUserUuid_.next(uuid.uuid);
+        return uuid;
     }
 
     get userToken(): string {
         return this.currentUserToken_.getValue()
+    }
+
+    get userUUID(): string {
+        return this.currentUserUuid_.getValue()
     }
 
     async getUser(uuid: string): Promise<User> {
