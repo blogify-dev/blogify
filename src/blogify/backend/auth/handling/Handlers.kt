@@ -38,7 +38,7 @@ private suspend fun predicateOnUser(token: String, nextPredicate: UserAuthPredic
         .filterValues { it == token }
         .keys.foldForOne (
             one      = { u -> nextPredicate.invoke(u); true },
-            multiple = { error("multiple tokens for user") },
+            multiple = { error("multiple user for token") }, // This shouldn't be an error
             none     = { false }
         )
 }
