@@ -17,7 +17,7 @@ plugins {
 }
 
 group   = "blogify"
-version = "alpha-0.0.1"
+version = "PRX2"
 
 application {
     mainClassName = "io.ktor.server.netty.EngineMain"
@@ -68,6 +68,12 @@ dependencies {
 
     compile("com.github.kittinunf.result:result:2.2.0")
     compile("com.github.kittinunf.result:result-coroutines:2.2.0")
+
+    // JJWT
+
+    compile("io.jsonwebtoken:jjwt-api:0.10.7")
+    runtime("io.jsonwebtoken:jjwt-impl:0.10.7")
+    runtime("io.jsonwebtoken:jjwt-jackson:0.10.7")
 
 }
 
