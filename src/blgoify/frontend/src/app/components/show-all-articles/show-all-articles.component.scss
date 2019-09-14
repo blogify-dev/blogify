@@ -1,46 +1,58 @@
 @import "../../../assets/styles/fonts";
 @import "../../../assets/styles/colours";
 
-// Declare variables here
-
 .main {
-    .posts {
+
+    .articles {
+
         margin: 2%;
-        .post-content {
+
+        .article {
+            display:         flex;
+            flex-direction:  column;
+            justify-content: center;
+            align-items:     start;
+
             background: white;
-            border-radius: 10px;
             border: none;
-            -webkit-box-shadow: 0px 0px 14px 1px rgba(0,0,0,0.26);
-            -moz-box-shadow: 0px 0px 14px 1px rgba(0,0,0,0.26);
-            box-shadow: 0px 0px 14px 1px rgba(0,0,0,0.26);
+
+            -webkit-box-shadow: 0 0 14px 1px rgba(0,0,0,0.26);
+               -moz-box-shadow: 0 0 14px 1px rgba(0,0,0,0.26);
+                    box-shadow: 0 0 14px 1px rgba(0,0,0,0.26);
+
             font-family: $lexenda;
-            padding: 3% 1%;
-            width: 60%;
+            padding: 1.5em;
+
+            width: calc((100% / 3) * 2);
+
             margin-top: 2%;
+
+            .article-title { font-size: 30px; }
+
+            .article-author { align-self: end; }
+
+            .read-more { color: $link-colour; }
+
+            .article-comments-count { align-self: flex-end; }
+
+            .article-no-tags,
+            .article-tags { display: flex; align-self: flex-end; }
+
+            .tag-list {
+                background: white;
+                -webkit-box-shadow: 0 0 5px 1px rgba(0,0,0,0.26);
+                -moz-box-shadow: 0 0 5px 1px rgba(0,0,0,0.26);
+                box-shadow: 0 0 5px 1px rgba(0,0,0,0.26);
+                display: flex;
+                padding: 1%;
+                margin-left: 1%;
+                border-radius: 5px;
+            }
+
         }
-        .post-title {
-            font-size: 30px;
-        }
-        .read-more {
-            color: $link-colour;
-        }
-        .tags {
-            display: flex;
-        }
-        .tag-text {
-            display: flex;
-        }
-        .tag-list {
-            background: white;
-            -webkit-box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.26);
-            -moz-box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.26);
-            box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.26);
-            display: flex;
-            padding: 1%;
-            margin-left: 1%;
-            border-radius: 5px;
-        }
+
     }
+
 }
 
 
