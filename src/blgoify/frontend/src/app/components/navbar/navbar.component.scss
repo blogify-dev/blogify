@@ -1,7 +1,8 @@
-@import "../../../assets/styles/fonts";
-@import "../../../assets/styles/colours";
+@import "fonts";
+@import "colours";
 
 #navbar-list {
+
     display:           flex;
     flex-direction:     row;
     justify-content: center;
@@ -9,17 +10,18 @@
 
     padding: 2em 3em;
 
-    background: white;
+    color: $header-fg-color;
+    background: $header-bg-color;
 
-    -webkit-box-shadow: 0 -2px 24px -2px rgba(0, 0, 0, 0.44);
-       -moz-box-shadow: 0 -2px 24px -2px rgba(0, 0, 0, 0.44);
-            box-shadow: 0 -2px 24px -2px rgba(0, 0, 0, 0.44);
+    $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.20);
+    -webkit-box-shadow: $box-shadow;
+       -moz-box-shadow: $box-shadow;
+            box-shadow: $box-shadow;
 
     .navbar-link {
 
         padding-left: 2.75em;
 
-        font-family: $lexenda;
         font-size: 1.25em;
 
         &#home {
@@ -28,10 +30,10 @@
         }
 
         &:not(#home) a {
-            color: $link-colour;
+            color: $link-color;
 
             padding-bottom: .35em;
-            border-bottom: 1px solid lighten($link-colour, 10%);
+            border-bottom: 1px solid lighten($link-color, 10%);
         }
 
     }

@@ -1,9 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
 /* We're working with the body tag, and so with the WHOLE page */
+
+@import "fonts";
+@import "colours";
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     list-style: none;
     text-decoration: none;
+
+    font-family: $lexenda;
+
+    color: $body-fg-color;
 }
