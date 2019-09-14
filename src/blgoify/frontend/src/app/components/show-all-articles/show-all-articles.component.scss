@@ -1,11 +1,14 @@
 @import "fonts";
 @import "colours";
+@import "layouts";
 
 .main {
 
-    .articles {
+    background-color: var(--body-bg);
 
-        margin: 3em;
+    padding: 3em;
+
+    .articles {
 
         .article {
 
@@ -14,8 +17,10 @@
             justify-content: center;
             align-items:     start;
 
-            color: $card-fg-color;
-            background: $card-bg-color;
+            color: var(--card-fg);
+            background: var(--card-bg);
+
+            border-radius: $std-border-radius;
             border: none;
 
             $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.20);
@@ -33,7 +38,7 @@
 
             .article-author { align-self: end; }
 
-            .read-more { color: $link-color; }
+            .read-more { color: var(--card-fg); }
 
             .article-comments-count { align-self: flex-end; }
 

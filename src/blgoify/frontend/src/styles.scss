@@ -3,6 +3,9 @@
 
 @import "fonts";
 @import "colours";
+@import "layouts";
+@import "forms";
+@import "titles";
 
 * {
     margin: 0;
@@ -10,8 +13,10 @@
     box-sizing: border-box;
     list-style: none;
     text-decoration: none;
+    border: none;
+    outline: none;
 
     font-family: $lexenda;
 
-    color: $body-fg-color;
+    color: var(--body-fg);
 }

@@ -10,8 +10,8 @@
 
     padding: 2em 3em;
 
-    color: $header-fg-color;
-    background: $header-bg-color;
+    color: var(--header-fg);
+    background-color: var(--header-bg);
 
     $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.20);
     -webkit-box-shadow: $box-shadow;
@@ -30,10 +30,10 @@
         }
 
         &:not(#home) a {
-            color: $link-color;
+            color: var(--header-fg);
 
             padding-bottom: .35em;
-            border-bottom: 1px solid lighten($link-color, 10%);
+            border-bottom: 1px solid var(--header-fg);;
         }
 
     }
