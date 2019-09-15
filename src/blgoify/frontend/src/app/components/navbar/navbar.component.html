@@ -11,7 +11,8 @@
         </span>
 
         <span class="navbar-link" id="login">
-            <a routerLink="/login">Login</a>
+            <a routerLink="/login" *ngIf="authService.userToken == ''">Login</a>
+            <a routerLink="/profile/uuid" *ngIf="authService.userToken != ''">Profile</a>
         </span>
 
         <span class="navbar-link" id="register">
@@ -20,10 +21,6 @@
 
         <span class="navbar-link" id="new">
             <a routerLink="/new-article">New Article</a>
-        </span>
-
-        <span class="navbar-link" id="profile">
-            <a routerLink="/profile/uuid">Profile</a>
         </span>
 
     </div>
