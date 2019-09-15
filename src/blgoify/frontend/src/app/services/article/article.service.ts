@@ -17,9 +17,12 @@ export class ArticleService {
         const out: Article[] = [];
         for (const it of articles) {
             const copy = it;
-            const createdBy = `${it.createdBy}`;
-            console.log(createdBy);
-            copy.createdBy = await this.authService.getUser(createdBy);
+            const promises = await Promise.all([
+                this.authService.getUser(`${it.createdBy}`),
+                this.getArticleContent(copy.uuid).toPromise()
+            ]);
+            copy.createdBy = promises[0];
+            copy.content = promises[1];
             out.push(copy);
         }
         console.log(out);
