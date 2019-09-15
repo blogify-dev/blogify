@@ -1,0 +1,16 @@
+<p>show-article works!</p>
+<div *ngIf="article && articleContent && articleAuthor">
+    <h3>{{article.title}}</h3>
+    <p>Categories</p>
+    <ul>
+        <li *ngFor="let cat of article.categories">{{cat.name}}</li>
+    </ul>
+    <p>{{articleContent.text}}</p>
+    <p>{{articleContent.summary}}</p>
+    <p>UUID: {{article.uuid}}</p>
+    <p>Created at: {{convertTimeStampToHumanDate(article.createdAt)}}</p>
+    <p>Created by {{articleAuthor.username}}</p>
+
+    <h4>comments:</h4>
+    <app-comment [articleUUID]="article.uuid"></app-comment>
+</div>

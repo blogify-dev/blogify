@@ -1,0 +1,28 @@
+<nav class="navbar">
+
+    <div id="navbar-list">
+
+        <span class="navbar-link" id="home">
+            <a routerLink="home">
+                <img height="40px"
+                     src="assets/images/logo.svg"
+                     alt="Blogify" />
+            </a>
+        </span>
+
+        <span class="navbar-link" id="login">
+            <a routerLink="/login" *ngIf="authService.userToken == ''">Login</a>
+            <a (click)="navigateToProfile()" *ngIf="authService.userToken != ''">Profile</a>
+        </span>
+
+        <span class="navbar-link" id="register" *ngIf="authService.userToken == ''">
+            <a routerLink="/register">Register</a>
+        </span>
+
+        <span class="navbar-link" id="new">
+            <a (click)="navigateToNewArticle()">New Article</a>
+        </span>
+
+    </div>
+
+</nav>

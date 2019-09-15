@@ -1,0 +1,42 @@
+@import "fonts";
+@import "colours";
+
+#navbar-list {
+
+    display:           flex;
+    flex-direction:     row;
+    justify-content: center;
+    align-items:     center;
+
+    padding: 2em 3em;
+
+    color: var(--header-fg);
+    background-color: var(--header-bg);
+
+    $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.20);
+    -webkit-box-shadow: $box-shadow;
+       -moz-box-shadow: $box-shadow;
+            box-shadow: $box-shadow;
+
+    .navbar-link {
+
+        padding-left: 2.75em;
+
+        font-size: 1.25em;
+
+        &#home {
+            margin-right: auto;
+            padding-right: 15px;
+            padding-left: 0;
+        }
+
+        &:not(#home) a {
+            color: var(--header-fg);
+
+            padding-bottom: .35em;
+            border-bottom: 1px solid var(--header-fg);;
+        }
+
+    }
+
+}

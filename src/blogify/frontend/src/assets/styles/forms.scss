@@ -1,0 +1,18 @@
+@import "colours";
+@import "layouts";
+
+input {
+    color: red;
+    background: red;
+
+    padding: .75em 1em;
+
+    border-radius: $std-border-radius;
+    border: 1px solid red;
+}
+
+button {
+    padding: .75em 1em;
+
+    border-radius: $std-border-radius;
+}

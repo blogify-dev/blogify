@@ -1,0 +1,20 @@
+<p>login works!</p>
+
+<div>
+
+  <span>Username</span>: <input type="text" name="user" [(ngModel)]="loginCredentials.username"><br>
+  <span>Password</span>: <input type="text" name="pass" [(ngModel)]="loginCredentials.password"><br>
+
+</div>
+
+<button (click)="login()">Login</button>
+
+<div>loginCredentials: {{loginCredentials | json}}</div>
+
+<div>user: {{user | json}}</div>
+
+<div *ngIf="user">
+    <a routerLink="/home">Home</a> <br>
+    <a routerLink="/profile/{{user.uuid}}">Profile</a>
+</div>
+<br>
