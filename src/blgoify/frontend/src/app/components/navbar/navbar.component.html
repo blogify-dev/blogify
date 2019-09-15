@@ -12,15 +12,15 @@
 
         <span class="navbar-link" id="login">
             <a routerLink="/login" *ngIf="authService.userToken == ''">Login</a>
-            <a routerLink="/profile/uuid" *ngIf="authService.userToken != ''">Profile</a>
+            <a (click)="navigateToProfile()" *ngIf="authService.userToken != ''">Profile</a>
         </span>
 
-        <span class="navbar-link" id="register">
+        <span class="navbar-link" id="register" *ngIf="authService.userToken == ''">
             <a routerLink="/register">Register</a>
         </span>
 
         <span class="navbar-link" id="new">
-            <a routerLink="/new-article">New Article</a>
+            <a (click)="navigateToNewArticle()">New Article</a>
         </span>
 
     </div>
