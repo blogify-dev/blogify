@@ -34,9 +34,20 @@
 
             margin-top: 2%;
 
-            .article-title { font-size: 30px; }
+            .article-first-line {
+                width: 100%;
 
-            .article-author { align-self: end; }
+                text-align: center;
+
+                display:                  flex;
+                flex-direction:            row;
+                justify-content: space-between;
+                align-items:            center;
+
+                .article-title  { font-size: 30px; }
+            }
+
+            .article-summary { font-size: 1.25em; }
 
             .read-more { color: var(--card-fg); }
 
