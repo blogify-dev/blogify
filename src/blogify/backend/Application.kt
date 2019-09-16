@@ -20,6 +20,10 @@ import blogify.backend.database.Comments
 import blogify.backend.database.Users
 import blogify.backend.routes.auth
 import blogify.backend.database.handling.query
+import blogify.backend.util.SinglePageApplication
+import io.ktor.application.call
+import io.ktor.response.respondRedirect
+import io.ktor.routing.get
 
 import org.jetbrains.exposed.sql.SchemaUtils
 
@@ -63,6 +67,9 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         level = Level.TRACE
     }
 
+    install(SinglePageApplication) {
+        folderPath = "/frontend"
+    }
     // Initialize database
 
     Database.init()
@@ -87,6 +94,9 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             articles()
             users()
             auth()
+        }
+        get("/") {
+            call.respondRedirect("/home")
         }
     }
 
