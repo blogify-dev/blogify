@@ -20,13 +20,4 @@ export class NavbarComponent implements OnInit {
         const url = `/profile/${await this.authService.getUserUUID(this.authService.userToken)}`
         await this.router.navigateByUrl(url)
     }
-
-    async navigateToNewArticle() {
-        if (this.authService.userToken == '') {
-            await this.router.navigateByUrl('/login')
-        } else {
-            await this.router.navigateByUrl('/new-article')
-
-        }
-    }
 }
