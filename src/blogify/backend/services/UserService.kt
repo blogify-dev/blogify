@@ -3,9 +3,9 @@ package blogify.backend.services
 import blogify.backend.database.Users
 import blogify.backend.database.Users.uuid
 import blogify.backend.resources.User
-import blogify.backend.services.handling.handleResourceDBDelete
-import blogify.backend.services.handling.handleResourceDBFetch
-import blogify.backend.services.handling.handleResourceDBFetchAll
+import blogify.backend.services.handling.deleteWithIdInTable
+import blogify.backend.services.handling.fetchWithIdFromTable
+import blogify.backend.services.handling.fetchAllFromTable
 import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
@@ -19,9 +19,9 @@ import java.util.*
 
 object UserService : Service<User> {
 
-    override suspend fun getAll(): ResourceResultSet<User> = handleResourceDBFetchAll(Users)
+    override suspend fun getAll(): ResourceResultSet<User> = fetchAllFromTable(Users)
 
-    override suspend fun get(id: UUID): ResourceResult<User> = handleResourceDBFetch(Users, uuid, id)
+    override suspend fun get(id: UUID): ResourceResult<User> = fetchWithIdFromTable(Users, uuid, id)
 
     override suspend fun add(res: User) = query {
         Users.insert {
@@ -33,7 +33,7 @@ object UserService : Service<User> {
         return@query res
     }.mapError { e -> Service.Exception.Creating(e) }
 
-    override suspend fun delete(id: UUID) = handleResourceDBDelete(Users, uuid, id)
+    override suspend fun delete(id: UUID) = deleteWithIdInTable(Users, uuid, id)
 
     override suspend fun update(res: User): ResourceResult<User> {
         TODO("not implemented !")
