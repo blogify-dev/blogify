@@ -56,15 +56,16 @@ data class RegisterCredentials (
      * Creates a [user][User] from the [credentials][RegisterCredentials].
      * @return The created user
      */
-    suspend fun createUser(): User = User(
-        username = this.username,
-        password = this.password.hash()
-    ).also { created -> // We need to add user info and register the new object
+    suspend fun createUser(): User {
+        val created = User (
+            username = this.username,
+            password = this.password.hash()
+        )
 
         UserService.add(created).fold(
             success = {},
             failure = {
-                error("$it: signup couldn't create user")
+                error("$created: signup couldn't create user")
             }
         )
 
@@ -78,6 +79,7 @@ data class RegisterCredentials (
 
         return created
     }
+
 }
 
 val validTokens = mutableMapOf<User, String>()
@@ -104,9 +106,9 @@ fun Route.auth() {
                                 validTokens[singleUser] = token
                                 validTokens.letIn(3600 * 1000L) { it.remove(singleUser) }
 
-                                call.respond(object {val token = token})
+                                call.respond(token)
                             } else {
-                                call.respond(HttpStatusCode.Forbidden, object {val reason = "Invalid username/password"}) // Password doesn't match
+                                call.respond(HttpStatusCode.Forbidden, object { val reason =  "username/password invalid" }) // Password doesn't match
                             }
                         }, multiple = {
                             call.respond(HttpStatusCode.InternalServerError)
@@ -130,7 +132,7 @@ fun Route.auth() {
 
                 // User is found and only exists once
 
-                call.respond(user.uuid)
+                call.respond(user)
             } ?: call.respond(HttpStatusCode.BadRequest)
         }
 
