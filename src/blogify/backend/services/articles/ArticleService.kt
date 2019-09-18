@@ -4,9 +4,9 @@ import blogify.backend.database.Articles
 import blogify.backend.database.Articles.Content.article
 import blogify.backend.database.Articles.uuid
 import blogify.backend.resources.Article
-import blogify.backend.services.handling.handleResourceDBDelete
-import blogify.backend.services.handling.handleResourceDBFetch
-import blogify.backend.services.handling.handleResourceDBFetchAll
+import blogify.backend.services.handling.deleteWithIdInTable
+import blogify.backend.services.handling.fetchWithIdFromTable
+import blogify.backend.services.handling.fetchAllFromTable
 import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
@@ -22,9 +22,9 @@ import java.util.UUID
 
 object ArticleService : Service<Article> {
 
-    override suspend fun getAll(): ResourceResultSet<Article> = handleResourceDBFetchAll(Articles)
+    override suspend fun getAll(): ResourceResultSet<Article> = fetchAllFromTable(Articles)
 
-    override suspend fun get(id: UUID): ResourceResult<Article> = handleResourceDBFetch(Articles, uuid, id)
+    override suspend fun get(id: UUID): ResourceResult<Article> = fetchWithIdFromTable(Articles, uuid, id)
 
     override suspend fun add(res: Article) = query {
         Articles.insert {
@@ -53,7 +53,7 @@ object ArticleService : Service<Article> {
         return@query res // So that we return the resource and not an insert statement
     }.mapError { e -> Service.Exception.Creating(e) } // Wrap possible error
 
-    override suspend fun delete(id: UUID) = handleResourceDBDelete(Articles, uuid, id)
+    override suspend fun delete(id: UUID) = deleteWithIdInTable(Articles, uuid, id)
 
     override suspend fun update(res: Article): ResourceResult<Article> =
         query {
