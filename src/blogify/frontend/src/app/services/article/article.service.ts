@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Article, Content } from '../../models/Article'
 import { Observable } from 'rxjs';
 import { AuthService } from "../auth/auth.service";
+import * as uuid from "uuid/v4";
 
 @Injectable({
     providedIn: 'root'
@@ -33,22 +34,22 @@ export class ArticleService {
         return this.httpClient.get<Article>(`/api/articles/${uuid}`)
     }
 
-    async createNewArticle(article: Article, userToken: string) {
+    async createNewArticle(article: Article, userToken: string = this.authService.userToken) {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${userToken}`
             })
         };
-        const { uuid, content, title, categories } = article;
+        const {content, title, categories} = article;
         const newArticle = {
-            uuid: uuid,
+            uuid: uuid(),
             content: content,
             title: title,
             categories: categories,
-            createdBy: await this.authService.getUserUUID(userToken),
+            createdBy: (await this.authService.getUserUUID(userToken)).uuid,
         };
-        console.log("yes");
+        console.log(newArticle);
         return this.httpClient.post(`/api/articles/`, newArticle, httpOptions).toPromise()
     }
 

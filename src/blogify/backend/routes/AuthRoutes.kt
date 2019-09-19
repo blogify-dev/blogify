@@ -106,7 +106,7 @@ fun Route.auth() {
                                 validTokens[singleUser] = token
                                 validTokens.letIn(3600 * 1000L) { it.remove(singleUser) }
 
-                                call.respond(token)
+                                call.respond(object {val token = token})
                             } else {
                                 call.respond(HttpStatusCode.Forbidden, object { val reason =  "username/password invalid" }) // Password doesn't match
                             }
@@ -132,7 +132,7 @@ fun Route.auth() {
 
                 // User is found and only exists once
 
-                call.respond(user)
+                call.respond(object {val uuid = user.uuid})
             } ?: call.respond(HttpStatusCode.BadRequest)
         }
 

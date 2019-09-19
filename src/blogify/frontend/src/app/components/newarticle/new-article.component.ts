@@ -13,38 +13,24 @@ import { User } from "../../models/User";
 })
 export class NewArticleComponent implements OnInit {
 
-
-    routeMapSubscription: Subscription;
-    user: User;
-
     article: Article = {
-        uuid: this.user.uuid,
+        uuid: '',
         title: '',
         categories: [], // TODO: Get these from UI
         content: new Content('', ''),
-        createdBy: { username: this.user.username, uuid: this.user.uuid },
+        createdBy: new User('', ''),
         createdAt: Date.now(),
     };
 
 
-    constructor(private articleService: ArticleService, private authService: AuthService, private activatedRoute: ActivatedRoute) {
+    constructor(private articleService: ArticleService) {
     }
 
-    async ngOnInit() {
-        console.log(this.authService.userToken);
-        this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
-            const userUUID = map.get('uuid');
-            this.user = await this.authService.getUser(userUUID);
-            console.log(userUUID);
-            console.log(this.user)
-
-        })
+    ngOnInit() {
     }
      createNewArticle() {
-        const token = this.authService.userToken;
-        console.log(token);
         console.log(this.article);
-        const obs = this.articleService.createNewArticle(this.article, token);
+        const obs = this.articleService.createNewArticle(this.article);
         obs.then(it => console.log(it))
     }
 
