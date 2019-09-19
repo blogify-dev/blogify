@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Article, Content } from "../../models/Article";
 import { ArticleService } from "../../services/article/article.service";
 import { AuthService } from "../../services/auth/auth.service";
@@ -11,25 +13,34 @@ import { User } from "../../models/User";
 })
 export class NewArticleComponent implements OnInit {
 
-    user: User = {
-        username: 'lucy',
-        uuid: '5fb72569-2086-46b8-b8a9-828fe5ce1bb6'
-    };
+
+    routeMapSubscription: Subscription;
+    user: User;
 
     article: Article = {
-        uuid: '651fc79a-70cf-47ec-b85d-bac83df4cd15' /*'9c22b1ea-983c-48db-abd3-bd9c70a9816e'*/,
+        uuid: this.user.uuid,
         title: '',
         categories: [], // TODO: Get these from UI
         content: new Content('', ''),
-        createdBy: { username: 'un', uuid: 'aa6e4b49-29c5-4028-a99e-96d5f93ef8ff' },
+        createdBy: { username: this.user.username, uuid: this.user.uuid },
         createdAt: Date.now(),
     };
 
 
-    constructor(private articleService: ArticleService, private authService: AuthService) {
+    constructor(private articleService: ArticleService, private authService: AuthService, private activatedRoute: ActivatedRoute) {
     }
 
-    createNewArticle() {
+    async ngOnInit() {
+        console.log(this.authService.userToken);
+        this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
+            const userUUID = map.get('uuid');
+            this.user = await this.authService.getUser(userUUID);
+            console.log(userUUID);
+            console.log(this.user)
+
+        })
+    }
+     createNewArticle() {
         const token = this.authService.userToken;
         console.log(token);
         console.log(this.article);
@@ -37,8 +48,6 @@ export class NewArticleComponent implements OnInit {
         obs.then(it => console.log(it))
     }
 
-    ngOnInit() {
-        //console.log(await this.authService.currentUserToken)
-    }
+
 
 }
