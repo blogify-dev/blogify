@@ -102,7 +102,7 @@ dockerCompose {
 
 tasks.register("buildAngularProd", Exec::class) {
     workingDir = File("src/blogify/frontend")
-    commandLine = listOf("ng", "build", "--prod")
+    commandLine = listOf("npm", "run", "build")
 }
 
 // blogifyDeploy : this builds angular app, packs the jar and runs the docker-compose config
