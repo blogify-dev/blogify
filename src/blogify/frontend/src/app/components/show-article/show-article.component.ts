@@ -4,6 +4,7 @@ import { Article, Content } from "../../models/Article";
 import { ArticleService } from "../../services/article/article.service";
 import { Subscription } from 'rxjs';
 import { User } from "../../models/User";
+import { Comment } from "../../models/Comment"
 import { AuthService } from "../../services/auth/auth.service";
 
 @Component({
@@ -14,6 +15,14 @@ import { AuthService } from "../../services/auth/auth.service";
 export class ShowArticleComponent implements OnInit {
     routeMapSubscription: Subscription;
     article: Article;
+
+    comment: Comment = {
+       commenter: '',
+       article: '',
+       uuid: '',
+       content: ''
+    };
+
     articleContent: Content;
     articleAuthor: User;
 
@@ -42,6 +51,10 @@ export class ShowArticleComponent implements OnInit {
 
     convertTimeStampToHumanDate(time: number): string {
         return new Date(time).toDateString()
+    }
+
+    deleteArticle(uuid){
+        return this.articleService.deleteArticle(this.article.uuid);
     }
 
 }

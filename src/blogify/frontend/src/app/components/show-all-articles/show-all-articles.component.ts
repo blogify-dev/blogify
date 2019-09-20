@@ -15,9 +15,6 @@ export class ShowAllArticlesComponent implements OnInit {
     article: Article;
 
 
-
-    user: User;
-
     constructor(
         private articleService: ArticleService,
         private authService: AuthService,
@@ -41,8 +38,5 @@ export class ShowAllArticlesComponent implements OnInit {
     }
 
 
-    deleteArticle(uuid: string){
-        this.articleService.deleteArticle(this.article.uuid);
-    }
 
 }
