@@ -1,0 +1,19 @@
+@import "fonts";
+
+h1, h2 {
+    padding: .35em 0;
+    font-family: $nunito;
+    letter-spacing: 1.6px;
+}
+
+h3, h4, h5, h6 {
+    padding: .35em 0 0 0;
+    font-family: $nunito;
+}
+
+h1 { font-size: 2em; }
+h2 { font-size: 1.6em; }
+h3 { font-size: 1.4em; }
+h4 { font-size: 1.4em; }
+h5 { font-size: 1.2em; }
+h6 { font-size: 1.1em; }

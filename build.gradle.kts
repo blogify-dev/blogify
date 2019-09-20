@@ -26,6 +26,7 @@ application {
 repositories {
     mavenLocal()
     jcenter()
+    maven { url = uri("https://dl.bintray.com/kittinunf/maven") }
     maven { url = uri("https://kotlin.bintray.com/ktor") }
 }
 
@@ -62,6 +63,12 @@ dependencies {
     // Kolor
 
     compile("com.andreapivetta.kolor:kolor:0.0.2")
+
+    // Result
+
+    compile("com.github.kittinunf.result:result:2.2.0")
+    compile("com.github.kittinunf.result:result-coroutines:2.2.0")
+
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
@@ -91,6 +98,16 @@ dockerCompose {
 
     waitForTcpPorts = true
     stopContainers  = true
+}
+
+tasks.register("buildAngularProd", Exec::class) {
+    workingDir = File("src/blogify/frontend")
+    commandLine = listOf("npm", "run", "build")
+}
+
+// blogifyDeploy : this builds angular app, packs the jar and runs the docker-compose config
+tasks.register("blogifyDeploy", GradleBuild::class) {
+    tasks = mutableListOf("buildAngularProd", "shadowJar", "composeUp")
 }
 
 // Local test deploy : this packs the jar and runs the docker-compose config

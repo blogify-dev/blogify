@@ -1,0 +1,95 @@
+@import "../../../styles/fonts";
+@import "../../../styles/colours";
+@import "../../../styles/layouts";
+
+.main {
+
+    background-color: var(--body-bg);
+
+    padding: 3em;
+
+    .articles {
+
+        width: calc((100% / 3) * 2);
+
+        #articles-header {
+            display:                  flex;
+            flex-direction:            row;
+            justify-content: space-between;
+            align-items:            center;
+
+            #header-create-btn {
+                font-size: 2em;
+                font-weight: bold;
+
+                cursor: pointer;
+            }
+        }
+
+        .article {
+
+            display:         flex;
+            flex-direction:  column;
+            justify-content: center;
+            align-items:     flex-start;
+
+            color: var(--card-fg);
+            background: var(--card-bg);
+
+            border-radius: $std-border-radius;
+            border: none;
+
+            $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.20);
+            -webkit-box-shadow: $box-shadow;
+               -moz-box-shadow: $box-shadow;
+                    box-shadow: $box-shadow;;
+
+            padding: 1.5em;
+
+            margin-top: 2%;
+
+            .article-first-line {
+                width: 100%;
+
+                text-align: center;
+
+                display:                  flex;
+                flex-direction:            row;
+                justify-content: space-between;
+                align-items:            center;
+
+                .article-title  { font-size: 30px; }
+            }
+
+            .article-summary { font-size: 1.25em; }
+
+            .read-more { color: var(--card-fg); }
+
+            .article-comments-count { align-self: flex-end; }
+
+            .article-no-tags,
+            .article-tags { display: flex; align-self: flex-end; }
+
+            .tag-list {
+                background: white;
+                -webkit-box-shadow: 0 0 5px 1px rgba(0,0,0,0.26);
+                -moz-box-shadow: 0 0 5px 1px rgba(0,0,0,0.26);
+                box-shadow: 0 0 5px 1px rgba(0,0,0,0.26);
+                display: flex;
+                padding: 1%;
+                margin-left: 1%;
+                border-radius: 5px;
+            }
+
+        }
+
+    }
+
+}
+
+@media screen and (max-width: 400px) {
+    .sidebar a {
+        text-align: center;
+        float: none;
+    }
+}

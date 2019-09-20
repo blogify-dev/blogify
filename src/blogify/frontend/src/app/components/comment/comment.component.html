@@ -1,0 +1,8 @@
+<p>comment works!</p>
+
+<div *ngIf="comments">
+    <div *ngFor="let comment of comments">
+        <p>{{comment.content}}</p>
+        <p>uuid: {{comment.uuid}}</p>
+    </div>
+</div>
