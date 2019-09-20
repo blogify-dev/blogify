@@ -15,7 +15,7 @@ export class AuthService {
     constructor(private httpClient: HttpClient) {
     }
 
-    async login(user: LoginCredentials) {
+    async login(user: LoginCredentials): Promise<UserToken> {
         const token = this.httpClient.post<UserToken>('/api/auth/signin', user);
         const it = await token.toPromise();
         console.log(`it.token: ${it.token}`);
@@ -23,18 +23,18 @@ export class AuthService {
         return it
     }
 
-    register(user: RegisterCredentials) {
+    register(user: RegisterCredentials): Observable<RegisterCredentials> {
         return this.httpClient.post<RegisterCredentials>('/api/auth/signup', user);
     }
 
-    private async requestUser(uuid: string) {
+    private async requestUser(uuid: string): Promise<User> {
         const userObservable = this.httpClient.get<User>(`/api/users/${uuid}`);
         const user = await userObservable.toPromise();
         this.currentUser_.next(user);
         return user
     }
 
-    async getUserUUID(token: string) {
+    async getUserUUIDFromToken(token: string): Promise<UserUUID> {
         const userUUIDObservable = this.httpClient.get<UserUUID>(`/api/auth/${token}`);
         const uuid = await userUUIDObservable.toPromise();
         this.currentUserUuid_.next(uuid.uuid);

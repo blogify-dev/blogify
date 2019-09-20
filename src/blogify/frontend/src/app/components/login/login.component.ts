@@ -22,7 +22,7 @@ export class LoginComponent implements OnInit {
     async login() {
         const token = await this.authService.login(this.loginCredentials);
         console.log(token);
-        const uuid = await this.authService.getUserUUID(token.token);
+        const uuid = await this.authService.getUserUUIDFromToken(token.token);
         this.user = await this.authService.getUser(uuid.uuid);
         console.log(this.user);
         console.log(this.loginCredentials);

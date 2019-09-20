@@ -9,13 +9,14 @@ import * as uuid from "uuid/v4";
     providedIn: 'root'
 })
 export class ArticleService {
-    constructor(private httpClient: HttpClient, private authService: AuthService) {
-    }
 
-    async getAllArticles() {
+    constructor(private httpClient: HttpClient, private authService: AuthService) {}
+
+    async getAllArticles(): Promise<Article[]> {
         const articlesObs = this.httpClient.get<Article[]>('/api/articles/');
         const articles = await articlesObs.toPromise();
         const out: Article[] = [];
+
         for (const it of articles) {
             const copy = it;
             const promises = await Promise.all([
@@ -26,7 +27,7 @@ export class ArticleService {
             copy.content = promises[1];
             out.push(copy);
         }
-        console.log(out);
+
         return out
     }
 
@@ -34,22 +35,25 @@ export class ArticleService {
         return this.httpClient.get<Article>(`/api/articles/${uuid}`)
     }
 
-    async createNewArticle(article: Article, userToken: string = this.authService.userToken) {
+    async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<Object> {
+
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${userToken}`
             })
         };
+
         const {content, title, categories} = article;
+
         const newArticle = {
             uuid: uuid(),
             content: content,
             title: title,
             categories: categories,
-            createdBy: (await this.authService.getUserUUID(userToken)).uuid,
+            createdBy: (await this.authService.getUserUUIDFromToken(userToken)).uuid,
         };
-        console.log(newArticle);
+
         return this.httpClient.post(`/api/articles/`, newArticle, httpOptions).toPromise()
     }
 
@@ -61,6 +65,7 @@ export class ArticleService {
                 'Authorization': `Bearer ${userToken}`
             })
         };
+
         return this.httpClient.patch<Article>(`/api/articles/${uuid}`, article)
     }
 

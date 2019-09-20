@@ -17,7 +17,7 @@ export class NavbarComponent implements OnInit {
     }
 
     async navigateToProfile() {
-        const url = `/profile/${await this.authService.getUserUUID(this.authService.userToken)}`
+        const url = `/profile/${await this.authService.getUserUUIDFromToken(this.authService.userToken)}`
         await this.router.navigateByUrl(url)
     }
 }
