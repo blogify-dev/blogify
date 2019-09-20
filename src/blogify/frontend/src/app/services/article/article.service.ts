@@ -70,7 +70,7 @@ export class ArticleService {
     }
 
     // noinspection JSUnusedGlobalSymbols
-    deleteArticle(uuid: string, userToken: string) {
+    deleteArticle(uuid: string) {
         return this.httpClient.delete(`api/articles/${uuid}`)
     }
 

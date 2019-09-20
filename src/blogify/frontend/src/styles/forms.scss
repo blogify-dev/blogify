@@ -2,17 +2,17 @@
 @import "layouts";
 
 input {
-    color: red;
-    background: red;
+    color: black;
+    background: white;
 
     padding: .75em 1em;
 
     border-radius: $std-border-radius;
-    border: 1px solid red;
+    border: 1px solid black;
 }
 
 button {
     padding: .75em 1em;
-
+    background: aquamarine;
     border-radius: $std-border-radius;
 }

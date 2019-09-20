@@ -24,6 +24,12 @@
                     <a class="read-more" routerLink="/article/{{article.uuid}}">Read More</a>
                 </h3>
 
+                <!-- TODO: Pass in endpoint/article uuid info to delete article-->
+                <h5 class="delete-article">
+                    <button (click)="deleteArticle(article.uuid)">Delete Article</button>
+                </h5>
+
+
                 <!-- TODO: Actually impalement this-->
                 <h4 class="article-comments-count">Comments: 4</h4>
 
