@@ -1,5 +1,7 @@
 package blogify.backend.auth.handling
 
+import blogify.backend.auth.jwt.validateJwt
+
 import io.ktor.application.call
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -72,9 +74,13 @@ suspend fun CallPipeline.authenticatedBy(predicate: AuthPredicate, block: CallPi
 
     val token = header // Header validity procedure
         .substringAfter("Bearer ", "none")
-        .takeIf { it != "none" && it.length == 86 /* 512 bit base64 token length */ }?.let { token -> // Token is provided
+        /*.takeIf { it != "none" && it.length == 86 /* 512 bit base64 token length */ }?.let { token -> // Token is provided
             token // Propagate token value to token val
-        } ?: run { call.respond(HttpStatusCode.BadRequest); return } // Token is invalid or missing
+        } ?: run { call.respond(HttpStatusCode.BadRequest); return } // Token is invalid or missing*/
+
+    if (validateJwt(token)) println("test")
+
+    println("$token $validTokens")
 
     if (predicate.invoke(token)) { // Check token against predicate
         block.invoke(this, Unit)
