@@ -49,7 +49,7 @@ suspend fun ApplicationCall.respondExceptionMessage(ex: Service.Exception) {
  * @param transform a transformation [function][Function] that transforms the [resource][Resource] before sending it back to the client
  */
 @BlogifyDsl
-suspend fun <R : Resource> CallPipeline.handleResourceFetch (
+suspend fun <R : Resource> CallPipeline.fetchWithIdAndRespond (
     fetch:     suspend (id: UUID)   -> ResourceResult<R>,
     transform: suspend (fetched: R) -> Any = { it }
 ) {
@@ -76,7 +76,7 @@ suspend fun <R : Resource> CallPipeline.handleResourceFetch (
  * @param transform a transformation [function][Function] that transforms the [resources][Resource] before sending them back to the client
  */
 @BlogifyDsl
-suspend fun <R : Resource> CallPipeline.handleResourceFetchAll (
+suspend fun <R : Resource> CallPipeline.fetchAndRespondWithAll (
     fetch:     suspend ()        -> ResourceResultSet<R>,
     transform: suspend (elem: R) -> Any = { it }
 ) {
@@ -138,7 +138,7 @@ suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
-suspend inline fun <reified R : Resource> CallPipeline.handleResourceCreation (
+suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
     create: suspend (res: R) -> ResourceResult<R>
 ) {
     try {
@@ -164,7 +164,7 @@ suspend inline fun <reified R : Resource> CallPipeline.handleResourceCreation (
  * @param delete the [function][Function] that retrieves that deletes the specified resource
  */
 @BlogifyDsl
-suspend fun CallPipeline.handleResourceDeletion (
+suspend fun CallPipeline.deleteWithId (
     delete: suspend (id: UUID) -> ResourceResult<*>
 ) {
     call.parameters["uuid"]?.let { id ->

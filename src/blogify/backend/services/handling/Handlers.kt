@@ -24,7 +24,7 @@ import java.util.UUID
  *
  * @return a [ResourceResultSet] that represents the success of the query, with a Database.Exception wrapped in if necessary.
  */
-suspend fun <R : Resource> handleResourceDBFetchAll(table: ResourceTable<R>): ResourceResultSet<R> {
+suspend fun <R : Resource> fetchAllFromTable(table: ResourceTable<R>): ResourceResultSet<R> {
     return query {
         table.selectAll().toSet() // First, query the DB
     }
@@ -44,7 +44,7 @@ suspend fun <R : Resource> handleResourceDBFetchAll(table: ResourceTable<R>): Re
  *
  * @return a [ResourceResultSet] that represents the success of the query, with a Database.Exception wrapped in if necessary.
  */
-suspend fun <R : Resource> handleResourceDBFetch(table: ResourceTable<R>, uuidColumn: Column<UUID>, id: UUID): ResourceResult<R> {
+suspend fun <R : Resource> fetchWithIdFromTable(table: ResourceTable<R>, uuidColumn: Column<UUID>, id: UUID): ResourceResult<R> {
     return query {
         table.select { uuidColumn eq id }.single() // First, query the DB
     }
@@ -61,7 +61,7 @@ suspend fun <R : Resource> handleResourceDBFetch(table: ResourceTable<R>, uuidCo
  *
  * @return a [ResourceResult] that represents the success of the deletion, with a Database.Exception wrapped in if necessary.
  */
-suspend fun <R : Resource> handleResourceDBDelete(table: ResourceTable<R>, uuidColumn: Column<UUID>, id: UUID): ResourceResult<UUID> {
+suspend fun <R : Resource> deleteWithIdInTable(table: ResourceTable<R>, uuidColumn: Column<UUID>, id: UUID): ResourceResult<UUID> {
     return query {
         table.deleteWhere { uuidColumn eq id } // First, instruct the DB to delete the corresponding row
         return@query id

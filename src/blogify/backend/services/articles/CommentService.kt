@@ -5,9 +5,9 @@ import blogify.backend.services.models.Service
 import blogify.backend.database.handling.query
 import blogify.backend.database.Comments
 import blogify.backend.database.Comments.uuid
-import blogify.backend.services.handling.handleResourceDBDelete
-import blogify.backend.services.handling.handleResourceDBFetch
-import blogify.backend.services.handling.handleResourceDBFetchAll
+import blogify.backend.services.handling.deleteWithIdInTable
+import blogify.backend.services.handling.fetchWithIdFromTable
+import blogify.backend.services.handling.fetchAllFromTable
 import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 
@@ -20,9 +20,9 @@ import java.util.UUID
 
 object CommentService : Service<Comment> {
 
-    override suspend fun getAll(): ResourceResultSet<Comment> = handleResourceDBFetchAll(Comments)
+    override suspend fun getAll(): ResourceResultSet<Comment> = fetchAllFromTable(Comments)
 
-    override suspend fun get(id: UUID): ResourceResult<Comment> = handleResourceDBFetch(Comments, uuid, id)
+    override suspend fun get(id: UUID): ResourceResult<Comment> = fetchWithIdFromTable(Comments, uuid, id)
 
     override suspend fun add(res: Comment) = query {
         Comments.insert {
@@ -36,7 +36,7 @@ object CommentService : Service<Comment> {
         return@query res
     }.mapError { e -> Service.Exception.Creating(e) }
 
-    override suspend fun delete(id: UUID) = handleResourceDBDelete(Comments, uuid, id)
+    override suspend fun delete(id: UUID) = deleteWithIdInTable(Comments, uuid, id)
 
     override suspend fun update(res: Comment): ResourceResult<Comment> = query {
         Comments.update({ uuid eq res.uuid }) {

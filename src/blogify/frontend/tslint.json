@@ -73,6 +73,7 @@
       "single"
     ],
     "trailing-comma": false,
+    "no-any": true,
     "no-conflicting-lifecycle": true,
     "no-host-metadata-property": true,
     "no-input-rename": true,

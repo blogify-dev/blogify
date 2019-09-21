@@ -5,7 +5,7 @@ import io.ktor.routing.get
 import io.ktor.routing.route
 
 import blogify.backend.resources.Article
-import blogify.backend.routes.handling.handleResourceFetch
+import blogify.backend.routes.handling.fetchWithIdAndRespond
 import blogify.backend.services.articles.ArticleService
 
 fun Route.articleCategories() {
@@ -13,7 +13,7 @@ fun Route.articleCategories() {
     route("/categories") {
 
         get("/{uuid}") {
-            handleResourceFetch(fetch = ArticleService::get, transform = Article::category)
+            fetchWithIdAndRespond(fetch = ArticleService::get, transform = Article::category)
         }
 
     }

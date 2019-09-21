@@ -31,6 +31,9 @@ The default deploy configuration runs the backend and the database as `docker-co
 ### Database
 - Stan Lyakhov
 
+### UI Design
+- Seamus Donnellan
+
 ## Disclaimer
 
 This project is in a very early, pre-alpha stage.

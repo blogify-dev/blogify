@@ -9,9 +9,9 @@ import io.ktor.routing.*
 import blogify.backend.database.Comments
 import blogify.backend.resources.Comment
 import blogify.backend.routes.handling.handleIdentifiedResourceFetchAll
-import blogify.backend.routes.handling.handleResourceCreation
-import blogify.backend.routes.handling.handleResourceDeletion
-import blogify.backend.routes.handling.handleResourceFetchAll
+import blogify.backend.routes.handling.createWithResource
+import blogify.backend.routes.handling.deleteWithId
+import blogify.backend.routes.handling.fetchAndRespondWithAll
 import blogify.backend.routes.handling.respondExceptionMessage
 import blogify.backend.services.articles.CommentService
 import blogify.backend.util.toUUID
@@ -23,7 +23,7 @@ fun Route.articleComments() {
     route("/comments") {
 
         get("/") {
-            handleResourceFetchAll(CommentService::getAll)
+            fetchAndRespondWithAll(CommentService::getAll)
         }
 
         get("/{uuid}") {
@@ -33,7 +33,7 @@ fun Route.articleComments() {
         }
 
         delete("/{uuid}") {
-            handleResourceDeletion(CommentService::delete)
+            deleteWithId(CommentService::delete)
         }
 
         patch("/{uuid}") {
@@ -51,7 +51,7 @@ fun Route.articleComments() {
         }
 
         post("/") {
-            handleResourceCreation(CommentService::add)
+            createWithResource(CommentService::add)
         }
 
         get("/tree/{uuid}") {

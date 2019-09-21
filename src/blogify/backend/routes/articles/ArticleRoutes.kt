@@ -19,15 +19,15 @@ fun Route.articles() {
     route("/articles") {
 
         get("/") {
-            handleResourceFetchAll(ArticleService::getAll)
+            fetchAndRespondWithAll(ArticleService::getAll)
         }
 
         get("/{uuid}") {
-            handleResourceFetch(ArticleService::get)
+            fetchWithIdAndRespond(ArticleService::get)
         }
 
         delete("/{uuid}") {
-            handleResourceDeletion(ArticleService::delete)
+            deleteWithId(ArticleService::delete)
         }
 
         patch("/{uuid}") {
@@ -44,7 +44,7 @@ fun Route.articles() {
         }
 
         post("/") { authenticatedBy(predicate = isUser(UserService.getAll().get().toList()[0])) {
-            handleResourceCreation(ArticleService::add)
+            createWithResource(ArticleService::add)
         }}
 
         articleContent()

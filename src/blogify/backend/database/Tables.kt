@@ -39,10 +39,7 @@ object Articles : ResourceTable<Article>() {
         title      = source[title],
         createdAt  = source[createdAt],
         createdBy  = UserService.get(source[createdBy]).get(),
-        content    = transaction {
-            Content.select { Content.article eq source[uuid] }.singleOrNull()
-        }?.let { Content.convert(it) }
-            ?: throw Database.Exception(IllegalStateException("no or multiple content in db for article ${source[uuid]}")),
+        content    = null,
         categories = transaction {
             Categories.select { Categories.article eq source[uuid] }.toList() }.map { Categories.convert(it) }
     ) }

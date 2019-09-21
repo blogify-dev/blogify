@@ -106,6 +106,16 @@ dockerCompose {
     stopContainers  = true
 }
 
+tasks.register("buildAngularProd", Exec::class) {
+    workingDir = File("src/blogify/frontend")
+    commandLine = listOf("npm", "run", "build")
+}
+
+// blogifyDeploy : this builds angular app, packs the jar and runs the docker-compose config
+tasks.register("blogifyDeploy", GradleBuild::class) {
+    tasks = mutableListOf("buildAngularProd", "shadowJar", "composeUp")
+}
+
 // Local test deploy : this packs the jar and runs the docker-compose config
 tasks.register("localTestDeploy", GradleBuild::class) {
     tasks = mutableListOf("shadowJar", "composeUp")
