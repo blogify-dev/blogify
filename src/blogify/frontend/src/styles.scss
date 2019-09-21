@@ -6,8 +6,10 @@
 @import "styles/layouts";
 @import "styles/forms";
 @import "styles/titles";
-
+/
 * {
+    transition: color, background-color 100ms ease-in-out;
+
     margin: 0;
     padding: 0;
     box-sizing: border-box;

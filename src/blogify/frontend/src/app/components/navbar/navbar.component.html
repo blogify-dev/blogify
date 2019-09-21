@@ -2,22 +2,27 @@
 
     <div id="navbar-list">
 
-        <span class="navbar-link" id="home">
+        <span class="navbar-elem navbar-link" id="home">
             <a routerLink="home">
-                <img height="40px"
+                <img height="24em"
                      src="assets/images/logo.svg"
                      alt="Blogify" />
             </a>
         </span>
 
-        <span class="navbar-link" id="login">
+        <span class="navbar-elem navbar-link" id="login">
             <a routerLink="/login" *ngIf="authService.userToken == ''">Login</a>
             <a (click)="navigateToProfile()" *ngIf="authService.userToken != ''">Profile</a>
         </span>
 
-        <span class="navbar-link" id="register" *ngIf="authService.userToken == ''">
+        <span class="navbar-elem navbar-link" id="register" *ngIf="authService.userToken == ''">
             <a routerLink="/register">Register</a>
         </span>
+
+        <div class="checkbox navbar-elem navbar-dark-mode-toggle">
+            <input id="toggle-dark-mode" type="checkbox" (change)="toggleDarkMode()">
+            <label for="toggle-dark-mode"><span class="toggle-circle"></span></label>
+        </div>
 
     </div>
 

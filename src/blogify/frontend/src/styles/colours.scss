@@ -1,23 +1,25 @@
+$checkbox-active-color: rgb(22, 147, 204);
+
 html {
 
     --body-fg: rgb(45, 45, 45);
-    --body-bg: rgb(252, 252, 252);
+    --body-bg: rgb(255, 255, 255);
 
     --header-fg: rgb(45, 45, 45);
-    --header-bg: rgb(245, 245, 245);
+    --header-bg: rgb(240, 240, 240);
 
     --card-fg: rgb(70, 70, 70);
     --card-bg: rgb(250, 250, 250);
 
     &[data-theme="dark"] {
         --body-fg: rgb(252, 252, 252);
-        --body-bg: rgb(45, 45, 45);
+        --body-bg: rgb(35   , 35, 35);
 
         --header-fg: rgb(245, 245, 245);
         --header-bg: rgb(50, 50, 50);
 
         --card-fg: rgb(250, 250, 250);
-        --card-bg: rgb(70, 70, 70);
+        --card-bg: rgb(45, 45, 45);
     }
 
 }

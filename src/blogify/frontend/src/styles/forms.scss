@@ -11,6 +11,63 @@ input {
     border: 1px solid black;
 }
 
+//noinspection CssReplaceWithShorthandSafely
+.checkbox {
+
+    & input[type="checkbox"] {
+        display: none;
+        pointer-events: all;
+        width: 0;
+        height: 0;
+
+        &:checked + label .toggle-circle {
+            left: 3em;
+            background-color: $checkbox-active-color;
+        }
+    }
+
+    display: inline-block;
+    cursor: pointer;
+    width: 4em;
+    height: 1.5em;
+
+    background-color: var(--body-bg);
+
+    border-top-right-radius:    15% 50%;
+    border-top-left-radius:     15% 50%;
+    border-bottom-right-radius: 15% 50%;
+    border-bottom-left-radius:  15% 50%;
+
+    & label {
+        display: inline-block;
+
+        cursor: pointer;
+
+        width: 100%;
+        height: 100%;
+
+        & .toggle-circle {
+            transition: all 100ms linear;
+
+            position: relative;
+            display: inline-block;
+
+            left: 5px;
+
+            width:   1.3em;
+            height:  1.3em;
+            margin:  0;
+            padding: 0;
+
+            top: calc(50% - .63em);
+            border-radius: 50%;
+            background-color: rgb(180, 180, 180);
+
+        }
+    }
+
+}
+
 button {
     padding: .75em 1em;
     background: aquamarine;

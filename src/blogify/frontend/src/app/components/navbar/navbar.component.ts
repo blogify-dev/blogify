@@ -9,15 +9,23 @@ import {Router} from "@angular/router";
 })
 export class NavbarComponent implements OnInit {
 
-    constructor(public authService: AuthService, private router: Router) {
-    }
+    darkMode: boolean;
+
+    constructor(public authService: AuthService, private router: Router) {}
 
     ngOnInit() {
         console.log(this.authService.userToken)
     }
 
     async navigateToProfile() {
-        const url = `/profile/${await this.authService.getUserUUIDFromToken(this.authService.userToken)}`
+        const url = `/profile/${await this.authService.getUserUUIDFromToken(this.authService.userToken)}`;
         await this.router.navigateByUrl(url)
     }
+
+    toggleDarkMode() {
+        this.darkMode = !this.darkMode;
+        document.querySelector("html").setAttribute("data-theme", this.darkMode ? "dark" : "light");
+        console.log("changed to: " + this.darkMode);
+    }
+
 }
