@@ -18,6 +18,7 @@ export class NavbarComponent implements OnInit {
 
         if (window.matchMedia("prefers-color-scheme: dark")) {
             this.darkMode = true;
+            document.querySelector("html").setAttribute("data-theme", "dark");
             document.querySelector('#toggle-dark-mode').setAttribute("checked", "");
         }
     }
