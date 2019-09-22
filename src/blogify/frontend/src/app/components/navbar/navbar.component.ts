@@ -1,25 +1,33 @@
-import {Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {AuthService} from "../../services/auth/auth.service";
 import {Router} from "@angular/router";
+import {DarkModeService} from "../../services/darkmode/dark-mode.service";
+
 
 @Component({
     selector: 'app-navbar',
     templateUrl: './navbar.component.html',
     styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, AfterViewInit {
 
-    darkMode: boolean;
+    @ViewChild("darkModeToggle", {static: false, read: ElementRef}) darkModeToggle: ElementRef;
 
-    constructor(public authService: AuthService, private router: Router) {}
+    constructor(
+        public authService: AuthService,
+        private router: Router,
+        private darkModeService: DarkModeService,
+    ) {
+    }
 
     ngOnInit() {
         console.log(this.authService.userToken);
+    }
 
+    ngAfterViewInit() {
         if (window.matchMedia("prefers-color-scheme: dark")) {
-            this.darkMode = true;
-            document.querySelector("html").setAttribute("data-theme", "dark");
-            document.querySelector('#toggle-dark-mode').setAttribute("checked", "");
+            this.darkModeService.setDarkMode(true);
+            this.darkModeToggle.nativeElement.setAttribute("checked", "");
         }
     }
 
@@ -29,9 +37,9 @@ export class NavbarComponent implements OnInit {
     }
 
     toggleDarkMode() {
-        this.darkMode = !this.darkMode;
-        document.querySelector("html").setAttribute("data-theme", this.darkMode ? "dark" : "light");
-        console.log("changed to: " + this.darkMode);
+        const darkMode = !this.darkModeService.getDarkModeValue();
+        this.darkModeService.setDarkMode(darkMode)
+
     }
 
 }

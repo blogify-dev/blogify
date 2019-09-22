@@ -16,6 +16,7 @@ import { ShowArticleComponent } from './components/show-article/show-article.com
 import { ShowAllArticlesComponent } from './components/show-all-articles/show-all-articles.component';
 import { CommentComponent } from './components/comment/comment.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import { NavbarComponent } from './components/navbar/navbar.component';
         ShowArticleComponent,
         ShowAllArticlesComponent,
         CommentComponent,
-        NavbarComponent
+        NavbarComponent,
+        DarkThemeDirective
     ],
     imports: [
         BrowserModule,
