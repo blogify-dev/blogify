@@ -14,7 +14,12 @@ export class NavbarComponent implements OnInit {
     constructor(public authService: AuthService, private router: Router) {}
 
     ngOnInit() {
-        console.log(this.authService.userToken)
+        console.log(this.authService.userToken);
+
+        if (window.matchMedia("prefers-color-scheme: dark")) {
+            this.darkMode = true;
+            document.querySelector('#toggle-dark-mode').setAttribute("checked", "");
+        }
     }
 
     async navigateToProfile() {
