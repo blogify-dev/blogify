@@ -20,9 +20,9 @@
 
     .navbar-elem {
 
-        margin-left: 2.75em;
+        cursor: pointer;
 
-        font-size: 1.25em;
+        margin-left: 2.75em;
 
         &#home {
             margin-right: auto;
@@ -31,10 +31,8 @@
         }
 
         &:not(#home) a {
+            font-size: 1.3em;
             color: var(--header-fg);
-
-            padding-bottom: .35em;
-            border-bottom: 1px solid var(--header-fg);;
         }
 
     }

@@ -1,14 +1,17 @@
 @import "colours";
 @import "layouts";
 
+input, button, textarea, select {
+    background-color: var(--card-bg);
+}
+
 input {
-    color: black;
-    background: white;
+    color: var(--card-fg);
 
     padding: .75em 1em;
 
     border-radius: $std-border-radius;
-    border: 1px solid black;
+    border: 1px solid var(--border-color);
 }
 
 //noinspection CssReplaceWithShorthandSafely
@@ -21,7 +24,7 @@ input {
         height: 0;
 
         &:checked + label .toggle-circle {
-            left: 3em;
+            left: 29px;
             background-color: $checkbox-active-color;
         }
     }
@@ -52,7 +55,7 @@ input {
             position: relative;
             display: inline-block;
 
-            left: 5px;
+            left: 3px;
 
             width:   1.3em;
             height:  1.3em;
@@ -70,6 +73,9 @@ input {
 
 button {
     padding: .75em 1em;
+
+    color: black;
     background: aquamarine;
+
     border-radius: $std-border-radius;
 }
