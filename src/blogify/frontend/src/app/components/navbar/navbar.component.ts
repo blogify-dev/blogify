@@ -32,7 +32,7 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     }
 
     async navigateToProfile() {
-        const url = `/profile/${await this.authService.getUserUUIDFromToken(this.authService.userToken)}`;
+        const url = `/profile/${this.authService.userUUID}`;
         await this.router.navigateByUrl(url)
     }
 

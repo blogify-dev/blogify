@@ -31,10 +31,7 @@ export class ShowAllArticlesComponent implements OnInit {
             await this.router.navigateByUrl('/login')
         } else {
             await this.router.navigateByUrl('/new-article')
-
         }
     }
-
-
 
 }

@@ -44,7 +44,7 @@ export class ShowArticleComponent implements OnInit {
             this.articleContent = await this.articleService.getArticleContent(articleUUID).toPromise();
             console.log(this.articleContent);
 
-            this.articleAuthor = await this.authService.getUser(this.article.createdBy.toString());
+            this.articleAuthor = await this.authService.fetchUser(this.article.createdBy.toString());
             console.log(this.articleAuthor.username);
         })
     }

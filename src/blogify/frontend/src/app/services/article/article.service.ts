@@ -20,13 +20,15 @@ export class ArticleService {
         for (const it of articles) {
             const copy = it;
             const promises = await Promise.all([
-                this.authService.getUser(`${it.createdBy}`),
+                this.authService.fetchUser(`${it.createdBy}`),
                 this.getArticleContent(copy.uuid).toPromise()
             ]);
             copy.createdBy = promises[0];
             copy.content = promises[1];
             out.push(copy);
         }
+
+        console.log(out);
 
         return out
     }
@@ -51,7 +53,7 @@ export class ArticleService {
             content: content,
             title: title,
             categories: categories,
-            createdBy: (await this.authService.getUserUUIDFromToken(userToken)).uuid,
+            createdBy: this.authService.userUUID,
         };
 
         return this.httpClient.post(`/api/articles/`, newArticle, httpOptions).toPromise()

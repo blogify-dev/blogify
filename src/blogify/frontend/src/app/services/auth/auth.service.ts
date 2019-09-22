@@ -7,10 +7,12 @@ import { BehaviorSubject, Observable } from 'rxjs';
     providedIn: 'root'
 })
 export class AuthService {
+
+    private readonly dummyUser = new User('', '');
+
     private currentUserToken_ = new BehaviorSubject('');
-    private readonly dummyUser = new User('', '')
-    private currentUser_ = new BehaviorSubject(this.dummyUser);
     private currentUserUuid_ = new BehaviorSubject('');
+    private currentUser_ = new BehaviorSubject(this.dummyUser);
 
     constructor(private httpClient: HttpClient) {}
 
@@ -23,7 +25,7 @@ export class AuthService {
         this.currentUserToken_.next(it.token);
 
         const uuid = await this.getUserUUIDFromToken(it.token);
-        const fetchedUser = await this.getUser(uuid.uuid);
+        const fetchedUser = await this.fetchUser(uuid.uuid);
 
         console.log(fetchedUser);
 
@@ -39,18 +41,15 @@ export class AuthService {
         return this.httpClient.post<RegisterCredentials>('/api/auth/signup', user);
     }
 
-    private async requestUser(uuid: string): Promise<User> {
-        const userObservable = this.httpClient.get<User>(`/api/users/${uuid}`);
-        const user = await userObservable.toPromise();
-        this.currentUser_.next(user);
-        return user
-    }
-
-    async getUserUUIDFromToken(token: string): Promise<UserUUID> {
+    private async getUserUUIDFromToken(token: string): Promise<UserUUID> {
         const userUUIDObservable = this.httpClient.get<UserUUID>(`/api/auth/${token}`);
         const uuid = await userUUIDObservable.toPromise();
         this.currentUserUuid_.next(uuid.uuid);
         return uuid;
+    }
+
+    async fetchUser(uuid: string): Promise<User> {
+        return this.httpClient.get<User>(`/api/users/${uuid}`).toPromise()
     }
 
     get userToken(): string {
@@ -65,15 +64,7 @@ export class AuthService {
         return this.currentUser_.getValue()
     }
 
-    async getUser(uuid: string): Promise<User> {
-        const cUserVal = this.currentUser_.getValue();
-        if (cUserVal == this.dummyUser || cUserVal.username == '') {
-            await this.requestUser(uuid)
-        }
-        return this.currentUser_.getValue()
-    }
 }
-
 
 interface UserToken {
     token: string
