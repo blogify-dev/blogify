@@ -17,6 +17,7 @@ import { ShowAllArticlesComponent } from './components/show-all-articles/show-al
 import { CommentComponent } from './components/comment/comment.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
+import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
 
 @NgModule({
@@ -40,6 +41,7 @@ import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive
         AppRoutingModule,
         HttpClientModule,
         FormsModule,
+        AngularFontAwesomeModule
     ],
     providers: [],
     bootstrap: [AppComponent]
