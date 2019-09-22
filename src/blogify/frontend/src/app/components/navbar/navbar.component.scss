@@ -3,6 +3,8 @@
 
 #navbar-list {
 
+    height: 5.25em;
+
     display:         flex;
     flex-direction:  row;
     justify-content: space-between;
@@ -30,7 +32,7 @@
 
         cursor: pointer;
 
-        margin-left: 2.75em;
+        margin-left: 2em;
 
         &#home {
             margin-left: 0;
@@ -54,6 +56,31 @@
             color: var(--header-fg);
         }
 
+        &#navbar-dark-mode-toggle {
+            margin-left: 1.35em;
+        }
+
+        #profile-display {
+            display:         flex;
+            flex-direction:  column;
+            justify-content: space-between;
+            align-items:     flex-start;
+
+            #profile-text {
+                font-size: 0.85em;
+                text-transform: uppercase;
+            }
+
+            #profile-username {
+                font-size: 1.20em;
+            }
+        }
+
+    }
+
+    #navbar-dark-mode-toggle-container {
+        margin-left: 1.35em;
+        border-left: solid var(--border-color) 1px;
     }
 
 }
