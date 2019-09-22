@@ -24,6 +24,11 @@
             justify-content: space-between;
             align-items:            center;
 
+
+            #header-search-pad {
+                width: 85%;
+            }
+
             #header-create-btn {
                 font-size: 2em;
                 font-weight: bold;
@@ -68,6 +73,17 @@
             .article-summary { font-size: 1.25em; }
 
             .read-more { color: var(--card-fg); }
+
+            .article-last-line {
+                width: 100%;
+
+                text-align: center;
+
+                display:                  flex;
+                flex-direction:            row;
+                justify-content: space-between;
+                align-items:            center;
+            }
 
             .article-comments-count { align-self: flex-end; }
 

@@ -5,7 +5,11 @@
         <div id="articles-header">
             <h2>Articles</h2>
 
-            <a id="header-create-btn" (click)="navigateToNewArticle()">+</a>
+            <input id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help">
+
+            <a id="header-create-btn" (click)="navigateToNewArticle()">
+                <fa name="pencil" size="2x"></fa>
+            </a>
         </div>
 
             <div class="article" *ngFor="let article of articles">
@@ -22,17 +26,19 @@
                     <a class="read-more" routerLink="/article/{{article.uuid}}">Read More</a>
                 </h3>
 
-                <!-- TODO: Actually impalement this-->
-                <h4 class="article-comments-count">Comments: 4</h4>
+                <div class="article-last-line">
+                    <!-- TODO: Actually impalement this-->
+                    <h4 class="article-comments-count">Comments: 4</h4>
 
-                <div class="article-tags" *ngIf="article.categories.length > 0">
-                    <span class="tags-title">Tags:&nbsp;</span>
-                    <span *ngFor="let tag of article.categories">{{tag.name}}</span>
+                    <div class="article-tags" *ngIf="article.categories.length > 0">
+                        <span class="tags-title">Tags:&nbsp;</span>
+                        <span *ngFor="let tag of article.categories">{{tag.name}}</span>
+                    </div>
+
+                    <span class="article-no-tags" *ngIf="article.categories.length == 0">
+                        <em>No tags</em>
+                    </span>
                 </div>
-
-                <span class="article-no-tags" *ngIf="article.categories.length == 0">
-                    <em>No tags</em>
-                </span>
 
             </div>
 
