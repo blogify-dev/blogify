@@ -3,10 +3,18 @@
 
 #navbar-list {
 
-    display:           flex;
-    flex-direction:     row;
-    justify-content: center;
+    display:         flex;
+    flex-direction:  row;
+    justify-content: space-between;
     align-items:     center;
+
+    #navbar-left,
+    #navbar-right {
+        display:         flex;
+        flex-direction:  row;
+        justify-content: space-between;
+        align-items:     center;
+    }
 
     padding: 1em 1.5em;
 
@@ -25,9 +33,14 @@
         margin-left: 2.75em;
 
         &#home {
-            margin-right: auto;
-            padding-right: 15px;
-            padding-left: 0;
+            margin-left: 0;
+
+            #home-img-container {
+                display:         flex;
+                flex-direction:  column;
+                justify-content: center;
+                align-items:     center;
+            }
         }
 
         &:not(#home) a {

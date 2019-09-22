@@ -2,27 +2,35 @@
 
     <div id="navbar-list">
 
-        <span class="navbar-elem navbar-link" id="home">
-            <a routerLink="home">
-                <img height="24em"
+        <span id="navbar-left">
+
+            <span class="navbar-elem navbar-link" id="home">
+                <a routerLink="home" id="home-img-container">
+                    <img height="24em"
                      src="assets/images/logo.svg"
                      alt="Blogify" />
-            </a>
+                </a>
+            </span>
+
         </span>
 
-        <span class="navbar-elem navbar-link" id="login">
-            <a routerLink="/login" *ngIf="authService.userToken == ''">Login</a>
-            <a (click)="navigateToProfile()" *ngIf="authService.userToken != ''">Profile</a>
-        </span>
+        <span id="navbar-right">
 
-        <span class="navbar-elem navbar-link" id="register" *ngIf="authService.userToken == ''">
-            <a routerLink="/register">Register</a>
-        </span>
+            <span class="navbar-elem navbar-link" id="login">
+                <a routerLink="/login" *ngIf="authService.userToken == ''">Login</a>
+                <a (click)="navigateToProfile()" *ngIf="authService.userToken != ''">Profile</a>
+            </span>
 
-        <div class="checkbox navbar-elem navbar-dark-mode-toggle">
-            <input id="toggle-dark-mode" type="checkbox" (change)="toggleDarkMode()">
-            <label for="toggle-dark-mode"><span class="toggle-circle"></span></label>
-        </div>
+            <span class="navbar-elem navbar-link" id="register" *ngIf="authService.userToken == ''">
+                <a routerLink="/register">Register</a>
+            </span>
+
+            <span class="checkbox navbar-elem navbar-dark-mode-toggle">
+                <input id="toggle-dark-mode" type="checkbox" (change)="toggleDarkMode()">
+                <label for="toggle-dark-mode"><span class="toggle-circle"></span></label>
+            </span>
+
+        </span>
 
     </div>
 
