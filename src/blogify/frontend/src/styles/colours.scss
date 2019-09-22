@@ -16,6 +16,8 @@ $checkbox-active-color: rgb(22, 147, 204);
 
     --border-color: rgb(200, 200, 200);
 
+    --logo-filter: invert(0);
+
     &[data-theme="dark"] {
         --body-fg: rgb(252, 252, 252);
         --body-bg: rgb(35, 35, 35);
@@ -30,6 +32,8 @@ $checkbox-active-color: rgb(22, 147, 204);
         --card-ct: rgb(35, 35, 35);
 
         --border-color: rgb(80, 80, 80);
+
+        --logo-filter: invert(1);
 
     }
 

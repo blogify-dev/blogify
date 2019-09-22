@@ -45,7 +45,7 @@
 
                 img {
                     @media (prefers-color-scheme: dark) {
-                        filter: invert(1);
+                        filter: var(--logo-filter);
                     }
                 }
             }
