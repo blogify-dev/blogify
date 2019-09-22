@@ -40,6 +40,12 @@
                 flex-direction:  column;
                 justify-content: center;
                 align-items:     center;
+
+                img {
+                    @media (prefers-color-scheme: dark) {
+                        filter: invert(1);
+                    }
+                }
             }
         }
 
