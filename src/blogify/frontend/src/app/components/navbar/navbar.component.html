@@ -16,24 +16,34 @@
 
         <span id="navbar-right">
 
-            <span class="navbar-elem navbar-link" id="login">
-                <a routerLink="/login" *ngIf="authService.userToken == ''">Login</a>
+            <span class="navbar-elem navbar-link" id="navbar-login">
+
+                <a routerLink="/login" *ngIf="authService.userToken == ''">
+                    Login
+                </a>
 
                 <span id="profile-display" *ngIf="authService.userToken != ''">
                     <span id="profile-text">Profile</span>
                     <span id="profile-username">{{authService.userProfile.username}}</span>
                 </span>
+
             </span>
 
-            <span class="navbar-elem navbar-link" id="c" *ngIf="authService.userToken == ''">
-                <a routerLink="/register">Register</a>
+            <span class="navbar-elem navbar-link" id="navbar-register" *ngIf="authService.userToken == ''">
+
+                <a routerLink="/register">
+                    Register
+                </a>
+
             </span>
 
             <span id="navbar-dark-mode-toggle-container">
+
                 <span class="checkbox navbar-elem" id="navbar-dark-mode-toggle">
                     <input id="toggle-dark-mode" type="checkbox" (change)="toggleDarkMode()" #darkModeToggle >
                     <label for="toggle-dark-mode"><span class="toggle-circle"></span></label>
                 </span>
+
             </span>
 
 
