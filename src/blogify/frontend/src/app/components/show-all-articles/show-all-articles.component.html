@@ -27,7 +27,7 @@
 
                 <div class="article-tags" *ngIf="article.categories.length > 0">
                     <span class="tags-title">Tags:&nbsp;</span>
-                    <span *ngFor="let tag of article.categories">{{tag.name}},&nbsp;</span>
+                    <span *ngFor="let tag of article.categories">{{tag.name}}</span>
                 </div>
 
                 <span class="article-no-tags" *ngIf="article.categories.length == 0">

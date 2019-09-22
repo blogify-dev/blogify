@@ -50,7 +50,7 @@
                -moz-box-shadow: $box-shadow;
                     box-shadow: $box-shadow;;
 
-            padding: 1.5em;
+            padding: 1.2em 1.5em;
 
             margin-top: 2%;
 
@@ -72,17 +72,23 @@
             .article-comments-count { align-self: flex-end; }
 
             .article-no-tags,
-            .article-tags { display: flex; align-self: flex-end; }
+            .article-tags {
+                display:    flex;
+                align-self: flex-end;
 
-            .tag-list {
-                background: white;
-                -webkit-box-shadow: 0 0 5px 1px rgba(0,0,0,0.26);
-                -moz-box-shadow: 0 0 5px 1px rgba(0,0,0,0.26);
-                box-shadow: 0 0 5px 1px rgba(0,0,0,0.26);
-                display: flex;
-                padding: 1%;
-                margin-left: 1%;
-                border-radius: 5px;
+                margin-top: 1.2em;
+
+                & > * {
+                    font-size: 1.35em;
+                    margin:    0    .25em;
+                    padding:  .15em .65em;
+
+                    border-radius: .3em;
+
+                    &:not(:nth-child(1)) { background-color: var(--card-ct); }
+                    &:nth-child(1)       { margin-right: 0; padding-right: 0; }
+                    &:last-child         { margin-right: 0 }
+                }
             }
 
         }
