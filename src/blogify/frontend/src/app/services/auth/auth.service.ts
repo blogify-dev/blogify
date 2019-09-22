@@ -12,14 +12,26 @@ export class AuthService {
     private currentUser_ = new BehaviorSubject(this.dummyUser);
     private currentUserUuid_ = new BehaviorSubject('');
 
-    constructor(private httpClient: HttpClient) {
-    }
+    constructor(private httpClient: HttpClient) {}
 
     async login(user: LoginCredentials): Promise<UserToken> {
         const token = this.httpClient.post<UserToken>('/api/auth/signin', user);
         const it = await token.toPromise();
+
         console.log(`it.token: ${it.token}`);
+
         this.currentUserToken_.next(it.token);
+
+        const uuid = await this.getUserUUIDFromToken(it.token);
+        const fetchedUser = await this.getUser(uuid.uuid);
+
+        console.log(fetchedUser);
+
+        this.currentUser_.next(fetchedUser);
+        this.currentUserUuid_.next(fetchedUser.uuid);
+
+        console.log(this.userUUID);
+
         return it
     }
 
@@ -47,6 +59,10 @@ export class AuthService {
 
     get userUUID(): string {
         return this.currentUserUuid_.getValue()
+    }
+
+    get userProfile(): User {
+        return this.currentUser_.getValue()
     }
 
     async getUser(uuid: string): Promise<User> {
