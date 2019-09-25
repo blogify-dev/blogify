@@ -1,21 +1,37 @@
 package blogify.backend.auth.jwt
 
 import blogify.backend.resources.User
+import ch.qos.logback.classic.Logger
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
+import org.slf4j.LoggerFactory
 
+import java.util.Calendar
 import java.util.Date
 
+import kotlin.time.ExperimentalTime
+
 private val keyPair = Keys.keyPairFor(SignatureAlgorithm.ES512)
+
+private val logger = LoggerFactory.getLogger("blogify-auth-token")
 
 fun generateJWT(user: User) = Jwts
     .builder()
     .setSubject(user.uuid.toString())
     .setIssuer("blogify")
-    .setIssuedAt(Date())
-    .signWith(keyPair.private).compact()
+    .apply {
+        val cal = Calendar.getInstance()
+
+        cal.time = Date()
+        cal.add(Calendar.DAY_OF_MONTH, -15)
+
+        setExpiration(cal.time)
+    }
+    .signWith(keyPair.private).compact().also {
+        logger.debug("created token for user with id {${user.uuid.toString().take(8)}...}")
+    }
 
 /**
 * Validates a JWT, returning a [User] if that token authenticates a user, or `null` if the token is invalid
@@ -30,6 +46,8 @@ fun validateJwt(token: String): Boolean {
             .parseClaimsJws(token)
             .body.takeIf { it.expiration.also { e -> println(e) } < Date() } ?: error("token expired")
     } catch(e: Exception) {
+        logger.debug("token with invalid signature attempted")
+        e.printStackTrace()
         return false
     }
 
