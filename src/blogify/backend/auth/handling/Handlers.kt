@@ -79,7 +79,7 @@ suspend fun CallPipeline.authenticatedBy(predicate: AuthPredicate, block: CallPi
         } ?: run { call.respond(HttpStatusCode.BadRequest); return } // Token is invalid or missing*/
 
     if (!validateJwt(token)) {
-        call.respond(HttpStatusCode.Forbidden)
+        call.respond(HttpStatusCode.Forbidden, object { val token= "invalid token" })
         return
     }
 
