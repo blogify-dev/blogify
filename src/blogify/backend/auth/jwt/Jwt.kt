@@ -1,7 +1,8 @@
 package blogify.backend.auth.jwt
 
 import blogify.backend.resources.User
-import ch.qos.logback.classic.Logger
+
+import com.andreapivetta.kolor.red
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -10,8 +11,6 @@ import org.slf4j.LoggerFactory
 
 import java.util.Calendar
 import java.util.Date
-
-import kotlin.time.ExperimentalTime
 
 private val keyPair = Keys.keyPairFor(SignatureAlgorithm.ES512)
 
@@ -25,7 +24,7 @@ fun generateJWT(user: User) = Jwts
         val cal = Calendar.getInstance()
 
         cal.time = Date()
-        cal.add(Calendar.DAY_OF_MONTH, -15)
+        cal.add(Calendar.DAY_OF_MONTH, +15)
 
         setExpiration(cal.time)
     }
@@ -44,9 +43,8 @@ fun validateJwt(token: String): Boolean {
             .requireIssuer("blogify")
             .setAllowedClockSkewSeconds(1)
             .parseClaimsJws(token)
-            .body.takeIf { it.expiration.also { e -> println(e) } < Date() } ?: error("token expired")
     } catch(e: Exception) {
-        logger.debug("token with invalid signature attempted")
+        logger.debug("${"invalid token attempted".red()} - ${e.javaClass.simpleName.takeLastWhile { it != '.' }}")
         e.printStackTrace()
         return false
     }

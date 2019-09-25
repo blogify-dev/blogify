@@ -78,9 +78,10 @@ suspend fun CallPipeline.authenticatedBy(predicate: AuthPredicate, block: CallPi
             token // Propagate token value to token val
         } ?: run { call.respond(HttpStatusCode.BadRequest); return } // Token is invalid or missing*/
 
-    if (validateJwt(token)) println("test")
-
-    println("$token $validTokens")
+    if (!validateJwt(token)) {
+        call.respond(HttpStatusCode.Forbidden)
+        return
+    }
 
     if (predicate.invoke(token)) { // Check token against predicate
         block.invoke(this, Unit)
