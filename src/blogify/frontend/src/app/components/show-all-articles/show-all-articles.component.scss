@@ -24,9 +24,21 @@
             justify-content: space-between;
             align-items:            center;
 
+            $search-icon-break: 1300px;
 
             #header-search-pad {
                 width: 85%;
+                @media (min-width: 0) and (max-width: $search-icon-break) {
+                    display: none;
+                }
+            }
+
+            #header-search-icon {
+                margin-left: auto;
+                margin-right: 2.3em;
+                @media (min-width: $search-icon-break) {
+                    display: none;
+                }
             }
 
             #header-create-btn {

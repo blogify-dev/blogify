@@ -6,6 +6,7 @@
             <h2>Articles</h2>
 
             <input id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help">
+            <fa id="header-search-icon" name="search" size="2x"></fa>
 
             <a id="header-create-btn" (click)="navigateToNewArticle()">
                 <fa name="pencil" size="2x"></fa>
@@ -20,7 +21,6 @@
                 </div>
 
                 <span class="article-summary">{{article.content.summary}}</span>
-
 
                 <h3 class="read-more">
                     <a class="read-more" routerLink="/article/{{article.uuid}}">Read More</a>
