@@ -2,11 +2,13 @@ package blogify.backend.auth.jwt
 
 import blogify.backend.resources.User
 
+import com.andreapivetta.kolor.green
 import com.andreapivetta.kolor.red
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
+
 import org.slf4j.LoggerFactory
 
 import java.util.Calendar
@@ -29,7 +31,7 @@ fun generateJWT(user: User) = Jwts
         setExpiration(cal.time)
     }
     .signWith(keyPair.private).compact().also {
-        logger.debug("created token for user with id {${user.uuid.toString().take(8)}...}")
+        logger.debug("${"created token for user with id".green()} {${user.uuid.toString().take(8)}...}")
     }
 
 /**
