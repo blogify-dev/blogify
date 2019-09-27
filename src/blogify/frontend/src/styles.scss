@@ -8,7 +8,7 @@
 @import "styles/titles";
 
 * {
-    transition: color, background-color 150ms ease-in-out;
+    transition: color 150ms ease-in-out, background-color 150ms ease-in-out;
 
     margin: 0;
     padding: 0;
@@ -26,4 +26,13 @@
 
 #parent {
     background-color: var(--body-bg);
+
+    min-height: 100vh;
+
+    display:        flex;
+    flex-direction: column;
+
+    #license-info {
+        margin-top: auto;
+    }
 }
