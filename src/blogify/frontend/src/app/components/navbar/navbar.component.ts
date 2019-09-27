@@ -2,6 +2,7 @@ import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/
 import {AuthService} from "../../services/auth/auth.service";
 import {Router} from "@angular/router";
 import {DarkModeService} from "../../services/darkmode/dark-mode.service";
+import { User } from "../../models/User"
 
 
 @Component({

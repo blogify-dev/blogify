@@ -21,9 +21,8 @@
                 <a routerLink="/login" *ngIf="authService.userToken == ''">
                     Login
                 </a>
-
                 <span id="profile-display" *ngIf="authService.userToken != ''">
-                    <span id="profile-text">Profile</span>
+                    <span id="profile-text" (click)="navigateToProfile()" >Profile</span>
                     <span id="profile-username">{{authService.userProfile.username}}</span>
                 </span>
 
