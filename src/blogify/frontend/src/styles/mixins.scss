@@ -1,0 +1,21 @@
+@mixin pageContainer {
+    background-color: var(--body-bg);
+
+    padding: 3em;
+    @media (min-width: 0) and (max-width: 1200px) {
+        padding: 2em 1.25em;
+    }
+
+
+    width: calc((100% / 3) * 2);
+    @media (min-width: 0) and (max-width: 1200px) {
+        width: 100%;
+    }
+}
+
+@mixin pageContainerHeader {
+    display:                  flex;
+    flex-direction:            row;
+    justify-content: space-between;
+    align-items:            center;
+}

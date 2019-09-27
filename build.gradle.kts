@@ -94,6 +94,8 @@ tasks.withType<Jar> {
 dockerCompose {
     useComposeFiles = mutableListOf("./docker-compose.yml")
 
+    environment["DOCKER_HOST"] = "tcp://192.168.122.57:2375/"
+
     projectName = "blogify"
 
     waitForTcpPorts = true

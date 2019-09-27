@@ -1,4 +1,8 @@
-@import url('https://fonts.googleapis.com/css?family=Lexend+Deca|Nunito+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Nunito:400,700&display=swap');
 
 $lexenda: 'Lexend Deca', sans-serif;
-$nunito: 'Nunito Sans', sans-serif;
+$nunito: 'Nunito', sans-serif;
+
+a:hover, a:hover * {
+    color: var(--accent-neutral) !important;
+}

@@ -37,8 +37,8 @@ export class AuthService {
         return it
     }
 
-    register(user: RegisterCredentials): Observable<RegisterCredentials> {
-        return this.httpClient.post<RegisterCredentials>('/api/auth/signup', user);
+    async register(credentials: RegisterCredentials): Promise<User> {
+        return this.httpClient.post<User>('/api/auth/signup', credentials).toPromise();
     }
 
     private async getUserUUIDFromToken(token: string): Promise<UserUUID> {

@@ -25,7 +25,7 @@ input {
 
         &:checked + label .toggle-circle {
             left: 29px;
-            background-color: $checkbox-active-color;
+            background-color: var(--accent-neutral);
         }
     }
 
@@ -74,8 +74,10 @@ input {
 button {
     padding: .75em 1em;
 
+    cursor: pointer;
+
     color: black;
-    background: aquamarine;
+    background: var(--accent-neutral);
 
     border-radius: $std-border-radius;
 }

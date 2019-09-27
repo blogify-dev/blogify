@@ -1,47 +1,43 @@
-<section class="main">
+<section class="articles">
 
-    <section class="articles">
+    <div id="articles-header">
+        <h2>Articles</h2>
 
-        <div id="articles-header">
-            <h2>Articles</h2>
+        <input id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help">
+        <fa id="header-search-icon" name="search" size="2x"></fa>
 
-            <input id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help">
-            <fa id="header-search-icon" name="search" size="2x"></fa>
+        <a id="header-create-btn" (click)="navigateToNewArticle()">
+            <fa name="pencil" size="2x"></fa>
+        </a>
+    </div>
 
-            <a id="header-create-btn" (click)="navigateToNewArticle()">
-                <fa name="pencil" size="2x"></fa>
-            </a>
-        </div>
+        <div class="article" *ngFor="let article of articles">
 
-            <div class="article" *ngFor="let article of articles">
-
-                <div class="article-first-line">
-                    <h1 class="article-title">{{article.title}}</h1>
-                    <h4 class="article-author">Posted by {{article.createdBy.username}} </h4>
-                </div>
-
-                <span class="article-summary">{{article.content.summary}}</span>
-
-                <h3 class="read-more">
-                    <a class="read-more" routerLink="/article/{{article.uuid}}">Read More</a>
-                </h3>
-
-                <div class="article-last-line">
-                    <!-- TODO: Actually impalement this-->
-                    <h4 class="article-comments-count">Comments: 4</h4>
-
-                    <div class="article-tags" *ngIf="article.categories.length > 0">
-                        <span class="tags-title">Tags:&nbsp;</span>
-                        <span *ngFor="let tag of article.categories">{{tag.name}}</span>
-                    </div>
-
-                    <span class="article-no-tags" *ngIf="article.categories.length == 0">
-                        <em>No tags</em>
-                    </span>
-                </div>
-
+            <div class="article-first-line">
+                <h1 class="article-title">{{article.title}}</h1>
+                <h4 class="article-author">Posted by {{article.createdBy.username}} </h4>
             </div>
 
-    </section>
+            <span class="article-summary">{{article.content.summary}}</span>
+
+            <h3 class="read-more">
+                <a class="read-more" routerLink="/article/{{article.uuid}}">Read More</a>
+            </h3>
+
+            <div class="article-last-line">
+                <!-- TODO: Actually impalement this-->
+                <h4 class="article-comments-count">Comments: 4</h4>
+
+                <div class="article-tags" *ngIf="article.categories.length > 0">
+                    <span class="tags-title">Tags:&nbsp;</span>
+                    <span *ngFor="let tag of article.categories">{{tag.name}}</span>
+                </div>
+
+                <span class="article-no-tags" *ngIf="article.categories.length == 0">
+                    <em>No tags</em>
+                </span>
+            </div>
+
+        </div>
 
 </section>

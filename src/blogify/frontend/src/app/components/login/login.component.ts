@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from "../../services/auth/auth.service";
-import { LoginCredentials, User } from '../../models/User';
+import { LoginCredentials, RegisterCredentials, User } from '../../models/User';
+import { Router} from '@angular/router';
 
 @Component({
     selector: 'app-login',
@@ -9,25 +10,43 @@ import { LoginCredentials, User } from '../../models/User';
 })
 export class LoginComponent implements OnInit {
 
-    loginCredentials: LoginCredentials = { username: '', password: '' };
+    registerCredentials: RegisterCredentials = { name: '', username: '', password: '', email: '' };
+    loginCredentials:    LoginCredentials = { username: '', password: '' };
+
     user: User;
 
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService, private router: Router) {}
 
     ngOnInit() {}
 
     async login() {
-        const token = await this.authService.login(this.loginCredentials);
+        this.authService.login(this.loginCredentials).then(async token => {
 
-        console.log(token);
+            console.log(token);
 
-        const uuid = this.authService.userUUID;
-        this.user  = this.authService.userProfile;
+            const uuid = this.authService.userUUID;
+            this.user  = this.authService.userProfile;
 
-        console.log(uuid);
-        console.log(this.user);
-        console.log(this.loginCredentials);
-        console.log(this.authService.userToken);
+            console.log("LOGIN ->");
+            console.log(uuid);
+            console.log(this.user);
+            console.log(this.loginCredentials);
+            console.log(this.authService.userToken);
+
+            await this.router.navigateByUrl("/home");
+        });
+    }
+
+    async register() {
+        this.authService.register(this.registerCredentials).then(async user => {
+            this.user = user;
+
+            console.log("REGISTER ->");
+            console.log(this.user);
+            console.log(this.registerCredentials);
+
+            await this.router.navigateByUrl("/home");
+        })
     }
 
 }
