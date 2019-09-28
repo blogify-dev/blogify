@@ -18,6 +18,7 @@ import blogify.backend.services.UserService
 import blogify.backend.util.foldForOne
 import blogify.backend.util.hash
 import blogify.backend.util.letIn
+import blogify.backend.util.reason
 import blogify.backend.util.singleOrNullOrError
 
 import org.jetbrains.exposed.sql.insert
@@ -106,7 +107,7 @@ fun Route.auth() {
 
                                 call.respond(object {val token = token})
                             } else {
-                                call.respond(HttpStatusCode.Forbidden, object { val reason =  "username/password invalid" }) // Password doesn't match
+                                call.respond(HttpStatusCode.Forbidden, reason("username/password invalid")) // Password doesn't match
                             }
                         }, multiple = {
                             call.respond(HttpStatusCode.InternalServerError)

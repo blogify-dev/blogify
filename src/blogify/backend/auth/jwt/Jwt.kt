@@ -1,10 +1,17 @@
 package blogify.backend.auth.jwt
 
 import blogify.backend.resources.User
+import blogify.backend.services.UserService
+import blogify.backend.util.toUUID
+
+import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import com.andreapivetta.kolor.green
 import com.andreapivetta.kolor.red
 
+import io.jsonwebtoken.Claims
+import io.jsonwebtoken.Jws
+import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
@@ -18,6 +25,9 @@ private val keyPair = Keys.keyPairFor(SignatureAlgorithm.ES512)
 
 private val logger = LoggerFactory.getLogger("blogify-auth-token")
 
+/**
+ * Creates a [Jws] for the specific [user].
+ */
 fun generateJWT(user: User) = Jwts
     .builder()
     .setSubject(user.uuid.toString())
@@ -26,7 +36,7 @@ fun generateJWT(user: User) = Jwts
         val cal = Calendar.getInstance()
 
         cal.time = Date()
-        cal.add(Calendar.DAY_OF_MONTH, +15)
+        cal.add(Calendar.MINUTE, +1)
 
         setExpiration(cal.time)
     }
@@ -35,21 +45,29 @@ fun generateJWT(user: User) = Jwts
     }
 
 /**
-* Validates a JWT, returning a [User] if that token authenticates a user, or `null` if the token is invalid
+* Validates a JWT, returning a [SuspendableResult] if that token authenticates a user, or an exception if the token is invalid
  */
-fun validateJwt(token: String): Boolean {
+suspend fun validateJwt(token: String): SuspendableResult<User, Exception> {
+    var jwsClaims: Jws<Claims>? = null
+
     try {
-        Jwts
+        jwsClaims = Jwts
             .parser()
             .setSigningKey(keyPair.public)
             .requireIssuer("blogify")
             .setAllowedClockSkewSeconds(1)
             .parseClaimsJws(token)
-    } catch(e: Exception) {
+    } catch(e: JwtException) {
         logger.debug("${"invalid token attempted".red()} - ${e.javaClass.simpleName.takeLastWhile { it != '.' }}")
         e.printStackTrace()
-        return false
+        return SuspendableResult.error(e)
+    } catch (e: Exception) {
+        logger.debug("${"unknown exception during token validation -".red()} - ${e.javaClass.simpleName.takeLastWhile { it != '.' }}")
+        e.printStackTrace()
     }
 
-    return true
+    val user = UserService.get(jwsClaims?.body?.subject?.toUUID() ?: error("malformed uuid in jwt"))
+    logger.debug("got valid JWT for user {${user.get().uuid.toString().take(8)}...}".green())
+
+    return SuspendableResult.of { user.get() }
 }
