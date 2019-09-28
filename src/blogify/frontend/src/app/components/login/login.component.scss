@@ -4,7 +4,7 @@
 
     @include pageContainer;
 
-    * {transition: all 150ms ease-in-out; }
+    * {transition: color 150ms ease-in-out, border-bottom-color 150ms ease-in-out; }
 
     display:
         grid;
@@ -19,7 +19,8 @@
             & ~ #forms > #register-side { display: none; }
 
             & ~ label#login-header {
-                border-bottom: solid var(--accent-neutral) 4px;
+                border-bottom: solid var(--accent-neutral) 3px;
+                h2 { color: var(--accent-neutral) }
             }
         }
 
@@ -32,7 +33,8 @@
             & ~ #forms > #register-side { display: flex; }
 
             & ~ label#register-header {
-                border-bottom: solid var(--accent-positive) 4px;
+                border-bottom: solid var(--accent-positive) 3px;
+                h2 { color: var(--accent-positive); }
             }
         }
 
@@ -57,9 +59,6 @@
         cursor: pointer;
 
         border-bottom: solid var(--body-bg) 4px;
-
-        &#login-header    h2 { color: var(--accent-neutral) }
-        &#register-header h2 { color: var(--accent-positive) }
     }
 
     #login-form,
@@ -67,7 +66,7 @@
         width: 25em;
         flex-grow: 1;
 
-        margin-top: 1em;
+        margin-top: 1.1em;
 
         display:        flex;
         flex-direction: column;
@@ -79,7 +78,7 @@
             justify-content: stretch;
             align-items:     center;
 
-            margin-bottom: .5em;
+            margin-bottom: 1em;
 
             label {
                 font-size: 1.25em;
@@ -93,13 +92,19 @@
 
         .form-submit {
             margin-top: auto;
-            padding-top: 1.35em;
+
+            & span { padding: 0 20px; flex-grow: 0 }
 
             button { width: 8em; }
-            &#login-form-submit    { button { background-color: var(--accent-neutral) } }
-            &#register-form-submit { button { background-color: var(--accent-positive) } }
+            &#login-form-submit    button { background-color: var(--accent-neutral) }
+            &#register-form-submit button { background-color: var(--accent-positive) }
         }
 
+    }
+
+    #login-form-remember {
+        justify-content: flex-start !important;
+        * { flex-grow: 0 !important }
     }
 
 }

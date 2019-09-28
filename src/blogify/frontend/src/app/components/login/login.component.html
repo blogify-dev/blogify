@@ -19,9 +19,14 @@
                     <input placeholder="Password" id="login-input-password" type="password" name="pass" [(ngModel)]="loginCredentials.password">
                 </div>
 
+                <div class="form-line" id="login-form-remember">
+                    <input id="toggle-login-remember" type="checkbox" class="label-right" />
+                    <label for="toggle-login-remember">Keep me logged in</label>
+                </div>
+
                 <div class="form-submit" id="login-form-submit">
-                    <span>Forgot your password ?</span>
                     <button (click)="login()">Login</button>
+                    <span>Forgot your password ?</span>
                 </div>
 
             </div>
@@ -41,7 +46,7 @@
                 </div>
 
                 <div class="form-line" id="register-form-name">
-                    <input placeholder="Name" id="register-input-name" type="text" name="pass" [(ngModel)]="registerCredentials.name">
+                    <input placeholder="Full name" id="register-input-name" type="text" name="pass" [(ngModel)]="registerCredentials.name">
                 </div>
 
                 <div class="form-line" id="register-form-email">
@@ -49,8 +54,8 @@
                 </div>
 
                 <div class="form-submit" id="register-form-submit">
-                    <span>Forgot your password ?</span>
                     <button (click)="register()">Register</button>
+                    <span>Forgot your password ?</span>
                 </div>
 
             </div>

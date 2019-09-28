@@ -14,8 +14,34 @@ input {
     border: 1px solid var(--border-color);
 }
 
+input[type="checkbox"]:not(.togglebox) {
+    appearance: none;
+
+    flex-grow: 0 !important;
+
+    padding: .1em;
+    &.label-left  { margin-left:  .7em; }
+    &.label-right { margin-right: .7em; }
+
+    width:  1.75em;
+    height: 1.75em;
+
+    display:         flex;
+    justify-content: center;
+    align-items:     center;
+
+    border-width: 0;
+
+    &:after { content: '\2714'; font-size: 1.35em; }
+
+    color: var(--card-bg);
+    &:checked {
+        color: var(--accent-neutral);
+    }
+}
+
 //noinspection CssReplaceWithShorthandSafely
-.checkbox {
+.togglebox {
 
     & input[type="checkbox"] {
         display: none;
