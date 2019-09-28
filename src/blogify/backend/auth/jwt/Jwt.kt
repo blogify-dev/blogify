@@ -36,7 +36,7 @@ fun generateJWT(user: User) = Jwts
         val cal = Calendar.getInstance()
 
         cal.time = Date()
-        cal.add(Calendar.MINUTE, +1)
+        cal.add(Calendar.DAY_OF_MONTH, +7)
 
         setExpiration(cal.time)
     }

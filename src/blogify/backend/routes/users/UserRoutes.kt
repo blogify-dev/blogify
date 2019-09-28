@@ -29,7 +29,7 @@ fun Route.users() {
         }
 
         delete("/{uuid}") {
-            deleteWithId(UserService::delete)
+            deleteWithId(UserService::get, UserService::delete)
         }
 
         post("/") {

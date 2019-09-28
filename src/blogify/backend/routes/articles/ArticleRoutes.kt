@@ -7,11 +7,8 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 
 import blogify.backend.resources.Article
-import blogify.backend.auth.handling.authenticatedBy
-import blogify.backend.auth.handling.isUser
 import blogify.backend.routes.handling.*
 import blogify.backend.services.articles.ArticleService
-import blogify.backend.services.UserService
 import blogify.backend.util.toUUID
 
 fun Route.articles() {
@@ -27,7 +24,7 @@ fun Route.articles() {
         }
 
         delete("/{uuid}") {
-            deleteWithId(ArticleService::delete)
+            deleteWithId(ArticleService::get, ArticleService::delete, authPredicate = { user, article -> article.createdBy == user})
         }
 
         patch("/{uuid}") {
@@ -43,9 +40,9 @@ fun Route.articles() {
             }
         }
 
-        post("/") { authenticatedBy(predicate = isUser(UserService.getAll().get().toList()[0])) {
-            createWithResource(ArticleService::add)
-        }}
+        post("/") {
+            createWithResource(ArticleService::add, authPredicate = { user, article -> article.createdBy == user })
+        }
 
         articleContent()
 

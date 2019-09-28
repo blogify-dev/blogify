@@ -33,7 +33,7 @@ fun Route.articleComments() {
         }
 
         delete("/{uuid}") {
-            deleteWithId(CommentService::delete)
+            deleteWithId(CommentService::get, CommentService::delete)
         }
 
         patch("/{uuid}") {
