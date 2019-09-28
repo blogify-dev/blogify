@@ -10,6 +10,7 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 
 import blogify.backend.auth.encoder
+import blogify.backend.auth.jwt.generateJWT
 import blogify.backend.database.Users
 import blogify.backend.resources.User
 import blogify.backend.routes.handling.respondExceptionMessage
@@ -17,6 +18,7 @@ import blogify.backend.services.UserService
 import blogify.backend.util.foldForOne
 import blogify.backend.util.hash
 import blogify.backend.util.letIn
+import blogify.backend.util.reason
 import blogify.backend.util.singleOrNullOrError
 
 import org.jetbrains.exposed.sql.insert
@@ -98,17 +100,14 @@ fun Route.auth() {
                     set.foldForOne ( // We got a set of matching users
                         one = { singleUser ->
                             if (credentials.matchFor(singleUser)) {
-                                val token = Base64
-                                    .getUrlEncoder() // Generate token
-                                    .withoutPadding()
-                                    .encodeToString(Random.Default.nextBytes(64))
+                                val token = generateJWT(singleUser)
 
                                 validTokens[singleUser] = token
                                 validTokens.letIn(3600 * 1000L) { it.remove(singleUser) }
 
                                 call.respond(object {val token = token})
                             } else {
-                                call.respond(HttpStatusCode.Forbidden, object { val reason =  "username/password invalid" }) // Password doesn't match
+                                call.respond(HttpStatusCode.Forbidden, reason("username/password invalid")) // Password doesn't match
                             }
                         }, multiple = {
                             call.respond(HttpStatusCode.InternalServerError)
