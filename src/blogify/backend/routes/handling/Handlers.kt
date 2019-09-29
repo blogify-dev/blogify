@@ -3,6 +3,7 @@
 package blogify.backend.routes.handling
 
 import blogify.backend.auth.handling.authenticatedBy
+import blogify.backend.database.ResourceTable
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.services.models.ResourceResult
@@ -287,14 +288,39 @@ fun <T> getViaReflection(instance: Resource, propertyName: String): T {
     return property.get(instance) as T
 }
 
-fun <R : Resource> sliceResourceSet(
+@BlogifyDsl
+suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchSlicedResourceAndRespond(
+    service: Service<R>,
+    table: ResourceTable<R>
+) {
+    val params = call.parameters
+    val limit = params["amount"]?.toInt() ?: 25
+    val requiredParamsToReturn = params["fields"]?.split(",")?.toSet()
+
+    service.getAllWithLimit(table, limit).fold(
+        success = { articles ->
+            try {
+                requiredParamsToReturn?.let {
+
+                    call.respond(sliceResourceSet(articles, it.toSet()))
+
+                } ?: call.respond(articles)
+            } catch (bruhMoment: Service.Exception) {
+                call.respondExceptionMessage(bruhMoment)
+            }
+        },
+        failure = call::respondExceptionMessage
+    )
+}
+
+@BlogifyDsl
+private fun <R : Resource> sliceResourceSet(
     resource: Set<R>,
-    length: Int,
     requiredParamsToReturn: Set<String>
 ): MutableList<Map<String, Any>> {
     val returnList = mutableListOf<Map<String, Any>>()
 
-    resource.take(length).forEach { article ->
+    resource.forEach { article ->
 
         val mapToReturn = mutableMapOf<String, Any>()
 

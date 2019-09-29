@@ -10,7 +10,6 @@ import io.ktor.routing.*
 import blogify.backend.resources.Article
 import blogify.backend.routes.handling.*
 import blogify.backend.services.articles.ArticleService
-import blogify.backend.services.models.Service
 import blogify.backend.util.toUUID
 
 fun Route.articles() {
@@ -18,23 +17,7 @@ fun Route.articles() {
     route("/articles") {
 
         get("/") {
-            val params = call.parameters
-            val length = params["amount"]?.toInt() ?: 25
-            val requiredParamsToReturn = params["fields"]?.split(",")?.toSet()
-            ArticleService.getAll().fold(
-                success = { articles ->
-                    try {
-                        requiredParamsToReturn?.let {
-
-                            call.respond(sliceResourceSet(articles, length, it))
-
-                        } ?: call.respond(articles.take(length))
-                    } catch (bruhMoment: Service.Exception) {
-                        call.respondExceptionMessage(bruhMoment)
-                    }
-                },
-                failure = call::respondExceptionMessage
-            )
+            fetchSlicedResourceAndRespond(ArticleService, Articles)
         }
 
         get("/{uuid}") {

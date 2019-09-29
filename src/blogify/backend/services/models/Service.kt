@@ -3,15 +3,17 @@ package blogify.backend.services.models
 import blogify.backend.database.ResourceTable
 import blogify.backend.resources.models.Resource
 import blogify.backend.util.BException
-import blogify.backend.database.handling.query
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.mapError
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 import java.util.*
@@ -31,6 +33,20 @@ interface Service<R : Resource> {
             transaction {
                 val query = table.select(predicate).toSet()
                 runBlocking { query.map { table.convert(it).get() }.toSet() }
+            }
+        }.mapError { Exception.Fetching(it) }
+    }
+
+    suspend fun getAllWithLimit(
+        table: ResourceTable<R>,
+        limit: Int
+    ): ResourceResultSet<R> {
+        return SuspendableResult.of<Set<R>, Exception> {
+            transaction {
+                val query = table.selectAll().limit(limit).toSet()
+                runBlocking {
+                    query.map { table.convert(it).get() }.toSet()
+                }
             }
         }.mapError { Exception.Fetching(it) }
     }
