@@ -273,7 +273,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
 /**
  * Reads a property from an instance of a [Resource] class of [propertyName] with reflection
  *
- * Shamelessly copied from: [https://stackoverflow.com/a/35539628]
+ * Shamelessly stolen from: [https://stackoverflow.com/a/35539628]
  *
  * @param instance instance of resource class to read property from
  * @param propertyName name of the property to read
