@@ -1,6 +1,7 @@
 @import "../../../styles/fonts";
 @import "../../../styles/colours";
 @import "../../../styles/layouts";
+@import "../../../styles/mixins";
 
 
 @media screen and (max-width: 400px) {
@@ -8,4 +9,111 @@
         text-align: center;
         float: none;
     }
+}
+
+.articles {
+
+    @include pageContainer;
+
+    #articles-header {
+
+        @include pageContainerHeader;
+
+        $search-icon-break: 1300px;
+
+        #header-search-pad {
+            width: 85%;
+            @media (min-width: 0) and (max-width: $search-icon-break) {
+                display: none;
+            }
+        }
+
+        #header-search-icon {
+            margin-left: auto;
+            margin-right: 2.3em;
+            @media (min-width: $search-icon-break) {
+                display: none;
+            }
+        }
+
+        #header-create-btn {
+            font-size: 2em;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+    }
+
+    .article {
+
+        display:         flex;
+        flex-direction:  column;
+        justify-content: center;
+        align-items:     flex-start;
+
+        color: var(--card-fg);
+        background: var(--card-bg);
+
+        border-radius: $std-border-radius;
+        border: none;
+
+        $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.20);
+        -webkit-box-shadow: $box-shadow;
+        -moz-box-shadow: $box-shadow;
+        box-shadow: $box-shadow;;
+
+        padding: 1.2em 1.5em;
+
+        margin-top: 2%;
+
+        .article-first-line {
+            width: 100%;
+
+            text-align: center;
+
+            display:                  flex;
+            flex-direction:            row;
+            justify-content: space-between;
+            align-items:            center;
+        }
+
+        .article-summary { font-size: 1.25em; }
+
+        .read-more { color: var(--card-fg); }
+
+        .article-last-line {
+            width: 100%;
+
+            text-align: center;
+
+            display:                  flex;
+            flex-direction:            row;
+            justify-content: space-between;
+            align-items:            center;
+        }
+
+        .article-comments-count { align-self: flex-end; }
+
+        .article-no-tags,
+        .article-tags {
+            display:    flex;
+            align-self: flex-end;
+
+            margin-top: 1.2em;
+
+            & > * {
+                font-size: 1.35em;
+                margin:    0    .25em;
+                padding:  .15em .65em;
+
+                border-radius: .3em;
+
+                &:not(:nth-child(1)) { background-color: var(--card-ct); }
+                &:nth-child(1)       { margin-right: 0; padding-right: 0; }
+                &:last-child         { margin-right: 0 }
+            }
+        }
+
+    }
+
 }

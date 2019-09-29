@@ -37,6 +37,28 @@ export class ArticleService {
         return this.httpClient.get<Article>(`/api/articles/${uuid}`)
     }
 
+    async getAllArticleByUUID(uuid: string): Promise<Article[]> {
+        //TODO: CHANGE THIS ENDPOINT
+        const articlesUUIDObs = this.httpClient.get<Article[]>(`/api/articles/${uuid}`);
+        const articlesUUID = await articlesUUIDObs.toPromise();
+        const out: Article[] = [];
+
+        for (const it of articlesUUID) {
+            const copy = it;
+            const promises = await Promise.all([
+                this.authService.fetchUser(`${it.createdBy}`),
+                this.getArticleContent(copy.uuid).toPromise()
+            ]);
+            copy.createdBy = promises[0];
+            copy.content = promises[1];
+            out.push(copy);
+        }
+
+        console.log(out);
+
+        return out
+    }
+
     async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<Object> {
 
         const httpOptions = {
