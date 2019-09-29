@@ -18,7 +18,7 @@
         align-items:     center;
     }
 
-    padding: 1em 1.5em;
+    padding: 1em 1.5em 1em 3em;
 
     color: var(--header-fg);
     background-color: var(--header-bg);
@@ -44,9 +44,7 @@
                 align-items:     center;
 
                 img {
-                    @media (prefers-color-scheme: dark) {
-                        filter: var(--logo-filter);
-                    }
+                    filter: var(--logo-filter);
                 }
             }
         }
