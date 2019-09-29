@@ -10,12 +10,5 @@ import blogify.backend.services.articles.ArticleService
 
 fun Route.articleContent() {
 
-    route("/content/") {
-
-        get("/{uuid}") {
-            fetchWithIdAndRespond(fetch = ArticleService::get, transform = Article::content)
-        }
-
-    }
 
 }

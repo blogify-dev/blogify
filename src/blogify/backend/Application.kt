@@ -79,7 +79,6 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     runBlocking { query {
         SchemaUtils.create (
             Articles,
-            Articles.Content,
             Articles.Categories,
             Users,
             Comments,

@@ -33,30 +33,19 @@ object Articles : ResourceTable<Article>() {
     val title      = varchar ("title", 512)
     val createdAt  = long    ("created_at")
     val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
+    val content = text("content")
+    val summary = text("summary")
 
     override suspend fun convert(source: ResultRow) = SuspendableResult.of<Article, Service.Exception.Fetching> { Article (
         uuid       = source[uuid],
         title      = source[title],
         createdAt  = source[createdAt],
         createdBy  = UserService.get(source[createdBy]).get(),
-        content    = null,
+        content    = source[content],
+        summary = source[summary],
         categories = transaction {
             Categories.select { Categories.article eq source[uuid] }.toList() }.map { Categories.convert(it) }
     ) }
-
-    object Content : Table() {
-
-        val article = uuid ("article").primaryKey().references(Articles.uuid, onDelete = ReferenceOption.CASCADE)
-        val text    = text ("text")
-        val summary = text ("summary")
-
-        @Suppress("RedundantSuspendModifier")
-        suspend fun convert(source: ResultRow) = Article.Content (
-            text    = source[text],
-            summary = source[summary]
-        )
-
-    }
 
     object Categories : Table() {
 

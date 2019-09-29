@@ -1,7 +1,6 @@
 package blogify.backend.services.articles
 
 import blogify.backend.database.Articles
-import blogify.backend.database.Articles.Content.article
 import blogify.backend.database.Articles.uuid
 import blogify.backend.resources.Article
 import blogify.backend.services.handling.deleteWithIdInTable
@@ -32,16 +31,11 @@ object ArticleService : Service<Article> {
             it[title]      = res.title
             it[createdAt]  = res.createdAt
             it[createdBy]  = res.createdBy.uuid
+            it[content] = res.content
+            it[summary] = res.summary
         }
 
-        val content = res.content ?: error("content not captured on article serialize")
-
-        Articles.Content.insert {
-            it[text]    = content.text
-            it[summary] = content.summary
-            it[article] = res.uuid
-        }
-        val cats = res.categories ?: error("category not captured on article serialize")
+        val cats = res.categories
 
         for (cat in cats) {
             Articles.Categories.insert {
@@ -59,13 +53,8 @@ object ArticleService : Service<Article> {
         query {
             Articles.update({ uuid eq res.uuid }) {
                 it[title] = res.title
-            }
-
-            val content = res.content ?: error("content not captured on article serialize")
-
-            Articles.Content.update({ article eq res.uuid }) {
-                it[text] = content.text
-                it[summary] = content.summary
+                it[content] = res.content
+                it[summary] = res.summary
             }
 
             val cats = res.categories
