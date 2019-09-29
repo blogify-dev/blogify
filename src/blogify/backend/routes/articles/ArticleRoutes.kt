@@ -10,6 +10,7 @@ import io.ktor.routing.*
 import blogify.backend.resources.Article
 import blogify.backend.routes.handling.*
 import blogify.backend.services.articles.ArticleService
+import blogify.backend.services.models.Service
 import blogify.backend.util.toUUID
 
 fun Route.articles() {
@@ -22,24 +23,28 @@ fun Route.articles() {
             val requiredParamsToReturn = params["fields"]?.split(",")
             ArticleService.getAll().fold(
                 success = { articles ->
-                    requiredParamsToReturn?.let {
+                    try {
+                        requiredParamsToReturn?.let {
 
-                        val returnList = mutableListOf<Map<String, Any>>()
+                            val returnList = mutableListOf<Map<String, Any>>()
 
-                        articles.take(length).forEach { article ->
+                            articles.take(length).forEach { article ->
 
-                            val mapToReturn = mutableMapOf<String, Any>()
+                                val mapToReturn = mutableMapOf<String, Any>()
 
-                            requiredParamsToReturn.forEach { property ->
-                                mapToReturn[property] = getViaReflection<Any>(article, property)
+                                requiredParamsToReturn.forEach { property ->
+                                    mapToReturn[property] = getViaReflection<Any>(article, property)
+                                }
+
+                                returnList.add(mapToReturn)
                             }
 
-                            returnList.add(mapToReturn)
-                        }
+                            call.respond(returnList)
 
-                        call.respond(returnList)
-
-                    } ?: call.respond(articles.take(length))
+                        } ?: call.respond(articles.take(length))
+                    } catch (bruhMoment: Service.Exception) {
+                        call.respondExceptionMessage(bruhMoment)
+                    }
                 },
                 failure = call::respondExceptionMessage
             )
