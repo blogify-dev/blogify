@@ -26,7 +26,7 @@ fun Route.articles() {
                     try {
                         requiredParamsToReturn?.let {
 
-                            call.respond(getMapFromParams(articles, length, it))
+                            call.respond(sliceResourceSet(articles, length, it))
 
                         } ?: call.respond(articles.take(length))
                     } catch (bruhMoment: Service.Exception) {

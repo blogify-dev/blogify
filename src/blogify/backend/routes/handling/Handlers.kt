@@ -23,6 +23,7 @@ import io.ktor.request.receive
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import com.andreapivetta.kolor.yellow
+import org.slf4j.Logger
 
 import org.slf4j.LoggerFactory
 
@@ -30,7 +31,7 @@ import java.util.UUID
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
-val logger = LoggerFactory.getLogger("blogify-service-wrapper")
+val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
 
 /**
  * Represents a server call pipeline
@@ -56,7 +57,7 @@ val defaultResourceLessPredicateLambda: suspend (user: User) -> Boolean = { _ ->
  * Sends an object describing an exception as a response
  */
 suspend fun ApplicationCall.respondExceptionMessage(ex: Service.Exception) {
-    respond(HttpStatusCode.InternalServerError, object { val message = ex.message }) // Failure ? Send a simple object with the exception message.
+    respond(HttpStatusCode.InternalServerError, object { @Suppress("unused") val message = ex.message }) // Failure ? Send a simple object with the exception message.
 }
 
 fun logUnusedAuth(func: String) {
@@ -286,7 +287,7 @@ fun <T> getViaReflection(instance: Resource, propertyName: String): T {
     return property.get(instance) as T
 }
 
-fun <R : Resource> getMapFromParams(
+fun <R : Resource> sliceResourceSet(
     resource: Set<R>,
     length: Int,
     requiredParamsToReturn: Set<String>
