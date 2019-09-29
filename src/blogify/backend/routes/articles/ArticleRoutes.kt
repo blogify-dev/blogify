@@ -1,5 +1,6 @@
 package blogify.backend.routes.articles
 
+import blogify.backend.database.Articles
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
@@ -21,6 +22,14 @@ fun Route.articles() {
 
         get("/{uuid}") {
             fetchWithIdAndRespond(ArticleService::get)
+        }
+
+        get("/forUser/{uuid}") {
+            handleIdentifiedResourceFetchAll(fetch = { userId ->
+                ArticleService.getMatching(Articles) {
+                    Articles.createdBy eq userId
+                }
+            })
         }
 
         delete("/{uuid}") {
