@@ -39,7 +39,7 @@ export class ArticleService {
 
     async getAllArticleByUUID(uuid: string): Promise<Article[]> {
         //TODO: CHANGE THIS ENDPOINT
-        const articlesUUIDObs = this.httpClient.get<Article[]>(`/api/articles/${uuid}`);
+        const articlesUUIDObs = this.httpClient.get<Article[]>(`/api/articles/forUser/${uuid}`);
         const articlesUUID = await articlesUUIDObs.toPromise();
         const out: Article[] = [];
 

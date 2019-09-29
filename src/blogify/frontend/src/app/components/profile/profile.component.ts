@@ -28,12 +28,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const userUUID = map.get('uuid');
             this.user = this.authService.userProfile;
+            this.articleService.getAllArticleByUUID(userUUID).then(it => {
+                this.articles = it
+            })
             console.log(userUUID);
             console.log(this.user)
         })
-        this.articleService.getAllArticleByUUID(this.user.uuid).then(it => {
-            this.articles = it
-        })
+
 
     }
 
