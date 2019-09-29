@@ -19,23 +19,27 @@ fun Route.articles() {
         get("/") {
             val params = call.parameters
             val length = params["amount"]?.toInt() ?: 25
-            val requiredParamsToReturn = params["fields"]?.split(",") ?: error("Field parameters is null")
+            val requiredParamsToReturn = params["fields"]?.split(",")
             ArticleService.getAll().fold(
-                success = {
-                    val returnList = mutableListOf<Map<String, Any>>()
+                success = { articles ->
+                    requiredParamsToReturn?.let {
 
-                    it.take(length).forEach { article ->
+                        val returnList = mutableListOf<Map<String, Any>>()
 
-                        val mapToReturn = mutableMapOf<String, Any>()
+                        articles.take(length).forEach { article ->
 
-                        requiredParamsToReturn.forEach { property ->
-                            mapToReturn[property] = getViaReflection<Any>(article, property)
+                            val mapToReturn = mutableMapOf<String, Any>()
+
+                            requiredParamsToReturn.forEach { property ->
+                                mapToReturn[property] = getViaReflection<Any>(article, property)
+                            }
+
+                            returnList.add(mapToReturn)
                         }
 
-                        returnList.add(mapToReturn)
-                    }
+                        call.respond(returnList)
 
-                    call.respond(returnList)
+                    } ?: call.respond(articles.take(length))
                 },
                 failure = call::respondExceptionMessage
             )
