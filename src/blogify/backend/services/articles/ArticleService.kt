@@ -60,7 +60,8 @@ object ArticleService : Service<Article> {
             val cats = res.categories
 
             Articles.Categories.deleteWhere { Articles.Categories.article eq res.uuid }
-            for (cat in cats) {
+
+            cats.forEach { cat ->
                 Articles.Categories.update {
                     it[name] = cat.name
                 }
