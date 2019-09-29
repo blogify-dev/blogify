@@ -37,9 +37,16 @@ export class ArticleService {
         return this.httpClient.get<Article>(`/api/articles/${uuid}`)
     }
 
-    async getAllArticleByUUID(uuid: string): Promise<Article[]> {
-        //TODO: CHANGE THIS ENDPOINT
-        const articlesUUIDObs = this.httpClient.get<Article[]>(`/api/articles/forUser/${uuid}`);
+    async getAllArticleByUUID(uuid: string, userToken: string = this.authService.userToken): Promise<Article[]> {
+
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${userToken}`
+            })
+        };
+
+        const articlesUUIDObs = this.httpClient.get<Article[]>(`/api/articles/forUser/${uuid}`, httpOptions);
         const articlesUUID = await articlesUUIDObs.toPromise();
         const out: Article[] = [];
 
