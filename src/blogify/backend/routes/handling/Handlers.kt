@@ -179,7 +179,7 @@ suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
             )
         }
 
-        if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
+        if (authPredicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
             authenticatedBy(predicate = authPredicate, block = doFetch) // Run provided predicate on authenticated user and provided resource, then run doFetch if the predicate matches
         } else {
             logUnusedAuth("handleIdentifiedResourceFetchAll")
