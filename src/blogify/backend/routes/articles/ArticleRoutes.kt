@@ -20,26 +20,13 @@ fun Route.articles() {
         get("/") {
             val params = call.parameters
             val length = params["amount"]?.toInt() ?: 25
-            val requiredParamsToReturn = params["fields"]?.split(",")
+            val requiredParamsToReturn = params["fields"]?.split(",")?.toSet()
             ArticleService.getAll().fold(
                 success = { articles ->
                     try {
                         requiredParamsToReturn?.let {
 
-                            val returnList = mutableListOf<Map<String, Any>>()
-
-                            articles.take(length).forEach { article ->
-
-                                val mapToReturn = mutableMapOf<String, Any>()
-
-                                requiredParamsToReturn.forEach { property ->
-                                    mapToReturn[property] = getViaReflection<Any>(article, property)
-                                }
-
-                                returnList.add(mapToReturn)
-                            }
-
-                            call.respond(returnList)
+                            call.respond(getMapFromParams(articles, length, it))
 
                         } ?: call.respond(articles.take(length))
                     } catch (bruhMoment: Service.Exception) {

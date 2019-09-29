@@ -285,3 +285,23 @@ fun <T> getViaReflection(instance: Resource, propertyName: String): T {
 
     return property.get(instance) as T
 }
+
+fun <R : Resource> getMapFromParams(
+    resource: Set<R>,
+    length: Int,
+    requiredParamsToReturn: Set<String>
+): MutableList<Map<String, Any>> {
+    val returnList = mutableListOf<Map<String, Any>>()
+
+    resource.take(length).forEach { article ->
+
+        val mapToReturn = mutableMapOf<String, Any>()
+
+        requiredParamsToReturn.forEach { property ->
+            mapToReturn[property] = getViaReflection<Any>(article, property)
+        }
+
+        returnList.add(mapToReturn)
+    }
+    return returnList
+}
