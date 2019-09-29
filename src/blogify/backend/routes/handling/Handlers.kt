@@ -22,12 +22,13 @@ import io.ktor.request.receive
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
-import com.andreapivetta.kolor.green
 import com.andreapivetta.kolor.yellow
 
 import org.slf4j.LoggerFactory
 
 import java.util.UUID
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.memberProperties
 
 val logger = LoggerFactory.getLogger("blogify-service-wrapper")
 
@@ -267,4 +268,20 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
         }
 
     } ?: call.respond(HttpStatusCode.BadRequest)
+}
+
+/**
+ * Reads a property from an instance of a [Resource] class of [propertyName] with reflection
+ *
+ * Shamelessly copied from: [https://stackoverflow.com/a/35539628]
+ *
+ * @param instance instance of resource class to read property from
+ * @param propertyName name of the property to read
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T> getViaReflection(instance: Resource, propertyName: String): T {
+    val property = instance::class.memberProperties
+        .first { it.name == propertyName } as KProperty1<Any, *>
+
+    return property.get(instance) as T
 }

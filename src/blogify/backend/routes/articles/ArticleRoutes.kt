@@ -11,13 +11,56 @@ import blogify.backend.resources.Article
 import blogify.backend.routes.handling.*
 import blogify.backend.services.articles.ArticleService
 import blogify.backend.util.toUUID
+import kotlin.reflect.full.declaredMemberProperties
 
 fun Route.articles() {
 
     route("/articles") {
 
         get("/") {
-            fetchAndRespondWithAll(ArticleService::getAll)
+            val params = call.parameters
+            println("Parameters:")
+            println("params -> $params")
+            println("params[field] -> ${params["fields"]}")
+            println("params[field]::class.simpleName -> ${params["fields"]!!::class.simpleName}")
+            val length = params["amount"]!!.toInt()
+            val shitToGib = params["fields"]!!.split(",").also { it.forEach(::println) }
+            println("--------------------------")
+
+            val resource = ArticleService.getAll()
+
+            println("Get via reflection:")
+            val first = resource.get().first()
+            println("Property access: ${first.title}")
+            println("Reflection: ${getViaReflection<String>(first, "title")}")
+            val map = mutableMapOf<String, Any>()
+            shitToGib.forEach {
+                map[it] = getViaReflection<Any>(first, it)
+            }
+            println(map)
+            println("--------------------------")
+
+            resource.fold(
+                success = {
+                    val articles = it.take(length)
+                    val returnList = mutableListOf<Map<String, Any>>()
+                    articles.forEach {article ->
+                        val mapToReturn = mutableMapOf<String, Any>()
+                        shitToGib.forEach {property ->
+                            println("property $property")
+                            println("article $article")
+                            mapToReturn[property] = getViaReflection<Any>(article, property)
+                        }
+                        returnList.add(mapToReturn)
+                        println("mapToReturn:")
+                        println(mapToReturn)
+                    }
+                    println("returnList:")
+                    println(returnList)
+                    call.respond(returnList)
+                },
+                failure = call::respondExceptionMessage
+            )
         }
 
         get("/{uuid}") {
