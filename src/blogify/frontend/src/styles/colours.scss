@@ -20,7 +20,7 @@
     --accent-positive: hsl(158, 49%, 54%);
     --accent-gray:     hsl(240, 1%,  55%);
 
-    --logo-filter: invert(0);
+    --logo-filter: brightness(0);
 
     &[data-theme="dark"] {
         --body-fg: rgb(252, 252, 252);
@@ -43,7 +43,7 @@
         --accent-positive: hsl(158, 59%, 54%);
         --accent-gray:     hsl(240, 11%, 55%);
 
-        --logo-filter: invert(1);
+        --logo-filter: none;
 
     }
 
