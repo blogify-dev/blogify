@@ -1,5 +1,6 @@
 @import "../../../styles/fonts";
 @import "../../../styles/colours";
+@import "../../../styles/queries";
 
 #navbar-list {
 
@@ -18,7 +19,10 @@
         align-items:     center;
     }
 
-    padding: 1em 1.5em 1em 3em;
+    padding: 1em 1.5em;
+    @media (min-width: $query-desktop) {
+        padding-left: 3em;
+    }
 
     color: var(--header-fg);
     background-color: var(--header-bg);

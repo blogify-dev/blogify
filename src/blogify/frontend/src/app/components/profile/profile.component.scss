@@ -3,14 +3,6 @@
 @import "../../../styles/layouts";
 @import "../../../styles/mixins";
 
-
-@media screen and (max-width: 400px) {
-    .sidebar a {
-        text-align: center;
-        float: none;
-    }
-}
-
 .articles {
 
     @include pageContainer;

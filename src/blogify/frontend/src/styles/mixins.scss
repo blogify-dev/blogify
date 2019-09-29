@@ -1,9 +1,11 @@
+@import "queries";
+
 @mixin pageContainer {
     background-color: var(--body-bg);
 
-    padding: 3em;
-    @media (min-width: 0) and (max-width: 1200px) {
-        padding: 2em 1.25em;
+    padding: 2em 1.25em;
+    @media (min-width: $query-desktop) {
+        padding: 3em;
     }
 
 
