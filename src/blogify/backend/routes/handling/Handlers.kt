@@ -99,28 +99,30 @@ fun logUnusedAuth(func: String) {
  *
  * @param R             the type of [Resource] to be fetched
  * @param fetch         the [function][Function] that retrieves the resource
- * @param transform     a transformation [function][Function] that transforms the [resource][Resource] before sending it back to the client
  * @param authPredicate the [function][Function] that should be run to authenticate the client
  *
- * @author Benjozork
+ * @author Benjozork, hamza1311
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.fetchWithIdAndRespond (
     fetch:         suspend (id: UUID)   -> ResourceResult<R>,
-    transform:     suspend (fetched: R) -> Any = { it },
     authPredicate: suspend (user: User) -> Boolean = defaultResourceLessPredicateLambda
 ) {
-    call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
-
+    val params = call.parameters
+    params["uuid"]?.let { id -> // Check if the query URL provides any UUID
+        val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
         val doFetch: CallPipeLineFunction = {
             fetch.invoke(id.toUUID()).fold (
                 success = { fetched ->
-                    SuspendableResult.of<Any, Service.Exception> {
-                        transform.invoke(fetched) // Cover for any errors in transform()
-                    }.fold (
-                        success = call::respond,
-                        failure = call::respondExceptionMessage
-                    )
+                    try {
+                        selectedPropertyNames?.let {
+
+                            call.respond(sliceResource(fetched, it))
+
+                        } ?: call.respond(fetched)
+                    } catch (bruhMoment: Service.Exception) {
+                        call.respondExceptionMessage(bruhMoment)
+                    }
                 },
                 failure = call::respondExceptionMessage
             )
@@ -321,6 +323,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
  *
  * @author hamza1311, Benjozork
  */
+@BlogifyDsl
 suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAndSlideResourceAndRespond (
     fetch: suspend (ResourceTable<R>, Int) -> ResourceResultSet<R>,
     table: ResourceTable<R>
@@ -339,7 +342,7 @@ suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAndSlideR
             try {
                 selectedPropertyNames?.let {
 
-                    call.respond(sliceResourceSet(resources, it.toSet()))
+                    call.respond(sliceResourceSet(resources, it))
 
                 } ?: call.respond(resources)
             } catch (bruhMoment: Service.Exception) {
@@ -348,6 +351,26 @@ suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAndSlideR
         },
         failure = call::respondExceptionMessage
     )
+}
+
+/**
+ * Reads a property from an instance of [T] with [a certain name][propertyName] using reflection
+ *
+ * Shamelessly stolen from: [https://stackoverflow.com/a/35539628]
+ *
+ * @param instance     instance of [T] to read property from
+ * @param propertyName name of the property to read
+ *
+ * @return the value of the property [propertyName] on [instance]
+ *
+ * @author hamza1311, Benjozork
+ */
+@Suppress("UNCHECKED_CAST")
+private fun <T : Resource, R> getPropValueOnInstance(instance: T, propertyName: String): R {
+    val property = instance::class.declaredMemberProperties
+        .first { it.name == propertyName } as KProperty1<T, R>
+
+    return property.get(instance)
 }
 
 /**
@@ -365,29 +388,29 @@ private fun <R : Resource> sliceResourceSet (
     selectedPropertyNames: Set<String>
 ): List<Map<String, Any>> {
 
-    /**
-     * Reads a property from an instance of [T] with [a certain name][propertyName] using reflection
-     *
-     * Shamelessly stolen from: [https://stackoverflow.com/a/35539628]
-     *
-     * @param instance     instance of [T] to read property from
-     * @param propertyName name of the property to read
-     *
-     * @return the value of the property [propertyName] on [instance]
-     *
-     * @author hamza1311, Benjozork
-     */
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Resource, R> getPropValueOnInstance(instance: T, propertyName: String): R {
-        val property = instance::class.declaredMemberProperties
-            .first { it.name == propertyName } as KProperty1<T, R>
-
-        return property.get(instance)
-    }
-
     return resources.map { res ->
         selectedPropertyNames.associateWith { propName ->
             getPropValueOnInstance<Resource, Any>(res, propName)
         }
+    }
+}
+
+/**
+ * Slices a single [resources][Resource] with a set of provided properties that should be kept
+ *
+ * @param resource              the [resources][Resource] to be sliced
+ * @param selectedPropertyNames the properties that should be kept on the returned [resources][Resource]
+ *
+ * @return a list of [maps][Map] containing [resources][Resource] with only the provided properties on them
+ *
+ * @author hamza1311
+ */
+private fun <R : Resource> sliceResource (
+    resource:             R,
+    selectedPropertyNames: Set<String>
+): Map<String, Any> {
+
+    return selectedPropertyNames.associateWith { propName ->
+        getPropValueOnInstance<Resource, Any>(resource, propName)
     }
 }
