@@ -112,7 +112,7 @@ suspend fun <R : Resource> CallPipeline.fetchWithIdAndRespond (
 ) {
     call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
 
-        val doFetch: CallPipeLineFunction = {
+        val wrapFetchFunc: CallPipeLineFunction = {
             fetch.invoke(id.toUUID()).fold (
                 success = { fetched ->
                     SuspendableResult.of<Any, Service.Exception> {
@@ -127,10 +127,10 @@ suspend fun <R : Resource> CallPipeline.fetchWithIdAndRespond (
         }
 
         if (authPredicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-            authenticatedBy(predicate = authPredicate, block = doFetch)
+            authenticatedBy(predicate = authPredicate, block = wrapFetchFunc)
         } else {
             logUnusedAuth("fetchWithIdAndRespond")
-            doFetch(this, Unit)
+            wrapFetchFunc(this, Unit)
         }
     } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
 }
@@ -151,7 +151,7 @@ suspend fun <R : Resource> CallPipeline.fetchAndRespondWithAll (
     transform:     suspend (elem: R)    -> Any = { it },
     authPredicate: suspend (user: User) -> Boolean = defaultResourceLessPredicateLambda
 ) {
-    val doFetchAll: CallPipeLineFunction = {
+    val wrapFetchAllFunc: CallPipeLineFunction = {
         fetch.invoke().fold (
             success = { fetchedSet ->
                 if (fetchedSet.isNotEmpty()) {
@@ -170,10 +170,10 @@ suspend fun <R : Resource> CallPipeline.fetchAndRespondWithAll (
     }
 
     if (authPredicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-        authenticatedBy(predicate = authPredicate, block = doFetchAll)
+        authenticatedBy(predicate = authPredicate, block = wrapFetchAllFunc)
     } else {
         logUnusedAuth("fetchAndRespondWithAll")
-        doFetchAll(this, Unit)
+        wrapFetchAllFunc(this, Unit)
     }
 }
 
@@ -197,7 +197,7 @@ suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
 ) {
     call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
 
-        val doFetch: CallPipeLineFunction = {
+        val wrapFetchFunc: CallPipeLineFunction = {
             fetch.invoke(id.toUUID()).fold (
                 success = { fetchedSet ->
                     if (fetchedSet.isNotEmpty()) {
@@ -216,10 +216,10 @@ suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
         }
 
         if (authPredicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-            authenticatedBy(predicate = authPredicate, block = doFetch) // Run provided predicate on authenticated user and provided resource, then run doFetch if the predicate matches
+            authenticatedBy(predicate = authPredicate, block = wrapFetchFunc) // Run provided predicate on authenticated user and provided resource, then run doFetch if the predicate matches
         } else {
             logUnusedAuth("handleIdentifiedResourceFetchAll")
-            doFetch(this, Unit) // Run doFetch without checking predicate
+            wrapFetchFunc(this, Unit) // Run doFetch without checking predicate
         }
 
     } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
@@ -244,7 +244,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
 
         val rec = call.receive<R>()
 
-        val doCreate: CallPipeLineFunction = {
+        val wrapCreateFunc: CallPipeLineFunction = {
             val res = create(rec)
 
             res.fold (
@@ -256,10 +256,10 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
         }
 
         if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-            authenticatedBy(predicate = { u -> authPredicate(u, rec) }, block = doCreate) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
+            authenticatedBy(predicate = { u -> authPredicate(u, rec) }, block = wrapCreateFunc) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
         } else {
             logUnusedAuth("createWithResource")
-            doCreate(this, Unit) // Run doCreate without checking predicate
+            wrapCreateFunc(this, Unit) // Run doCreate without checking predicate
         }
 
     } catch (e: ContentTransformationException) {
@@ -286,7 +286,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
 ) {
     call.parameters["uuid"]?.let { id ->
 
-        val doDelete: CallPipeLineFunction = {
+        val wrapDeleteFunc: CallPipeLineFunction = {
             delete.invoke(id.toUUID()).fold (
                 success = {
                     call.respond(HttpStatusCode.OK)
@@ -298,12 +298,12 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
         if (authPredicate != defaultPredicateLambda) { // Optimization : fetch is only necessary if a predicate is defined
             fetch.invoke(id.toUUID()).fold (
                 success = {
-                    authenticatedBy(predicate = { u -> authPredicate(u, it)}, block = doDelete) // Run provided predicate on authenticated user and provided resource, then run doDelete if the predicate matches
+                    authenticatedBy(predicate = { u -> authPredicate(u, it)}, block = wrapDeleteFunc) // Run provided predicate on authenticated user and provided resource, then run doDelete if the predicate matches
                 }, failure = call::respondExceptionMessage
             )
         } else {
             logUnusedAuth("deleteWithId")
-            doDelete(this, Unit) // Run doDelete without checking predicate
+            wrapDeleteFunc(this, Unit) // Run doDelete without checking predicate
         }
 
     } ?: call.respond(HttpStatusCode.BadRequest)
@@ -321,6 +321,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
  *
  * @author hamza1311, Benjozork
  */
+@BlogifyDsl
 suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAndSlideResourceAndRespond (
     fetch: suspend (ResourceTable<R>, Int) -> ResourceResultSet<R>,
     table: ResourceTable<R>

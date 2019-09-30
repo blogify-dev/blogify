@@ -53,7 +53,6 @@ fun Route.articles() {
             createWithResource(ArticleService::add, authPredicate = { user, article -> article.createdBy == user })
         }
 
-
         articleCategories()
 
         articleComments()

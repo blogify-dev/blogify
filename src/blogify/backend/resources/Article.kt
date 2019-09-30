@@ -2,9 +2,7 @@ package blogify.backend.resources
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.JsonIdentityReference
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
-import com.fasterxml.jackson.annotation.JsonProperty.Access.*
 
 import blogify.backend.database.Articles
 import blogify.backend.resources.models.Resource

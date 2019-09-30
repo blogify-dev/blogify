@@ -27,12 +27,12 @@ object ArticleService : Service<Article> {
 
     override suspend fun add(res: Article) = query {
         Articles.insert {
-            it[uuid]       = res.uuid
-            it[title]      = res.title
-            it[createdAt]  = res.createdAt
-            it[createdBy]  = res.createdBy.uuid
-            it[content] = res.content
-            it[summary] = res.summary
+            it[uuid]      = res.uuid
+            it[title]     = res.title
+            it[createdAt] = res.createdAt
+            it[createdBy] = res.createdBy.uuid
+            it[content]   = res.content
+            it[summary]   = res.summary
         }
 
         val cats = res.categories
@@ -52,7 +52,7 @@ object ArticleService : Service<Article> {
     override suspend fun update(res: Article): ResourceResult<Article> =
         query {
             Articles.update({ uuid eq res.uuid }) {
-                it[title] = res.title
+                it[title]   = res.title
                 it[content] = res.content
                 it[summary] = res.summary
             }
