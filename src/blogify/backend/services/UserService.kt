@@ -5,9 +5,7 @@ import blogify.backend.database.Users.uuid
 import blogify.backend.resources.User
 import blogify.backend.services.handling.deleteWithIdInTable
 import blogify.backend.services.handling.fetchWithIdFromTable
-import blogify.backend.services.handling.fetchAllFromTable
 import blogify.backend.services.models.ResourceResult
-import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.database.handling.query
 
@@ -17,9 +15,7 @@ import org.jetbrains.exposed.sql.insert
 
 import java.util.*
 
-object UserService : Service<User> {
-
-    override suspend fun getAll(): ResourceResultSet<User> = fetchAllFromTable(Users)
+object UserService : Service<User>(Users) {
 
     override suspend fun get(id: UUID): ResourceResult<User> = fetchWithIdFromTable(Users, uuid, id)
 

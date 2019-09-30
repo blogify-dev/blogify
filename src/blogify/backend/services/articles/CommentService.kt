@@ -7,9 +7,7 @@ import blogify.backend.database.Comments
 import blogify.backend.database.Comments.uuid
 import blogify.backend.services.handling.deleteWithIdInTable
 import blogify.backend.services.handling.fetchWithIdFromTable
-import blogify.backend.services.handling.fetchAllFromTable
 import blogify.backend.services.models.ResourceResult
-import blogify.backend.services.models.ResourceResultSet
 
 import com.github.kittinunf.result.coroutines.mapError
 
@@ -18,9 +16,7 @@ import org.jetbrains.exposed.sql.update
 
 import java.util.UUID
 
-object CommentService : Service<Comment> {
-
-    override suspend fun getAll(): ResourceResultSet<Comment> = fetchAllFromTable(Comments)
+object CommentService : Service<Comment>(Comments) {
 
     override suspend fun get(id: UUID): ResourceResult<Comment> = fetchWithIdFromTable(Comments, uuid, id)
 

@@ -17,15 +17,15 @@ fun Route.articles() {
     route("/articles") {
 
         get("/") {
-            fetchAndSlideResourceAndRespond(ArticleService::getAllWithLimit, Articles)
+            fetchAll(ArticleService::getAll)
         }
 
         get("/{uuid}") {
-            fetchWithIdAndRespond(ArticleService::get)
+            fetchWithId(ArticleService::get)
         }
 
         get("/forUser/{uuid}") {
-            handleIdentifiedResourceFetchAll(fetch = { userId ->
+            fetchAllWithId(fetch = { userId ->
                 ArticleService.getMatching(Articles) {
                     Articles.createdBy eq userId
                 }

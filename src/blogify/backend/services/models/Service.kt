@@ -1,22 +1,18 @@
 package blogify.backend.services.models
 
 import blogify.backend.database.ResourceTable
-import blogify.backend.database.handling.query
 import blogify.backend.resources.models.Resource
 import blogify.backend.services.handling.fetchNumberFromTable
 import blogify.backend.util.BException
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
-import com.github.kittinunf.result.coroutines.map
 import com.github.kittinunf.result.coroutines.mapError
-import kotlinx.coroutines.Dispatchers
+
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 import java.util.*
@@ -25,11 +21,11 @@ typealias ResourceResult<T> = SuspendableResult<T, Service.Exception>
 
 typealias ResourceResultSet<T> = ResourceResult<Set<T>>
 
-interface Service<R : Resource> {
+abstract class Service<R : Resource>(val table: ResourceTable<R>) {
 
-    suspend fun getAll(): ResourceResultSet<R>
+    suspend fun getAll(limit: Int = 256): ResourceResultSet<R> = fetchNumberFromTable(table, limit)
 
-    suspend fun get(id: UUID): ResourceResult<R>
+    abstract suspend fun get(id: UUID): ResourceResult<R>
 
     suspend fun getMatching(table: ResourceTable<R>, predicate: SqlExpressionBuilder.() -> Op<Boolean>): ResourceResultSet<R> {
         return SuspendableResult.of<Set<R>, Exception> {
@@ -42,11 +38,11 @@ interface Service<R : Resource> {
 
     suspend fun getAllWithLimit(table: ResourceTable<R>, limit: Int): ResourceResultSet<R> = fetchNumberFromTable(table, limit)
 
-    suspend fun add(res: R): ResourceResult<R>
+    abstract suspend fun add(res: R): ResourceResult<R>
 
-    suspend fun delete(id: UUID): ResourceResult<UUID>
+    abstract suspend fun delete(id: UUID): ResourceResult<UUID>
 
-    suspend fun update(res: R): ResourceResult<R>
+    abstract suspend fun update(res: R): ResourceResult<R>
 
     // Service exceptions
 
