@@ -387,11 +387,16 @@ private fun <R : Resource> sliceResourceSet (
     resources:             Set<R>,
     selectedPropertyNames: Set<String>
 ): List<Map<String, Any>> {
+    val selectedPropertiesWithoutUUID = selectedPropertyNames.toMutableSet().apply {
+        removeIf { it == "uuid" || it == "UUID" }
+    }
 
     return resources.map { res ->
-        selectedPropertyNames.associateWith { propName ->
+        val map = selectedPropertiesWithoutUUID.associateWith { propName ->
             getPropValueOnInstance<Resource, Any>(res, propName)
-        }
+        }.toMutableMap()
+        map["uuid"] = getPropValueOnInstance<Resource, Any>(res, "uuid")
+        map
     }
 }
 
