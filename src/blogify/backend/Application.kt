@@ -81,8 +81,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             Articles,
             Articles.Categories,
             Users,
-            Comments,
-            Users.UserInfo
+            Comments
         )
     }}
 

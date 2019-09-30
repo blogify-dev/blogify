@@ -21,12 +21,6 @@ import blogify.backend.util.letIn
 import blogify.backend.util.reason
 import blogify.backend.util.singleOrNullOrError
 
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
-
-import java.util.Base64
-
-import kotlin.random.Random
 
 /**
  * Model for login credentials
@@ -61,7 +55,9 @@ data class RegisterCredentials (
     suspend fun createUser(): User {
         val created = User (
             username = this.username,
-            password = this.password.hash()
+            password = this.password.hash(),
+            email = this.email,
+            name = this.name
         )
 
         UserService.add(created).fold(
@@ -70,14 +66,6 @@ data class RegisterCredentials (
                 error("$created: signup couldn't create user")
             }
         )
-
-        transaction {
-            Users.UserInfo.insert {
-                it[user]  = created.uuid
-                it[name]  = this@RegisterCredentials.name
-                it[email] = this@RegisterCredentials.email
-            }
-        }
 
         return created
     }
@@ -105,7 +93,7 @@ fun Route.auth() {
                                 validTokens[singleUser] = token
                                 validTokens.letIn(3600 * 1000L) { it.remove(singleUser) }
 
-                                call.respond(object {val token = token})
+                                call.respond(object { @Suppress("unused") val token = token })
                             } else {
                                 call.respond(HttpStatusCode.Forbidden, reason("username/password invalid")) // Password doesn't match
                             }
@@ -131,7 +119,7 @@ fun Route.auth() {
 
                 // User is found and only exists once
 
-                call.respond(object {val uuid = user.uuid})
+                call.respond(object { @Suppress("unused") val uuid = user.uuid })
             } ?: call.respond(HttpStatusCode.BadRequest)
         }
 

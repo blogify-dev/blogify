@@ -28,17 +28,9 @@ data class User (
 
     @JsonIgnore val password: String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
 
+    val name: String,
+
+    val email: String,
+
     override val uuid: UUID = UUID.randomUUID()
-) : Resource(uuid) {
-
-    data class PersonalInformation(val name: String, val email: String)
-
-    suspend fun info(): SuspendableResult<PersonalInformation, Service.Exception.Fetching> = query {
-        Users.UserInfo.select { Users.UserInfo.user eq uuid }.foldForOne (
-            one      = { Users.UserInfo.convert(it) },
-            multiple = { error("multiple entries") },
-            none     = { error("no entries") }
-        ).get()
-    }.mapError { e -> Service.Exception.Fetching(e) }
-
-}
+) : Resource(uuid)

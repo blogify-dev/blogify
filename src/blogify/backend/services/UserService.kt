@@ -28,6 +28,8 @@ object UserService : Service<User> {
             it[uuid]     = res.uuid
             it[username] = res.username
             it[password] = res.password
+            it[name] = res.name
+            it[email] = res.email
         }
 
         return@query res

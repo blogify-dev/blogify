@@ -36,8 +36,6 @@ fun Route.users() {
             createWithResource(UserService::add)
         }
 
-        userInfo()
-
     }
 
 }

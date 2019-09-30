@@ -66,7 +66,8 @@ object Users : ResourceTable<User>() {
     val uuid     = uuid    ("uuid").primaryKey()
     val username = varchar ("username", 255)
     val password = varchar ("password", 255)
-
+    val email = varchar ("email", 255)
+    val name  = varchar ("name", 255)
     init {
         index(true, username)
     }
@@ -74,20 +75,10 @@ object Users : ResourceTable<User>() {
     override suspend fun convert(source: ResultRow) = SuspendableResult.of<User, Service.Exception.Fetching> { User (
         uuid     = source[uuid],
         username = source[username],
-        password = source[password]
+        password = source[password],
+        name = source[name],
+        email = source[email]
     ) }
-
-    object UserInfo: Table() {
-
-        val user  = uuid    ("user").primaryKey().references(uuid, onDelete = ReferenceOption.CASCADE)
-        val email = varchar ("email", 255)
-        val name  = varchar ("name", 255)
-
-        suspend fun convert(source: ResultRow) = SuspendableResult.of<User.PersonalInformation, Service.Exception.Fetching> { User.PersonalInformation (
-            email = source[email],
-            name = source[name]
-        )}
-    }
 
 }
 
