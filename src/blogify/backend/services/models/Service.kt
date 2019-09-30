@@ -1,10 +1,13 @@
 package blogify.backend.services.models
 
 import blogify.backend.database.ResourceTable
+import blogify.backend.database.handling.query
 import blogify.backend.resources.models.Resource
+import blogify.backend.services.handling.fetchNumberFromTable
 import blogify.backend.util.BException
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
+import com.github.kittinunf.result.coroutines.map
 import com.github.kittinunf.result.coroutines.mapError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -37,19 +40,7 @@ interface Service<R : Resource> {
         }.mapError { Exception.Fetching(it) }
     }
 
-    suspend fun getAllWithLimit(
-        table: ResourceTable<R>,
-        limit: Int
-    ): ResourceResultSet<R> {
-        return SuspendableResult.of<Set<R>, Exception> {
-            transaction {
-                val query = table.selectAll().limit(limit).toSet()
-                runBlocking {
-                    query.map { table.convert(it).get() }.toSet()
-                }
-            }
-        }.mapError { Exception.Fetching(it) }
-    }
+    suspend fun getAllWithLimit(table: ResourceTable<R>, limit: Int): ResourceResultSet<R> = fetchNumberFromTable(table, limit)
 
     suspend fun add(res: R): ResourceResult<R>
 

@@ -17,7 +17,7 @@ fun Route.articles() {
     route("/articles") {
 
         get("/") {
-            fetchSlicedResourceAndRespond(ArticleService, Articles)
+            fetchAndSlideResourceAndRespond(ArticleService::getAllWithLimit, Articles)
         }
 
         get("/{uuid}") {

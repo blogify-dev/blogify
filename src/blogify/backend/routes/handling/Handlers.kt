@@ -1,5 +1,30 @@
 @file:Suppress("DuplicatedCode")
 
+/**
+ * Blogify resource API service wrappers
+ * -------------------------------------
+ *
+ * Those functions are meant to be used to handle calls managing resources.
+ *
+ * For example, `fetchWithIdAndRespond` handles a request following these steps :
+ *      - Make sure the query URL provides a UUID
+ *      - If the calling endpoint specified an authentication predicate, execute it
+ *          - If it doesn't pass, respond with 401 Unauthorized / 403 Forbidden
+*           - If it does, keep going
+*       - Fetch the resource with the provided UUID
+ *      - Run a transformation function of type `(Resource) -> Any` if specified by the endpoint
+ *      - Handle any errors that occurred during the fetch/transform process
+ *          - If an error occurred, respond with an appropriate message
+ *          - If no error occurred, respond with the resource.
+ *
+ * As you can see, those wrappers handle a *lot* of the request process, and cover for many edge cases.
+ *
+ * If you feel like some request was not handled in a way that seems logical (given that it isn't a problem with business logic),
+ * please try to improve the handling of requests at a higher level inside those wrappers first.
+ *
+ * @author Benjozork, hamza1311, Stan-Sst
+ */
+
 package blogify.backend.routes.handling
 
 import blogify.backend.auth.handling.authenticatedBy
@@ -23,14 +48,16 @@ import io.ktor.request.receive
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
+import com.andreapivetta.kolor.magenta
 import com.andreapivetta.kolor.yellow
-import org.slf4j.Logger
 
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.util.UUID
+
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.declaredMemberProperties
 
 val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
 
@@ -40,7 +67,7 @@ val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
 typealias CallPipeline = PipelineContext<Unit, ApplicationCall>
 
 /**
- * Represents a server call handler function.
+ * Represents a server call handler function
  */
 typealias CallPipeLineFunction = PipelineInterceptor<Unit, ApplicationCall>
 
@@ -50,7 +77,7 @@ typealias CallPipeLineFunction = PipelineInterceptor<Unit, ApplicationCall>
 val defaultPredicateLambda: suspend (user: User, res: Resource) -> Boolean = { _, _ -> true }
 
 /**
- * The default predicate used by the wrappers in this file
+ * The default resource-less predicate used by the wrappers in this file
  */
 val defaultResourceLessPredicateLambda: suspend (user: User) -> Boolean = { _ -> true }
 
@@ -74,6 +101,8 @@ fun logUnusedAuth(func: String) {
  * @param fetch         the [function][Function] that retrieves the resource
  * @param transform     a transformation [function][Function] that transforms the [resource][Resource] before sending it back to the client
  * @param authPredicate the [function][Function] that should be run to authenticate the client
+ *
+ * @author Benjozork
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.fetchWithIdAndRespond (
@@ -109,10 +138,12 @@ suspend fun <R : Resource> CallPipeline.fetchWithIdAndRespond (
 /**
  * Adds a handler to a [CallPipeline] that handles fetching all the available resources.
  *
- * @param R              the type of [Resource] to be fetched
- * @param fetch          the [function][Function] that retrieves the resources
- * @param transform      a transformation [function][Function] that transforms the [resources][Resource] before sending them back to the client
+ * @param R             the type of [Resource] to be fetched
+ * @param fetch         the [function][Function] that retrieves the resources
+ * @param transform     a transformation [function][Function] that transforms the [resources][Resource] before sending them back to the client
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
+ *
+ * @author Benjozork
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.fetchAndRespondWithAll (
@@ -155,6 +186,8 @@ suspend fun <R : Resource> CallPipeline.fetchAndRespondWithAll (
  * @param fetch         the [function][Function] that retrieves the resources using the [ID][UUID] of another resource
  * @param transform     a transformation [function][Function] that transforms the [resources][Resource] before sending them back to the client
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
+ *
+ * @author Benjozork
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
@@ -198,6 +231,8 @@ suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
  * @param R             the type of [Resource] to be created
  * @param create        the [function][Function] that retrieves that creates the resource using the call
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
+ *
+ * @author Benjozork
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
@@ -232,7 +267,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
     }
 } // KT-33440 | Doesn't compile when lambda called with invoke() for now */
 
-    /**
+/**
  * Adds a handler to a [CallPipeline] that handles deleting a new resource.
  *
  * Requires a [UUID] to be passed in the query URL.
@@ -240,6 +275,8 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
  * @param fetch         the [function][Function] that retrieves the specified resource. If no [authPredicate] is provided, this is skipped.
  * @param delete        the [function][Function] that deletes the specified resource
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
+ *
+ * @author Benjozork
  */
 @BlogifyDsl
 suspend fun <R: Resource> CallPipeline.deleteWithId (
@@ -273,38 +310,38 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
 }
 
 /**
- * Reads a property from an instance of a [Resource] class of [propertyName] with reflection
+ * Adds a handler to a [CallPipeline] that handles fetching a set of resources with a certain list of desired properties.
  *
- * Shamelessly stolen from: [https://stackoverflow.com/a/35539628]
+ * Requires a [Map] of specific property names to be passed in the query URL.
  *
- * @param instance instance of resource class to read property from
- * @param propertyName name of the property to read
+ * **WARNING:** Those property names must *exactly* match property names present in the class of the specific resource type.
+ *
+ * @param fetch the [function][Function] that retrieves the resources
+ * @param table the [resource table][ResourceTable] that contains the specified resource in the database
+ *
+ * @author hamza1311, Benjozork
  */
-@Suppress("UNCHECKED_CAST")
-fun <T> getViaReflection(instance: Resource, propertyName: String): T {
-    val property = instance::class.memberProperties
-        .first { it.name == propertyName } as KProperty1<Any, *>
-
-    return property.get(instance) as T
-}
-
-@BlogifyDsl
-suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchSlicedResourceAndRespond(
-    service: Service<R>,
+suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAndSlideResourceAndRespond (
+    fetch: suspend (ResourceTable<R>, Int) -> ResourceResultSet<R>,
     table: ResourceTable<R>
 ) {
     val params = call.parameters
     val limit = params["amount"]?.toInt() ?: 25
-    val requiredParamsToReturn = params["fields"]?.split(",")?.toSet()
+    val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
 
-    service.getAllWithLimit(table, limit).fold(
-        success = { articles ->
+    if (selectedPropertyNames == null)
+        logger.debug("slicer: getting all fields".magenta())
+    else
+        logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
+
+    fetch(table, limit).fold (
+        success = { resources ->
             try {
-                requiredParamsToReturn?.let {
+                selectedPropertyNames?.let {
 
-                    call.respond(sliceResourceSet(articles, it.toSet()))
+                    call.respond(sliceResourceSet(resources, it.toSet()))
 
-                } ?: call.respond(articles)
+                } ?: call.respond(resources)
             } catch (bruhMoment: Service.Exception) {
                 call.respondExceptionMessage(bruhMoment)
             }
@@ -313,22 +350,44 @@ suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchSlicedRes
     )
 }
 
-@BlogifyDsl
-private fun <R : Resource> sliceResourceSet(
-    resource: Set<R>,
-    requiredParamsToReturn: Set<String>
-): MutableList<Map<String, Any>> {
-    val returnList = mutableListOf<Map<String, Any>>()
+/**
+ * Slices a [Set] of [resources][Resource] with a set of provided properties that should be kept
+ *
+ * @param resources             the [resources][Resource] to be sliced
+ * @param selectedPropertyNames the properties that should be kept on the returned [resources][Resource]
+ *
+ * @return a list of [maps][Map] containing [resources][Resource] with only the provided properties on them
+ *
+ * @author hamza1311, Benjozork
+ */
+private fun <R : Resource> sliceResourceSet (
+    resources:             Set<R>,
+    selectedPropertyNames: Set<String>
+): List<Map<String, Any>> {
 
-    resource.forEach { article ->
+    /**
+     * Reads a property from an instance of [T] with [a certain name][propertyName] using reflection
+     *
+     * Shamelessly stolen from: [https://stackoverflow.com/a/35539628]
+     *
+     * @param instance     instance of [T] to read property from
+     * @param propertyName name of the property to read
+     *
+     * @return the value of the property [propertyName] on [instance]
+     *
+     * @author hamza1311, Benjozork
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Resource, R> getPropValueOnInstance(instance: T, propertyName: String): R {
+        val property = instance::class.declaredMemberProperties
+            .first { it.name == propertyName } as KProperty1<T, R>
 
-        val mapToReturn = mutableMapOf<String, Any>()
-
-        requiredParamsToReturn.forEach { property ->
-            mapToReturn[property] = getViaReflection<Any>(article, property)
-        }
-
-        returnList.add(mapToReturn)
+        return property.get(instance)
     }
-    return returnList
+
+    return resources.map { res ->
+        selectedPropertyNames.associateWith { propName ->
+            getPropValueOnInstance<Resource, Any>(res, propName)
+        }
+    }
 }

@@ -18,7 +18,7 @@ import org.jetbrains.exposed.sql.selectAll
 import java.util.UUID
 
 /**
- * Retrieves all the [resources][Resource] of a certain type from the DB.
+ * Retrieves all the [resources][Resource] from a certain table of the DB.
  *
  * @param table the [ResourceTable] to query
  *
@@ -32,7 +32,26 @@ suspend fun <R : Resource> fetchAllFromTable(table: ResourceTable<R>): ResourceR
             rows.map { table.convert(it).get() }.toSet() //     Mote : get() is fine, since any error thrown
         }                                                //            by it is automatically wrapped into a failure result.
 
-        .mapError { e -> Service.Exception.Fetching(e) } // Wrap an eventual DBEx inside a Service exception
+        .mapError { e -> Service.Exception.Fetching(e) } // Wrap a possible DBEx inside a Service exception
+}
+
+/**
+ * Retrieves a number of [resources][Resource] from a certain table of the DB.
+ *
+ * @param table the [ResourceTable] to query
+ * @param limit the number of [resources][Resource] to fetch
+ *
+ * @return a [ResourceResultSet] that represents the success of the query, with a Database.Exception wrapped in if necessary.
+ */
+suspend fun <R : Resource> fetchNumberFromTable(table: ResourceTable<R>, limit: Int): ResourceResultSet<R> {
+    return query {
+        table.selectAll().limit(limit).toSet()
+    }
+        .map { rows ->                                   // Map the set of ResultRow to converted resources
+            rows.map { table.convert(it).get() }.toSet() //     Mote : get() is fine, since any error thrown
+        }                                                //            by it is automatically wrapped into a failure result.
+
+        .mapError { e -> Service.Exception.Fetching(e) } // Wrap a possible DBEx inside a Service exception
 }
 
 /**
@@ -49,7 +68,7 @@ suspend fun <R : Resource> fetchWithIdFromTable(table: ResourceTable<R>, uuidCol
         table.select { uuidColumn eq id }.single() // First, query the DB
     }
         .map      { r -> table.convert(r).get() }        // Map the ResultRow to a converted resource. See note above.
-        .mapError { e -> Service.Exception.Fetching(e) } // Wrap an eventual DBEx inside a Service exception
+        .mapError { e -> Service.Exception.Fetching(e) } // Wrap a possible DBEx inside a Service exception
 }
 
 /**
@@ -66,5 +85,5 @@ suspend fun <R : Resource> deleteWithIdInTable(table: ResourceTable<R>, uuidColu
         table.deleteWhere { uuidColumn eq id } // First, instruct the DB to delete the corresponding row
         return@query id
     }
-        .mapError { e -> Service.Exception.Deleting(e) } // Wrap an eventual DBEx inside a Service exception
+        .mapError { e -> Service.Exception.Deleting(e) } // Wrap a possible DBEx inside a Service exception
 }

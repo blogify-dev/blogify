@@ -33,8 +33,8 @@ object Articles : ResourceTable<Article>() {
     val title      = varchar ("title", 512)
     val createdAt  = long    ("created_at")
     val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
-    val content = text("content")
-    val summary = text("summary")
+    val content    = text    ("content")
+    val summary    = text    ("summary")
 
     override suspend fun convert(source: ResultRow) = SuspendableResult.of<Article, Service.Exception.Fetching> { Article (
         uuid       = source[uuid],
