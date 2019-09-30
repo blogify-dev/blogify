@@ -19,9 +19,7 @@ import org.jetbrains.exposed.sql.update
 
 import java.util.UUID
 
-object ArticleService : Service<Article> {
-
-    override suspend fun getAll(): ResourceResultSet<Article> = fetchAllFromTable(Articles)
+object ArticleService : Service<Article>(Articles) {
 
     override suspend fun get(id: UUID): ResourceResult<Article> = fetchWithIdFromTable(Articles, uuid, id)
 

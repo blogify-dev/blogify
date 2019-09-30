@@ -93,6 +93,47 @@ fun logUnusedAuth(func: String) {
 }
 
 /**
+ * Adds a handler to a [CallPipeline] that handles fetching a set of resources with a certain list of desired properties.
+ *
+ * Requires a [Map] of specific property names to be passed in the query URL.
+ *
+ * **WARNING:** Those property names must *exactly* match property names present in the class of the specific resource type.
+ *Users
+ * @param fetch the [function][Function] that retrieves the resources
+ * @param table the [resource table][ResourceTable] that contains the specified resource in the database
+ *
+ * @author hamza1311, Benjozork
+ */
+@BlogifyDsl
+suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAll (
+    fetch: suspend (Int) -> ResourceResultSet<R>
+) {
+    val params = call.parameters
+    val limit = params["amount"]?.toInt() ?: 25
+    val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
+
+    if (selectedPropertyNames == null)
+        logger.debug("slicer: getting all fields".magenta())
+    else
+        logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
+
+    fetch(limit).fold (
+        success = { resources ->
+            try {
+                selectedPropertyNames?.let {
+
+                    call.respond(sliceResourceSet(resources, it))
+
+                } ?: call.respond(resources)
+            } catch (bruhMoment: Service.Exception) {
+                call.respondExceptionMessage(bruhMoment)
+            }
+        },
+        failure = call::respondExceptionMessage
+    )
+}
+
+/**
  * Adds a handler to a [CallPipeline] that handles fetching a resource.
  *
  * Requires a [UUID] to be passed in the query URL.
@@ -104,13 +145,19 @@ fun logUnusedAuth(func: String) {
  * @author Benjozork, hamza1311
  */
 @BlogifyDsl
-suspend fun <R : Resource> CallPipeline.fetchWithIdAndRespond (
+suspend fun <R : Resource> CallPipeline.fetchWithId (
     fetch:         suspend (id: UUID)   -> ResourceResult<R>,
     authPredicate: suspend (user: User) -> Boolean = defaultResourceLessPredicateLambda
 ) {
     val params = call.parameters
     params["uuid"]?.let { id -> // Check if the query URL provides any UUID
         val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
+
+        if (selectedPropertyNames == null)
+            logger.debug("slicer: getting all fields".magenta())
+        else
+            logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
+
         val doFetch: CallPipeLineFunction = {
             fetch.invoke(id.toUUID()).fold (
                 success = { fetched ->
@@ -138,48 +185,6 @@ suspend fun <R : Resource> CallPipeline.fetchWithIdAndRespond (
 }
 
 /**
- * Adds a handler to a [CallPipeline] that handles fetching all the available resources.
- *
- * @param R             the type of [Resource] to be fetched
- * @param fetch         the [function][Function] that retrieves the resources
- * @param transform     a transformation [function][Function] that transforms the [resources][Resource] before sending them back to the client
- * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
- *
- * @author Benjozork
- */
-@BlogifyDsl
-suspend fun <R : Resource> CallPipeline.fetchAndRespondWithAll (
-    fetch:         suspend ()           -> ResourceResultSet<R>,
-    transform:     suspend (elem: R)    -> Any = { it },
-    authPredicate: suspend (user: User) -> Boolean = defaultResourceLessPredicateLambda
-) {
-    val doFetchAll: CallPipeLineFunction = {
-        fetch.invoke().fold (
-            success = { fetchedSet ->
-                if (fetchedSet.isNotEmpty()) {
-                    SuspendableResult.of<Set<Any>, Service.Exception> {
-                        fetchedSet.map { transform.invoke(it) }.toSet() // Cover for any errors in transform()
-                    }.fold (
-                        success = call::respond,
-                        failure = call::respondExceptionMessage
-                    )
-                } else {
-                    call.respond(HttpStatusCode.NoContent)
-                }
-            },
-            failure = call::respondExceptionMessage
-        )
-    }
-
-    if (authPredicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-        authenticatedBy(predicate = authPredicate, block = doFetchAll)
-    } else {
-        logUnusedAuth("fetchAndRespondWithAll")
-        doFetchAll(this, Unit)
-    }
-}
-
-/**
  * Adds a handler to a [CallPipeline] that handles fetching all the available resources that are related to a particular resource.
  *
  * Requires a [UUID] to be passed in the query URL.
@@ -192,7 +197,7 @@ suspend fun <R : Resource> CallPipeline.fetchAndRespondWithAll (
  * @author Benjozork
  */
 @BlogifyDsl
-suspend fun <R : Resource> CallPipeline.handleIdentifiedResourceFetchAll (
+suspend fun <R : Resource> CallPipeline.fetchAllWithId (
     fetch:         suspend (id: UUID)   -> ResourceResultSet<R>,
     transform:     suspend (elem: R)    -> Any = { it },
     authPredicate: suspend (user: User) -> Boolean = defaultResourceLessPredicateLambda
@@ -309,48 +314,6 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
         }
 
     } ?: call.respond(HttpStatusCode.BadRequest)
-}
-
-/**
- * Adds a handler to a [CallPipeline] that handles fetching a set of resources with a certain list of desired properties.
- *
- * Requires a [Map] of specific property names to be passed in the query URL.
- *
- * **WARNING:** Those property names must *exactly* match property names present in the class of the specific resource type.
- *
- * @param fetch the [function][Function] that retrieves the resources
- * @param table the [resource table][ResourceTable] that contains the specified resource in the database
- *
- * @author hamza1311, Benjozork
- */
-@BlogifyDsl
-suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAndSlideResourceAndRespond (
-    fetch: suspend (ResourceTable<R>, Int) -> ResourceResultSet<R>,
-    table: ResourceTable<R>
-) {
-    val params = call.parameters
-    val limit = params["amount"]?.toInt() ?: 25
-    val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
-
-    if (selectedPropertyNames == null)
-        logger.debug("slicer: getting all fields".magenta())
-    else
-        logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
-
-    fetch(table, limit).fold (
-        success = { resources ->
-            try {
-                selectedPropertyNames?.let {
-
-                    call.respond(sliceResourceSet(resources, it))
-
-                } ?: call.respond(resources)
-            } catch (bruhMoment: Service.Exception) {
-                call.respondExceptionMessage(bruhMoment)
-            }
-        },
-        failure = call::respondExceptionMessage
-    )
 }
 
 /**

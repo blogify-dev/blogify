@@ -8,11 +8,7 @@ import io.ktor.routing.*
 
 import blogify.backend.database.Comments
 import blogify.backend.resources.Comment
-import blogify.backend.routes.handling.handleIdentifiedResourceFetchAll
-import blogify.backend.routes.handling.createWithResource
-import blogify.backend.routes.handling.deleteWithId
-import blogify.backend.routes.handling.fetchAndRespondWithAll
-import blogify.backend.routes.handling.respondExceptionMessage
+import blogify.backend.routes.handling.*
 import blogify.backend.services.articles.CommentService
 import blogify.backend.util.toUUID
 
@@ -23,11 +19,11 @@ fun Route.articleComments() {
     route("/comments") {
 
         get("/") {
-            fetchAndRespondWithAll(CommentService::getAll)
+            fetchAll(CommentService::getAll)
         }
 
         get("/{uuid}") {
-            handleIdentifiedResourceFetchAll(fetch = { articleId ->
+            fetchAllWithId(fetch = { articleId ->
                 CommentService.getMatching(Comments) { Comments.article eq articleId and Comments.parentComment.isNull() }
             })
         }

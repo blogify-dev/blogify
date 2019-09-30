@@ -45,7 +45,7 @@ suspend fun <R : Resource> fetchAllFromTable(table: ResourceTable<R>): ResourceR
  */
 suspend fun <R : Resource> fetchNumberFromTable(table: ResourceTable<R>, limit: Int): ResourceResultSet<R> {
     return query {
-        table.selectAll().limit(limit).toSet()
+        table.selectAll().take(limit).toSet()
     }
         .map { rows ->                                   // Map the set of ResultRow to converted resources
             rows.map { table.convert(it).get() }.toSet() //     Mote : get() is fine, since any error thrown
