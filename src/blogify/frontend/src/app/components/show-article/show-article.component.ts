@@ -3,9 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Article } from "../../models/Article";
 import { ArticleService } from "../../services/article/article.service";
 import { Subscription } from 'rxjs';
-import { User } from "../../models/User";
 import { Comment } from "../../models/Comment"
-import { AuthService } from "../../services/auth/auth.service";
 
 @Component({
     selector: 'app-show-article',
@@ -26,7 +24,6 @@ export class ShowArticleComponent implements OnInit {
     constructor(
         private activatedRoute: ActivatedRoute,
         private articleService: ArticleService,
-        private authService: AuthService
     ) {
     }
 
@@ -47,7 +44,7 @@ export class ShowArticleComponent implements OnInit {
         return new Date(time).toDateString()
     }
 
-    deleteArticle(uuid){
+    deleteArticle(){
         return this.articleService.deleteArticle(this.article.uuid);
     }
 

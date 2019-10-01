@@ -1,9 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Component, OnInit} from '@angular/core';
 import { Article } from "../../models/Article";
 import { ArticleService } from "../../services/article/article.service";
-import { AuthService } from "../../services/auth/auth.service";
 import { User } from "../../models/User";
 
 @Component({

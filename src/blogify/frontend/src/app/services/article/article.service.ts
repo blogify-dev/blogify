@@ -56,7 +56,7 @@ export class ArticleService {
             })
         };
 
-        return this.httpClient.patch<Article>(`/api/articles/${uuid}`, article)
+        return this.httpClient.patch<Article>(`/api/articles/${uuid}`, article, httpOptions)
     }
 
     // noinspection JSUnusedGlobalSymbols
