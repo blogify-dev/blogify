@@ -1,8 +1,9 @@
+<!--suppress HtmlFormInputWithoutLabel -->
 <p>new-article works!</p>
 
 Title: <input [(ngModel)]="article.title">
-Text: <input [(ngModel)]="article.content.text">
-Summary:<input [(ngModel)]="article.content.summary">
+Text: <input [(ngModel)]="article.content">
+Summary:<input [(ngModel)]="article.summary">
 <button (click)="createNewArticle()">Create New Article</button>
 
 <div>article: {{article | json}}</div>
