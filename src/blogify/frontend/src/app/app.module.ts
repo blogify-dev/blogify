@@ -10,7 +10,6 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { HomeComponent } from './components/home/home.component';
 import { RouterModule } from "@angular/router";
 import { NewArticleComponent } from './components/newarticle/new-article.component';
-import { SearchComponent } from './components/search/search.component';
 import { ShowArticleComponent } from './components/show-article/show-article.component';
 import { ShowAllArticlesComponent } from './components/show-all-articles/show-all-articles.component';
 import { CommentComponent } from './components/comment/comment.component';
@@ -26,7 +25,6 @@ import { AngularFontAwesomeModule } from 'angular-font-awesome';
         ProfileComponent,
         HomeComponent,
         NewArticleComponent,
-        SearchComponent,
         ShowArticleComponent,
         ShowAllArticlesComponent,
         CommentComponent,
