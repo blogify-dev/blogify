@@ -324,16 +324,20 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
  * @param instance     instance of [T] to read property from
  * @param propertyName name of the property to read
  *
- * @return the value of the property [propertyName] on [instance]
+ * @return the value of the property [propertyName] on [instance] or `null` if that property doesn't exist on [instance]
  *
  * @author hamza1311, Benjozork
  */
 @Suppress("UNCHECKED_CAST")
-private fun <T : Resource, R> getPropValueOnInstance(instance: T, propertyName: String): R {
-    val property = instance::class.declaredMemberProperties
-        .first { it.name == propertyName } as KProperty1<T, R>
+private fun <T : Resource, R> getPropValueOnInstance(instance: T, propertyName: String): R? {
+    return try {
+        val property = instance::class.declaredMemberProperties
+            .first { it.name == propertyName } as KProperty1<T, R>
 
-    return property.get(instance)
+        property.get(instance)
+    } catch (e: NoSuchElementException) {
+        null
+    }
 }
 
 /**
@@ -356,9 +360,9 @@ private fun <R : Resource> sliceResourceSet (
 
     return resources.map { res ->
         val map = selectedPropertiesWithoutUUID.associateWith { propName ->
-            getPropValueOnInstance<Resource, Any>(res, propName)
+            getPropValueOnInstance<Resource, Any>(res, propName) ?: "!!_NOT_FOUND_!!"
         }.toMutableMap()
-        map["uuid"] = getPropValueOnInstance<Resource, Any>(res, "uuid")
+        map["uuid"] = getPropValueOnInstance<Resource, Any>(res, "uuid") ?: error("can't find uuid prop in $res: this should never happen")
         map
     }
 }
@@ -374,7 +378,7 @@ private fun <R : Resource> sliceResourceSet (
  * @author hamza1311
  */
 private fun <R : Resource> sliceResource (
-    resource:             R,
+    resource:              R,
     selectedPropertyNames: Set<String>
 ): Map<String, Any> {
 
@@ -383,8 +387,8 @@ private fun <R : Resource> sliceResource (
     }
 
     return selectedPropertiesWithoutUUID.associateWith { propName ->
-        getPropValueOnInstance<Resource, Any>(resource, propName)
+        getPropValueOnInstance<Resource, Any>(resource, propName) ?: "!!_NOT_FOUND_!!"
     }.toMutableMap().apply {
-        put("uuid", getPropValueOnInstance<Resource, Any>(resource, "uuid"))
+        this["uuid"] = getPropValueOnInstance<Resource, Any>(resource, "uuid") ?: error("can't find uuid prop in $resource: this should never happen")
     }.toMap()
 }
