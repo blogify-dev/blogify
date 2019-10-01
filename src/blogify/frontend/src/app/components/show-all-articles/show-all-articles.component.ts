@@ -1,6 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {Article} from "../../models/Article";
-import {ArticleService} from "../../services/article/article.service";
 import {AuthService} from "../../services/auth/auth.service";
 import {Router} from "@angular/router";
 
@@ -11,22 +10,15 @@ import {Router} from "@angular/router";
 })
 export class ShowAllArticlesComponent implements OnInit {
 
-    articles: Article[];
-    article: Article;
+    @Input() articles: Article[];
 
     constructor(
-        private articleService: ArticleService,
         private authService: AuthService,
         private router: Router
     ) {}
 
     ngOnInit() {
-        this.articleService.getAllArticles(
-            ['title', 'createdBy', 'summary', 'categories']
-        ).then(it => {
-            this.articles = it;
-            console.log(it);
-        })
+
     }
 
     async navigateToNewArticle() {

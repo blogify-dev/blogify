@@ -15,7 +15,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     routeMapSubscription: Subscription;
     user: User;
     articles: Article[];
-    article: Article;
 
     constructor(
         private activatedRoute: ActivatedRoute,
