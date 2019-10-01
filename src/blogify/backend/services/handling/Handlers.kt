@@ -28,11 +28,10 @@ suspend fun <R : Resource> fetchAllFromTable(table: ResourceTable<R>): ResourceR
     return query {
         table.selectAll().toSet() // First, query the DB
     }
+        .mapError { e -> Service.Exception.Fetching(e) } // Wrap a possible DBEx inside a Service exception
         .map { rows ->                                   // Map the set of ResultRow to converted resources
             rows.map { table.convert(it).get() }.toSet() //     Mote : get() is fine, since any error thrown
         }                                                //            by it is automatically wrapped into a failure result.
-
-        .mapError { e -> Service.Exception.Fetching(e) } // Wrap a possible DBEx inside a Service exception
 }
 
 /**
@@ -47,11 +46,10 @@ suspend fun <R : Resource> fetchNumberFromTable(table: ResourceTable<R>, limit: 
     return query {
         table.selectAll().take(limit).toSet()
     }
+        .mapError { e -> Service.Exception.Fetching(e) } // Wrap a possible DBEx inside a Service exception
         .map { rows ->                                   // Map the set of ResultRow to converted resources
             rows.map { table.convert(it).get() }.toSet() //     Mote : get() is fine, since any error thrown
         }                                                //            by it is automatically wrapped into a failure result.
-
-        .mapError { e -> Service.Exception.Fetching(e) } // Wrap a possible DBEx inside a Service exception
 }
 
 /**
@@ -67,8 +65,8 @@ suspend fun <R : Resource> fetchWithIdFromTable(table: ResourceTable<R>, uuidCol
     return query {
         table.select { uuidColumn eq id }.single() // First, query the DB
     }
-        .map      { r -> table.convert(r).get() }        // Map the ResultRow to a converted resource. See note above.
         .mapError { e -> Service.Exception.Fetching(e) } // Wrap a possible DBEx inside a Service exception
+        .map      { r -> table.convert(r).get() }        // Map the ResultRow to a converted resource. See note above.
 }
 
 /**
