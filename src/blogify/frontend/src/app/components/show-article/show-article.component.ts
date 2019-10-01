@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Article, Content } from "../../models/Article";
+import { Article } from "../../models/Article";
 import { ArticleService } from "../../services/article/article.service";
 import { Subscription } from 'rxjs';
 import { User } from "../../models/User";
@@ -23,9 +23,6 @@ export class ShowArticleComponent implements OnInit {
        content: ''
     };
 
-    articleContent: Content;
-    articleAuthor: User;
-
     constructor(
         private activatedRoute: ActivatedRoute,
         private articleService: ArticleService,
@@ -38,14 +35,11 @@ export class ShowArticleComponent implements OnInit {
             const articleUUID = map.get('uuid');
             console.log(articleUUID);
 
-            this.article = await this.articleService.getArticleByUUID(articleUUID).toPromise();
+            this.article = await this.articleService.getArticleByUUID(
+                articleUUID,
+                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories']
+            ).toPromise();
             console.log(this.article);
-
-            this.articleContent = await this.articleService.getArticleContent(articleUUID).toPromise();
-            console.log(this.articleContent);
-
-            this.articleAuthor = await this.authService.fetchUser(this.article.createdBy.toString());
-            console.log(this.articleAuthor.username);
         })
     }
 

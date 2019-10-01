@@ -21,8 +21,11 @@ export class ShowAllArticlesComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.articleService.getAllArticles().then(it => {
-            this.articles = it
+        this.articleService.getAllArticles(
+            ['title', 'createdBy', 'summary', 'categories']
+        ).then(it => {
+            this.articles = it;
+            console.log(it);
         })
     }
 

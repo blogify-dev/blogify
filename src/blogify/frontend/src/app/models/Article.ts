@@ -4,18 +4,11 @@ export class Article {
     constructor(
         public uuid: string,
         public title: string,
-        public content: Content,
+        public content: string,
+        public summary: string,
         public createdBy: User,
         public createdAt: number,
         public categories: object[],
-    ) {
-    }
-}
-
-export class Content {
-    constructor(
-        public text: string,
-        public summary: string,
     ) {
     }
 }

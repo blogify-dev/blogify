@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Article, Content } from "../../models/Article";
+import { Article } from "../../models/Article";
 import { ArticleService } from "../../services/article/article.service";
 import { AuthService } from "../../services/auth/auth.service";
 import { User } from "../../models/User";
@@ -17,7 +17,8 @@ export class NewArticleComponent implements OnInit {
         uuid: '',
         title: '',
         categories: [], // TODO: Get these from UI
-        content: new Content('', ''),
+        content: 'new Content()',
+        summary: '',
         createdBy: new User('', ''),
         createdAt: Date.now(),
     };

@@ -21,16 +21,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
         private activatedRoute: ActivatedRoute,
         private authService: AuthService,
         private articleService: ArticleService,
-        private router: Router
     ) {}
 
     ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const userUUID = map.get('uuid');
             this.user = this.authService.userProfile;
-            this.articleService.getAllArticleByUUID(userUUID).then(it => {
+            this.articleService.getArticleByForUser(userUUID).then(it => {
                 this.articles = it
-            })
+            });
             console.log(userUUID);
             console.log(this.user)
         })
