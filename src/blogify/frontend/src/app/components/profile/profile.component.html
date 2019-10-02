@@ -1,9 +1,5 @@
-<section class="articles">
+<section class="profile">
 
-    <div id="articles-header">
-        <h2>Articles by {{user.username}}</h2>
-    </div>
-
-    <app-show-all-articles [articles]="articles"></app-show-all-articles>
+    <app-show-all-articles appCompact title="Articles by {{user.username}}" [articles]="articles"></app-show-all-articles>
 
 </section>

@@ -16,6 +16,7 @@ import { CommentComponent } from './components/comment/comment.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
+import { CompactDirective } from './directives/compact/compact.directive';
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import { AngularFontAwesomeModule } from 'angular-font-awesome';
         ShowAllArticlesComponent,
         CommentComponent,
         NavbarComponent,
-        DarkThemeDirective
+        DarkThemeDirective,
+        CompactDirective
     ],
     imports: [
         BrowserModule,

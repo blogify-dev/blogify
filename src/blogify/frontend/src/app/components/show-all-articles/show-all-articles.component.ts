@@ -10,6 +10,7 @@ import {Router} from "@angular/router";
 })
 export class ShowAllArticlesComponent implements OnInit {
 
+    @Input() title:    string = "Articles";
     @Input() articles: Article[];
 
     constructor(
