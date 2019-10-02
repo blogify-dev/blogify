@@ -35,6 +35,7 @@ import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.util.BlogifyDsl
+import blogify.backend.util.noslice
 import blogify.backend.util.toUUID
 
 import io.ktor.application.ApplicationCall
@@ -332,7 +333,11 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
 private fun <T : Resource, R> getPropValueOnInstance(instance: T, propertyName: String): R? {
     return try {
         val property = instance::class.declaredMemberProperties
-            .first { it.name == propertyName } as KProperty1<T, R>
+            .first {
+                it.name == propertyName && it.annotations.none { a ->
+                    a.annotationClass == noslice::class
+                }
+            } as KProperty1<T, R>
 
         property.get(instance)
     } catch (e: NoSuchElementException) {
