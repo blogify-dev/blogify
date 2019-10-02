@@ -35,7 +35,6 @@ import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.util.BlogifyDsl
-import blogify.backend.util.noslice
 import blogify.backend.util.toUUID
 
 import io.ktor.application.ApplicationCall
@@ -56,9 +55,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.util.UUID
-
-import kotlin.reflect.KProperty1
-import kotlin.reflect.full.declaredMemberProperties
 
 val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
 
@@ -123,7 +119,7 @@ suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAll (
             try {
                 selectedPropertyNames?.let {
 
-                    call.respond(sliceResourceSet(resources, it))
+                    call.respond(resources.map { r -> r.slice(it) })
 
                 } ?: call.respond(resources)
             } catch (bruhMoment: Service.Exception) {
@@ -165,7 +161,7 @@ suspend fun <R : Resource> CallPipeline.fetchWithId (
                     try {
                         selectedPropertyNames?.let {
 
-                            call.respond(sliceResource(fetched, it))
+                            call.respond(fetched.slice(it))
 
                         } ?: call.respond(fetched)
                     } catch (bruhMoment: Service.Exception) {
@@ -315,85 +311,4 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
         }
 
     } ?: call.respond(HttpStatusCode.BadRequest)
-}
-
-/**
- * Reads a property from an instance of [T] with [a certain name][propertyName] using reflection
- *
- * Shamelessly stolen from: [https://stackoverflow.com/a/35539628]
- *
- * @param instance     instance of [T] to read property from
- * @param propertyName name of the property to read
- *
- * @return the value of the property [propertyName] on [instance] or `null` if that property doesn't exist on [instance]
- *
- * @author hamza1311, Benjozork
- */
-@Suppress("UNCHECKED_CAST")
-private fun <T : Resource, R> getPropValueOnInstance(instance: T, propertyName: String): R? {
-    return try {
-        val property = instance::class.declaredMemberProperties
-            .first {
-                it.name == propertyName && it.annotations.none { a ->
-                    a.annotationClass == noslice::class
-                }
-            } as KProperty1<T, R>
-
-        property.get(instance)
-    } catch (e: NoSuchElementException) {
-        null
-    }
-}
-
-/**
- * Slices a [Set] of [resources][Resource] with a set of provided properties that should be kept
- *
- * @param resources             the [resources][Resource] to be sliced
- * @param selectedPropertyNames the properties that should be kept on the returned [resources][Resource]
- *
- * @return a list of [maps][Map] containing [resources][Resource] with only the provided properties on them
- *
- * @author hamza1311, Benjozork
- */
-private fun <R : Resource> sliceResourceSet (
-    resources:             Set<R>,
-    selectedPropertyNames: Set<String>
-): List<Map<String, Any>> {
-    val selectedPropertiesWithoutUUID = selectedPropertyNames.toMutableSet().apply {
-        removeIf { it == "uuid" || it == "UUID" }
-    }
-
-    return resources.map { res ->
-        val map = selectedPropertiesWithoutUUID.associateWith { propName ->
-            getPropValueOnInstance<Resource, Any>(res, propName) ?: "!!_NOT_FOUND_!!"
-        }.toMutableMap()
-        map["uuid"] = getPropValueOnInstance<Resource, Any>(res, "uuid") ?: error("can't find uuid prop in $res: this should never happen")
-        map
-    }
-}
-
-/**
- * Slices a single [resources][Resource] with a set of provided properties that should be kept
- *
- * @param resource              the [resources][Resource] to be sliced
- * @param selectedPropertyNames the properties that should be kept on the returned [resources][Resource]
- *
- * @return a list of [maps][Map] containing [resources][Resource] with only the provided properties on them
- *
- * @author hamza1311
- */
-private fun <R : Resource> sliceResource (
-    resource:              R,
-    selectedPropertyNames: Set<String>
-): Map<String, Any> {
-
-    val selectedPropertiesWithoutUUID = selectedPropertyNames.toMutableSet().apply {
-        removeIf { it == "uuid" || it == "UUID" }
-    }
-
-    return selectedPropertiesWithoutUUID.associateWith { propName ->
-        getPropValueOnInstance<Resource, Any>(resource, propName) ?: "!!_NOT_FOUND_!!"
-    }.toMutableMap().apply {
-        this["uuid"] = getPropValueOnInstance<Resource, Any>(resource, "uuid") ?: error("can't find uuid prop in $resource: this should never happen")
-    }.toMap()
 }

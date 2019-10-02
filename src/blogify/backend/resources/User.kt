@@ -15,13 +15,10 @@ import java.util.*
     property  = "uuid"
 )
 data class User (
-    val username: String,
-
+             val username: String,
     @noslice val password: String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
-
-    val name: String,
-
-    val email: String,
+             val name:     String,
+             val email:    String,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid)
