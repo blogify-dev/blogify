@@ -75,7 +75,7 @@ private fun <T : Resource, R : Any> getPropValueOnInstance(instance: T, property
  *
  * @author hamza1311, Benjozork
  */
-fun <R : Resource> R.slice(selectedPropertyNames: Collection<String>): Map<String, Any> {
+fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any> {
 
     val selectedPropertiesSanitized = selectedPropertyNames.toMutableSet().apply {
         removeIf { it == "uuid" || it == "UUID" }
@@ -112,6 +112,7 @@ fun <R : Resource> R.sanitize(): Map<String, Any> {
     val sanitizedClassProps = this::class.declaredMemberProperties
         .filter { it.annotations.none { a -> a.annotationClass == noslice::class } }
         .map    { it.name }
+        .toSet()
 
     return this.slice(sanitizedClassProps)
 }
