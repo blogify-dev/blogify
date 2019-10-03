@@ -65,25 +65,27 @@ private fun <T : Resource, R : Any> getPropValueOnInstance(instance: T, property
 }
 
 /**
- * Slices a [resources][Resource] with a set of provided properties that should be kept
+ * Slices a [resources[Resource] with a set of provided properties that should be kept
  *
- * @param resource              the [resources][Resource] to be sliced
+ * @receiver the [resource][Resource] to be sliced
+ *
  * @param selectedPropertyNames the properties that should be kept on the returned [resources][Resource]
  *
  * @return a list of [maps][Map] containing [resources][Resource] with only the provided properties on them
  *
  * @author hamza1311, Benjozork
  */
-fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any> {
+fun <R : Resource> R.slice(selectedPropertyNames: Collection<String>): Map<String, Any> {
 
-    val selectedPropertiesWithoutUUID = selectedPropertyNames.toMutableSet().apply {
+    val selectedPropertiesSanitized = selectedPropertyNames.toMutableSet().apply {
         removeIf { it == "uuid" || it == "UUID" }
+        add("uuid")
     }
 
     val unknownProperties = mutableSetOf<String>()
     val accessDeniedProperties = mutableSetOf<String>()
 
-    return selectedPropertiesWithoutUUID.associateWith { propName ->
+    return selectedPropertiesSanitized.associateWith { propName ->
         when (val result = getPropValueOnInstance<Resource, Any>(this, propName)) {
             is SlicedProperty.Value            -> result.value
             is SlicedProperty.NotFound         -> unknownProperties += result.name
@@ -92,7 +94,6 @@ fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any>
     }.filter {
         it.value != Unit // Don't return invalid values
     }.toMutableMap().apply {
-        this["uuid"] = (getPropValueOnInstance<Resource, String>(this@slice, "uuid") as SlicedProperty.Value).value
         if (unknownProperties.isNotEmpty())
             this["_notFound"] = unknownProperties // Add unknown properties to final map
         if (accessDeniedProperties.isNotEmpty())

@@ -113,13 +113,12 @@ suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAll (
         logger.debug("slicer: getting all fields".magenta())
     else
         logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
-
     fetch(limit).fold (
         success = { resources ->
             try {
-                selectedPropertyNames?.let {
+                selectedPropertyNames?.let { props ->
 
-                    call.respond(resources.map { r -> r.slice(it) })
+                    call.respond(resources.map { it.slice(props) })
 
                 } ?: call.respond(resources)
             } catch (bruhMoment: Service.Exception) {
@@ -159,9 +158,9 @@ suspend fun <R : Resource> CallPipeline.fetchWithId (
             fetch.invoke(id.toUUID()).fold (
                 success = { fetched ->
                     try {
-                        selectedPropertyNames?.let {
+                        selectedPropertyNames?.let { props ->
 
-                            call.respond(fetched.slice(it))
+                            call.respond(fetched.slice(props))
 
                         } ?: call.respond(fetched)
                     } catch (bruhMoment: Service.Exception) {
