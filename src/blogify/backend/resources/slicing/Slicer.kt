@@ -50,9 +50,8 @@ sealed class SlicedProperty(val name: String) {
 @Suppress("UNCHECKED_CAST")
 private fun <R : Resource, P : Any> getPropValueOnInstance(instance: R, propertyName: String): SlicedProperty {
     return instance::class.declaredMemberProperties
-        .firstOrNull {
-            it.name == propertyName
-        }?.let { prop ->
+        .firstOrNull { it.name == propertyName }
+        ?.let { prop ->
             return if (prop.annotations.any { it.annotationClass == noslice::class }) {
                 // Property has @noslice annotation
                 SlicedProperty.AccessNotAllowed(propertyName)
@@ -110,6 +109,7 @@ fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any>
  */
 fun <R : Resource> R.sanitize(): Map<String, Any> {
     val sanitizedClassProps = this::class.declaredMemberProperties
+        .asSequence()
         .filter { it.annotations.none { a -> a.annotationClass == noslice::class } }
         .map    { it.name }
         .toSet()
