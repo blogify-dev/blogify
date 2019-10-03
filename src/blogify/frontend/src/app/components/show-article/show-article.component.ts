@@ -32,10 +32,11 @@ export class ShowArticleComponent implements OnInit {
             const articleUUID = map.get('uuid');
             console.log(articleUUID);
 
-            this.article = await this.articleService.getArticleByUUID(
+            this.article = await this.articleService.getArticleByUUID (
                 articleUUID,
                 ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories']
-            ).toPromise();
+            );
+
             console.log(this.article);
         })
     }

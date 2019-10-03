@@ -31,6 +31,8 @@ import blogify.backend.auth.handling.authenticatedBy
 import blogify.backend.database.ResourceTable
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
+import blogify.backend.resources.slicing.sanitize
+import blogify.backend.resources.slicing.slice
 import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service

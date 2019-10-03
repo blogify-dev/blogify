@@ -1,4 +1,4 @@
-package blogify.backend.routes.handling
+package blogify.backend.resources.slicing
 
 import blogify.backend.resources.models.Resource
 import blogify.backend.util.noslice
@@ -36,11 +36,11 @@ sealed class SlicedProperty(val name: String) {
 }
 
 /**
- * Reads a property from an instance of [T] with [a certain name][propertyName] using reflection
+ * Reads a property from an instance of [R] with [a certain name][propertyName] using reflection
  *
  * Shamelessly stolen from: [https://stackoverflow.com/a/35539628]
  *
- * @param instance     instance of [T] to read property from
+ * @param instance     instance of [R] to read property from
  * @param propertyName name of the property to read
  *
  * @return the value of the property [propertyName] on [instance] or `null` if that property doesn't exist on [instance]
@@ -48,7 +48,7 @@ sealed class SlicedProperty(val name: String) {
  * @author hamza1311, Benjozork
  */
 @Suppress("UNCHECKED_CAST")
-private fun <T : Resource, R : Any> getPropValueOnInstance(instance: T, propertyName: String): SlicedProperty {
+private fun <R : Resource, P : Any> getPropValueOnInstance(instance: R, propertyName: String): SlicedProperty {
     return instance::class.declaredMemberProperties
         .firstOrNull {
             it.name == propertyName
@@ -58,7 +58,7 @@ private fun <T : Resource, R : Any> getPropValueOnInstance(instance: T, property
                 SlicedProperty.AccessNotAllowed(propertyName)
             } else {
                 // Property is found and access is allowed
-                SlicedProperty.Value(propertyName, (prop as KProperty1<T, R>).get(instance))
+                SlicedProperty.Value(propertyName, (prop as KProperty1<R, P>).get(instance))
             }
             // Property is not found
         } ?: SlicedProperty.NotFound(propertyName)

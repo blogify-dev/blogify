@@ -12,17 +12,14 @@ export class HomeComponent implements OnInit {
 
     articles: Article[];
 
-    constructor(
-        private articleService: ArticleService,
-    ) {
-    }
+    constructor(private articleService: ArticleService) {}
 
     ngOnInit() {
-        this.articleService.getAllArticles(
-            ['title', 'createdBy', 'summary', 'categories']
-        ).then(it => {
-            this.articles = it;
-            console.log(it);
+        this.articleService.getAllArticles (
+            ['title', 'summary', 'createdBy', 'categories']
+        ).then( articles => {
+            this.articles = articles;
+            console.log(articles);
         })
     }
 

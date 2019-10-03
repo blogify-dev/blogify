@@ -14,11 +14,11 @@ export class ArticleService {
 
     async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {
         const articlesObs = this.httpClient.get<Article[]>(`/api/articles/?fields=${fields.join(',')}&amount=${amount}`);
-        return  await articlesObs.toPromise();
+        return articlesObs.toPromise();
     }
 
-    getArticleByUUID(uuid: string, fields: string[] = []): Observable<Article> {
-        return this.httpClient.get<Article>(`/api/articles/${uuid}?fields=${fields.join(',')}`)
+    async getArticleByUUID(uuid: string, fields: string[] = []): Promise<Article> {
+        return this.httpClient.get<Article>(`/api/articles/${uuid}?fields=${fields.join(',')}`).toPromise()
     }
 
     async getArticleByForUser(uuid: string): Promise<Article[]> {
@@ -34,12 +34,13 @@ export class ArticleService {
             })
         };
 
-        const {content, title, categories} = article;
+        const {content, title, summary, categories} = article;
 
         const newArticle = {
             uuid: uuid(),
             content: content,
             title: title,
+            summary: summary,
             categories: categories,
             createdBy: this.authService.userUUID,
         };

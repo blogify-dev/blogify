@@ -26,12 +26,12 @@ export class NewArticleComponent implements OnInit {
 
     ngOnInit() {
     }
+
      createNewArticle() {
         console.log(this.article);
-        const obs = this.articleService.createNewArticle(this.article);
-        obs.then(it => console.log(it))
+        this.articleService.createNewArticle(this.article).then( article =>
+            console.log(article)
+        );
     }
-
-
 
 }
