@@ -120,7 +120,7 @@ suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAll (
 
                     call.respond(resources.map { it.slice(props) })
 
-                } ?: call.respond(resources)
+                } ?: call.respond(resources.map { it.sanitize() })
             } catch (bruhMoment: Service.Exception) {
                 call.respondExceptionMessage(bruhMoment)
             }
@@ -162,7 +162,7 @@ suspend fun <R : Resource> CallPipeline.fetchWithId (
 
                             call.respond(fetched.slice(props))
 
-                        } ?: call.respond(fetched)
+                        } ?: call.respond(fetched.sanitize())
                     } catch (bruhMoment: Service.Exception) {
                         call.respondExceptionMessage(bruhMoment)
                     }

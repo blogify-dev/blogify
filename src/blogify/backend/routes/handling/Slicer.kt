@@ -100,3 +100,18 @@ fun <R : Resource> R.slice(selectedPropertyNames: Collection<String>): Map<Strin
             this["_accessDenied"] = accessDeniedProperties // Add unknown properties to final map
     }.toMap()
 }
+
+/**
+ * Slices a resource with all of its properties except ones annotated with [@noslice][noslice]
+ *
+ * @receiver the [resource][Resource] to be sliced
+ *
+ * @author Benjozork
+ */
+fun <R : Resource> R.sanitize(): Map<String, Any> {
+    val sanitizedClassProps = this::class.declaredMemberProperties
+        .filter { it.annotations.none { a -> a.annotationClass == noslice::class } }
+        .map    { it.name }
+
+    return this.slice(sanitizedClassProps)
+}
