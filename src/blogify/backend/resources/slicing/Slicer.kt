@@ -3,7 +3,6 @@ package blogify.backend.resources.slicing
 import blogify.backend.resources.models.Resource
 import blogify.backend.util.noslice
 
-import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 
 /**
@@ -43,23 +42,21 @@ sealed class SlicedProperty(val name: String) {
  * @param instance     instance of [R] to read property from
  * @param propertyName name of the property to read
  *
- * @return the value of the property [propertyName] on [instance] or `null` if that property doesn't exist on [instance]
+ * @return a [SlicedProperty] representing the result of the query. Can be either [SlicedProperty.Value] for success,
+ * [SlicedProperty.NotFound] for an unknown property or [SlicedProperty.AccessNotAllowed] for a property that cannot
+ * be accessed for security policy reasons (in which case, of course, that incident would be reported).
  *
  * @author hamza1311, Benjozork
  */
 @Suppress("UNCHECKED_CAST")
-private fun <R : Resource, P : Any> getPropValueOnInstance(instance: R, propertyName: String): SlicedProperty {
-    return instance::class.declaredMemberProperties
-        .firstOrNull { it.name == propertyName }
-        ?.let { prop ->
-            return if (prop.annotations.any { it.annotationClass == noslice::class }) {
-                // Property has @noslice annotation
-                SlicedProperty.AccessNotAllowed(propertyName)
-            } else {
-                // Property is found and access is allowed
-                SlicedProperty.Value(propertyName, (prop as KProperty1<R, P>).get(instance))
+private fun <R : Resource> getPropValueOnInstance(instance: R, propertyName: String): SlicedProperty {
+    return instance.cachedPropMap()
+        .entries.firstOrNull { (name, _) -> name == propertyName }
+        ?.value?.let { handle ->
+            return when (handle) {
+                is PropertyHandle.Ok           -> SlicedProperty.Value(handle.name, handle.property.get(instance))
+                is PropertyHandle.AccessDenied -> SlicedProperty.AccessNotAllowed(handle.name)
             }
-            // Property is not found
         } ?: SlicedProperty.NotFound(propertyName)
 }
 
@@ -85,7 +82,7 @@ fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any>
     val accessDeniedProperties = mutableSetOf<String>()
 
     return selectedPropertiesSanitized.associateWith { propName ->
-        when (val result = getPropValueOnInstance<Resource, Any>(this, propName)) {
+        when (val result = getPropValueOnInstance<Resource>(this, propName)) {
             is SlicedProperty.Value            -> result.value
             is SlicedProperty.NotFound         -> unknownProperties += result.name
             is SlicedProperty.AccessNotAllowed -> accessDeniedProperties += result.name
