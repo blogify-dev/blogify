@@ -21,7 +21,10 @@ import blogify.backend.database.Users
 import blogify.backend.routes.auth
 import blogify.backend.database.handling.query
 import blogify.backend.util.SinglePageApplication
+
 import io.ktor.application.call
+import io.ktor.features.Compression
+import io.ktor.features.GzipEncoder
 import io.ktor.response.respondRedirect
 import io.ktor.routing.get
 
@@ -70,6 +73,11 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     install(SinglePageApplication) {
         folderPath = "/frontend"
     }
+
+    install(Compression) {
+        encoder("gzip0", GzipEncoder)
+    }
+
     // Initialize database
 
     Database.init()
