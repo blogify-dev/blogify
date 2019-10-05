@@ -2,6 +2,9 @@ package blogify.backend.resources.models
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator
 import com.fasterxml.jackson.annotation.ObjectIdResolver
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
@@ -9,11 +12,8 @@ import blogify.backend.resources.User
 import blogify.backend.services.UserService
 import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.articles.CommentService
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.ser.std.StdSerializer
-import io.ktor.application.Application
 
+import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.http.Parameters
 import io.ktor.request.ApplicationRequest
@@ -26,8 +26,6 @@ import java.lang.IllegalStateException
 import java.util.*
 
 open class Resource(open val uuid: UUID = UUID.randomUUID()) {
-
-    data class ResolverKey(val callContext: ApplicationCall, val id: UUID)
 
     object ObjectResolver : ObjectIdResolver {
 
