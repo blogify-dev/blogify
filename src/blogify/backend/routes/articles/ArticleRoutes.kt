@@ -26,7 +26,7 @@ fun Route.articles() {
 
         get("/forUser/{uuid}") {
             fetchAllWithId(fetch = { userId ->
-                ArticleService.getMatching(Articles) {
+                ArticleService.getMatching(call) {
                     Articles.createdBy eq userId
                 }
             })
@@ -39,7 +39,7 @@ fun Route.articles() {
         patch("/{uuid}") {
             val selectedUUID = call.parameters["uuid"]
 
-            val selectedArticle    = selectedUUID?.toUUID()?.let { ArticleService.get(it) }
+            val selectedArticle    = selectedUUID?.toUUID()?.let { ArticleService.get(call, it) }
             val replacementArticle = call.receive<Article>()
 
             if (selectedArticle == null)

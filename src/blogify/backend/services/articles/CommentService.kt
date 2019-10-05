@@ -5,8 +5,6 @@ import blogify.backend.services.models.Service
 import blogify.backend.database.handling.query
 import blogify.backend.database.Comments
 import blogify.backend.database.Comments.uuid
-import blogify.backend.services.handling.deleteWithIdInTable
-import blogify.backend.services.handling.fetchWithIdFromTable
 import blogify.backend.services.models.ResourceResult
 
 import com.github.kittinunf.result.coroutines.mapError
@@ -14,11 +12,7 @@ import com.github.kittinunf.result.coroutines.mapError
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
 
-import java.util.UUID
-
 object CommentService : Service<Comment>(Comments) {
-
-    override suspend fun get(id: UUID): ResourceResult<Comment> = fetchWithIdFromTable(Comments, uuid, id)
 
     override suspend fun add(res: Comment) = query {
         Comments.insert {
@@ -31,8 +25,6 @@ object CommentService : Service<Comment>(Comments) {
 
         return@query res
     }.mapError { e -> Service.Exception.Creating(e) }
-
-    override suspend fun delete(id: UUID) = deleteWithIdInTable(Comments, uuid, id)
 
     override suspend fun update(res: Comment): ResourceResult<Comment> = query {
         Comments.update({ uuid eq res.uuid }) {

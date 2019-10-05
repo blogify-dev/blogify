@@ -58,7 +58,7 @@ private typealias PropMap = Map<String, PropertyHandle>
  * @author Benjozork
  */
 @Suppress("UNCHECKED_CAST")
-private fun <R : Resource> KClass<R>.buildPropMap(): PropMap {
+fun <R : Resource> KClass<R>.buildPropMap(): PropMap {
     return this.declaredMemberProperties
         .asSequence()
         .associateBy {
@@ -92,6 +92,16 @@ fun <R : Resource> R.cachedPropMap(): PropMap {
     if (cached == null) {
         cached = this::class.buildPropMap()
         propMapCache[this::class] = cached
+    }
+
+    return cached
+}
+
+fun <TResource: Resource> KClass<TResource>.cachedPropMap(): PropMap {
+    var cached: PropMap? = propMapCache[this]
+    if (cached == null) {
+        cached = this.buildPropMap()
+        propMapCache[this] = cached
     }
 
     return cached

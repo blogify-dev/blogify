@@ -11,6 +11,7 @@ import blogify.backend.resources.Comment
 import blogify.backend.routes.handling.*
 import blogify.backend.services.articles.CommentService
 import blogify.backend.util.toUUID
+
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 
@@ -26,7 +27,7 @@ fun Route.articleComments() {
 
         get("/{uuid}") {
             fetchAllWithId(fetch = { articleId ->
-                CommentService.getMatching(Comments) { Comments.article eq articleId and Comments.parentComment.isNull() }
+                CommentService.getMatching(call) { Comments.article eq articleId and Comments.parentComment.isNull() }
             })
         }
 
@@ -38,7 +39,7 @@ fun Route.articleComments() {
             val selectedUUID = call.parameters["uuid"]
 
             val replacementComment = call.receive<Comment>()
-            val selectedComment = selectedUUID?.toUUID()?.let { CommentService.get(it) }
+            val selectedComment = selectedUUID?.toUUID()?.let { CommentService.get(call, it) }
 
             if (selectedComment == null)
                 call.respond(HttpStatusCode.NotFound)
@@ -55,9 +56,9 @@ fun Route.articleComments() {
         get("/tree/{uuid}") {
             call.parameters["uuid"]?.toUUID()?.let { givenUUID ->
 
-                val comments = CommentService.getMatching(Comments) { Comments.parentComment eq givenUUID }.get().map {
+                val comments = CommentService.getMatching(call) { Comments.parentComment eq givenUUID }.get().map {
                      ObjectMapper().convertValue<Map<String, Any>>(it, object: TypeReference<Map<String, Any>>() {}).toMutableMap().apply {
-                         this["children"] = CommentService.getMatching(Comments) { Comments.parentComment eq this@apply["uuid"].toString().toUUID() }.get()
+                         this["children"] = CommentService.getMatching(call) { Comments.parentComment eq this@apply["uuid"].toString().toUUID() }.get()
                      }
                 }
                 println(comments)

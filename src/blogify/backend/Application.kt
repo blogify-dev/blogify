@@ -1,12 +1,6 @@
 package blogify.backend
 
-import io.ktor.application.Application
-import io.ktor.application.install
-import io.ktor.features.CallLogging
-import io.ktor.features.ContentNegotiation
-import io.ktor.jackson.jackson
-import io.ktor.routing.route
-import io.ktor.routing.routing
+import com.fasterxml.jackson.databind.module.SimpleModule
 
 import com.andreapivetta.kolor.cyan
 
@@ -20,6 +14,7 @@ import blogify.backend.database.Comments
 import blogify.backend.database.Users
 import blogify.backend.routes.auth
 import blogify.backend.database.handling.query
+import blogify.backend.resources.models.Resource
 import blogify.backend.util.SinglePageApplication
 
 import io.ktor.application.call
@@ -27,6 +22,13 @@ import io.ktor.features.Compression
 import io.ktor.features.GzipEncoder
 import io.ktor.response.respondRedirect
 import io.ktor.routing.get
+import io.ktor.application.Application
+import io.ktor.application.install
+import io.ktor.features.CallLogging
+import io.ktor.features.ContentNegotiation
+import io.ktor.jackson.jackson
+import io.ktor.routing.route
+import io.ktor.routing.routing
 
 import org.jetbrains.exposed.sql.SchemaUtils
 
@@ -61,6 +63,15 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     install(ContentNegotiation) {
         jackson {
             enable(SerializationFeature.INDENT_OUTPUT)
+
+            // Register a serializer for Resource.
+            // This will only affect pure Resource objects, so elements produced by the slicer are not affected,
+            // since those don't use Jackson for root serialization.
+
+            val resourceModule = SimpleModule()
+            resourceModule.addSerializer(Resource.ResourceIdSerializer)
+
+            registerModule(resourceModule)
         }
     }
 

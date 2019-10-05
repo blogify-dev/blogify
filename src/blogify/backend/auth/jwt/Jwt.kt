@@ -15,6 +15,7 @@ import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
+import io.ktor.application.ApplicationCall
 
 import org.slf4j.LoggerFactory
 
@@ -47,7 +48,7 @@ fun generateJWT(user: User) = Jwts
 /**
 * Validates a JWT, returning a [SuspendableResult] if that token authenticates a user, or an exception if the token is invalid
  */
-suspend fun validateJwt(token: String): SuspendableResult<User, Exception> {
+suspend fun validateJwt(callContext: ApplicationCall, token: String): SuspendableResult<User, Exception> {
     var jwsClaims: Jws<Claims>? = null
 
     try {
@@ -66,7 +67,7 @@ suspend fun validateJwt(token: String): SuspendableResult<User, Exception> {
         e.printStackTrace()
     }
 
-    val user = UserService.get(jwsClaims?.body?.subject?.toUUID() ?: error("malformed uuid in jwt"))
+    val user = UserService.get(callContext, jwsClaims?.body?.subject?.toUUID() ?: error("malformed uuid in jwt"))
     logger.debug("got valid JWT for user {${user.get().uuid.toString().take(8)}...}".green())
 
     return SuspendableResult.of { user.get() }

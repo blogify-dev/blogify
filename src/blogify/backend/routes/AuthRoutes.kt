@@ -1,14 +1,5 @@
 package blogify.backend.routes
 
-import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
-import io.ktor.response.respond
-import io.ktor.routing.Route
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.route
-
 import blogify.backend.auth.encoder
 import blogify.backend.auth.jwt.generateJWT
 import blogify.backend.database.Users
@@ -20,6 +11,15 @@ import blogify.backend.util.hash
 import blogify.backend.util.letIn
 import blogify.backend.util.reason
 import blogify.backend.util.singleOrNullOrError
+
+import io.ktor.application.call
+import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
+import io.ktor.response.respond
+import io.ktor.routing.Route
+import io.ktor.routing.get
+import io.ktor.routing.post
+import io.ktor.routing.route
 
 
 /**
@@ -81,7 +81,7 @@ fun Route.auth() {
         post("/signin") {
 
             val credentials = call.receive<LoginCredentials>()
-            val matchingCredentials = UserService.getMatching(Users) { Users.username eq credentials.username }
+            val matchingCredentials = UserService.getMatching(call) { Users.username eq credentials.username }
 
             matchingCredentials.fold (
                 success = { set ->

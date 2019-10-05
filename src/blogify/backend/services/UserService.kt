@@ -1,10 +1,7 @@
 package blogify.backend.services
 
 import blogify.backend.database.Users
-import blogify.backend.database.Users.uuid
 import blogify.backend.resources.User
-import blogify.backend.services.handling.deleteWithIdInTable
-import blogify.backend.services.handling.fetchWithIdFromTable
 import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.Service
 import blogify.backend.database.handling.query
@@ -13,11 +10,7 @@ import com.github.kittinunf.result.coroutines.mapError
 
 import org.jetbrains.exposed.sql.insert
 
-import java.util.*
-
 object UserService : Service<User>(Users) {
-
-    override suspend fun get(id: UUID): ResourceResult<User> = fetchWithIdFromTable(Users, uuid, id)
 
     override suspend fun add(res: User) = query {
         Users.insert {
@@ -30,8 +23,6 @@ object UserService : Service<User>(Users) {
 
         return@query res
     }.mapError { e -> Service.Exception.Creating(e) }
-
-    override suspend fun delete(id: UUID) = deleteWithIdInTable(Users, uuid, id)
 
     override suspend fun update(res: User): ResourceResult<User> {
         TODO("not implemented !")

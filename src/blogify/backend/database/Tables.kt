@@ -13,34 +13,35 @@ import blogify.backend.services.models.Service
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
+import io.ktor.application.ApplicationCall
+
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
-import java.lang.IllegalStateException
-
 abstract class ResourceTable<R : Resource> : Table() {
 
-    abstract suspend fun convert(source: ResultRow): SuspendableResult<R, Service.Exception.Fetching>
+    abstract suspend fun convert(callContext: ApplicationCall, source: ResultRow): SuspendableResult<R, Service.Exception.Fetching>
+
+    val uuid = uuid("uuid").primaryKey()
 
 }
 
 object Articles : ResourceTable<Article>() {
 
-    val uuid       = uuid    ("uuid").primaryKey()
     val title      = varchar ("title", 512)
     val createdAt  = long    ("created_at")
     val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
     val content    = text    ("content")
     val summary    = text    ("summary")
 
-    override suspend fun convert(source: ResultRow) = SuspendableResult.of<Article, Service.Exception.Fetching> { Article (
+    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Article, Service.Exception.Fetching> { Article (
         uuid       = source[uuid],
         title      = source[title],
         createdAt  = source[createdAt],
-        createdBy  = UserService.get(source[createdBy]).get(),
+        createdBy  = UserService.get(callContext, source[createdBy]).get(),
         content    = source[content],
         summary = source[summary],
         categories = transaction {
@@ -63,16 +64,15 @@ object Articles : ResourceTable<Article>() {
 
 object Users : ResourceTable<User>() {
 
-    val uuid     = uuid    ("uuid").primaryKey()
     val username = varchar ("username", 255)
     val password = varchar ("password", 255)
-    val email = varchar ("email", 255)
-    val name  = varchar ("name", 255)
+    val email    = varchar ("email", 255)
+    val name     = varchar ("name", 255)
     init {
         index(true, username)
     }
 
-    override suspend fun convert(source: ResultRow) = SuspendableResult.of<User, Service.Exception.Fetching> { User (
+    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<User, Service.Exception.Fetching> { User (
         uuid     = source[uuid],
         username = source[username],
         password = source[password],
@@ -84,18 +84,17 @@ object Users : ResourceTable<User>() {
 
 object Comments : ResourceTable<Comment>() {
 
-    val uuid          = uuid ("uuid").primaryKey()
     val commenter     = uuid ("commenter").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
     val article       = uuid ("article").references(Articles.uuid, onDelete = ReferenceOption.NO_ACTION)
     val content       = text ("content")
     val parentComment = uuid ("parent_comment").references(uuid).nullable()
 
-    override suspend fun convert(source: ResultRow) = SuspendableResult.of<Comment, Service.Exception.Fetching> { Comment (
+    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Comment, Service.Exception.Fetching> { Comment (
         uuid          = source[uuid],
         content       = source[content],
-        article       = ArticleService.get(source[article]).get(),
-        commenter     = UserService.get(source[commenter]).get(),
-        parentComment = source[parentComment]?.let { CommentService.get(it).get() }
+        article       = ArticleService.get(callContext, source[article]).get(),
+        commenter     = UserService.get(callContext, source[commenter]).get(),
+        parentComment = source[parentComment]?.let { CommentService.get(callContext, it).get() }
     ) }
 
 }

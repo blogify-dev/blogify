@@ -105,7 +105,7 @@ fun logUnusedAuth(func: String) {
  */
 @BlogifyDsl
 suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAll (
-    fetch: suspend (Int) -> ResourceResultSet<R>
+    fetch: suspend (ApplicationCall, Int) -> ResourceResultSet<R>
 ) {
     val params = call.parameters
     val limit = params["amount"]?.toInt() ?: 25
@@ -115,7 +115,8 @@ suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAll (
         logger.debug("slicer: getting all fields".magenta())
     else
         logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
-    fetch(limit).fold (
+
+    fetch(call, limit).fold (
         success = { resources ->
             try {
                 selectedPropertyNames?.let { props ->
@@ -144,8 +145,8 @@ suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAll (
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.fetchWithId (
-    fetch:         suspend (id: UUID)   -> ResourceResult<R>,
-    authPredicate: suspend (user: User) -> Boolean = defaultResourceLessPredicateLambda
+    fetch:         suspend (ApplicationCall, UUID)  -> ResourceResult<R>,
+    authPredicate: suspend (User)                   -> Boolean = defaultResourceLessPredicateLambda
 ) {
     val params = call.parameters
     params["uuid"]?.let { id -> // Check if the query URL provides any UUID
@@ -157,7 +158,7 @@ suspend fun <R : Resource> CallPipeline.fetchWithId (
             logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
 
         val doFetch: CallPipeLineFunction = {
-            fetch.invoke(id.toUUID()).fold (
+            fetch.invoke(call, id.toUUID()).fold (
                 success = { fetched ->
                     try {
                         selectedPropertyNames?.let { props ->
@@ -196,9 +197,9 @@ suspend fun <R : Resource> CallPipeline.fetchWithId (
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.fetchAllWithId (
-    fetch:         suspend (id: UUID)   -> ResourceResultSet<R>,
-    transform:     suspend (elem: R)    -> Any = { it },
-    authPredicate: suspend (user: User) -> Boolean = defaultResourceLessPredicateLambda
+    fetch:         suspend (UUID) -> ResourceResultSet<R>,
+    transform:     suspend (R)    -> Any = { it },
+    authPredicate: suspend (User) -> Boolean = defaultResourceLessPredicateLambda
 ) {
     call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
 
@@ -242,8 +243,8 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
-    noinline create:        suspend (res: R)             -> ResourceResult<R>,
-    noinline authPredicate: suspend (user: User, res: R) -> Boolean = defaultPredicateLambda
+    noinline create:        suspend (R)       -> ResourceResult<R>,
+    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) {
     try {
 
@@ -285,9 +286,9 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
  */
 @BlogifyDsl
 suspend fun <R: Resource> CallPipeline.deleteWithId (
-    fetch:         suspend (id: UUID)           -> ResourceResult<R>,
-    delete:        suspend (id: UUID)           -> ResourceResult<*>,
-    authPredicate: suspend (user: User, res: R) -> Boolean = defaultPredicateLambda
+    fetch:         suspend (ApplicationCall, UUID) -> ResourceResult<R>,
+    delete:        suspend (UUID)                  -> ResourceResult<*>,
+    authPredicate: suspend (User, R)               -> Boolean = defaultPredicateLambda
 ) {
     call.parameters["uuid"]?.let { id ->
 
@@ -301,7 +302,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
         }
 
         if (authPredicate != defaultPredicateLambda) { // Optimization : fetch is only necessary if a predicate is defined
-            fetch.invoke(id.toUUID()).fold (
+            fetch.invoke(call, id.toUUID()).fold (
                 success = {
                     authenticatedBy(predicate = { u -> authPredicate(u, it)}, block = doDelete) // Run provided predicate on authenticated user and provided resource, then run doDelete if the predicate matches
                 }, failure = call::respondExceptionMessage
