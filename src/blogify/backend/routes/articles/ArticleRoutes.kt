@@ -37,16 +37,11 @@ fun Route.articles() {
         }
 
         patch("/{uuid}") {
-            val selectedUUID = call.parameters["uuid"]
-
-            val selectedArticle    = selectedUUID?.toUUID()?.let { ArticleService.get(call, it) }
-            val replacementArticle = call.receive<Article>()
-
-            if (selectedArticle == null)
-                call.respond(HttpStatusCode.NotFound)
-            else {
-                call.respond(ArticleService.update(replacementArticle))
-            }
+            updateWithId(
+                update = ArticleService::update,
+                fetch = ArticleService::get,
+                authPredicate = { user, article -> article.createdBy == user }
+            )
         }
 
         post("/") {

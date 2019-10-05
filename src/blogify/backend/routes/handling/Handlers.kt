@@ -28,7 +28,6 @@
 package blogify.backend.routes.handling
 
 import blogify.backend.auth.handling.authenticatedBy
-import blogify.backend.database.ResourceTable
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.slicing.sanitize
@@ -99,7 +98,6 @@ fun logUnusedAuth(func: String) {
  * **WARNING:** Those property names must *exactly* match property names present in the class of the specific resource type.
  *Users
  * @param fetch the [function][Function] that retrieves the resources
- * @param table the [resource table][ResourceTable] that contains the specified resource in the database
  *
  * @author hamza1311, Benjozork
  */
@@ -313,4 +311,48 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
         }
 
     } ?: call.respond(HttpStatusCode.BadRequest)
+}
+/**
+ * Adds a handler to a [CallPipeline] that handles updating a resource with the given uuid.
+ *
+ * @param R             the type of [Resource] to be created
+ * @param update        the [function][Function] that retrieves that creates the resource using the call
+ * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
+ *
+ * @author hamza1311
+ */
+@Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
+@BlogifyDsl
+suspend inline fun <reified R : Resource> CallPipeline.updateWithId(
+    noinline update: suspend (R) -> ResourceResult<R>,
+    fetch: suspend (ApplicationCall, UUID) -> ResourceResult<R>,
+    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
+) {
+
+    val replacement = call.receive<R>()
+
+    val doUpdate: CallPipeLineFunction = {
+        update(replacement).fold(
+            success = {
+                call.respond(HttpStatusCode.OK)
+            },
+            failure = call::respondExceptionMessage
+        )
+    }
+    
+    replacement.uuid.let { fetch.invoke(call, it) }.fold(
+        success = {
+            if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
+                authenticatedBy(
+                    predicate = { u -> authPredicate(u, replacement) },
+                    block = doUpdate
+                ) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
+            } else {
+                logUnusedAuth("createWithResource")
+                doUpdate(this, Unit) // Run doCreate without checking predicate
+            }
+        },
+        failure = call::respondExceptionMessage
+    )
+
 }

@@ -2,12 +2,10 @@ package blogify.backend.routes.articles
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
 
 import blogify.backend.database.Comments
-import blogify.backend.resources.Comment
 import blogify.backend.routes.handling.*
 import blogify.backend.services.articles.CommentService
 import blogify.backend.util.toUUID
@@ -32,25 +30,19 @@ fun Route.articleComments() {
         }
 
         delete("/{uuid}") {
-            deleteWithId(CommentService::get, CommentService::delete)
+            deleteWithId(CommentService::get, CommentService::delete, authPredicate = { user, comment -> comment.commenter == user })
         }
 
         patch("/{uuid}") {
-            val selectedUUID = call.parameters["uuid"]
-
-            val replacementComment = call.receive<Comment>()
-            val selectedComment = selectedUUID?.toUUID()?.let { CommentService.get(call, it) }
-
-            if (selectedComment == null)
-                call.respond(HttpStatusCode.NotFound)
-            else {
-                CommentService.update(replacementComment)
-                call.respond(HttpStatusCode.OK)
-            }
+            updateWithId(
+                update = CommentService::update,
+                fetch = CommentService::get,
+                authPredicate = { user, comment -> comment.commenter == user }
+            )
         }
 
         post("/") {
-            createWithResource(CommentService::add)
+            createWithResource(CommentService::add, authPredicate = { user, comment -> comment.commenter == user })
         }
 
         get("/tree/{uuid}") {
