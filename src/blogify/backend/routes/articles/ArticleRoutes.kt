@@ -17,16 +17,16 @@ fun Route.articles() {
     route("/articles") {
 
         get("/") {
-            fetchAndRespondWithAll(ArticleService::getAll)
+            fetchAll(ArticleService::getAll)
         }
 
         get("/{uuid}") {
-            fetchWithIdAndRespond(ArticleService::get)
+            fetchWithId(ArticleService::get)
         }
 
         get("/forUser/{uuid}") {
-            handleIdentifiedResourceFetchAll(fetch = { userId ->
-                ArticleService.getMatching(Articles) {
+            fetchAllWithId(fetch = { userId ->
+                ArticleService.getMatching(call) {
                     Articles.createdBy eq userId
                 }
             })
@@ -37,25 +37,16 @@ fun Route.articles() {
         }
 
         patch("/{uuid}") {
-            val selectedUUID = call.parameters["uuid"]
-
-            val selectedArticle    = selectedUUID?.toUUID()?.let { ArticleService.get(it) }
-            val replacementArticle = call.receive<Article>()
-
-            if (selectedArticle == null)
-                call.respond(HttpStatusCode.NotFound)
-            else {
-                call.respond(ArticleService.update(replacementArticle))
-            }
+            updateWithId(
+                update = ArticleService::update,
+                fetch = ArticleService::get,
+                authPredicate = { user, article -> article.createdBy == user }
+            )
         }
 
         post("/") {
             createWithResource(ArticleService::add, authPredicate = { user, article -> article.createdBy == user })
         }
-
-        articleContent()
-
-        articleCategories()
 
         articleComments()
 

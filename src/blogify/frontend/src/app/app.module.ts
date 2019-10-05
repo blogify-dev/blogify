@@ -10,13 +10,13 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { HomeComponent } from './components/home/home.component';
 import { RouterModule } from "@angular/router";
 import { NewArticleComponent } from './components/newarticle/new-article.component';
-import { SearchComponent } from './components/search/search.component';
 import { ShowArticleComponent } from './components/show-article/show-article.component';
 import { ShowAllArticlesComponent } from './components/show-all-articles/show-all-articles.component';
 import { CommentComponent } from './components/comment/comment.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
+import { CompactDirective } from './directives/compact/compact.directive';
 
 
 @NgModule({
@@ -26,12 +26,12 @@ import { AngularFontAwesomeModule } from 'angular-font-awesome';
         ProfileComponent,
         HomeComponent,
         NewArticleComponent,
-        SearchComponent,
         ShowArticleComponent,
         ShowAllArticlesComponent,
         CommentComponent,
         NavbarComponent,
-        DarkThemeDirective
+        DarkThemeDirective,
+        CompactDirective
     ],
     imports: [
         BrowserModule,

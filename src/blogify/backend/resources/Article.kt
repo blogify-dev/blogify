@@ -2,9 +2,7 @@ package blogify.backend.resources
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.JsonIdentityReference
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
-import com.fasterxml.jackson.annotation.JsonProperty.Access.*
 
 import blogify.backend.database.Articles
 import blogify.backend.resources.models.Resource
@@ -36,27 +34,14 @@ data class Article (
     @JsonIdentityReference(alwaysAsId = true)
     val createdBy: User,
 
-    @JsonProperty(access = WRITE_ONLY)
-    val content: Content?,
+    val content: String,
+
+    val summary: String,
 
     val categories: List<Category>,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid) {
-
-    /**
-     * Represents the content of an [Article].
-     *
-     * @property text    The text content of the article.
-     * @property summary The summary of the content.
-     */
-    data class Content(val text: String, val summary: String)
-
-    suspend fun content(): Content = query {
-        Articles.Content.select {
-            Articles.Content.article eq this@Article.uuid
-        }.single().let { Articles.Content.convert(it) }
-    }.get()
 
     /**
      * Represents the categories of an [Article].

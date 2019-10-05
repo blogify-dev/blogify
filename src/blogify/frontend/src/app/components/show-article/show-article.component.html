@@ -1,23 +1,23 @@
 <p>show-article works!</p>
-<div *ngIf="article && articleContent && articleAuthor">
+<div *ngIf="article">
     <h3>{{article.title}}</h3>
 
     <p>Categories</p>
     <ul>
         <li *ngFor="let cat of article.categories">{{cat.name}}</li>
     </ul>
-    <p>{{articleContent.text}}</p>
-    <p>{{articleContent.summary}}</p>
+    <p>{{article.content}}</p>
+    <p>{{article.summary}}</p>
     <p>UUID: {{article.uuid}}</p>
     <p>Created at: {{convertTimeStampToHumanDate(article.createdAt)}}</p>
-    <p>Created by {{articleAuthor.username}}</p>
+    <p>Created by {{article.createdBy.username}}</p>
 
     <h4>comments:</h4>
     <app-comment [articleUUID]="article.uuid"></app-comment>
 
     <!-- TODO: Pass in endpoint/article uuid info to delete article-->
     <h5 class="delete-article">
-        <button (click)="deleteArticle(article.uuid)">Delete Article</button>
+        <button (click)="deleteArticle()">Delete Article</button>
     </h5>
 </div>
 New Comment: <input [(ngModel)]="comment.content">

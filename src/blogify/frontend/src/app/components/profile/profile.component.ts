@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { User } from 'src/app/models/User';
@@ -15,22 +15,20 @@ export class ProfileComponent implements OnInit, OnDestroy {
     routeMapSubscription: Subscription;
     user: User;
     articles: Article[];
-    article: Article;
 
     constructor(
         private activatedRoute: ActivatedRoute,
         private authService: AuthService,
         private articleService: ArticleService,
-        private router: Router
     ) {}
 
     ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const userUUID = map.get('uuid');
             this.user = this.authService.userProfile;
-            this.articleService.getAllArticleByUUID(userUUID).then(it => {
+            this.articleService.getArticleByForUser(userUUID).then(it => {
                 this.articles = it
-            })
+            });
             console.log(userUUID);
             console.log(this.user)
         })

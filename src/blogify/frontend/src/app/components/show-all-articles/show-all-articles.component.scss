@@ -3,9 +3,12 @@
 @import "../../../styles/layouts";
 @import "../../../styles/mixins";
 
-.articles {
+:host {
+    &.no-padding       { .articles { @include pageContainer(false) } }
+    &:not(.no-padding) { .articles { @include pageContainer(true) } }
+}
 
-    @include pageContainer;
+.articles {
 
     #articles-header {
 

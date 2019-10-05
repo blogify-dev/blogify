@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Article, Content } from '../../models/Article'
+import { Article } from '../../models/Article'
 import { Observable } from 'rxjs';
 import { AuthService } from "../auth/auth.service";
 import * as uuid from "uuid/v4";
@@ -12,58 +12,17 @@ export class ArticleService {
 
     constructor(private httpClient: HttpClient, private authService: AuthService) {}
 
-    async getAllArticles(): Promise<Article[]> {
-        const articlesObs = this.httpClient.get<Article[]>('/api/articles/');
-        const articles = await articlesObs.toPromise();
-        const out: Article[] = [];
-
-        for (const it of articles) {
-            const copy = it;
-            const promises = await Promise.all([
-                this.authService.fetchUser(`${it.createdBy}`),
-                this.getArticleContent(copy.uuid).toPromise()
-            ]);
-            copy.createdBy = promises[0];
-            copy.content = promises[1];
-            out.push(copy);
-        }
-
-        console.log(out);
-
-        return out
+    async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {
+        const articlesObs = this.httpClient.get<Article[]>(`/api/articles/?fields=${fields.join(',')}&amount=${amount}`);
+        return articlesObs.toPromise();
     }
 
-    getArticleByUUID(uuid: string): Observable<Article> {
-        return this.httpClient.get<Article>(`/api/articles/${uuid}`)
+    async getArticleByUUID(uuid: string, fields: string[] = []): Promise<Article> {
+        return this.httpClient.get<Article>(`/api/articles/${uuid}?fields=${fields.join(',')}`).toPromise()
     }
 
-    async getAllArticleByUUID(uuid: string, userToken: string = this.authService.userToken): Promise<Article[]> {
-
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${userToken}`
-            })
-        };
-
-        const articlesUUIDObs = this.httpClient.get<Article[]>(`/api/articles/forUser/${uuid}`, httpOptions);
-        const articlesUUID = await articlesUUIDObs.toPromise();
-        const out: Article[] = [];
-
-        for (const it of articlesUUID) {
-            const copy = it;
-            const promises = await Promise.all([
-                this.authService.fetchUser(`${it.createdBy}`),
-                this.getArticleContent(copy.uuid).toPromise()
-            ]);
-            copy.createdBy = promises[0];
-            copy.content = promises[1];
-            out.push(copy);
-        }
-
-        console.log(out);
-
-        return out
+    async getArticleByForUser(uuid: string): Promise<Article[]> {
+        return this.httpClient.get<Article[]>(`/api/articles/forUser/${uuid}?fields=title,createdBy,content,summary,uuid,categories`).toPromise();
     }
 
     async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<Object> {
@@ -75,12 +34,13 @@ export class ArticleService {
             })
         };
 
-        const {content, title, categories} = article;
+        const {content, title, summary, categories} = article;
 
         const newArticle = {
             uuid: uuid(),
             content: content,
             title: title,
+            summary: summary,
             categories: categories,
             createdBy: this.authService.userUUID,
         };
@@ -97,17 +57,12 @@ export class ArticleService {
             })
         };
 
-        return this.httpClient.patch<Article>(`/api/articles/${uuid}`, article)
+        return this.httpClient.patch<Article>(`/api/articles/${uuid}`, article, httpOptions)
     }
 
     // noinspection JSUnusedGlobalSymbols
     deleteArticle(uuid: string) {
         return this.httpClient.delete(`api/articles/${uuid}`)
-    }
-
-    // noinspection JSUnusedGlobalSymbols
-    getArticleContent(uuid: string) {
-        return this.httpClient.get<Content>(`/api/articles/content/${uuid}`)
     }
 
 }

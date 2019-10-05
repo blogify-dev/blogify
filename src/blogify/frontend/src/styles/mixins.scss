@@ -1,18 +1,25 @@
 @import "queries";
 
-@mixin pageContainer {
+
+@mixin pageContainer($padding: true) {
     background-color: var(--body-bg);
 
-    padding: 2em 1.25em;
-    @media (min-width: $query-desktop) {
-        padding: 3em;
+    @if ($padding) {
+        padding: 2em 1.25em;
+        @media (min-width: $query-desktop) {
+            padding: 3em;
+        }
     }
 
-
-    width: calc((100% / 3) * 2);
-    @media (min-width: 0) and (max-width: 1200px) {
+    @if ($padding) {
+        width: calc((100% / 3) * 2);
+        @media (min-width: 0) and (max-width: 1200px) {
+            width: 100%;
+        }
+    } @else {
         width: 100%;
     }
+
 }
 
 @mixin pageContainerHeader {

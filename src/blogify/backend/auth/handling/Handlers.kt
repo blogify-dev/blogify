@@ -53,7 +53,7 @@ suspend fun CallPipeline.authenticatedBy(predicate: UserAuthPredicate, block: Ca
         return
     }
 
-    validateJwt(token).fold (
+    validateJwt(call, token).fold (
         success = { u ->
             if (predicate.invoke(u)) { // Check token against predicate
                 block.invoke(this, Unit)

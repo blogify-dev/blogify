@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Article, Content } from "../../models/Article";
+import { Article } from "../../models/Article";
 import { ArticleService } from "../../services/article/article.service";
 import { Subscription } from 'rxjs';
-import { User } from "../../models/User";
 import { Comment } from "../../models/Comment"
-import { AuthService } from "../../services/auth/auth.service";
 
 @Component({
     selector: 'app-show-article',
@@ -23,13 +21,9 @@ export class ShowArticleComponent implements OnInit {
        content: ''
     };
 
-    articleContent: Content;
-    articleAuthor: User;
-
     constructor(
         private activatedRoute: ActivatedRoute,
         private articleService: ArticleService,
-        private authService: AuthService
     ) {
     }
 
@@ -38,14 +32,12 @@ export class ShowArticleComponent implements OnInit {
             const articleUUID = map.get('uuid');
             console.log(articleUUID);
 
-            this.article = await this.articleService.getArticleByUUID(articleUUID).toPromise();
+            this.article = await this.articleService.getArticleByUUID (
+                articleUUID,
+                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories']
+            );
+
             console.log(this.article);
-
-            this.articleContent = await this.articleService.getArticleContent(articleUUID).toPromise();
-            console.log(this.articleContent);
-
-            this.articleAuthor = await this.authService.fetchUser(this.article.createdBy.toString());
-            console.log(this.articleAuthor.username);
         })
     }
 
@@ -53,7 +45,7 @@ export class ShowArticleComponent implements OnInit {
         return new Date(time).toDateString()
     }
 
-    deleteArticle(uuid){
+    deleteArticle(){
         return this.articleService.deleteArticle(this.article.uuid);
     }
 
