@@ -1,36 +1,52 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Article } from '../../models/Article'
-import { Observable } from 'rxjs';
-import { AuthService } from "../auth/auth.service";
-import * as uuid from "uuid/v4";
+/* tslint:disable:no-shadowed-variable */
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Article} from '../../models/Article';
+import {AuthService} from '../auth/auth.service';
+import * as uuid from 'uuid/v4';
+import {User} from '../../models/User';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ArticleService {
 
-    constructor(private httpClient: HttpClient, private authService: AuthService) {}
+    constructor(private httpClient: HttpClient, private authService: AuthService) {
+    }
 
     async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {
         const articlesObs = this.httpClient.get<Article[]>(`/api/articles/?fields=${fields.join(',')}&amount=${amount}`);
-        return articlesObs.toPromise();
+        const articles = await articlesObs.toPromise();
+        const promises: Promise<User>[] = [];
+        articles.forEach(it => {
+            promises.push(this.authService.fetchUser(it.createdBy.toString()));
+        });
+        const users = await Promise.all(promises);
+        const out: Article[] = [];
+        articles.forEach((article, index) => {
+            const copy = article;
+            copy.createdBy = users[index];
+            out.push(copy);
+        });
+        return out;
     }
 
     async getArticleByUUID(uuid: string, fields: string[] = []): Promise<Article> {
-        return this.httpClient.get<Article>(`/api/articles/${uuid}?fields=${fields.join(',')}`).toPromise()
+        const article =  await this.httpClient.get<Article>(`/api/articles/${uuid}?fields=${fields.join(',')}`).toPromise();
+        article.createdBy = await this.authService.fetchUser(article.createdBy.toString());
+        return article;
     }
 
-    async getArticleByForUser(uuid: string): Promise<Article[]> {
-        return this.httpClient.get<Article[]>(`/api/articles/forUser/${uuid}?fields=title,createdBy,content,summary,uuid,categories`).toPromise();
+    async getArticleByForUser(uuid: string, fields: string[] = []): Promise<Article[]> {
+        return this.httpClient.get<Article[]>(`/api/articles/forUser/${uuid}?fields=${fields.join(',')}`).toPromise();
     }
 
-    async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<Object> {
+    async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<object> {
 
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${userToken}`
+                Authorization: `Bearer ${userToken}`
             })
         };
 
@@ -38,31 +54,38 @@ export class ArticleService {
 
         const newArticle = {
             uuid: uuid(),
-            content: content,
-            title: title,
-            summary: summary,
-            categories: categories,
+            content,
+            title,
+            summary,
+            categories,
             createdBy: this.authService.userUUID,
         };
 
-        return this.httpClient.post(`/api/articles/`, newArticle, httpOptions).toPromise()
+        return this.httpClient.post(`/api/articles/`, newArticle, httpOptions).toPromise();
     }
 
     // noinspection JSUnusedGlobalSymbols
-    updateArticle(uuid: string, article: Article, userToken: string) {
+    updateArticle(uuid: string, article: Article, userToken: string = this.authService.userToken) {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${userToken}`
+                Authorization: `Bearer ${userToken}`
             })
         };
 
-        return this.httpClient.patch<Article>(`/api/articles/${uuid}`, article, httpOptions)
+        return this.httpClient.patch<Article>(`/api/articles/${uuid}`, article, httpOptions);
     }
 
     // noinspection JSUnusedGlobalSymbols
-    deleteArticle(uuid: string) {
-        return this.httpClient.delete(`api/articles/${uuid}`)
+    deleteArticle(uuid: string, userToken: string = this.authService.userToken) {
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${userToken}`
+            })
+        };
+
+        return this.httpClient.delete(`api/articles/${uuid}`, httpOptions);
     }
 
 }

@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Article } from "../../models/Article";
-import { ArticleService } from "../../services/article/article.service";
+import { Article } from '../../models/Article';
+import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
-import { Comment } from "../../models/Comment"
+import { Comment } from '../../models/Comment';
 
 @Component({
     selector: 'app-show-article',
@@ -33,18 +33,18 @@ export class ShowArticleComponent implements OnInit {
 
             this.article = await this.articleService.getArticleByUUID (
                 articleUUID,
-                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories']
+                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
             );
 
             console.log(this.article);
-        })
+        });
     }
 
     convertTimeStampToHumanDate(time: number): string {
-        return new Date(time).toDateString()
+        return new Date(time).toDateString();
     }
 
-    deleteArticle(){
+    deleteArticle() {
         return this.articleService.deleteArticle(this.article.uuid);
     }
 

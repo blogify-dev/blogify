@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { User } from 'src/app/models/User';
-import {Article} from "../../models/Article";
-import {ArticleService} from "../../services/article/article.service";
+import { Article } from '../../models/Article';
+import { ArticleService } from '../../services/article/article.service';
 
 @Component({
     selector: 'app-profile',
@@ -20,24 +20,27 @@ export class ProfileComponent implements OnInit, OnDestroy {
         private activatedRoute: ActivatedRoute,
         private authService: AuthService,
         private articleService: ArticleService,
-    ) {}
+    ) {
+    }
 
     ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const userUUID = map.get('uuid');
             this.user = this.authService.userProfile;
-            this.articleService.getArticleByForUser(userUUID).then(it => {
-                this.articles = it
+            this.articleService.getArticleByForUser(userUUID,
+                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories']
+            ).then(it => {
+                this.articles = it;
             });
             console.log(userUUID);
-            console.log(this.user)
-        })
+            console.log(this.user);
+        });
 
 
     }
 
     ngOnDestroy() {
-        this.routeMapSubscription.unsubscribe()
+        this.routeMapSubscription.unsubscribe();
     }
 
 }
