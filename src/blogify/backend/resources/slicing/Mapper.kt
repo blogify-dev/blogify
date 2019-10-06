@@ -97,7 +97,7 @@ fun <R : Resource> R.cachedPropMap(): PropMap {
     return cached
 }
 
-fun <TResource: Resource> KClass<TResource>.cachedPropMap(): PropMap {
+fun <TResource : Resource> KClass<TResource>.cachedPropMap(): PropMap {
     var cached: PropMap? = propMapCache[this]
     if (cached == null) {
         cached = this.buildPropMap()

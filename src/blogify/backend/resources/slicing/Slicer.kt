@@ -2,7 +2,6 @@ package blogify.backend.resources.slicing
 
 import blogify.backend.resources.models.Resource
 import blogify.backend.util.noslice
-import kotlin.reflect.KProperty1
 
 import kotlin.reflect.full.declaredMemberProperties
 
@@ -93,7 +92,7 @@ fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any?
         add("uuid")
     }
 
-        val unknownProperties = mutableSetOf<String>()
+    val unknownProperties = mutableSetOf<String>()
     val accessDeniedProperties = mutableSetOf<String>()
 
     return selectedPropertiesSanitized.associateWith { propName ->

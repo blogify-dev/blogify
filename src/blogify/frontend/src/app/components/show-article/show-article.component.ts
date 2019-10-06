@@ -24,8 +24,7 @@ export class ShowArticleComponent implements OnInit {
     constructor(
         private activatedRoute: ActivatedRoute,
         private articleService: ArticleService,
-    ) {
-    }
+    ) {}
 
     ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
