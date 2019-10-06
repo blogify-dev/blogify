@@ -2,6 +2,7 @@ package blogify.backend.resources.slicing
 
 import blogify.backend.resources.models.Resource
 import blogify.backend.util.noslice
+import kotlin.reflect.KProperty1
 
 import kotlin.reflect.full.declaredMemberProperties
 
@@ -18,6 +19,14 @@ sealed class SlicedProperty(val name: String) {
      * @param value the value that was fetched
      */
     class Value(name: String, val value: Any) : SlicedProperty(name)
+
+    /**
+     * Represents a successfully fetched nullable property value, available in [value]
+     *
+     * @param name  the name of the requested (and in this case returned) property
+     * @param value the nullable value that was fetched
+     */
+    class NullableValue(name: String, val value: Any?) : SlicedProperty(name)
 
     /**
      * Represents a property that was not found on the instance class
@@ -54,7 +63,13 @@ private fun <R : Resource> getPropValueOnInstance(instance: R, propertyName: Str
         .entries.firstOrNull { (name, _) -> name == propertyName }
         ?.value?.let { handle ->
             return when (handle) {
-                is PropertyHandle.Ok           -> SlicedProperty.Value(handle.name, handle.property.get(instance))
+                is PropertyHandle.Ok -> {
+                    if (handle.property.returnType.isMarkedNullable) {
+                        SlicedProperty.NullableValue(propertyName, handle.property.get(instance))
+                    } else {
+                        SlicedProperty.Value(propertyName, handle.property.get(instance))
+                    }
+                }
                 is PropertyHandle.AccessDenied -> SlicedProperty.AccessNotAllowed(handle.name)
             }
         } ?: SlicedProperty.NotFound(propertyName)
@@ -71,19 +86,20 @@ private fun <R : Resource> getPropValueOnInstance(instance: R, propertyName: Str
  *
  * @author hamza1311, Benjozork
  */
-fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any> {
+fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any?> {
 
     val selectedPropertiesSanitized = selectedPropertyNames.toMutableSet().apply {
         removeIf { it == "uuid" || it == "UUID" }
         add("uuid")
     }
 
-    val unknownProperties = mutableSetOf<String>()
+        val unknownProperties = mutableSetOf<String>()
     val accessDeniedProperties = mutableSetOf<String>()
 
     return selectedPropertiesSanitized.associateWith { propName ->
         when (val result = getPropValueOnInstance<Resource>(this, propName)) {
             is SlicedProperty.Value            -> result.value
+            is SlicedProperty.NullableValue    -> result.value
             is SlicedProperty.NotFound         -> unknownProperties += result.name
             is SlicedProperty.AccessNotAllowed -> accessDeniedProperties += result.name
         }
@@ -104,7 +120,7 @@ fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any>
  *
  * @author Benjozork
  */
-fun <R : Resource> R.sanitize(): Map<String, Any> {
+fun <R : Resource> R.sanitize(): Map<String, Any?> {
     val sanitizedClassProps = this::class.declaredMemberProperties
         .asSequence()
         .filter { it.annotations.none { a -> a.annotationClass == noslice::class } }
