@@ -196,19 +196,38 @@ suspend fun <R : Resource> CallPipeline.fetchWithId (
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.fetchAllWithId (
     fetch:         suspend (UUID) -> ResourceResultSet<R>,
-    transform:     suspend (R)    -> Any = { it },
+    transform:     suspend (R)    -> Resource = { it },
     authPredicate: suspend (User) -> Boolean = defaultResourceLessPredicateLambda
 ) {
+    val params = call.parameters
+
     call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
+
+        val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
+
+        if (selectedPropertyNames == null)
+            logger.debug("slicer: getting all fields".magenta())
+        else
+            logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
 
         val doFetch: CallPipeLineFunction = {
             fetch.invoke(id.toUUID()).fold (
                 success = { fetchedSet ->
                     if (fetchedSet.isNotEmpty()) {
-                        SuspendableResult.of<Set<Any>, Service.Exception> {
+                        SuspendableResult.of<Set<Resource>, Service.Exception> {
                             fetchedSet.map { transform.invoke(it) }.toSet() // Cover for any errors in transform()
                         }.fold (
-                            success = call::respond,
+                            success = { fetched ->
+                                try {
+                                    selectedPropertyNames?.let { props ->
+
+                                        call.respond(fetched.map { it.slice(props) })
+
+                                    } ?: call.respond(fetched.map { it.sanitize() })
+                                } catch (bruhMoment: Service.Exception) {
+                                    call.respondExceptionMessage(bruhMoment)
+                                }
+                            },
                             failure = call::respondExceptionMessage
                         )
                     } else {
