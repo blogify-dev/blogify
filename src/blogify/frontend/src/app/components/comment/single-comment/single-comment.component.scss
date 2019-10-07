@@ -1,0 +1,14 @@
+.comment {
+    display:         flex;
+    flex-direction:  column;
+    justify-content: stretch;
+
+    padding: 1em;
+
+    border: 1px solid var(--border-color);
+
+    .comment-user {
+        .user-username { font-size: 1.25em; }
+    }
+
+}
