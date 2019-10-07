@@ -1,0 +1,10 @@
+<p>create-comment works!</p>
+
+<div id="new-comment" *ngIf="isLoggedIn()">
+
+    <input type="text" id="comment-text" [(ngModel)]="commentContent">
+
+    <button id="comment-submit" (click)="createCommentOnArticle()"></button>
+
+</div>
+
