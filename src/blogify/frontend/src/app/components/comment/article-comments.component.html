@@ -2,7 +2,6 @@
 
 <div *ngIf="comments">
     <div *ngFor="let comment of comments">
-        <p>{{comment.content}}</p>
-        <p>uuid: {{comment.uuid}}</p>
+        <app-single-comment [comment]="comment"></app-single-comment>
     </div>
 </div>

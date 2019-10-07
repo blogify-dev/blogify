@@ -12,11 +12,12 @@ import { RouterModule } from "@angular/router";
 import { NewArticleComponent } from './components/newarticle/new-article.component';
 import { ShowArticleComponent } from './components/show-article/show-article.component';
 import { ShowAllArticlesComponent } from './components/show-all-articles/show-all-articles.component';
-import { CommentComponent } from './components/comment/comment.component';
+import { ArticleCommentsComponent } from './components/comment/article-comments.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { CompactDirective } from './directives/compact/compact.directive';
+import { SingleCommentComponent } from './components/comment/single-comment/single-comment.component';
 
 
 @NgModule({
@@ -28,10 +29,11 @@ import { CompactDirective } from './directives/compact/compact.directive';
         NewArticleComponent,
         ShowArticleComponent,
         ShowAllArticlesComponent,
-        CommentComponent,
+        ArticleCommentsComponent,
         NavbarComponent,
         DarkThemeDirective,
-        CompactDirective
+        CompactDirective,
+        SingleCommentComponent
     ],
     imports: [
         BrowserModule,

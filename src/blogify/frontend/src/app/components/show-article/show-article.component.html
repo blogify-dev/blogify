@@ -13,11 +13,18 @@
     <p>Created by {{article.createdBy.username}}</p>
 
     <h4>comments:</h4>
-    <app-comment [articleUUID]="article.uuid"></app-comment>
+    <app-article-comments [articleUUID]="article.uuid"></app-article-comments>
 
     <!-- TODO: Pass in endpoint/article uuid info to delete article-->
     <h5 class="delete-article">
         <button (click)="deleteArticle()">Delete Article</button>
     </h5>
 </div>
-New Comment: <input [(ngModel)]="comment.content">
+
+<div id="new-comment" *ngIf="authService.userToken != ''">
+
+    <input type="text" id="comment-text" [ngModel]="comment.content">
+
+    <button id="comment-submit" (click)="commentsService.createComment(comment)"></button>
+
+</div>

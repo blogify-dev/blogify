@@ -1,22 +1,22 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Comment} from '../../models/Comment';
-import {AuthService} from '../auth/auth.service';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Comment } from '../../models/Comment';
+import { AuthService } from '../auth/auth.service';
+
+const commentsEndpoint = '/api/articles/comments';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CommentsService {
-    private commentsEndpoint = '/api/articles/comments';
 
-    constructor(private httpClient: HttpClient, private authService: AuthService) {
+    constructor(private httpClient: HttpClient, private authService: AuthService) {}
+
+    async getCommentsForArticle(articleUUID: string): Promise<Comment[]> {
+        return this.httpClient.get<Comment[]>(`${commentsEndpoint}/${articleUUID}`).toPromise();
     }
 
-    getCommentsForArticle(articleUUID: string) {
-        return this.httpClient.get<Comment[]>(`${this.commentsEndpoint}/${articleUUID}`);
-    }
-
-    deleteComment(commentUUID: string, userToken: string = this.authService.userToken) {
+    async deleteComment(commentUUID: string, userToken: string = this.authService.userToken): Promise<Object> {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
@@ -24,16 +24,17 @@ export class CommentsService {
             })
         };
 
-        return this.httpClient.delete(`${this.commentsEndpoint}/${commentUUID}`, httpOptions);
+        return this.httpClient.delete(`${commentsEndpoint}/${commentUUID}`, httpOptions);
     }
 
-    createComment(comment: Comment, userToken: string = this.authService.userToken) {
+    async createComment(comment: Comment, userToken: string = this.authService.userToken): Promise<Object> {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${userToken}`
             })
         };
-        return this.httpClient.post(`${this.commentsEndpoint}`, comment, httpOptions);
+
+        return this.httpClient.post(`${commentsEndpoint}`, comment, httpOptions);
     }
 }

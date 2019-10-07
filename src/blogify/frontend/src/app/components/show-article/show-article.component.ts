@@ -4,6 +4,8 @@ import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
 import { Comment } from '../../models/Comment';
+import {CommentsService} from '../../services/comments/comments.service';
+import {AuthService} from '../../services/auth/auth.service';
 
 @Component({
     selector: 'app-show-article',
@@ -11,6 +13,7 @@ import { Comment } from '../../models/Comment';
     styleUrls: ['./show-article.component.scss']
 })
 export class ShowArticleComponent implements OnInit {
+
     routeMapSubscription: Subscription;
     article: Article;
 
@@ -21,9 +24,11 @@ export class ShowArticleComponent implements OnInit {
        content: ''
     };
 
-    constructor(
+    constructor (
         private activatedRoute: ActivatedRoute,
         private articleService: ArticleService,
+        private commentsService: CommentsService,
+        private authService: AuthService
     ) {}
 
     ngOnInit() {
