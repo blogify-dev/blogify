@@ -12,9 +12,10 @@ export class SingleCommentComponent implements OnInit {
 
     isReady: boolean = false;
 
-    @Input() private comment: Comment;
+    @Input()
+    comment: Comment;
 
-    private user: User;
+    user: User;
 
     constructor(private userService: AuthService) {}
 

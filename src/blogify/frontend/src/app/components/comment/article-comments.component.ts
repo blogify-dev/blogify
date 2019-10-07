@@ -12,7 +12,7 @@ export class ArticleCommentsComponent implements OnInit {
 
     @Input() private articleUUID: string;
 
-    private comments: Comment[];
+    comments: Comment[];
 
     constructor(private commentService: CommentsService, private authService: AuthService) {}
 

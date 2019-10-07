@@ -27,8 +27,8 @@ export class ShowArticleComponent implements OnInit {
     constructor (
         private activatedRoute: ActivatedRoute,
         private articleService: ArticleService,
-        private commentsService: CommentsService,
-        private authService: AuthService
+        public commentsService: CommentsService,
+        public authService: AuthService
     ) {}
 
     ngOnInit() {
