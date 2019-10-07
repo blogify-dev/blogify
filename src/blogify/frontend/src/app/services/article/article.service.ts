@@ -4,7 +4,6 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Article} from '../../models/Article';
 import {AuthService} from '../auth/auth.service';
 import * as uuid from 'uuid/v4';
-import {User} from '../../models/User';
 
 @Injectable({
     providedIn: 'root'
@@ -17,15 +16,15 @@ export class ArticleService {
     async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {
         const articlesObs = this.httpClient.get<Article[]>(`/api/articles/?fields=${fields.join(',')}&amount=${amount}`);
         const articles = await articlesObs.toPromise();
-        const promises: Promise<User>[] = [];
+        const userUUIDs = new Set<string>();
         articles.forEach(it => {
-            promises.push(this.authService.fetchUser(it.createdBy.toString()));
+            userUUIDs.add(it.createdBy.toString());
         });
-        const users = await Promise.all(promises);
+        const users = await Promise.all(([...userUUIDs]).map(it => this.authService.fetchUser(it.toString())));
         const out: Article[] = [];
-        articles.forEach((article, index) => {
+        articles.forEach((article) => {
             const copy = article;
-            copy.createdBy = users[index];
+            copy.createdBy = users.find((user) => user.uuid === article.createdBy.toString());
             out.push(copy);
         });
         return out;
