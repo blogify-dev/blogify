@@ -21,10 +21,10 @@
     </h5>
 </div>
 
-<div id="new-comment" *ngIf="authService.userToken != ''">
+<div id="new-comment" *ngIf="isLoggedIn()">
 
-    <input type="text" id="comment-text" [ngModel]="comment.content">
+    <input type="text" id="comment-text" [(ngModel)]="comment.content">
 
-    <button id="comment-submit" (click)="commentsService.createComment(comment)"></button>
+    <button id="comment-submit" (click)="createCommentOnArticle()"></button>
 
 </div>

@@ -35,6 +35,6 @@ export class CommentsService {
             })
         };
 
-        return this.httpClient.post(`${commentsEndpoint}`, comment, httpOptions);
+        return this.httpClient.post(`${commentsEndpoint}`, comment, httpOptions).toPromise();
     }
 }
