@@ -41,7 +41,7 @@ export class ShowArticleComponent implements OnInit {
     }
 
     deleteArticle() {
-        return this.articleService.deleteArticle(this.article.uuid);
+        this.articleService.deleteArticle(this.article.uuid).then(it => console.log(it));
     }
 
 
