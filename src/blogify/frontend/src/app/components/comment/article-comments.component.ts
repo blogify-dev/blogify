@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { CommentsService } from '../../services/comments/comments.service';
 import { Comment } from '../../models/Comment';
 import { Article } from '../../models/Article';
+import {AuthService} from '../../services/auth/auth.service';
 
 @Component({
     selector: 'app-article-comments',
@@ -14,7 +15,7 @@ export class ArticleCommentsComponent implements OnInit {
 
     comments: Comment[];
 
-    constructor(private commentService: CommentsService) {}
+    constructor(private commentService: CommentsService, public authService: AuthService) {}
 
     ngOnInit() {
         this.commentService.getCommentsForArticle(this.article).then(it => {
@@ -24,5 +25,9 @@ export class ArticleCommentsComponent implements OnInit {
 
     getNewComment(comment: Comment) {
         this.comments.push(comment);
+    }
+
+    isLoggedIn(): boolean {
+        return this.authService.userToken !== '';
     }
 }

@@ -29,8 +29,6 @@ export class CreateCommentComponent implements OnInit {
             this.article.uuid,
             this.authService.userUUID
         ).then((comment) => {
-            console.log("fhdjk");
-            console.log(comment);
             if (comment) {
                 const newComment: Comment = {
                     uuid: comment['uuid'],
@@ -45,10 +43,6 @@ export class CreateCommentComponent implements OnInit {
                 alert('Error occurred');
             }
         });
-    }
-
-    isLoggedIn(): boolean {
-        return this.authService.userToken !== '';
     }
 
 }
