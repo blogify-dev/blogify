@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { AuthService } from '../../services/auth/auth.service';
-import { CommentsService } from "../../services/comments/comments.service";
-import { Comment } from "../../models/Comment";
+import { CommentsService } from '../../services/comments/comments.service';
+import { Comment } from '../../models/Comment';
+import { Article } from '../../models/Article';
 
 @Component({
     selector: 'app-article-comments',
@@ -10,16 +10,19 @@ import { Comment } from "../../models/Comment";
 })
 export class ArticleCommentsComponent implements OnInit {
 
-    @Input() private articleUUID: string;
+    @Input() private article: Article;
 
     comments: Comment[];
 
-    constructor(private commentService: CommentsService, private authService: AuthService) {}
+    constructor(private commentService: CommentsService) {}
 
     ngOnInit() {
-        this.commentService.getCommentsForArticle(this.articleUUID).then(it => {
-            this.comments = it
-        })
+        this.commentService.getCommentsForArticle(this.article).then(it => {
+            this.comments = it;
+        });
     }
 
+    getNewComment(comment: Comment) {
+        this.comments.push(comment);
+    }
 }

@@ -5,3 +5,5 @@
         <app-single-comment [comment]="comment"></app-single-comment>
     </div>
 </div>
+
+<app-create-comment [article]="article" (comment)="getNewComment($event)"></app-create-comment>

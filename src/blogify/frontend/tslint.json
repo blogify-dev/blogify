@@ -10,6 +10,7 @@
     "contextual-lifecycle": true,
     "space-before-function-paren": false,
     "directive-class-suffix": true,
+    "no-trailing-whitespace": false,
     "directive-selector": [
       true,
       "attribute",

@@ -1,7 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Comment } from '../../../models/Comment';
-import { AuthService } from '../../../services/auth/auth.service';
-import { User } from '../../../models/User';
 
 @Component({
   selector: 'app-single-comment',
@@ -10,18 +8,11 @@ import { User } from '../../../models/User';
 })
 export class SingleCommentComponent implements OnInit {
 
-    isReady: boolean = false;
+    @Input() comment: Comment;
 
-    @Input()
-    comment: Comment;
+    constructor() {}
 
-    user: User;
-
-    constructor(private userService: AuthService) {}
-
-    async ngOnInit() {
-        this.user = await this.userService.fetchUser(this.comment.commenter);
-        this.isReady = true;
+    ngOnInit() {
     }
 
 }
