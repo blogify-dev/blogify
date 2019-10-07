@@ -46,7 +46,7 @@ export class ShowArticleComponent implements OnInit {
     }
 
     isLoggedIn(): boolean {
-        return this.authService.userToken != '';
+        return this.authService.userToken !== '';
     }
 
     convertTimeStampToHumanDate(time: number): string {
@@ -58,7 +58,9 @@ export class ShowArticleComponent implements OnInit {
     }
 
     async createCommentOnArticle() {
-        this.commentsService.createComment(this.comment).then((comment: Comment) => console.log("COMMENT POSTED : " + comment.content));
+        this.comment.article = this.article.uuid;
+        this.comment.commenter = this.authService.userUUID;
+        this.commentsService.createComment(this.comment).then((comment: Comment) => console.log('COMMENT POSTED : ' + comment.content));
     }
 
 }

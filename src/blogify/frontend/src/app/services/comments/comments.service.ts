@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Comment } from '../../models/Comment';
 import { AuthService } from '../auth/auth.service';
+import * as uuid from 'uuid/v4';
 
 const commentsEndpoint = '/api/articles/comments';
 
@@ -16,7 +17,7 @@ export class CommentsService {
         return this.httpClient.get<Comment[]>(`${commentsEndpoint}/${articleUUID}`).toPromise();
     }
 
-    async deleteComment(commentUUID: string, userToken: string = this.authService.userToken): Promise<Object> {
+    async deleteComment(commentUUID: string, userToken: string = this.authService.userToken): Promise<object> {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
@@ -27,13 +28,15 @@ export class CommentsService {
         return this.httpClient.delete(`${commentsEndpoint}/${commentUUID}`, httpOptions);
     }
 
-    async createComment(comment: Comment, userToken: string = this.authService.userToken): Promise<Object> {
+    async createComment(comment: Comment, userToken: string = this.authService.userToken): Promise<object> {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${userToken}`
             })
         };
+
+        comment.uuid = uuid();
 
         return this.httpClient.post(`${commentsEndpoint}`, comment, httpOptions).toPromise();
     }

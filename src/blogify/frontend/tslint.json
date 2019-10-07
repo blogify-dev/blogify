@@ -8,6 +8,7 @@
     },
     "component-class-suffix": true,
     "contextual-lifecycle": true,
+    "space-before-function-paren": false,
     "directive-class-suffix": true,
     "directive-selector": [
       true,
