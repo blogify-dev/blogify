@@ -120,10 +120,10 @@ fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any?
  * @author Benjozork
  */
 fun <R : Resource> R.sanitize(): Map<String, Any?> {
-    val sanitizedClassProps = this::class.declaredMemberProperties
+    val sanitizedClassProps = this::class.cachedPropMap()
         .asSequence()
-        .filter { it.annotations.none { a -> a.annotationClass == noslice::class } }
-        .map    { it.name }
+        .filter { it.value is PropertyHandle.Ok }
+        .map    { it.key }
         .toSet()
 
     return this.slice(sanitizedClassProps)
