@@ -29,28 +29,26 @@ private val logger = LoggerFactory.getLogger("blogify-comment-tree")
  *
  * @return the expanded tree
  *
- * @author Benjozork, hamza1311
+ * @author Benjozork
  */
-suspend fun expandCommentNode(callContext: ApplicationCall = FakeApplicationCall, rootNode: Comment, currentNode: Map<String, Any?> = rootNode.sanitize(), depth: Int): Map<String, Any?> {
-    val sanitizedNode = currentNode.toMutableMap()
+suspend fun expandCommentNode(callContext: ApplicationCall = FakeApplicationCall, rootNode: Comment, currentNode: Comment = rootNode, depth: Int): Map<String, Any?> {
+    val sanitizedNode = currentNode.sanitize().toMutableMap()
 
-    logger.debug("expanding tree node - root: ${rootNode.uuid.short()}, current: ${currentNode["uuid"].toString().toUUID().short()}, depth: $depth".lightMagenta())
+    logger.debug("expanding tree node - root: ${rootNode.uuid.short()}, current: ${currentNode.uuid.short()}, depth: $depth".lightMagenta())
 
     if (depth == 0) {
         return sanitizedNode
     } else {
-        val nodeDirectChildren = CommentService.getMatching(callContext) { Comments.parentComment eq currentNode["uuid"].toString().toUUID() }
+        val nodeDirectChildren = CommentService.getMatching(callContext) { Comments.parentComment eq currentNode.uuid }
             .fold (
-                success = {comments ->
-                    comments.map { comment -> comment.sanitize() }
-                },
+                success = { it },
                 failure = { error("error during node expand") }
             )
 
         if (nodeDirectChildren.isEmpty())
-            logger.debug("no children for ${currentNode["uuid"].toString().toUUID().short()}".yellow())
+            logger.debug("no children for ${currentNode.uuid.short()}".yellow())
         else
-            logger.debug("${nodeDirectChildren.size} children for ${currentNode["uuid"].toString().toUUID().short()}".yellow())
+            logger.debug("${nodeDirectChildren.size} children for ${currentNode.uuid.short()}".yellow())
 
         sanitizedNode["children"] = nodeDirectChildren.map { expandCommentNode(callContext, rootNode, it, depth - 1) }
     }
