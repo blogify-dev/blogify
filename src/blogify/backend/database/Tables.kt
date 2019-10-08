@@ -43,7 +43,7 @@ object Articles : ResourceTable<Article>() {
         createdAt  = source[createdAt],
         createdBy  = UserService.get(callContext, source[createdBy]).get(),
         content    = source[content],
-        summary = source[summary],
+        summary    = source[summary],
         categories = transaction {
             Categories.select { Categories.article eq source[uuid] }.toList() }.map { Categories.convert(it) }
     ) }

@@ -3,6 +3,7 @@ package blogify.backend.services.caching
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
 import blogify.backend.services.models.ResourceResult
+import blogify.backend.util.short
 
 import io.ktor.application.ApplicationCall
 import io.ktor.util.AttributeKey
@@ -54,12 +55,13 @@ suspend fun <R : Resource> ApplicationCall.cachedOrElse(id: UUID, fetcher: suspe
 
         if (fetchResult is SuspendableResult.Success) {
             this.cache[id] = fetchResult.get()
+            logger.debug("added ${id.toString().takeLast(8)} to call cache".green())
             fetchResult
         } else {
             fetchResult
         }
     } else {
-        logger.debug("used cache for $id !".green())
+        logger.debug("used cache for ${id.short()} !".green())
         SuspendableResult.of { cached as R }
     }
 }

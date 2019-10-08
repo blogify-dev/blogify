@@ -26,6 +26,7 @@ import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
+import io.ktor.features.DefaultHeaders
 import io.ktor.jackson.jackson
 import io.ktor.routing.route
 import io.ktor.routing.routing
@@ -87,6 +88,10 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
     install(Compression) {
         encoder("gzip0", GzipEncoder)
+    }
+
+    install(DefaultHeaders) {
+        header("Server", "blogify-core PRX3")
     }
 
     // Initialize database
