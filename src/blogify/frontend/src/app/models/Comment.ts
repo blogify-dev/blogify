@@ -8,6 +8,7 @@ export class Comment {
         public article: Article,
         public content: string,
         public uuid: string,
+        public parentComment?: Comment
     ) {}
 
 }

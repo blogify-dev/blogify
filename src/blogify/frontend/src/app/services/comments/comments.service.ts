@@ -66,4 +66,38 @@ export class CommentsService {
             return undefined;
         }
     }
+
+    async replyToComment(
+        commentContent: string,
+        articleUUID: string,
+        userUUID: string,
+        parentCommentUUID: string,
+        userToken: string = this.authService.userToken,
+    ) {
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${userToken}`
+            })
+        };
+
+        const comment = {
+            uuid: uuid(),
+            commenter: userUUID,
+            article: articleUUID,
+            content: commentContent,
+            parentComment: parentCommentUUID
+        };
+
+        const res = await this.httpClient.post(`${commentsEndpoint}`, comment, httpOptions).toPromise();
+        if (res == null) {
+            return comment;
+        } else {
+            return undefined;
+        }
+    }
+
+    async getChildrenOf(commentUUID: string, depth: number) {
+        return  this.httpClient.get(`/api/articles/comments/tree/${commentUUID}/?depth=${depth}`).toPromise();
+    }
 }
