@@ -34,7 +34,7 @@ private val logger = LoggerFactory.getLogger("blogify-comment-tree")
 suspend fun expandCommentNode(callContext: ApplicationCall = FakeApplicationCall, rootNode: Comment, currentNode: Comment = rootNode, depth: Int): Map<String, Any?> {
     val sanitizedNode = currentNode.sanitize().toMutableMap()
 
-    logger.debug("expanding tree currentNode - root: ${rootNode.uuid.short()}, current: ${currentNode.uuid.short()}, depth: $depth".lightMagenta())
+    logger.debug("expanding tree node - root: ${rootNode.uuid.short()}, current: ${currentNode.uuid.short()}, depth: $depth".lightMagenta())
 
     if (depth == 0) {
         return sanitizedNode
