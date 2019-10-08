@@ -18,8 +18,22 @@ export class ArticleCommentsComponent implements OnInit {
     constructor(private commentService: CommentsService, public authService: AuthService) {}
 
     ngOnInit() {
-        this.commentService.getCommentsForArticle(this.article).then(it => {
+        this.commentService.getCommentsForArticle(this.article).then(async it => {
             this.comments = it;
+            const childrenPromises: Promise<Comment>[] = [];
+            this.comments.forEach(comment => {
+                childrenPromises.push(this.commentService.getChildrenOf(comment.uuid, 3));
+            });
+            const children = await Promise.all(childrenPromises);
+            const out = [];
+
+            this.comments.forEach((comment, index) => {
+
+                comment.children = children[index].children;
+                out.push(comment);
+            });
+            this.comments = out;
+            console.log(out);
         });
     }
 

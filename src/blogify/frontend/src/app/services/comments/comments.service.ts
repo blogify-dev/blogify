@@ -97,7 +97,7 @@ export class CommentsService {
         }
     }
 
-    async getChildrenOf(commentUUID: string, depth: number) {
-        return  this.httpClient.get(`/api/articles/comments/tree/${commentUUID}/?depth=${depth}`).toPromise();
+    async getChildrenOf(commentUUID: string, depth: number): Promise<Comment> {
+        return  this.httpClient.get<Comment>(`/api/articles/comments/tree/${commentUUID}/?depth=${depth}`).toPromise();
     }
 }

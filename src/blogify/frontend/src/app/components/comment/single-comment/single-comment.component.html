@@ -8,4 +8,10 @@
         <span class="content-text">{{comment.content}}</span>
     </div>
 
+    <div *ngIf="comment.children">
+        <div *ngFor="let child of comment.children">
+            <app-single-comment [comment]="child"></app-single-comment>
+        </div>
+    </div>
+
 </div>
