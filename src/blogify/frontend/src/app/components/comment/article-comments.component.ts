@@ -30,6 +30,9 @@ export class ArticleCommentsComponent implements OnInit {
             this.comments.forEach((comment, index) => {
 
                 comment.children = children[index].children;
+                comment.children.forEach(async child => {
+                    child.commenter = await this.authService.fetchUser(child.commenter.toString());
+                });
                 out.push(comment);
             });
             this.comments = out;
