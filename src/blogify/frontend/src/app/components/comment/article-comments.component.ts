@@ -11,7 +11,7 @@ import {AuthService} from '../../services/auth/auth.service';
 })
 export class ArticleCommentsComponent implements OnInit {
 
-    @Input() private article: Article;
+    @Input() article: Article;
 
     comments: Comment[];
 
