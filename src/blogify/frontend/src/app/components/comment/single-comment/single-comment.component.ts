@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Comment } from '../../../models/Comment';
+import {AuthService} from '../../../services/auth/auth.service';
 
 @Component({
   selector: 'app-single-comment',
@@ -10,9 +11,11 @@ export class SingleCommentComponent implements OnInit {
 
     @Input() comment: Comment;
 
-    constructor() {}
+    constructor(private authService: AuthService) {}
 
-    ngOnInit() {
+    async ngOnInit() {
+        // Fetch full user instead of uuid
+        this.comment.commenter = await this.authService.fetchUser(<string> this.comment.commenter);
     }
 
 }

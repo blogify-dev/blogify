@@ -1,5 +1,5 @@
-<div *ngIf="comments">
-    <div *ngFor="let comment of comments">
+<div *ngIf="rootComments">
+    <div *ngFor="let comment of rootComments">
         <app-single-comment [comment]="comment"></app-single-comment>
     </div>
 </div>
