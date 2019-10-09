@@ -22,15 +22,38 @@
 
     .comment-reply {
         display:         flex;
-        flex-direction:  row;
+        flex-direction:  column;
         justify-content: flex-start;
-        align-items:     center;
+        align-items:     flex-start;
+
+        width: 50%;
 
         margin-top: 1em;
 
-        * { margin-right: 1em; }
+        .reply-text { width: 100%; }
 
-        .reply-error-container { color: var(--accent-negative); }
+        .reply-submit {
+
+            display:         flex;
+            flex-direction:  row;
+            justify-content: space-between;
+            align-items:     center;
+
+            width: 100%;
+
+            margin-top: 1em;
+
+            .submit-button {
+                background-color: var(--accent-positive);
+
+                width: 20%;
+                align-self: flex-start;
+            }
+
+            .submit-error-container { color: var(--accent-negative); }
+
+        }
+
     }
 
 }

@@ -13,11 +13,14 @@
     </div>
 
     <div class="comment-reply" *ngIf="isReplying">
-        <input [(ngModel)]="replyComment.content" type="text" class="reply-text" placeholder="Type your response ..." />
+        <textarea rows="4" [(ngModel)]="replyComment.content" type="text" class="reply-text" placeholder="Type your response ..."></textarea>
 
-        <button (click)="replyToSelf()" class="reply-submit">Submit</button>
+        <div class="reply-submit">
+            <button (click)="replyToSelf()" class="submit-button">Submit</button>
 
-        <span class="reply-error-container" *ngIf="replyError !== ''">{{replyError}}</span>
+            <span class="submit-error-container" *ngIf="replyError !== ''">{{replyError}}</span>
+        </div>
+
     </div>
 
     <div *ngIf="comment.children">
