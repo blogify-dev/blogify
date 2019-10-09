@@ -1,16 +1,28 @@
-<div class="comment">
+<div class="comment" *ngIf="isReady">
 
     <div class="comment-user">
-        <span class="user-username">{{comment.commenter.username}}</span>
+        <span class="user-username">{{usernameText()}}</span>
     </div>
 
     <div class="comment-content">
         <span class="content-text">{{comment.content}}</span>
     </div>
 
+    <div class="comment-buttons">
+        <span class="button-reply" (click)="isReplying = !isReplying">Reply</span>
+    </div>
+
+    <div class="comment-reply" *ngIf="isReplying">
+        <input [(ngModel)]="replyComment.content" type="text" class="reply-text" placeholder="Type your response ..." />
+
+        <button (click)="replyToSelf()" class="reply-submit">Submit</button>
+
+        <span class="reply-error-container" *ngIf="replyError !== ''">{{replyError}}</span>
+    </div>
+
     <div *ngIf="comment.children">
         <div *ngFor="let child of comment.children">
-            <app-single-comment [comment]="child"></app-single-comment>
+            <app-single-comment [child]="true" [comment]="child"></app-single-comment>
         </div>
     </div>
 

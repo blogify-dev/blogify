@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
 import { BehaviorSubject, Observable } from 'rxjs';
+import {Article} from '../../models/Article';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
 
-    private readonly dummyUser = new User('', '');
+    private readonly dummyUser: User = new User('', '', '', '');
 
     private currentUserToken_ = new BehaviorSubject('');
     private currentUserUuid_ = new BehaviorSubject('');
@@ -20,25 +21,28 @@ export class AuthService {
         const token = this.httpClient.post<UserToken>('/api/auth/signin', user, {responseType: "json"});
         const it = await token.toPromise();
 
-        console.log(`it.token: ${it.token}`);
-
         this.currentUserToken_.next(it.token);
 
         const uuid = await this.getUserUUIDFromToken(it.token);
-        const fetchedUser = await this.fetchUser(uuid.uuid);
 
-        console.log(fetchedUser);
+        // Fix JS bullshit
+        const fetchedUserObj: User = await this.fetchUser(uuid.uuid);
+        const fetchedUser = new User(fetchedUserObj.uuid, fetchedUserObj.username, fetchedUserObj.name, fetchedUserObj.email);
+
+        console.log("TYPE CHECK: " + (fetchedUser instanceof User));
 
         this.currentUser_.next(fetchedUser);
         this.currentUserUuid_.next(fetchedUser.uuid);
-
-        console.log(this.userUUID);
 
         return it
     }
 
     async register(credentials: RegisterCredentials): Promise<User> {
         return this.httpClient.post<User>('/api/auth/signup', credentials).toPromise();
+    }
+
+    isLoggedIn(): boolean {
+        return this.userToken !== '';
     }
 
     private async getUserUUIDFromToken(token: string): Promise<UserUUID> {

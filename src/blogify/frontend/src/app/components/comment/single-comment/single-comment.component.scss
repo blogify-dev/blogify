@@ -1,3 +1,5 @@
+@import '../../../../styles/layouts';
+
 .comment {
     display:         flex;
     flex-direction:  column;
@@ -5,10 +7,30 @@
 
     padding: 1em;
 
+    margin-top: 1em;
+
     border: 1px solid var(--border-color);
+    border-radius: $std-border-radius;
 
     .comment-user {
         .user-username { font-size: 1.25em; }
+    }
+
+    .comment-content {
+
+    }
+
+    .comment-reply {
+        display:         flex;
+        flex-direction:  row;
+        justify-content: flex-start;
+        align-items:     center;
+
+        margin-top: 1em;
+
+        * { margin-right: 1em; }
+
+        .reply-error-container { color: var(--accent-negative); }
     }
 
 }

@@ -6,7 +6,7 @@ import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
 import { CommentsService } from "../../services/comments/comments.service";
-import {User} from "../../models/User";
+import { User } from "../../models/User";
 
 @Component({
     selector: 'app-show-article',

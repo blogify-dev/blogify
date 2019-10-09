@@ -1,7 +1,9 @@
 export class User {
-  constructor(
+  constructor (
+    public uuid: string,
     public username: string,
-    public uuid: string
+    public name: string,
+    public email: string,
   ) {}
 }
 
@@ -17,6 +19,6 @@ export class RegisterCredentials {
       public name: string,
       public username: string,
       public password: string,
-      public email: string
+      public email: string,
   ) {}
 }

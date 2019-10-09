@@ -24,9 +24,14 @@ import io.ktor.response.respondRedirect
 import io.ktor.routing.get
 import io.ktor.application.Application
 import io.ktor.application.install
+import io.ktor.features.CachingHeaders
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
+import io.ktor.http.CacheControl
+import io.ktor.http.ContentType
+import io.ktor.http.content.CachingOptions
+import io.ktor.http.content.OutgoingContent
 import io.ktor.jackson.jackson
 import io.ktor.routing.route
 import io.ktor.routing.routing
@@ -76,22 +81,42 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         }
     }
 
-    // Intitialize call logging
+    // Initialize call logging
 
     install(CallLogging) {
         level = Level.TRACE
     }
 
+    // Redirect every unknown route to SPA
+
     install(SinglePageApplication) {
         folderPath = "/frontend"
     }
+
+    // Compression
 
     install(Compression) {
         encoder("gzip0", GzipEncoder)
     }
 
+    // Default headers
+
     install(DefaultHeaders) {
         header("Server", "blogify-core PRX3")
+    }
+
+    // Caching headers
+
+    install(CachingHeaders) {
+        options {
+            when (it.contentType?.withoutParameters()) {
+                ContentType.Text.JavaScript ->
+                    CachingOptions(CacheControl.MaxAge(30 * 60))
+                ContentType.Application.Json ->
+                    CachingOptions(CacheControl.MaxAge(60))
+                else -> null
+            }
+        }
     }
 
     // Initialize database
@@ -112,14 +137,17 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     // Initialize routes
 
     routing {
+
         route("/api") {
             articles()
             users()
             auth()
         }
+
         get("/") {
             call.respondRedirect("/home")
         }
+
     }
 
 }

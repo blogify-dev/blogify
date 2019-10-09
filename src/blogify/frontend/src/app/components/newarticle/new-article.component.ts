@@ -16,7 +16,7 @@ export class NewArticleComponent implements OnInit {
         categories: [], // TODO: Get these from UI
         content: 'new Content()',
         summary: '',
-        createdBy: new User('', ''),
+        createdBy: new User('', '', '', ''),
         createdAt: Date.now(),
     };
 
