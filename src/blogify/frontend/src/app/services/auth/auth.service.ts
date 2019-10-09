@@ -17,7 +17,7 @@ export class AuthService {
     constructor(private httpClient: HttpClient) {}
 
     async login(user: LoginCredentials): Promise<UserToken> {
-        const token = this.httpClient.post<UserToken>('/api/auth/signin', user);
+        const token = this.httpClient.post<UserToken>('/api/auth/signin', user, {responseType: "json"});
         const it = await token.toPromise();
 
         console.log(`it.token: ${it.token}`);

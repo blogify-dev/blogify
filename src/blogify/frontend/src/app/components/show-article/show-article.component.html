@@ -12,10 +12,14 @@
     <p>Created at: {{convertTimeStampToHumanDate(article.createdAt)}}</p>
     <p>Created by {{article.createdBy.username}}</p>
 
-    <h4>comments:</h4>
+    <h4>Comments:</h4>
     <app-article-comments [article]="article"></app-article-comments>
 
     <h5 class="delete-article">
-        <button (click)="deleteArticle()">Delete Article</button>
+        <button (click)="deleteArticle()" >Delete Article</button>
     </h5>
+    <h4 class = "new-comment">
+        New Comment: <input [(ngModel)]="comment.content">
+        <button (click)= "newComment()">New Comment</button>
+    </h4>
 </div>

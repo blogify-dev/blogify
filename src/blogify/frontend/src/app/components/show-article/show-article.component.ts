@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Article } from '../../models/Article';
+import { Comment } from '../../models/Comment'
 import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
+import { CommentsService } from "../../services/comments/comments.service";
+import {User} from "../../models/User";
 
 @Component({
     selector: 'app-show-article',
@@ -14,12 +17,20 @@ export class ShowArticleComponent implements OnInit {
 
     routeMapSubscription: Subscription;
     article: Article;
+    user: User;
+    comment: Comment = {
+        commenter: this.user,
+        article: this.article,
+        content: '',
+        uuid: ''
+    };
 
 
     constructor (
         private activatedRoute: ActivatedRoute,
         private articleService: ArticleService,
-        public authService: AuthService
+        public authService: AuthService,
+        private commentsService: CommentsService
     ) {}
 
     ngOnInit() {
@@ -32,6 +43,7 @@ export class ShowArticleComponent implements OnInit {
                 ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
             );
 
+
             console.log(this.article);
         });
     }
@@ -42,6 +54,11 @@ export class ShowArticleComponent implements OnInit {
 
     deleteArticle() {
         this.articleService.deleteArticle(this.article.uuid).then(it => console.log(it));
+    }
+
+    newComment() {
+        this.commentsService.createComment(this.comment.content, this.article.uuid, this.user.uuid).then(comment =>
+            console.log(comment));
     }
 
 
