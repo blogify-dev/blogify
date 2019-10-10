@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Comment } from '../../../models/Comment';
 import { AuthService } from '../../../services/auth/auth.service';
-import {CommentStmt} from '@angular/compiler';
-import {CommentsService} from '../../../services/comments/comments.service';
-import {User} from '../../../models/User';
+import { CommentsService} from '../../../services/comments/comments.service';
+import { User } from '../../../models/User';
+import { ArticleService } from '../../../services/article/article.service';
 
 @Component({
   selector: 'app-single-comment',
@@ -16,19 +16,30 @@ export class SingleCommentComponent implements OnInit {
     @Input() child: boolean;
 
     isReady: boolean = false;
-    isReplying: boolean = false;
 
+    replyingEnabled: boolean = false;
     replyComment: Comment;
     replyError: string;
 
-    constructor(private authService: AuthService, private commentsService: CommentsService) {}
+    constructor (private authService: AuthService,
+                 private commentsService: CommentsService,
+                 private articleService: ArticleService) {}
 
     async ngOnInit() {
+
         // Fetch full user instead of uuid only if it hasn't been fetched
+
         if (typeof this.comment.commenter === 'string') {
             this.comment.commenter = await this.authService.fetchUser(this.comment.commenter);
-            this.isReady = true;
-        } else this.isReady = true;
+        }
+
+        // Fetch full article instead of uuid only if it hasn't been fetched
+
+        if (typeof this.comment.article === 'string') {
+            this.comment.article = await this.articleService.getArticleByUUID(this.comment.article);
+        }
+
+        this.isReady = true;
 
         // We're ready, so we can populate the dummy reply comment
 

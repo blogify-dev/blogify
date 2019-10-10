@@ -24,7 +24,7 @@ export class ArticleCommentsComponent implements OnInit {
             // Get promises for children of root comments
             const childrenPromises: Promise<Comment>[] = [];
             this.rootComments.forEach(comment => {
-                childrenPromises.push(this.commentService.getChildrenOf(comment.uuid, 3));
+                childrenPromises.push(this.commentService.getChildrenOf(comment.uuid, 5));
             });
             const children = await Promise.all(childrenPromises);
 

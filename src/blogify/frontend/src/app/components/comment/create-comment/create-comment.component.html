@@ -1,9 +1,10 @@
-<div id="new-comment">
+<div class="comment-reply" *ngIf="replying">
+    <textarea rows="4" [(ngModel)]="replyComment.content" type="text" class="reply-text" placeholder="Type your response ..."></textarea>
 
-    <!--suppress HtmlFormInputWithoutLabel Thank you-->
-    <input type="text" id="comment-text" [(ngModel)]="commentContent">
+    <div class="reply-submit">
+        <button (click)="doReply()" class="submit-button">Submit</button>
 
-    <button id="comment-submit" (click)="createCommentOnArticle()"></button>
+        <span class="submit-error-container" *ngIf="replyError !== ''">{{replyError}}</span>
+    </div>
 
 </div>
-

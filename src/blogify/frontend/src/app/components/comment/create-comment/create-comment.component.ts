@@ -1,9 +1,9 @@
-/* tslint:disable:no-string-literal */
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {Article} from '../../../models/Article';
-import {Comment} from '../../../models/Comment';
-import {CommentsService} from '../../../services/comments/comments.service';
-import {AuthService} from '../../../services/auth/auth.service';
+import { Component, Input, OnInit } from '@angular/core';
+import { Article } from '../../../models/Article';
+import { CommentsService } from '../../../services/comments/comments.service';
+import { AuthService } from '../../../services/auth/auth.service';
+import { User } from '../../../models/User';
+import { Comment } from '../../../models/Comment';
 
 @Component({
     selector: 'app-create-comment',
@@ -11,38 +11,48 @@ import {AuthService} from '../../../services/auth/auth.service';
     styleUrls: ['./create-comment.component.scss']
 })
 export class CreateCommentComponent implements OnInit {
+
     commentContent = '';
     @Input() article: Article;
-    @Output() comment = new EventEmitter<Comment>();
+    @Input() comment: Comment;
+    @Input() replying: boolean = false;
 
-    constructor(
-        private commentsService: CommentsService,
-        public authService: AuthService
-    ) { }
+    replyComment: Comment;
+    replyError: string;
+
+    constructor(private commentsService: CommentsService, private authService: AuthService) {}
 
     ngOnInit() {
+        this.replyComment = {
+            commenter: this.authService.isLoggedIn() ? this.authService.userProfile : '',
+            article: this.comment === undefined ? this.article : this.comment.article,
+            content: '',
+            uuid: ''
+        };
     }
 
-    async createCommentOnArticle() {
-        this.commentsService.createComment(
-            this.commentContent,
-            this.article.uuid,
-            this.authService.userUUID
-        ).then((comment) => {
-            if (comment) {
-                const newComment: Comment = {
-                    uuid: comment['uuid'],
-                    content: comment['content'],
-                    article: this.article,
-                    commenter: this.authService.userProfile,
-                };
-                console.log(`COMMENT POSTED : ${comment}`);
-                console.log(newComment);
-                this.comment.emit(newComment);
-            } else {
-                alert('Error occurred');
+    async doReply() {
+        // Make sure the user is authenticated
+        if (this.authService.isLoggedIn() && this.replyComment.commenter instanceof User) {
+
+            if (this.comment === undefined) { // Reply to article
+                await this.commentsService.createComment (
+                    this.replyComment.content,
+                    this.article.uuid,
+                    this.replyComment.commenter.uuid
+                );
+            } else { // Reply to comment
+                await this.commentsService.replyToComment (
+                    this.replyComment.content,
+                    this.comment.article.uuid,
+                    this.replyComment.commenter.uuid,
+                    this.comment.uuid
+                );
             }
-        });
+
+        } else {
+            this.replyError = 'You must be logged in to comment.'
+        }
     }
 
 }

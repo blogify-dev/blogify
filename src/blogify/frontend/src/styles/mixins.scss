@@ -1,7 +1,7 @@
 @import "queries";
 
 
-@mixin pageContainer($padding: true) {
+@mixin pageContainer($padding: true, $percent: percentage(2 / 3)) {
     background-color: var(--body-bg);
 
     @if ($padding) {
@@ -12,7 +12,7 @@
     }
 
     @if ($padding) {
-        width: calc((100% / 3) * 2);
+        width: $percent;
         @media (min-width: 0) and (max-width: 1200px) {
             width: 100%;
         }

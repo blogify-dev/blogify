@@ -1,25 +1,45 @@
-<p>show-article works!</p>
-<div *ngIf="article">
-    <h3>{{article.title}}</h3>
+<div class="container-article" *ngIf="article">
 
-    <p>Categories</p>
-    <ul>
-        <li *ngFor="let cat of article.categories">{{cat.name}}</li>
-    </ul>
+    <div class="article-header">
+
+        <div class="header-categories">
+            <div class="article-tags" *ngIf="article.categories.length > 0">
+                <span *ngFor="let tag of article.categories">{{tag.name}}</span>
+            </div>
+
+            <span class="article-no-tags" *ngIf="article.categories.length == 0">
+                <em>No tags</em>
+            </span>
+        </div>
+
+        <h1 class="header-title">{{article.title}}</h1>
+
+        <div class="header-bottom">
+            <span class="user">{{article.createdBy.name}}</span>
+
+            <span class="date">&ensp;-&ensp;{{convertTimeStampToHumanDate(article.createdAt)}}</span>
+        </div>
+
+    </div>
+
     <p>{{article.content}}</p>
-    <p>{{article.summary}}</p>
-    <p>UUID: {{article.uuid}}</p>
-    <p>Created at: {{convertTimeStampToHumanDate(article.createdAt)}}</p>
-    <p>Created by {{article.createdBy.username}}</p>
 
-    <h4>Comments:</h4>
-    <app-article-comments [article]="article"></app-article-comments>
+    <div class="article-comments">
+
+        <div class="comments-header">
+            <h2>Comments</h2>
+
+            <fa (click)="replyingEnabled = !replyingEnabled" name="pencil" size="2x"></fa>
+        </div>
+
+        <app-create-comment [replying]="replyingEnabled" [article]="article"></app-create-comment>
+
+        <app-article-comments [article]="article"></app-article-comments>
+
+    </div>
 
     <h5 class="delete-article">
         <button (click)="deleteArticle()" >Delete Article</button>
     </h5>
-    <h4 class = "new-comment">
-        New Comment: <input [(ngModel)]="comment.content">
-        <button (click)= "newComment()">New Comment</button>
-    </h4>
+
 </div>

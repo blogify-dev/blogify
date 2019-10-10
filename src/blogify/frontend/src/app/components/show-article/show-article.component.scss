@@ -1,0 +1,65 @@
+@import "../../../styles/mixins";
+
+.container-article {
+    @include pageContainer(true, 80%);
+
+    .article-header {
+
+        display:         flex;
+        flex-direction:  column;
+        justify-content: flex-start;
+        align-items:     flex-start;
+
+        * { margin: .1em; }
+
+        margin-bottom: 1.5em;
+
+        .article-no-tags,
+        .article-tags {
+            display:         flex;
+            justify-content: flex-start;
+            align-items:     flex-start;
+
+            margin-top: 1.2em;
+
+            & > * {
+                font-size: 1.15em;
+            }
+
+            &:not(.article-no-tags) > * {
+
+                margin:    0    .25em;
+                padding:  .15em .65em;
+
+                border-radius: .3em;
+
+                background-color: var(--header-bg);
+                &:first-child { margin-left: 0; }
+                &:last-child  { margin-right: 0; }
+            }
+        }
+
+        .header-title {
+            font-size: 3em;
+            padding-bottom: 0;
+            padding-top: 0;
+        }
+
+        .header-bottom {
+            .user {  }
+        }
+
+    }
+
+    .article-comments {
+
+        .comments-header {
+            display:         flex;
+            flex-direction:  row;
+            justify-content: space-between;
+            align-items:     center;
+        }
+
+    }
+
+}

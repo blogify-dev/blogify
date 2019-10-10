@@ -9,6 +9,5 @@ export class Article {
         public createdBy: User,
         public createdAt: number,
         public categories: object[],
-    ) {
-    }
+    ) {}
 }

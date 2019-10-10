@@ -19,7 +19,6 @@ import { CompactDirective } from './directives/compact/compact.directive';
 import { SingleCommentComponent } from './components/comment/single-comment/single-comment.component';
 import { CreateCommentComponent } from './components/comment/create-comment/create-comment.component';
 
-
 @NgModule({
     declarations: [
         AppComponent,
@@ -34,7 +33,7 @@ import { CreateCommentComponent } from './components/comment/create-comment/crea
         DarkThemeDirective,
         CompactDirective,
         SingleCommentComponent,
-        CreateCommentComponent
+        CreateCommentComponent,
     ],
     imports: [
         BrowserModule,

@@ -31,7 +31,10 @@ export class ArticleService {
     }
 
     async getArticleByUUID(uuid: string, fields: string[] = []): Promise<Article> {
-        const article =  await this.httpClient.get<Article>(`/api/articles/${uuid}?fields=${fields.join(',')}`).toPromise();
+
+        const actualFieldsString: string = fields.length === 0 ? "" : `?fields=${fields.join(',')}`;
+
+        const article =  await this.httpClient.get<Article>(`/api/articles/${uuid}${actualFieldsString}`).toPromise();
         article.createdBy = await this.authService.fetchUser(article.createdBy.toString());
         return article;
     }

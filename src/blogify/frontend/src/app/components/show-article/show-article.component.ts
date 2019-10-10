@@ -25,6 +25,7 @@ export class ShowArticleComponent implements OnInit {
         uuid: ''
     };
 
+    replyingEnabled: boolean = false;
 
     constructor (
         private activatedRoute: ActivatedRoute,

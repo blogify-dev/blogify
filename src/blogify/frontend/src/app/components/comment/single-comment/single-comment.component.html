@@ -1,7 +1,7 @@
 <div class="comment" *ngIf="isReady">
 
     <div class="comment-user">
-        <span class="user-username">{{usernameText()}}</span>
+        <span class="user">{{usernameText()}}</span>
     </div>
 
     <div class="comment-content">
@@ -9,23 +9,14 @@
     </div>
 
     <div class="comment-buttons">
-        <span class="button-reply" (click)="isReplying = !isReplying">Reply</span>
+        <span class="button-reply" (click)="replyingEnabled = !replyingEnabled">Reply</span>
     </div>
 
-    <div class="comment-reply" *ngIf="isReplying">
-        <textarea rows="4" [(ngModel)]="replyComment.content" type="text" class="reply-text" placeholder="Type your response ..."></textarea>
-
-        <div class="reply-submit">
-            <button (click)="replyToSelf()" class="submit-button">Submit</button>
-
-            <span class="submit-error-container" *ngIf="replyError !== ''">{{replyError}}</span>
-        </div>
-
-    </div>
+    <app-create-comment [replying]="replyingEnabled" [comment]="comment"></app-create-comment>
 
     <div *ngIf="comment.children">
         <div *ngFor="let child of comment.children">
-            <app-single-comment [child]="true" [comment]="child"></app-single-comment>
+            <app-single-comment [comment]="child"></app-single-comment>
         </div>
     </div>
 
