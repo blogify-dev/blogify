@@ -1,4 +1,4 @@
-import { User } from "./User";
+import { User } from './User';
 
 export class Article {
     constructor(
@@ -8,6 +8,10 @@ export class Article {
         public summary: string,
         public createdBy: User,
         public createdAt: number,
-        public categories: object[],
+        public categories: Category[],
     ) {}
+}
+
+export interface Category {
+    name: string;
 }

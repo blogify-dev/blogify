@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Article } from "../../models/Article";
-import { ArticleService } from "../../services/article/article.service";
-import { User } from "../../models/User";
+import { Article } from '../../models/Article';
+import { ArticleService } from '../../services/article/article.service';
+import { User } from '../../models/User';
 
 @Component({
     selector: 'app-new-article',
@@ -34,4 +34,7 @@ export class NewArticleComponent implements OnInit {
         );
     }
 
+    addCategory() {
+        this.article.categories.push({name: ''});
+    }
 }
