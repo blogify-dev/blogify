@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ArticleService } from "../../services/article/article.service";
-import { Article } from "../../models/Article";
+import { ArticleService } from '../../services/article/article.service';
+import { Article } from '../../models/Article';
 
 @Component({
     selector: 'app-home',
@@ -16,11 +16,11 @@ export class HomeComponent implements OnInit {
 
     ngOnInit() {
         this.articleService.getAllArticles (
-            ['title', 'summary', 'createdBy', 'categories']
+            ['title', 'summary', 'createdBy', 'categories', 'createdAt']
         ).then( articles => {
             this.articles = articles;
             console.log(articles);
-        })
+        });
     }
 
 

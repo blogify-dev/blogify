@@ -17,7 +17,7 @@
         <div class="header-bottom">
             <span class="user">{{article.createdBy.name}}</span>
 
-            <span class="date">&ensp;-&ensp;{{convertTimeStampToHumanDate(article.createdAt)}}</span>
+            <span class="date">Created {{article.createdAt | relativeTime}}</span>
         </div>
 
     </div>

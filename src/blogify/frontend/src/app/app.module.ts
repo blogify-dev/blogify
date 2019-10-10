@@ -18,6 +18,7 @@ import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { CompactDirective } from './directives/compact/compact.directive';
 import { SingleCommentComponent } from './components/comment/single-comment/single-comment.component';
 import { CreateCommentComponent } from './components/comment/create-comment/create-comment.component';
+import { RelativeTimePipe } from './pipes/relative-time/relative-time.pipe';
 
 @NgModule({
     declarations: [
@@ -34,6 +35,7 @@ import { CreateCommentComponent } from './components/comment/create-comment/crea
         CompactDirective,
         SingleCommentComponent,
         CreateCommentComponent,
+        RelativeTimePipe,
     ],
     imports: [
         BrowserModule,
