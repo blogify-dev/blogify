@@ -103,6 +103,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
     install(DefaultHeaders) {
         header("Server", "blogify-core PRX3")
+        header("X-Powered-By", "Ktor 1.2.3")
     }
 
     // Caching headers
