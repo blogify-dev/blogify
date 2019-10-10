@@ -1,7 +1,7 @@
-import { Component, Input, OnInit} from '@angular/core';
-import { Article} from "../../models/Article";
-import { AuthService} from "../../services/auth/auth.service";
-import { Router} from "@angular/router";
+import { Component, Input, OnInit } from '@angular/core';
+import { Article } from "../../models/Article";
+import { AuthService } from "../../services/auth/auth.service";
+import { Router } from "@angular/router";
 
 @Component({
     selector: 'app-show-all-articles',
