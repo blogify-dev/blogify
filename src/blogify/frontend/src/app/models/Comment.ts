@@ -1,5 +1,5 @@
-import {User} from './User';
-import {Article} from './Article';
+import { User} from './User';
+import { Article} from './Article';
 
 export class Comment {
 
