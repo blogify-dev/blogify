@@ -9,7 +9,7 @@ const milliSecondsInMinute = (1000 * 3600) / 60;
 const rtf = new (Intl as any).RelativeTimeFormat('en');
 
 /**
- * Custom pipe to get relative time in days, hours pr minutes
+ * Custom pipe to get relative time in days, hours or minutes
  */
 @Pipe({
     name: 'relativeTime'

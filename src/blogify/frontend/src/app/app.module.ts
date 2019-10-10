@@ -19,6 +19,7 @@ import { CompactDirective } from './directives/compact/compact.directive';
 import { SingleCommentComponent } from './components/comment/single-comment/single-comment.component';
 import { CreateCommentComponent } from './components/comment/create-comment/create-comment.component';
 import { RelativeTimePipe } from './pipes/relative-time/relative-time.pipe';
+import { UpdateArticleComponent } from './components/update-article/update-article.component';
 
 @NgModule({
     declarations: [
@@ -36,6 +37,7 @@ import { RelativeTimePipe } from './pipes/relative-time/relative-time.pipe';
         SingleCommentComponent,
         CreateCommentComponent,
         RelativeTimePipe,
+        UpdateArticleComponent,
     ],
     imports: [
         BrowserModule,

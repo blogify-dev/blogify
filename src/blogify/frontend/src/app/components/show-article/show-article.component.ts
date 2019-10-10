@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Article } from '../../models/Article';
-import { Comment } from '../../models/Comment'
+import { Comment } from '../../models/Comment';
 import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
-import { CommentsService } from "../../services/comments/comments.service";
-import { User } from "../../models/User";
+import { CommentsService } from '../../services/comments/comments.service';
+import { User } from '../../models/User';
 
 @Component({
     selector: 'app-show-article',
@@ -25,7 +25,7 @@ export class ShowArticleComponent implements OnInit {
         uuid: ''
     };
 
-    replyingEnabled: boolean = false;
+    replyingEnabled = false;
 
     constructor (
         private activatedRoute: ActivatedRoute,
@@ -49,9 +49,6 @@ export class ShowArticleComponent implements OnInit {
         });
     }
 
-    convertTimeStampToHumanDate(time: number): string {
-        return new Date(time).toDateString();
-    }
 
     deleteArticle() {
         this.articleService.deleteArticle(this.article.uuid).then(it => console.log(it));
