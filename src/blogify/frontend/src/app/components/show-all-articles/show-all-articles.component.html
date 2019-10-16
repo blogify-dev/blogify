@@ -16,11 +16,15 @@
 
             <div class="article-first-line">
                 <h1 class="header-title">{{article.title}}</h1>
-                <h4 class="article-author">Posted by {{article.createdBy.username}} </h4>
-                <h4>Posted {{article.createdAt | relativeTime}}</h4>
+
+                <h4 class="article-author">Posted by {{article.createdBy.username}}</h4>
             </div>
 
-            <span class="article-summary">{{article.summary}}</span>
+            <div class="article-second-line">
+                <span class="article-summary">{{article.summary}}</span>
+
+                <span class="article-posted-at">{{article.createdAt | relativeTime}}</span>
+            </div>
 
             <h3 class="read-more">
                 <a class="read-more" routerLink="/article/{{article.uuid}}">Read More</a>

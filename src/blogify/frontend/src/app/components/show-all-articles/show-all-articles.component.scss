@@ -66,13 +66,23 @@
 
             text-align: center;
 
-            display:                  flex;
-            flex-direction:            row;
+            display:         flex;
+            flex-direction:  row;
             justify-content: space-between;
-            align-items:            center;
+            align-items:     center;
         }
 
-        .article-summary { font-size: 1.25em; }
+        .article-second-line {
+            width: 100%;
+
+            display:         flex;
+            flex-direction:  row;
+            justify-content: space-between;
+            align-items:     center;
+
+            .article-summary { font-size: 1.25em; }
+            .article-posted-at { font-size: 1.30em; }
+        }
 
         .read-more { color: var(--card-fg); }
 
