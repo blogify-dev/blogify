@@ -32,8 +32,8 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     }
 
     async navigateToLogin() {
-        console.log(this.router.url);
-        const url = `/login`;
+        const url = `/login?redirect=${this.router.url}`;
+        console.log(url);
         await this.router.navigateByUrl(url);
     }
 
