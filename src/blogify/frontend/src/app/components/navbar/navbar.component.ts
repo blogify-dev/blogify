@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { AuthService } from "../../services/auth/auth.service";
-import { Router } from "@angular/router";
-import { DarkModeService } from "../../services/darkmode/dark-mode.service";
+import { AuthService } from '../../services/auth/auth.service';
+import { Router } from '@angular/router';
+import { DarkModeService } from '../../services/darkmode/dark-mode.service';
 
 
 @Component({
@@ -11,7 +11,7 @@ import { DarkModeService } from "../../services/darkmode/dark-mode.service";
 })
 export class NavbarComponent implements OnInit, AfterViewInit {
 
-    @ViewChild("darkModeToggle", {static: false, read: ElementRef}) darkModeToggle: ElementRef;
+    @ViewChild('darkModeToggle', {static: false, read: ElementRef}) darkModeToggle: ElementRef;
 
     constructor(
         public authService: AuthService,
@@ -25,20 +25,26 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        if (window.matchMedia("prefers-color-scheme: dark")) {
+        if (window.matchMedia('prefers-color-scheme: dark')) {
             this.darkModeService.setDarkMode(true);
-            this.darkModeToggle.nativeElement.setAttribute("checked", "");
+            this.darkModeToggle.nativeElement.setAttribute('checked', '');
         }
+    }
+
+    async navigateToLogin() {
+        console.log(this.router.url);
+        const url = `/login`;
+        await this.router.navigateByUrl(url);
     }
 
     async navigateToProfile() {
         const url = `/profile/${this.authService.userUUID}`;
-        await this.router.navigateByUrl(url)
+        await this.router.navigateByUrl(url);
     }
 
     toggleDarkMode() {
         const darkMode = !this.darkModeService.getDarkModeValue();
-        this.darkModeService.setDarkMode(darkMode)
+        this.darkModeService.setDarkMode(darkMode);
 
     }
 

@@ -18,7 +18,7 @@
 
             <span class="navbar-elem navbar-link" id="navbar-login">
 
-                <a routerLink="/login" *ngIf="authService.userToken == ''">
+                <a (click)="navigateToLogin()" *ngIf="authService.userToken == ''">
                     Login
                 </a>
                 <span id="profile-display" *ngIf="authService.userToken != ''">

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from "../../services/auth/auth.service";
+import { AuthService } from '../../services/auth/auth.service';
 import { LoginCredentials, RegisterCredentials, User } from '../../models/User';
-import { Router } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
     selector: 'app-login',
@@ -11,13 +11,17 @@ import { Router } from '@angular/router';
 export class LoginComponent implements OnInit {
 
     registerCredentials: RegisterCredentials = { name: '', username: '', password: '', email: '' };
-    loginCredentials:    LoginCredentials = { username: '', password: '' };
+    loginCredentials: LoginCredentials = { username: '', password: '' };
 
     user: User;
+    private redirectTo: string;
 
     constructor(private authService: AuthService, public router: Router) {}
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.redirectTo = (this.router.url.split(/\?redirect=/)[1]).replace(/%2f/ig, '/');
+        console.log(this.redirectTo);
+    }
 
     async login() {
         this.authService.login(this.loginCredentials).then(async token => {
@@ -27,13 +31,17 @@ export class LoginComponent implements OnInit {
             const uuid = this.authService.userUUID;
             this.user  = this.authService.userProfile;
 
-            console.log("LOGIN ->");
+            console.log('LOGIN ->');
             console.log(uuid);
             console.log(this.user);
             console.log(this.loginCredentials);
             console.log(this.authService.userToken);
-
-            await this.router.navigateByUrl("/home");
+            console.log(this.redirectTo);
+            if (this.redirectTo) {
+                await this.router.navigateByUrl(this.redirectTo);
+            } else {
+                await this.router.navigateByUrl('/home');
+            }
         });
     }
 
@@ -41,12 +49,12 @@ export class LoginComponent implements OnInit {
         this.authService.register(this.registerCredentials).then(async user => {
             this.user = user;
 
-            console.log("REGISTER ->");
+            console.log('REGISTER ->');
             console.log(this.user);
             console.log(this.registerCredentials);
 
-            await this.router.navigateByUrl("/home");
-        })
+            await this.router.navigateByUrl('/home');
+        });
     }
 
 
