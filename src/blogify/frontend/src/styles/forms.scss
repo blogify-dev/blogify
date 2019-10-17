@@ -106,4 +106,14 @@ button {
     background: var(--accent-neutral);
 
     border-radius: $std-border-radius;
+
+    &.small {
+        padding: .25em .75em;
+    }
+
+    &.hollow {
+        background: none;
+        color: var(--body-fg);
+        border: 2px solid var(--accent-neutral);
+    }
 }

@@ -18,6 +18,19 @@
             <span class="user">{{article.createdBy.name}}</span>
 
             <span class="date">Created {{article.createdAt | relativeTime}}</span>
+
+            <button routerLink="/article/update/{{article.uuid}}"
+                    id="button-update"
+                    class="hollow small">
+                Update
+            </button>
+
+            <button (click)="deleteArticle()"
+                    id="button-delete"
+                    class="hollow small">
+                Delete
+            </button>
+
         </div>
 
     </div>
@@ -28,11 +41,9 @@
 
         <div class="comments-header">
             <h2>Comments</h2>
-
-            <fa (click)="replyingEnabled = !replyingEnabled" name="pencil" size="2x"></fa>
         </div>
 
-        <app-create-comment [replying]="replyingEnabled" [article]="article"></app-create-comment>
+        <app-create-comment [replying]="true" [article]="article"></app-create-comment>
 
         <app-article-comments [article]="article"></app-article-comments>
 

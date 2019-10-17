@@ -46,7 +46,27 @@
         }
 
         .header-bottom {
+
+            width: 100%;
+
+            display:         flex;
+            flex-direction:  row;
+            justify-content: flex-start;
+            align-items:     center;
+
             .user {  }
+
+            #button-update {
+                border-color: var(--accent-neutral);
+                color: var(--accent-neutral);
+                margin-left: auto;
+            }
+
+            #button-delete {
+                border-color: var(--accent-negative);
+                color: var(--accent-negative);
+                margin-left: 1em;
+            }
         }
 
     }

@@ -1,10 +1,13 @@
+@import "../../../../styles/queries";
+
 .comment-reply {
     display:         flex;
     flex-direction:  column;
     justify-content: flex-start;
     align-items:     flex-start;
 
-    width: 50%;
+    width: 100%;
+    @media ($query-desktop) { width: 50%; }
 
     margin-top: 1em;
 
@@ -24,7 +27,8 @@
         .submit-button {
             background-color: var(--accent-positive);
 
-            width: 20%;
+            width: 50%;
+            max-width: 175px;
             align-self: flex-start;
         }
 
