@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth/auth.service';
 import { LoginCredentials, RegisterCredentials, User } from '../../models/User';
-import {ActivatedRoute, Router} from '@angular/router';
+import { Router} from '@angular/router';
 
 @Component({
     selector: 'app-login',
@@ -19,7 +19,10 @@ export class LoginComponent implements OnInit {
     constructor(private authService: AuthService, public router: Router) {}
 
     ngOnInit() {
-        this.redirectTo = (this.router.url.split(/\?redirect=/)[1]).replace(/%2f/ig, '/');
+        const redirect = (this.router.url.split(/\?redirect=/)[1]).replace(/%2f/ig, '/');
+        if (redirect) {
+            this.redirectTo = redirect;
+        }
         console.log(this.redirectTo);
     }
 
@@ -37,6 +40,7 @@ export class LoginComponent implements OnInit {
             console.log(this.loginCredentials);
             console.log(this.authService.userToken);
             console.log(this.redirectTo);
+
             if (this.redirectTo) {
                 await this.router.navigateByUrl(this.redirectTo);
             } else {
@@ -53,7 +57,11 @@ export class LoginComponent implements OnInit {
             console.log(this.user);
             console.log(this.registerCredentials);
 
-            await this.router.navigateByUrl('/home');
+            if (this.redirectTo) {
+                await this.router.navigateByUrl(this.redirectTo);
+            } else {
+                await this.router.navigateByUrl('/home');
+            }
         });
     }
 

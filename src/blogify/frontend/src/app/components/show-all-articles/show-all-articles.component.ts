@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Article } from "../../models/Article";
-import { AuthService } from "../../services/auth/auth.service";
-import { Router } from "@angular/router";
+import { Article } from '../../models/Article';
+import { AuthService } from '../../services/auth/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-show-all-articles',
@@ -10,7 +10,7 @@ import { Router } from "@angular/router";
 })
 export class ShowAllArticlesComponent implements OnInit {
 
-    @Input() title:    string = "Articles";
+    @Input() title = 'Articles';
     @Input() articles: Article[];
 
     constructor(
@@ -23,10 +23,12 @@ export class ShowAllArticlesComponent implements OnInit {
     }
 
     async navigateToNewArticle() {
-        if (this.authService.userToken == '') {
-            await this.router.navigateByUrl('/login')
+        if (this.authService.userToken === '') {
+            const url = `/login?redirect=/new-article`;
+            console.log(url);
+            await this.router.navigateByUrl(url);
         } else {
-            await this.router.navigateByUrl('/new-article')
+            await this.router.navigateByUrl('/new-article');
         }
     }
 
