@@ -1,9 +1,9 @@
 <section class="login">
 
-    <input id="tab-1" type="radio" name="radio-tabs" [attr.checked]="router.url == '/login' ? 'checked' : null">
+    <input id="tab-1" type="radio" name="radio-tabs" [attr.checked]="router.url.startsWith('/login') ? 'checked' : null">
     <label class="form-header" id="login-header" for="tab-1"><h2>Login</h2></label>
 
-    <input id="tab-2" type="radio" name="radio-tabs" [attr.checked]="router.url == '/register' ? 'checked' : null">
+    <input id="tab-2" type="radio" name="radio-tabs" [attr.checked]="router.url.startsWith('/register') ? 'checked' : null">
     <label class="form-header" id="register-header" for="tab-2"><h2>Register</h2></label>
 
     <div id="forms">
