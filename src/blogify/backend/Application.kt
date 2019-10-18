@@ -15,6 +15,7 @@ import blogify.backend.database.Users
 import blogify.backend.routes.auth
 import blogify.backend.database.handling.query
 import blogify.backend.resources.models.Resource
+import blogify.backend.routes.static
 import blogify.backend.util.SinglePageApplication
 
 import io.ktor.application.call
@@ -31,7 +32,6 @@ import io.ktor.features.DefaultHeaders
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.content.CachingOptions
-import io.ktor.http.content.OutgoingContent
 import io.ktor.jackson.jackson
 import io.ktor.routing.route
 import io.ktor.routing.routing
@@ -143,6 +143,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             articles()
             users()
             auth()
+            static()
         }
 
         get("/") {
