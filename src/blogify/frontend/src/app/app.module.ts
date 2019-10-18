@@ -14,12 +14,12 @@ import { ShowAllArticlesComponent } from './components/show-all-articles/show-al
 import { ArticleCommentsComponent } from './components/comment/article-comments.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
-import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { CompactDirective } from './directives/compact/compact.directive';
 import { SingleCommentComponent } from './components/comment/single-comment/single-comment.component';
 import { CreateCommentComponent } from './components/comment/create-comment/create-comment.component';
 import { RelativeTimePipe } from './pipes/relative-time/relative-time.pipe';
 import { UpdateArticleComponent } from './components/update-article/update-article.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
     declarations: [
@@ -45,7 +45,7 @@ import { UpdateArticleComponent } from './components/update-article/update-artic
         AppRoutingModule,
         HttpClientModule,
         FormsModule,
-        AngularFontAwesomeModule
+        FontAwesomeModule
     ],
     providers: [],
     bootstrap: [AppComponent]

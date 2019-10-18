@@ -107,13 +107,25 @@ button {
 
     border-radius: $std-border-radius;
 
+    &.neutral  { background: var(--accent-neutral); }
+    &.positive { background: var(--accent-positive); }
+    &.mild     { background: var(--accent-mild); }
+    &.negative { background: var(--accent-negative); }
+    &.gray     { background: var(--accent-gray); }
+
     &.small {
         padding: .25em .75em;
     }
 
     &.hollow {
-        background: none;
+        background: none !important;
         color: var(--body-fg);
-        border: 2px solid var(--accent-neutral);
+        border: 2px solid var(--body-fg);
+
+        &.neutral  { color: var(--accent-neutral);  border-color: var(--accent-neutral) }
+        &.positive { color: var(--accent-positive); border-color: var(--accent-positive); }
+        &.mild     { color: var(--accent-mild);     border-color: var(--accent-mild); }
+        &.negative { color: var(--accent-negative); border-color: var(--accent-negative); }
+        &.gray     { color: var(--accent-gray);     border-color: var(--accent-gray); }
     }
 }

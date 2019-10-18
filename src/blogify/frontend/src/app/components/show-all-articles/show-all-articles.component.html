@@ -5,10 +5,10 @@
 
         <!--suppress HtmlFormInputWithoutLabel -->
         <input id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help">
-        <fa id="header-search-icon" name="search" size="2x"></fa>
+        <fa-icon [icon]="faSearch" size="2x"></fa-icon>
 
         <a id="header-create-btn" (click)="navigateToNewArticle()">
-            <fa name="pencil" size="2x"></fa>
+            <fa-icon [icon]="faPencil" size="2x"></fa-icon>
         </a>
     </div>
 
@@ -32,7 +32,7 @@
 
             <div class="article-last-line">
                 <!-- TODO: Actually impalement this-->
-                <h4 class="article-comments-count">Comments: 4</h4>
+                <h4 class="article-comments-count"><fa-icon [icon]="faCommentAlt" size="lg"></fa-icon> 4</h4>
 
                 <div class="article-tags" *ngIf="article.categories.length > 0">
                     <span class="tags-title">Tags:&nbsp;</span>

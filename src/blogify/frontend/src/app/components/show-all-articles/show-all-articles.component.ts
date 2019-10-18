@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Article } from '../../models/Article';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
+import { faCommentAlt, faPencilAlt, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-show-all-articles',
@@ -9,6 +10,10 @@ import { Router } from '@angular/router';
     styleUrls: ['./show-all-articles.component.scss']
 })
 export class ShowAllArticlesComponent implements OnInit {
+
+    faSearch = faSearch;
+    faPencil = faPencilAlt;
+    faCommentAlt = faCommentAlt;
 
     @Input() title = 'Articles';
     @Input() articles: Article[];

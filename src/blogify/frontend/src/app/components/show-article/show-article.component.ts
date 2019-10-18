@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Article } from '../../models/Article';
-import { Comment } from '../../models/Comment';
 import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
@@ -15,15 +14,9 @@ import { User } from '../../models/User';
 })
 export class ShowArticleComponent implements OnInit {
 
-    routeMapSubscription: Subscription;
+    routeMapSubscription: Subscription;S
     article: Article;
     user: User;
-    comment: Comment = {
-        commenter: this.user,
-        article: this.article,
-        content: '',
-        uuid: ''
-    };
 
     constructor (
         private activatedRoute: ActivatedRoute,
@@ -31,6 +24,9 @@ export class ShowArticleComponent implements OnInit {
         public authService: AuthService,
         private commentsService: CommentsService
     ) {}
+
+    showUpdateButton = false;
+    showDeleteButton = false;
 
     ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
@@ -42,6 +38,8 @@ export class ShowArticleComponent implements OnInit {
                 ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
             );
 
+            this.showUpdateButton = this.authService.userUUID == this.article.createdBy.uuid;
+            this.showDeleteButton = this.authService.userUUID == this.article.createdBy.uuid;
 
             console.log(this.article);
         });
@@ -51,11 +49,5 @@ export class ShowArticleComponent implements OnInit {
     deleteArticle() {
         this.articleService.deleteArticle(this.article.uuid).then(it => console.log(it));
     }
-
-    newComment() {
-        this.commentsService.createComment(this.comment.content, this.article.uuid, this.user.uuid).then(comment =>
-            console.log(comment));
-    }
-
 
 }

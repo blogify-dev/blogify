@@ -91,13 +91,22 @@
 
             text-align: center;
 
-            display:                  flex;
-            flex-direction:            row;
+            display:         flex;
+            flex-direction:  row;
             justify-content: space-between;
-            align-items:            center;
+            align-items:     center;
         }
 
-        .article-comments-count { align-self: flex-end; }
+        .article-comments-count {
+            display:         flex;
+            flex-direction:  row;
+            justify-content: space-between;
+            align-items:     center;
+
+            fa-icon:first-child { margin-right: .75em; }
+
+            align-self: flex-end;
+        }
 
         .article-no-tags,
         .article-tags {

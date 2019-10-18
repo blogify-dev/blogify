@@ -57,18 +57,21 @@
             .user {  }
 
             #button-update {
-                border-color: var(--accent-neutral);
-                color: var(--accent-neutral);
                 margin-left: auto;
             }
 
             #button-delete {
-                border-color: var(--accent-negative);
-                color: var(--accent-negative);
                 margin-left: 1em;
             }
         }
 
+    }
+
+    #article-content {
+        width: 100%;
+        font-size: 1.15em;
+        text-align: justify;
+        text-justify: inter-word;
     }
 
     .article-comments {
