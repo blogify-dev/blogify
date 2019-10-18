@@ -42,6 +42,4 @@ fun Route.static() {
         outFile.writeBytes(fileBytes)
     }
 
-    "Unbiased Natural Identity Floater Linear Accumulation Tensor Engine - uniflate"
-
 }
