@@ -25,14 +25,15 @@
         margin-top: 1em;
 
         .submit-button {
-            background-color: var(--accent-positive);
-
             width: 50%;
-            max-width: 175px;
-            align-self: flex-start;
+            max-width: 150px;
         }
 
-        .submit-error-container { color: var(--accent-negative); }
+        .submit-error-container {
+            color: var(--accent-negative);
+            margin-left: 1em;
+            @media (max-width: $query-desktop) { margin-right: auto; }
+        }
 
     }
 

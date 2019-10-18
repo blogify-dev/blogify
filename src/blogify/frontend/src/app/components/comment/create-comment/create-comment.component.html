@@ -2,7 +2,7 @@
     <textarea rows="4" [(ngModel)]="replyComment.content" type="text" class="reply-text" placeholder="Type your response ..."></textarea>
 
     <div class="reply-submit">
-        <button (click)="doReply()" class="submit-button">Submit</button>
+        <button (click)="doReply()" class="submit-button positive rounded">Submit</button>
 
         <span class="submit-error-container" *ngIf="replyError !== ''">{{replyError}}</span>
     </div>

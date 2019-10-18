@@ -98,6 +98,7 @@ input[type="checkbox"]:not(.togglebox) {
 }
 
 button {
+
     padding: .75em 1em;
 
     cursor: pointer;
@@ -107,11 +108,17 @@ button {
 
     border-radius: $std-border-radius;
 
+    font-weight: 600;
+
+    // Color classes
+
     &.neutral  { background: var(--accent-neutral); }
     &.positive { background: var(--accent-positive); }
     &.mild     { background: var(--accent-mild); }
     &.negative { background: var(--accent-negative); }
     &.gray     { background: var(--accent-gray); }
+
+    // Shape classes
 
     &.small {
         padding: .25em .75em;
@@ -127,5 +134,9 @@ button {
         &.mild     { color: var(--accent-mild);     border-color: var(--accent-mild); }
         &.negative { color: var(--accent-negative); border-color: var(--accent-negative); }
         &.gray     { color: var(--accent-gray);     border-color: var(--accent-gray); }
+    }
+
+    &.rounded {
+        border-radius: 12px;
     }
 }
