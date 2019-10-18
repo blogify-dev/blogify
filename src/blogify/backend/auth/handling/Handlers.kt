@@ -39,7 +39,7 @@ fun isUser(mustBe: User): UserAuthPredicate = { user ->
  * @param block     the call handling block that is run if the check succeeds
  */
 @BlogifyDsl
-suspend fun CallPipeline.authenticatedBy(predicate: UserAuthPredicate, block: CallPipeLineFunction) {
+suspend fun CallPipeline.runAuthenticated(predicate: UserAuthPredicate, block: CallPipeLineFunction) {
     val header = call.request.header(HttpHeaders.Authorization) ?: run {
         call.respond(HttpStatusCode.Unauthorized) // Header is missing
         return
@@ -49,7 +49,7 @@ suspend fun CallPipeline.authenticatedBy(predicate: UserAuthPredicate, block: Ca
         .substringAfter("Bearer ", "none")
 
     if (token == "none") {
-        call.respond(HttpStatusCode.BadRequest, object { val reason = "malforrmed token" })
+        call.respond(HttpStatusCode.BadRequest, reason("malforrmed token"))
         return
     }
 
