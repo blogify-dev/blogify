@@ -1,9 +1,18 @@
 package blogify.backend.resources.models
 
+import blogify.backend.util.noslice
+
 import io.ktor.http.ContentType
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+
 data class Uploadable (
-    val id:          Long,
-    val collection:  Collection,
+    @JsonIgnore @noslice
+    val longId:      Long,
+    val collection:  String,
     val contentType: ContentType
-)
+) {
+
+    val id get() = longId.toString(16)
+
+}

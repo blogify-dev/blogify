@@ -74,7 +74,7 @@ fun Route.static() {
 
         call.parameters["collection"]?.let { collection ->
 
-            call.parameters["uploadableId"].let { id ->
+            call.parameters["uploadableId"]?.let { id ->
 
                 val file        = File("/var/static/$collection-$id.bin")
                 val rawBytes    = file.readBytes().drop(STATIC_CONTENT_FILE_SIGNATURE.size)

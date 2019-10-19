@@ -20,7 +20,7 @@ data class User (
     @noslice val password:       String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
              val name:           String,
              val email:          String,
-             //val profilePicture: Uploadable,
+             val profilePicture: Uploadable?,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid)

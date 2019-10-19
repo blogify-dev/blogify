@@ -57,7 +57,8 @@ data class RegisterCredentials (
             username = this.username,
             password = this.password.hash(),
             email = this.email,
-            name = this.name
+            name = this.name,
+            profilePicture = null
         )
 
         UserService.add(created).fold(

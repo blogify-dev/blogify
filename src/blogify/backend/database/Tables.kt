@@ -6,6 +6,7 @@ import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
+import blogify.backend.resources.models.Uploadable
 import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.UserService
 import blogify.backend.services.articles.CommentService
@@ -14,6 +15,7 @@ import blogify.backend.services.models.Service
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import io.ktor.application.ApplicationCall
+import io.ktor.http.ContentType
 
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
@@ -37,16 +39,19 @@ object Articles : ResourceTable<Article>() {
     val content    = text    ("content")
     val summary    = text    ("summary")
 
-    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Article, Service.Exception.Fetching> { Article (
-        uuid       = source[uuid],
-        title      = source[title],
-        createdAt  = source[createdAt],
-        createdBy  = UserService.get(callContext, source[createdBy]).get(),
-        content    = source[content],
-        summary    = source[summary],
-        categories = transaction {
-            Categories.select { Categories.article eq source[uuid] }.toList() }.map { Categories.convert(it) }
-    ) }
+    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Article, Service.Exception.Fetching> {
+        Article (
+            uuid       = source[uuid],
+            title      = source[title],
+            createdAt  = source[createdAt],
+            createdBy  = UserService.get(callContext, source[createdBy]).get(),
+            content    = source[content],
+            summary    = source[summary],
+            categories = transaction {
+                Categories.select { Categories.article eq source[uuid] }.toList()
+            }.map { Categories.convert(it) }
+        )
+    }
 
     object Categories : Table() {
 
@@ -64,21 +69,30 @@ object Articles : ResourceTable<Article>() {
 
 object Users : ResourceTable<User>() {
 
-    val username = varchar ("username", 255)
-    val password = varchar ("password", 255)
-    val email    = varchar ("email", 255)
-    val name     = varchar ("name", 255)
+    val username       = varchar ("username", 255)
+    val password       = varchar ("password", 255)
+    val email          = varchar ("email", 255)
+    val name           = varchar ("name", 255)
+    val profilePicture = long    ("profile_picture").references(Uploadables.id, onDelete = ReferenceOption.CASCADE).nullable()
+
     init {
         index(true, username)
     }
 
-    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<User, Service.Exception.Fetching> { User (
-        uuid     = source[uuid],
-        username = source[username],
-        password = source[password],
-        name = source[name],
-        email = source[email]
-    ) }
+    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<User, Service.Exception.Fetching> {
+        User (
+            uuid           = source[uuid],
+            username       = source[username],
+            password       = source[password],
+            name           = source[name],
+            email          = source[email],
+            profilePicture = source[profilePicture]?.let { notNullPfp ->
+                transaction {
+                    Uploadables.select { Uploadables.id eq notNullPfp }.single()
+                }.let { Uploadables.convert(callContext, it) }.get()
+            }
+        )
+    }
 
 }
 
@@ -89,12 +103,30 @@ object Comments : ResourceTable<Comment>() {
     val content       = text ("content")
     val parentComment = uuid ("parent_comment").references(uuid, onDelete = ReferenceOption.CASCADE).nullable()
 
-    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Comment, Service.Exception.Fetching> { Comment (
-        uuid          = source[uuid],
-        content       = source[content],
-        article       = ArticleService.get(callContext, source[article]).get(),
-        commenter     = UserService.get(callContext, source[commenter]).get(),
-        parentComment = source[parentComment]?.let { CommentService.get(callContext, it).get() }
-    ) }
+    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Comment, Service.Exception.Fetching> {
+        Comment (
+            uuid          = source[uuid],
+            content       = source[content],
+            article       = ArticleService.get(callContext, source[article]).get(),
+            commenter     = UserService.get(callContext, source[commenter]).get(),
+            parentComment = source[parentComment]?.let { CommentService.get(callContext, it).get() }
+        )
+    }
+
+}
+
+object Uploadables : Table() {
+
+    val id          = long    ("id").primaryKey()
+    val collection  = varchar ("collection", 255)
+    val contentType = varchar ("content_type", 64)
+
+    suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Uploadable, Service.Exception> {
+        Uploadable (
+            longId      = source[id],
+            collection  = source[collection],
+            contentType = ContentType.parse(source[contentType])
+        )
+    }
 
 }

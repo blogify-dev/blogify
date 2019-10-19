@@ -11,6 +11,7 @@ import blogify.backend.routes.users.users
 import blogify.backend.database.Database
 import blogify.backend.database.Articles
 import blogify.backend.database.Comments
+import blogify.backend.database.Uploadables
 import blogify.backend.database.Users
 import blogify.backend.routes.auth
 import blogify.backend.database.handling.query
@@ -131,7 +132,8 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             Articles,
             Articles.Categories,
             Users,
-            Comments
+            Comments,
+            Uploadables
         )
     }}
 
