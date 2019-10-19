@@ -26,7 +26,15 @@
 
         .submit-button {
             width: 50%;
-            max-width: 150px;
+            max-width: 100px;
+        }
+
+        .draft-button {
+            width: 50%;
+            max-width: 100px;
+
+            margin-left: 1em;
+            margin-right: auto;
         }
 
         .submit-error-container {

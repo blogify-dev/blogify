@@ -3,6 +3,7 @@
 
     <div class="reply-submit">
         <button (click)="doReply()" class="submit-button positive rounded">Submit</button>
+        <button class="draft-button positive hollow rounded">Save draft</button>
 
         <span class="submit-error-container" *ngIf="replyError !== ''">{{replyError}}</span>
     </div>

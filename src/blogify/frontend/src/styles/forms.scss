@@ -99,13 +99,14 @@ input[type="checkbox"]:not(.togglebox) {
 
 button {
 
-    padding: .75em 1em;
+    padding: .6em .5em;
 
     cursor: pointer;
 
     color: black;
     background: var(--accent-neutral);
 
+    border: 1px solid transparent;
     border-radius: $std-border-radius;
 
     font-weight: 600;
@@ -127,7 +128,8 @@ button {
     &.hollow {
         background: none !important;
         color: var(--body-fg);
-        border: 2px solid var(--body-fg);
+        border: 1px solid var(--body-fg);
+        &.rounded { border-radius: 1.25em !important; }
 
         &.neutral  { color: var(--accent-neutral);  border-color: var(--accent-neutral) }
         &.positive { color: var(--accent-positive); border-color: var(--accent-positive); }
@@ -137,6 +139,6 @@ button {
     }
 
     &.rounded {
-        border-radius: 12px;
+        border-radius: 1.15em;
     }
 }
