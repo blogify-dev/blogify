@@ -2,14 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Article } from '../../models/Article';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
 
-    private readonly dummyUser: User = new User('', '', '', '');
+    private readonly dummyUser: User = new User('', '', '', '', '');
 
     private currentUserToken_ = new BehaviorSubject('');
     private currentUserUuid_ = new BehaviorSubject('');
@@ -27,9 +26,7 @@ export class AuthService {
 
         // Fix JS bullshit
         const fetchedUserObj: User = await this.fetchUser(uuid.uuid);
-        const fetchedUser = new User(fetchedUserObj.uuid, fetchedUserObj.username, fetchedUserObj.name, fetchedUserObj.email);
-
-        console.log("TYPE CHECK: " + (fetchedUser instanceof User));
+        const fetchedUser = new User(fetchedUserObj.uuid, fetchedUserObj.username, fetchedUserObj.name, fetchedUserObj.email, fetchedUserObj.profilePicture);
 
         this.currentUser_.next(fetchedUser);
         this.currentUserUuid_.next(fetchedUser.uuid);
