@@ -36,8 +36,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
             console.log(userUUID);
             console.log(this.user);
         });
-
-
     }
 
     ngOnDestroy() {
