@@ -1,0 +1,27 @@
+@import '../../../../styles/layouts';
+
+.comment {
+    display:         flex;
+    flex-direction:  column;
+    justify-content: stretch;
+
+    padding: 1em;
+
+    margin-top: 1em;
+
+    border: 1px solid var(--border-color);
+    border-radius: $std-border-radius;
+
+    .comment-user {
+        .user { font-size: 1.25em; }
+    }
+
+    .comment-content {
+
+    }
+
+    .comment-buttons {
+
+    }
+
+}

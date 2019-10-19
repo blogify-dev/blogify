@@ -1,0 +1,23 @@
+<div class="comment" *ngIf="isReady">
+
+    <div class="comment-user">
+        <span class="user">{{usernameText()}}</span>
+    </div>
+
+    <div class="comment-content">
+        <span class="content-text">{{comment.content}}</span>
+    </div>
+
+    <div class="comment-buttons">
+        <span class="button-reply" (click)="replyingEnabled = !replyingEnabled">Reply</span>
+    </div>
+
+    <app-create-comment [replying]="replyingEnabled" [comment]="comment"></app-create-comment>
+
+    <div *ngIf="comment.children">
+        <div *ngFor="let child of comment.children">
+            <app-single-comment [comment]="child"></app-single-comment>
+        </div>
+    </div>
+
+</div>

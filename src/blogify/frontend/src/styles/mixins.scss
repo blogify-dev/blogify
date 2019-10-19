@@ -1,0 +1,30 @@
+@import "queries";
+
+
+@mixin pageContainer($padding: true, $percent: percentage(2 / 3)) {
+    background-color: var(--body-bg);
+
+    @if ($padding) {
+        padding: 2em 1.25em;
+        @media (min-width: $query-desktop) {
+            padding: 3em;
+        }
+    }
+
+    @if ($padding) {
+        width: $percent;
+        @media (min-width: 0) and (max-width: 1200px) {
+            width: 100%;
+        }
+    } @else {
+        width: 100%;
+    }
+
+}
+
+@mixin pageContainerHeader {
+    display:                  flex;
+    flex-direction:            row;
+    justify-content: space-between;
+    align-items:            center;
+}

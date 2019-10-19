@@ -1,0 +1,110 @@
+@import "../../../styles/mixins";
+
+.login {
+
+    @include pageContainer;
+
+    * {transition: color 150ms ease-in-out, border-bottom-color 150ms ease-in-out; }
+
+    display:
+        grid;
+    grid-template-columns:
+        auto auto 1fr;
+    grid-column-gap:
+        1.75em;
+
+    input#tab-1 {
+        &:checked {
+            & ~ #forms > #login-side    { display: flex; }
+            & ~ #forms > #register-side { display: none; }
+
+            & ~ label#login-header {
+                border-bottom: solid var(--accent-neutral) 3px;
+                h2 { color: var(--accent-neutral) }
+            }
+        }
+
+        display: none;
+    }
+
+    input#tab-2 {
+        &:checked {
+            & ~ #forms > #login-side    { display: none; }
+            & ~ #forms > #register-side { display: flex; }
+
+            & ~ label#register-header {
+                border-bottom: solid var(--accent-positive) 3px;
+                h2 { color: var(--accent-positive); }
+            }
+        }
+
+        display: none;
+    }
+
+    #forms {
+        grid-column: span 3;
+
+        display:         flex;
+        flex-direction:  row;
+        justify-content: flex-start;
+    }
+
+    #login-side,
+    #register-side {
+        display:        flex;
+        flex-direction: column;
+    }
+
+    .form-header {
+        cursor: pointer;
+
+        border-bottom: solid var(--body-bg) 4px;
+    }
+
+    #login-form,
+    #register-form {
+        width: 25em;
+        flex-grow: 1;
+
+        margin-top: 1.1em;
+
+        display:        flex;
+        flex-direction: column;
+
+        .form-line,
+        .form-submit {
+            display:         flex;
+            flex-direction:  row;
+            justify-content: stretch;
+            align-items:     center;
+
+            margin-bottom: 1em;
+
+            label {
+                font-size: 1.25em;
+            }
+
+            * {
+                flex-grow: 1;
+            }
+
+        }
+
+        .form-submit {
+            margin-top: auto;
+
+            & span { padding: 0 20px; flex-grow: 0 }
+
+            button { width: 8em; }
+            &#login-form-submit    button { background-color: var(--accent-neutral) }
+            &#register-form-submit button { background-color: var(--accent-positive) }
+        }
+
+    }
+
+    #login-form-remember {
+        justify-content: flex-start !important;
+        * { flex-grow: 0 !important }
+    }
+
+}

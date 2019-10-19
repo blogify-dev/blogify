@@ -1,10 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { Article, Content } from "../../models/Article";
-import { ArticleService } from "../../services/article/article.service";
-import { AuthService } from "../../services/auth/auth.service";
-import { User } from "../../models/User";
+import {Component, OnInit} from '@angular/core';
+import {Article} from '../../models/Article';
+import {ArticleService} from '../../services/article/article.service';
+import {User} from '../../models/User';
 
 @Component({
     selector: 'app-new-article',
@@ -16,9 +13,10 @@ export class NewArticleComponent implements OnInit {
     article: Article = {
         uuid: '',
         title: '',
-        categories: [], // TODO: Get these from UI
-        content: new Content('', ''),
-        createdBy: new User('', ''),
+        categories: [],
+        content: '',
+        summary: '',
+        createdBy: new User('', '', '', ''),
         createdAt: Date.now(),
     };
 
@@ -28,12 +26,15 @@ export class NewArticleComponent implements OnInit {
 
     ngOnInit() {
     }
-     createNewArticle() {
+
+    createNewArticle() {
         console.log(this.article);
-        const obs = this.articleService.createNewArticle(this.article);
-        obs.then(it => console.log(it))
+        this.articleService.createNewArticle(this.article).then(article =>
+            console.log(article)
+        );
     }
 
-
-
+    addCategory() {
+        this.article.categories.push({name: ''});
+    }
 }

@@ -1,23 +1,54 @@
-<p>show-article works!</p>
-<div *ngIf="article && articleContent && articleAuthor">
-    <h3>{{article.title}}</h3>
+<div class="container-article" *ngIf="article">
 
-    <p>Categories</p>
-    <ul>
-        <li *ngFor="let cat of article.categories">{{cat.name}}</li>
-    </ul>
-    <p>{{articleContent.text}}</p>
-    <p>{{articleContent.summary}}</p>
-    <p>UUID: {{article.uuid}}</p>
-    <p>Created at: {{convertTimeStampToHumanDate(article.createdAt)}}</p>
-    <p>Created by {{articleAuthor.username}}</p>
+    <div class="article-header">
 
-    <h4>comments:</h4>
-    <app-comment [articleUUID]="article.uuid"></app-comment>
+        <div class="header-categories">
+            <div class="article-tags" *ngIf="article.categories.length > 0">
+                <span *ngFor="let tag of article.categories">{{tag.name}}</span>
+            </div>
 
-    <!-- TODO: Pass in endpoint/article uuid info to delete article-->
-    <h5 class="delete-article">
-        <button (click)="deleteArticle(article.uuid)">Delete Article</button>
-    </h5>
+            <span class="article-no-tags" *ngIf="article.categories.length == 0">
+                <em>No tags</em>
+            </span>
+        </div>
+
+        <h1 class="header-title">{{article.title}}</h1>
+
+        <div class="header-bottom">
+            <span class="user">{{article.createdBy.name}}</span>
+
+            <span class="date">Created {{article.createdAt | relativeTime}}</span>
+
+            <button routerLink="/article/update/{{article.uuid}}"
+                    id="button-update"
+                    class="hollow small neutral"
+                    *ngIf="showUpdateButton">
+                Update
+            </button>
+
+            <button (click)="deleteArticle()"
+                    id="button-delete"
+                    class="hollow small negative"
+                    *ngIf="showDeleteButton">
+                Delete
+            </button>
+
+        </div>
+
+    </div>
+
+    <p id="article-content">{{article.content}}</p>
+
+    <div class="article-comments">
+
+        <div class="comments-header">
+            <h2>Comments</h2>
+        </div>
+
+        <app-create-comment [replying]="true" [article]="article"></app-create-comment>
+
+        <app-article-comments [article]="article"></app-article-comments>
+
+    </div>
+
 </div>
-New Comment: <input [(ngModel)]="comment.content">

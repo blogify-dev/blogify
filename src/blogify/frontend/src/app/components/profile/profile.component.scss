@@ -1,11 +1,10 @@
 @import "../../../styles/fonts";
 @import "../../../styles/colours";
 @import "../../../styles/layouts";
+@import "../../../styles/mixins";
 
+.profile {
 
-@media screen and (max-width: 400px) {
-    .sidebar a {
-        text-align: center;
-        float: none;
-    }
+    @include pageContainer;
+
 }

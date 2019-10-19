@@ -1,0 +1,7 @@
+<div *ngIf="rootComments">
+    <div *ngFor="let comment of rootComments">
+        <app-single-comment [comment]="comment"></app-single-comment>
+    </div>
+</div>
+
+<app-create-comment *ngIf="isLoggedIn()" [article]="article" (comment)="getNewComment($event)"></app-create-comment>

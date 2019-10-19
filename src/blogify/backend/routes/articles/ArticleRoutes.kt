@@ -1,5 +1,6 @@
 package blogify.backend.routes.articles
 
+import blogify.backend.database.Articles
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
@@ -7,11 +8,8 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 
 import blogify.backend.resources.Article
-import blogify.backend.auth.handling.authenticatedBy
-import blogify.backend.auth.handling.isUser
 import blogify.backend.routes.handling.*
 import blogify.backend.services.articles.ArticleService
-import blogify.backend.services.UserService
 import blogify.backend.util.toUUID
 
 fun Route.articles() {
@@ -19,37 +17,36 @@ fun Route.articles() {
     route("/articles") {
 
         get("/") {
-            fetchAndRespondWithAll(ArticleService::getAll)
+            fetchAll(ArticleService::getAll)
         }
 
         get("/{uuid}") {
-            fetchWithIdAndRespond(ArticleService::get)
+            fetchWithId(ArticleService::get)
+        }
+
+        get("/forUser/{uuid}") {
+            fetchAllWithId(fetch = { userId ->
+                ArticleService.getMatching(call) {
+                    Articles.createdBy eq userId
+                }
+            })
         }
 
         delete("/{uuid}") {
-            deleteWithId(ArticleService::delete)
+            deleteWithId(ArticleService::get, ArticleService::delete, authPredicate = { user, article -> article.createdBy == user})
         }
 
         patch("/{uuid}") {
-            val selectedUUID = call.parameters["uuid"]
-
-            val selectedArticle    = selectedUUID?.toUUID()?.let { ArticleService.get(it) }
-            val replacementArticle = call.receive<Article>()
-
-            if (selectedArticle == null)
-                call.respond(HttpStatusCode.NotFound)
-            else {
-                call.respond(ArticleService.update(replacementArticle))
-            }
+            updateWithId(
+                update = ArticleService::update,
+                fetch = ArticleService::get,
+                authPredicate = { user, article -> article.createdBy == user }
+            )
         }
 
-        post("/") { authenticatedBy(predicate = isUser(UserService.getAll().get().toList()[0])) {
-            createWithResource(ArticleService::add)
-        }}
-
-        articleContent()
-
-        articleCategories()
+        post("/") {
+            createWithResource(ArticleService::add, authPredicate = { user, article -> article.createdBy == user })
+        }
 
         articleComments()
 

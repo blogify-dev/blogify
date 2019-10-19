@@ -2,21 +2,41 @@
 
     <div id="navbar-list">
 
-        <span class="navbar-link" id="home">
-            <a routerLink="home">
-                <img height="40px"
+        <span id="navbar-left">
+
+            <span class="navbar-elem navbar-link" id="home">
+                <a routerLink="home" id="home-img-container">
+                    <img height="26em"
                      src="assets/images/logo.svg"
                      alt="Blogify" />
-            </a>
+                </a>
+            </span>
+
         </span>
 
-        <span class="navbar-link" id="login">
-            <a routerLink="/login" *ngIf="authService.userToken == ''">Login</a>
-            <a (click)="navigateToProfile()" *ngIf="authService.userToken != ''">Profile</a>
-        </span>
+        <span id="navbar-right">
 
-        <span class="navbar-link" id="register" *ngIf="authService.userToken == ''">
-            <a routerLink="/register">Register</a>
+            <span class="navbar-elem navbar-link" id="navbar-login">
+
+                <a (click)="navigateToLogin()" *ngIf="authService.userToken == ''">
+                    Login
+                </a>
+                <span id="profile-display" *ngIf="authService.userToken != ''">
+                    <span id="profile-text" (click)="navigateToProfile()" >Profile</span>
+                    <span id="profile-username" (click)="navigateToProfile()">{{authService.userProfile.username}}</span>
+                </span>
+
+            </span>
+
+            <span id="navbar-dark-mode-toggle-container">
+
+                <span class="togglebox navbar-elem" id="navbar-dark-mode-toggle">
+                    <input id="toggle-dark-mode" type="checkbox" (change)="toggleDarkMode()" #darkModeToggle >
+                    <label for="toggle-dark-mode"><span class="toggle-circle"></span></label>
+                </span>
+
+            </span>
+
         </span>
 
     </div>

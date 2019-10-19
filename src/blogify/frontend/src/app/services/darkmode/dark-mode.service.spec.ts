@@ -1,13 +1,12 @@
-
 import { TestBed } from '@angular/core/testing';
 
-import { ContentService } from './content.service';
+import { DarkModeService } from './dark-mode.service';
 
-describe('ContentService', () => {
+describe('DarkModeService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: ContentService = TestBed.get(ContentService);
+    const service: DarkModeService = TestBed.get(DarkModeService);
     expect(service).toBeTruthy();
   });
 });

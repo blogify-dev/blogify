@@ -1,0 +1,48 @@
+@import "../../../../styles/queries";
+
+.comment-reply {
+    display:         flex;
+    flex-direction:  column;
+    justify-content: flex-start;
+    align-items:     flex-start;
+
+    width: 100%;
+    @media ($query-desktop) { width: 50%; }
+
+    margin-top: 1em;
+
+    .reply-text { width: 100%; }
+
+    .reply-submit {
+
+        display:         flex;
+        flex-direction:  row;
+        justify-content: space-between;
+        align-items:     center;
+
+        width: 100%;
+
+        margin-top: 1em;
+
+        .submit-button {
+            width: 50%;
+            max-width: 100px;
+        }
+
+        .draft-button {
+            width: 50%;
+            max-width: 100px;
+
+            margin-left: 1em;
+            margin-right: auto;
+        }
+
+        .submit-error-container {
+            color: var(--accent-negative);
+            margin-left: 1em;
+            @media (max-width: $query-desktop) { margin-right: auto; }
+        }
+
+    }
+
+}

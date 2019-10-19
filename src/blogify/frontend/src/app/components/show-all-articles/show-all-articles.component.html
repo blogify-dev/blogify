@@ -1,44 +1,49 @@
-<section class="main">
+<section class="articles">
 
-    <section class="articles">
+    <div id="articles-header">
+        <h2>{{title}}</h2>
 
-        <div id="articles-header">
-            <h2>Articles</h2>
+        <!--suppress HtmlFormInputWithoutLabel -->
+        <input id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help">
+        <fa-icon [icon]="faSearch" size="2x"></fa-icon>
 
-            <a id="header-create-btn" (click)="navigateToNewArticle()">+</a>
-        </div>
+        <a id="header-create-btn" (click)="navigateToNewArticle()">
+            <fa-icon [icon]="faPencil" size="2x"></fa-icon>
+        </a>
+    </div>
 
-        <div class="articles-container">
+        <div class="article" *ngFor="let article of articles">
 
-            <div class="article" *ngFor="let article of articles">
+            <div class="article-first-line">
+                <h1 class="header-title">{{article.title}}</h1>
 
-                <div class="article-first-line">
-                    <h1 class="article-title">{{article.title}}</h1>
-                    <h4 class="article-author">Posted by  {{article.createdBy.username}} </h4>
-                </div>
+                <h4 class="article-author">Posted by {{article.createdBy.username}}</h4>
+            </div>
 
-                <span class="article-summary">{{article.content.summary}}</span>
+            <div class="article-second-line">
+                <span class="article-summary">{{article.summary}}</span>
 
+                <span class="article-posted-at">{{article.createdAt | relativeTime}}</span>
+            </div>
 
-                <h3 class="read-more">
-                    <a class="read-more" routerLink="/article/{{article.uuid}}">Read More</a>
-                </h3>
+            <h3 class="read-more">
+                <a class="read-more" routerLink="/article/{{article.uuid}}">Read More</a>
+            </h3>
 
+            <div class="article-last-line">
                 <!-- TODO: Actually impalement this-->
-                <h4 class="article-comments-count">Comments: 4</h4>
+                <h4 class="article-comments-count"><fa-icon [icon]="faCommentAlt" size="lg"></fa-icon> 4</h4>
 
                 <div class="article-tags" *ngIf="article.categories.length > 0">
                     <span class="tags-title">Tags:&nbsp;</span>
-                    <span *ngFor="let tag of article.categories">{{tag.name}},&nbsp;</span>
+                    <span *ngFor="let tag of article.categories">{{tag.name}}</span>
                 </div>
 
                 <span class="article-no-tags" *ngIf="article.categories.length == 0">
                     <em>No tags</em>
                 </span>
-
             </div>
-        </div>
 
-    </section>
+        </div>
 
 </section>

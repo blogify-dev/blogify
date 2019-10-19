@@ -7,11 +7,8 @@ import io.ktor.routing.delete
 import io.ktor.routing.route
 
 import blogify.backend.resources.User
+import blogify.backend.routes.handling.*
 import blogify.backend.services.UserService
-import blogify.backend.routes.handling.fetchWithIdAndRespond
-import blogify.backend.routes.handling.createWithResource
-import blogify.backend.routes.handling.deleteWithId
-import blogify.backend.routes.handling.fetchAndRespondWithAll
 
 /**
  * Defines the API routes for interacting with [users][User].
@@ -21,22 +18,20 @@ fun Route.users() {
     route("/users") {
 
         get("/") {
-            fetchAndRespondWithAll(UserService::getAll)
+            fetchAll(UserService::getAll)
         }
 
         get("/{uuid}") {
-            fetchWithIdAndRespond(UserService::get)
+            fetchWithId(UserService::get)
         }
 
         delete("/{uuid}") {
-            deleteWithId(UserService::delete)
+            deleteWithId(UserService::get, UserService::delete)
         }
 
         post("/") {
             createWithResource(UserService::add)
         }
-
-        userInfo()
 
     }
 

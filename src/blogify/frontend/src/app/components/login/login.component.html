@@ -1,18 +1,66 @@
-<div>
+<section class="login">
 
-  <span>Username</span>: <input type="text" name="user" [(ngModel)]="loginCredentials.username"><br>
-  <span>Password</span>: <input type="text" name="pass" [(ngModel)]="loginCredentials.password"><br>
+    <input id="tab-1" type="radio" name="radio-tabs" [attr.checked]="router.url.startsWith('/login') ? 'checked' : null">
+    <label class="form-header" id="login-header" for="tab-1"><h2>Login</h2></label>
 
-</div>
+    <input id="tab-2" type="radio" name="radio-tabs" [attr.checked]="router.url.startsWith('/register') ? 'checked' : null">
+    <label class="form-header" id="register-header" for="tab-2"><h2>Register</h2></label>
 
-<button (click)="login()">Login</button>
+    <div id="forms">
+        <div id="login-side">
 
-<div>loginCredentials: {{loginCredentials | json}}</div>
+            <div id="login-form">
 
-<div>user: {{user | json}}</div>
+                <div class="form-line" id="login-form-username">
+                    <input placeholder="Username" id="login-input-username" type="text" name="user" [(ngModel)]="loginCredentials.username">
+                </div>
 
-<div *ngIf="user">
-    <a routerLink="/home">Home</a> <br>
-    <a routerLink="/profile/{{user.uuid}}">Profile</a>
-</div>
-<br>
+                <div class="form-line" id="login-form-password">
+                    <input placeholder="Password" id="login-input-password" type="password" name="pass" [(ngModel)]="loginCredentials.password">
+                </div>
+
+                <div class="form-line" id="login-form-remember">
+                    <input id="toggle-login-remember" type="checkbox" class="label-right" />
+                    <label for="toggle-login-remember">Keep me logged in</label>
+                </div>
+
+                <div class="form-submit" id="login-form-submit">
+                    <button (click)="login()">Login</button>
+                    <span>Forgot your password ?</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="register-side">
+
+            <div id="register-form">
+
+                <div class="form-line" id="register-form-username">
+                    <input placeholder="Username" id="register-input-username" type="text" name="user" [(ngModel)]="registerCredentials.username">
+                </div>
+
+                <div class="form-line" id="register-form-password">
+                    <input placeholder="Password" id="register-input-password" type="password" name="pass" [(ngModel)]="registerCredentials.password">
+                </div>
+
+                <div class="form-line" id="register-form-name">
+                    <input placeholder="Full name" id="register-input-name" type="text" name="pass" [(ngModel)]="registerCredentials.name">
+                </div>
+
+                <div class="form-line" id="register-form-email">
+                    <input placeholder="E-mail address" id="register-input-email" type="text" name="pass" [(ngModel)]="registerCredentials.email">
+                </div>
+
+                <div class="form-submit" id="register-form-submit">
+                    <button (click)="register()">Register</button>
+                    <span>Forgot your password ?</span>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</section>

@@ -1,14 +1,28 @@
 @import "../../../styles/fonts";
 @import "../../../styles/colours";
+@import "../../../styles/queries";
 
 #navbar-list {
 
-    display:           flex;
-    flex-direction:     row;
-    justify-content: center;
+    height: 5.25em;
+
+    display:         flex;
+    flex-direction:  row;
+    justify-content: space-between;
     align-items:     center;
 
-    padding: 2em 3em;
+    #navbar-left,
+    #navbar-right {
+        display:         flex;
+        flex-direction:  row;
+        justify-content: space-between;
+        align-items:     center;
+    }
+
+    padding: 1em 1.5em;
+    @media (min-width: $query-desktop) {
+        padding-left: 3em;
+    }
 
     color: var(--header-fg);
     background-color: var(--header-bg);
@@ -18,25 +32,57 @@
        -moz-box-shadow: $box-shadow;
             box-shadow: $box-shadow;
 
-    .navbar-link {
+    .navbar-elem {
 
-        padding-left: 2.75em;
+        cursor: pointer;
 
-        font-size: 1.25em;
+        margin-left: 2em;
 
         &#home {
-            margin-right: auto;
-            padding-right: 15px;
-            padding-left: 0;
+            margin-left: 0;
+
+            #home-img-container {
+                display:         flex;
+                flex-direction:  column;
+                justify-content: center;
+                align-items:     center;
+
+                img {
+                    filter: var(--logo-filter);
+                }
+            }
         }
 
         &:not(#home) a {
+            font-size: 1.3em;
             color: var(--header-fg);
-
-            padding-bottom: .35em;
-            border-bottom: 1px solid var(--header-fg);;
         }
 
+        &#navbar-dark-mode-toggle {
+            margin-left: 1.35em;
+        }
+
+        #profile-display {
+            display:         flex;
+            flex-direction:  column;
+            justify-content: space-between;
+            align-items:     flex-start;
+
+            #profile-text {
+                font-size: 0.85em;
+                text-transform: uppercase;
+            }
+
+            #profile-username {
+                font-size: 1.20em;
+            }
+        }
+
+    }
+
+    #navbar-dark-mode-toggle-container {
+        margin-left: 1.35em;
+        border-left: solid var(--border-color) 1px;
     }
 
 }

@@ -1,3 +1,5 @@
-<p>profile works!</p>
+<section class="profile">
 
-<span>{{user | json}}</span>
+    <app-show-all-articles appCompact title="Articles by {{user.username}}" [articles]="articles"></app-show-all-articles>
+
+</section>

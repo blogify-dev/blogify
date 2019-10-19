@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Article, Content } from "../../models/Article";
-import { ArticleService } from "../../services/article/article.service";
+import { Article } from '../../models/Article';
+import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
-import { User } from "../../models/User";
-import { Comment } from "../../models/Comment"
-import { AuthService } from "../../services/auth/auth.service";
+import { AuthService } from '../../services/auth/auth.service';
+import { CommentsService } from '../../services/comments/comments.service';
+import { User } from '../../models/User';
 
 @Component({
     selector: 'app-show-article',
@@ -13,48 +13,41 @@ import { AuthService } from "../../services/auth/auth.service";
     styleUrls: ['./show-article.component.scss']
 })
 export class ShowArticleComponent implements OnInit {
-    routeMapSubscription: Subscription;
+
+    routeMapSubscription: Subscription;S
     article: Article;
+    user: User;
 
-    comment: Comment = {
-       commenter: '',
-       article: '',
-       uuid: '',
-       content: ''
-    };
-
-    articleContent: Content;
-    articleAuthor: User;
-
-    constructor(
+    constructor (
         private activatedRoute: ActivatedRoute,
         private articleService: ArticleService,
-        private authService: AuthService
-    ) {
-    }
+        public authService: AuthService,
+        private commentsService: CommentsService
+    ) {}
+
+    showUpdateButton = false;
+    showDeleteButton = false;
 
     ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const articleUUID = map.get('uuid');
             console.log(articleUUID);
 
-            this.article = await this.articleService.getArticleByUUID(articleUUID).toPromise();
+            this.article = await this.articleService.getArticleByUUID (
+                articleUUID,
+                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
+            );
+
+            this.showUpdateButton = this.authService.userUUID == this.article.createdBy.uuid;
+            this.showDeleteButton = this.authService.userUUID == this.article.createdBy.uuid;
+
             console.log(this.article);
-
-            this.articleContent = await this.articleService.getArticleContent(articleUUID).toPromise();
-            console.log(this.articleContent);
-
-            this.articleAuthor = await this.authService.getUser(this.article.createdBy.toString());
-            console.log(this.articleAuthor.username);
-        })
+        });
     }
 
-    convertTimeStampToHumanDate(time: number): string {
-        return new Date(time).toDateString()
-    }
 
-    deleteArticle(uuid){
-        return this.articleService.deleteArticle(this.article.uuid);
+    deleteArticle() {
+        this.articleService.deleteArticle(this.article.uuid).then(it => console.log(it));
     }
 
 }

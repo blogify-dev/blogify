@@ -1,36 +1,43 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http'
-import { FormsModule } from '@angular/forms'
-
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
-import { RegisterComponent } from './components/register/register.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { HomeComponent } from './components/home/home.component';
-import { RouterModule } from "@angular/router";
+import { RouterModule } from '@angular/router';
 import { NewArticleComponent } from './components/newarticle/new-article.component';
-import { SearchComponent } from './components/search/search.component';
 import { ShowArticleComponent } from './components/show-article/show-article.component';
 import { ShowAllArticlesComponent } from './components/show-all-articles/show-all-articles.component';
-import { CommentComponent } from './components/comment/comment.component';
+import { ArticleCommentsComponent } from './components/comment/article-comments.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
-
+import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
+import { CompactDirective } from './directives/compact/compact.directive';
+import { SingleCommentComponent } from './components/comment/single-comment/single-comment.component';
+import { CreateCommentComponent } from './components/comment/create-comment/create-comment.component';
+import { RelativeTimePipe } from './pipes/relative-time/relative-time.pipe';
+import { UpdateArticleComponent } from './components/update-article/update-article.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
     declarations: [
         AppComponent,
         LoginComponent,
-        RegisterComponent,
         ProfileComponent,
         HomeComponent,
         NewArticleComponent,
-        SearchComponent,
         ShowArticleComponent,
         ShowAllArticlesComponent,
-        CommentComponent,
-        NavbarComponent
+        ArticleCommentsComponent,
+        NavbarComponent,
+        DarkThemeDirective,
+        CompactDirective,
+        SingleCommentComponent,
+        CreateCommentComponent,
+        RelativeTimePipe,
+        UpdateArticleComponent,
     ],
     imports: [
         BrowserModule,
@@ -38,6 +45,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
         AppRoutingModule,
         HttpClientModule,
         FormsModule,
+        FontAwesomeModule
     ],
     providers: [],
     bootstrap: [AppComponent]

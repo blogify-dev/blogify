@@ -1,9 +1,8 @@
-import {Component, OnInit} from '@angular/core';
-import {Article} from "../../models/Article";
-import {ArticleService} from "../../services/article/article.service";
-import {AuthService} from "../../services/auth/auth.service";
-import {Router} from "@angular/router";
-import { User } from "../../models/User";
+import { Component, Input, OnInit } from '@angular/core';
+import { Article } from '../../models/Article';
+import { AuthService } from '../../services/auth/auth.service';
+import { Router } from '@angular/router';
+import { faCommentAlt, faPencilAlt, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-show-all-articles',
@@ -11,32 +10,31 @@ import { User } from "../../models/User";
     styleUrls: ['./show-all-articles.component.scss']
 })
 export class ShowAllArticlesComponent implements OnInit {
-    articles: Article[];
-    article: Article;
 
+    faSearch = faSearch;
+    faPencil = faPencilAlt;
+    faCommentAlt = faCommentAlt;
+
+    @Input() title = 'Articles';
+    @Input() articles: Article[];
 
     constructor(
-        private articleService: ArticleService,
         private authService: AuthService,
         private router: Router
-    ) {
-    }
+    ) {}
 
     ngOnInit() {
-        this.articleService.getAllArticles().then(it => {
-            this.articles = it
-        })
+
     }
 
     async navigateToNewArticle() {
-        if (this.authService.userToken == '') {
-            await this.router.navigateByUrl('/login')
+        if (this.authService.userToken === '') {
+            const url = `/login?redirect=/new-article`;
+            console.log(url);
+            await this.router.navigateByUrl(url);
         } else {
-            await this.router.navigateByUrl('/new-article')
-
+            await this.router.navigateByUrl('/new-article');
         }
     }
-
-
 
 }
