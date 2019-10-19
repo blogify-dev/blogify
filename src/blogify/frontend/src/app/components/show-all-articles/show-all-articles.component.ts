@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Article } from "../../models/Article";
 import { AuthService } from "../../services/auth/auth.service";
 import { Router } from "@angular/router";
+import {StaticContentService} from '../../services/static/static-content.service';
 
 @Component({
     selector: 'app-show-all-articles',
@@ -13,8 +14,9 @@ export class ShowAllArticlesComponent implements OnInit {
     @Input() title:    string = "Articles";
     @Input() articles: Article[];
 
-    constructor(
+    constructor (
         private authService: AuthService,
+        private staticContentService: StaticContentService,
         private router: Router
     ) {}
 

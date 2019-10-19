@@ -7,4 +7,20 @@
 
     @include pageContainer;
 
+    #profile-header {
+        display:         flex;
+        flex-direction:  row;
+        justify-content: flex-start;
+        align-items:     center;
+
+        #header-pfp {
+            width: 3em;
+            height: 3em;
+
+            margin-right: 1em;
+
+            border-radius: 50%;
+        }
+    }
+
 }

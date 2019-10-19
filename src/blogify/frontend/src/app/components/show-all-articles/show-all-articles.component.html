@@ -1,7 +1,7 @@
 <section class="articles">
 
     <div id="articles-header">
-        <h2>{{title}}</h2>
+        <h2 id="header-title">{{title}}</h2>
 
         <!--suppress HtmlFormInputWithoutLabel -->
         <input id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help">
@@ -17,7 +17,10 @@
             <div class="article-first-line">
                 <h1 class="header-title">{{article.title}}</h1>
 
-                <h4 class="article-author">Posted by {{article.createdBy.username}}</h4>
+                <span class="article-author">
+                    <img class="author-pfp" src="{{staticContentService.urlFor(article.createdBy.profilePicture)}}" alt="">
+                    <span class="author-name">{{article.createdBy.name}}</span>
+                </span>
             </div>
 
             <div class="article-second-line">

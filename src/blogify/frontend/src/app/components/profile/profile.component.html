@@ -1,6 +1,10 @@
 <section class="profile">
 
-    <img src="{{staticContentService.urlFor(user.profilePicture)}}" alt="Profile picture" />
+    <div id="profile-header">
+        <img id="header-pfp" src="{{staticContentService.urlFor(user.profilePicture)}}" alt="Profile picture" />
+
+        <h1 id="header-full-name">{{user.name}}</h1>
+    </div>
 
     <app-show-all-articles appCompact title="Articles by {{user.username}}" [articles]="articles"></app-show-all-articles>
 
