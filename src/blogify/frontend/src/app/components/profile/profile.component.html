@@ -1,7 +1,6 @@
 <section class="profile">
 
-    <!--suppress TypeScriptUnresolvedVariable -->
-    <img src="http://192.168.122.56:8080/api/get/{{user.profilePicture.collection}}/{{user.profilePicture.id}}" alt="Profile picture">
+    <img src="{{staticContentService.urlFor(user.profilePicture)}}" alt="Profile picture" />
 
     <app-show-all-articles appCompact title="Articles by {{user.username}}" [articles]="articles"></app-show-all-articles>
 

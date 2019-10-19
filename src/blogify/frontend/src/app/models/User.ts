@@ -1,10 +1,12 @@
+import {StaticFile} from './Static';
+
 export class User {
   constructor (
     public uuid: string,
     public username: string,
     public name: string,
     public email: string,
-    public profilePicture: string
+    public profilePicture: StaticFile
   ) {}
 }
 
