@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import { ArticleService } from '../../services/article/article.service';
 import { Article } from '../../models/Article';
 import { Subscription } from 'rxjs';
@@ -17,6 +17,7 @@ export class UpdateArticleComponent implements OnInit {
     constructor(
         private activatedRoute: ActivatedRoute,
         private articleService: ArticleService,
+        private router: Router,
     ) { }
 
     ngOnInit() {
@@ -33,4 +34,9 @@ export class UpdateArticleComponent implements OnInit {
         });
     }
 
+    async updateArticle() {
+        console.log(this.article);
+        await this.articleService.updateArticle(this.article);
+        await this.router.navigateByUrl(`/article/${this.article.uuid}`);
+    }
 }

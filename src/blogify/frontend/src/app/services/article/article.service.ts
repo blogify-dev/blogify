@@ -66,8 +66,7 @@ export class ArticleService {
         return this.httpClient.post(`/api/articles/`, newArticle, httpOptions).toPromise();
     }
 
-    // noinspection JSUnusedGlobalSymbols
-    updateArticle(uuid: string, article: Article, userToken: string = this.authService.userToken) {
+    updateArticle(article: Article, uuid: string = article.uuid, userToken: string = this.authService.userToken) {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
@@ -75,7 +74,16 @@ export class ArticleService {
             })
         };
 
-        return this.httpClient.patch<Article>(`/api/articles/${uuid}`, article, httpOptions);
+        const newArticle = {
+            uuid: article.uuid,
+            content: article.content,
+            title: article.title,
+            summary: article.summary,
+            categories: article.categories,
+            createdBy: article.createdBy.uuid,
+        };
+
+        return this.httpClient.patch<Article>(`/api/articles/${uuid}`, newArticle, httpOptions).toPromise();
     }
 
     // noinspection JSUnusedGlobalSymbols

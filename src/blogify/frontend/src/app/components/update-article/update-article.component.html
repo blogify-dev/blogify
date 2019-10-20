@@ -1,4 +1,8 @@
+<!--suppress HtmlFormInputWithoutLabel -->
 <div *ngIf="article">
-    <p>update-article works!</p>
+    Title: <input [(ngModel)]="article.title">
+    Text: <input [(ngModel)]="article.content">
+    Summary:<input [(ngModel)]="article.summary">
+    <button (click)="updateArticle()">Create New Article</button>
     <p>{{article | json}}</p>
 </div>
