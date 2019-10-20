@@ -1,8 +1,11 @@
 package blogify.backend.routes
 
 import blogify.backend.database.Uploadables
+import blogify.backend.database.Users
 import blogify.backend.database.handling.query
+import blogify.backend.util.FileCollectionTypes
 import blogify.backend.util.hex
+import blogify.backend.util.toUUID
 import com.andreapivetta.kolor.green
 
 import io.ktor.application.call
@@ -18,6 +21,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.update
 
 import org.slf4j.LoggerFactory
 
@@ -40,6 +44,7 @@ fun Route.static() {
             .toString(16)
             .toUpperCase()
         var collectionName = ""
+        var of = ""
         var fileBytes = byteArrayOf()
         var fileContentType: ContentType = ContentType.Application.Any
 
@@ -47,6 +52,7 @@ fun Route.static() {
             when (part) {
                 is PartData.FormItem -> {
                     if (part.name == "collection") collectionName = part.value
+                    if (part.name == "of") of = part.value
                 }
                 is PartData.FileItem -> {
                     part.streamProvider().use { input -> fileBytes = input.readBytes() }
@@ -64,6 +70,17 @@ fun Route.static() {
                 it[collection] = collectionName
                 it[contentType] = fileContentType.toString()
             }
+
+            when (FileCollectionTypes.valueOf(collectionName.toUpperCase())) {
+                FileCollectionTypes.USER_PROFILE_PICTURES -> {
+
+                    Users.update({Users.uuid eq of.toUUID()}) {
+                        it[profilePicture] =  uploadableId.toLong(radix = 16)
+                    }
+
+                }
+            }
+
         }
 
         logger.debug("""${"\n"}

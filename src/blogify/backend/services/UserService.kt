@@ -19,10 +19,11 @@ object UserService : Service<User>(Users) {
             it[password] = res.password
             it[name] = res.name
             it[email] = res.email
+            it[profilePicture] = res.profilePicture?.longId
         }
 
         return@query res
-    }.mapError { e -> Service.Exception.Creating(e) }
+    }.mapError { e -> Exception.Creating(e) }
 
     override suspend fun update(res: User): ResourceResult<User> {
         TODO("not implemented !")
