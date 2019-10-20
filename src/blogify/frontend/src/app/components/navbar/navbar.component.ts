@@ -12,7 +12,7 @@ import { DarkModeService } from '../../services/darkmode/dark-mode.service';
 export class NavbarComponent implements OnInit, AfterViewInit {
 
     @ViewChild('darkModeToggle', {static: false, read: ElementRef}) darkModeToggle: ElementRef;
-
+    username = '';
     constructor(
         public authService: AuthService,
         private router: Router,
@@ -20,7 +20,8 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     ) {
     }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.username = (await this.authService.userProfile).username;
         console.log(this.authService.userToken);
     }
 
@@ -38,7 +39,9 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     }
 
     async navigateToProfile() {
-        const url = `/profile/${this.authService.userUUID}`;
+        const userUUID = await this.authService.userUUID;
+        console.log(userUUID);
+        const url = `/profile/${userUUID}`;
         await this.router.navigateByUrl(url);
     }
 

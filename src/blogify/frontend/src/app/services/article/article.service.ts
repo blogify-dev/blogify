@@ -1,4 +1,3 @@
-/* tslint:disable:no-shadowed-variable */
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Article } from '../../models/Article';
@@ -60,7 +59,7 @@ export class ArticleService {
             title,
             summary,
             categories,
-            createdBy: this.authService.userUUID,
+            createdBy: await this.authService.userUUID,
         };
 
         return this.httpClient.post(`/api/articles/`, newArticle, httpOptions).toPromise();
@@ -86,7 +85,6 @@ export class ArticleService {
         return this.httpClient.patch<Article>(`/api/articles/${uuid}`, newArticle, httpOptions).toPromise();
     }
 
-    // noinspection JSUnusedGlobalSymbols
     deleteArticle(uuid: string, userToken: string = this.authService.userToken) {
         const httpOptions = {
             headers: new HttpHeaders({

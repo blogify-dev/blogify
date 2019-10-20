@@ -38,8 +38,8 @@ export class ShowArticleComponent implements OnInit {
                 ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
             );
 
-            this.showUpdateButton = this.authService.userUUID == this.article.createdBy.uuid;
-            this.showDeleteButton = this.authService.userUUID == this.article.createdBy.uuid;
+            this.showUpdateButton = (await this.authService.userUUID) == this.article.createdBy.uuid;
+            this.showDeleteButton = (await this.authService.userUUID) == this.article.createdBy.uuid;
 
             console.log(this.article);
         });

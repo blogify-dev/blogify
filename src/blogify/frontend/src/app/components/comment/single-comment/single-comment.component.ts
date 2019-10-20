@@ -44,7 +44,7 @@ export class SingleCommentComponent implements OnInit {
         // We're ready, so we can populate the dummy reply comment
 
         this.replyComment = {
-            commenter: this.authService.isLoggedIn() ? this.authService.userProfile : '',
+            commenter: this.authService.isLoggedIn() ? await this.authService.userProfile : '',
             article: this.comment.article,
             content: '',
             uuid: ''

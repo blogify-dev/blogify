@@ -11,7 +11,7 @@ export class AuthService {
 
     private readonly dummyUser: User = new User('', '', '', '');
 
-    private currentUserToken_ = new BehaviorSubject('');
+    // private currentUserToken_ = new BehaviorSubject('');
     private currentUserUuid_ = new BehaviorSubject('');
     private currentUser_ = new BehaviorSubject(this.dummyUser);
 
@@ -21,15 +21,16 @@ export class AuthService {
         const token = this.httpClient.post<UserToken>('/api/auth/signin', user, {responseType: "json"});
         const it = await token.toPromise();
 
-        this.currentUserToken_.next(it.token);
+
+        localStorage.setItem("userToken", it.token);
 
         const uuid = await this.getUserUUIDFromToken(it.token);
 
         // Fix JS bullshit
-        const fetchedUserObj: User = await this.fetchUser(uuid.uuid);
+        const fetchedUserObj: User = await this.fetchUser(uuid);
         const fetchedUser = new User(fetchedUserObj.uuid, fetchedUserObj.username, fetchedUserObj.name, fetchedUserObj.email);
 
-        console.log("TYPE CHECK: " + (fetchedUser instanceof User));
+        console.log(`TYPE CHECK: ${fetchedUser instanceof User}`);
 
         this.currentUser_.next(fetchedUser);
         this.currentUserUuid_.next(fetchedUser.uuid);
@@ -45,11 +46,11 @@ export class AuthService {
         return this.userToken !== '';
     }
 
-    private async getUserUUIDFromToken(token: string): Promise<UserUUID> {
+    private async getUserUUIDFromToken(token: string): Promise<string> {
         const userUUIDObservable = this.httpClient.get<UserUUID>(`/api/auth/${token}`);
         const uuid = await userUUIDObservable.toPromise();
         this.currentUserUuid_.next(uuid.uuid);
-        return uuid;
+        return uuid.uuid;
     }
 
     async fetchUser(uuid: string): Promise<User> {
@@ -57,15 +58,33 @@ export class AuthService {
     }
 
     get userToken(): string {
-        return this.currentUserToken_.getValue()
+        const token = localStorage.getItem("userToken");
+        return token == null ? '' : token;
     }
 
-    get userUUID(): string {
-        return this.currentUserUuid_.getValue()
+    get userUUID(): Promise<string> {
+        if (this.currentUserUuid_.getValue())
+            return Promise.resolve(this.currentUserUuid_.getValue());
+        else {
+            const uuid = this.getUserUUIDFromToken(this.userToken);
+            uuid.then(it => {
+                console.log(it);
+                this.currentUserUuid_.next(it);
+            });
+            return uuid;
+        }
     }
 
-    get userProfile(): User {
-        return this.currentUser_.getValue()
+    get userProfile(): Promise<User> {
+        return this.getUser()
+    }
+
+    private async getUser(): Promise<User> {
+        if (this.currentUser_.getValue().uuid != '') {
+            return this.currentUser_.getValue()
+        } else {
+            return this.fetchUser(await this.userUUID)
+        }
     }
 
 }
