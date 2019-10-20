@@ -12,7 +12,8 @@ import { DarkModeService } from '../../services/darkmode/dark-mode.service';
 export class NavbarComponent implements OnInit, AfterViewInit {
 
     @ViewChild('darkModeToggle', {static: false, read: ElementRef}) darkModeToggle: ElementRef;
-    username = '';
+
+    username: string;
     constructor(
         public authService: AuthService,
         private router: Router,
@@ -20,8 +21,11 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     ) {
     }
 
-    async ngOnInit() {
-        this.username = (await this.authService.userProfile).username;
+    ngOnInit() {
+        this.authService.userProfile.then(user => {
+            this.username = user.username;
+        });
+
         console.log(this.authService.userToken);
     }
 
