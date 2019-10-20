@@ -1,5 +1,7 @@
 package blogify.backend.routes
 
+import blogify.backend.database.Uploadables
+import blogify.backend.database.handling.query
 import blogify.backend.util.hex
 import com.andreapivetta.kolor.green
 
@@ -15,6 +17,7 @@ import io.ktor.response.respondBytes
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
+import org.jetbrains.exposed.sql.insert
 
 import org.slf4j.LoggerFactory
 
@@ -54,6 +57,14 @@ fun Route.static() {
 
         val outFile = File("/var/static/$collectionName-$uploadableId.bin")
         outFile.writeBytes(byteArrayOf(*STATIC_CONTENT_FILE_SIGNATURE, *fileContentType.toString().toByteArray(), 0x00, *fileBytes))
+
+        query {
+            Uploadables.insert {
+                it[id] = uploadableId.toLong(radix = 16)
+                it[collection] = collectionName
+                it[contentType] = fileContentType.toString()
+            }
+        }
 
         logger.debug("""${"\n"}
             File uploaded {
