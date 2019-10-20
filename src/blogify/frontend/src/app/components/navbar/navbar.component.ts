@@ -51,4 +51,7 @@ export class NavbarComponent implements OnInit, AfterViewInit {
 
     }
 
+    logout() {
+        this.authService.logout();
+    }
 }

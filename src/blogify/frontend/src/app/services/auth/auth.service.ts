@@ -79,6 +79,10 @@ export class AuthService {
         return this.getUser()
     }
 
+    logout() {
+        localStorage.removeItem("userToken")
+    }
+
     private async getUser(): Promise<User> {
         if (this.currentUser_.getValue().uuid != '') {
             return this.currentUser_.getValue()

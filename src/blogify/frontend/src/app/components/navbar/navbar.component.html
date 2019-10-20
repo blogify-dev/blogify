@@ -28,6 +28,8 @@
 
             </span>
 
+            <span *ngIf="authService.userToken != ''" (click)="logout()">Logout</span>
+
             <span id="navbar-dark-mode-toggle-container">
 
                 <span class="togglebox navbar-elem" id="navbar-dark-mode-toggle">
