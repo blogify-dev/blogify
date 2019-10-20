@@ -1,7 +1,7 @@
 <section class="profile">
 
     <div id="profile-header">
-        <img id="header-pfp" src="{{staticContentService.urlFor(user.profilePicture)}}" alt="Profile picture" />
+        <app-profile-picture id="header-pfp" [pfpFile]="user.profilePicture" emSize="3"></app-profile-picture>
 
         <h1 id="header-full-name">{{user.name}}</h1>
     </div>

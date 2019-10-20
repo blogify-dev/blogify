@@ -20,6 +20,7 @@ import { SingleCommentComponent } from './components/comment/single-comment/sing
 import { CreateCommentComponent } from './components/comment/create-comment/create-comment.component';
 import { RelativeTimePipe } from './pipes/relative-time/relative-time.pipe';
 import { UpdateArticleComponent } from './components/update-article/update-article.component';
+import { ProfilePictureComponent } from './components/profile-picture/profile-picture.component';
 
 @NgModule({
     declarations: [
@@ -38,6 +39,7 @@ import { UpdateArticleComponent } from './components/update-article/update-artic
         CreateCommentComponent,
         RelativeTimePipe,
         UpdateArticleComponent,
+        ProfilePictureComponent,
     ],
     imports: [
         BrowserModule,

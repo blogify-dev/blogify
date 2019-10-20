@@ -18,7 +18,8 @@
                 <h1 class="header-title">{{article.title}}</h1>
 
                 <span class="article-author">
-                    <img class="author-pfp" src="{{staticContentService.urlFor(article.createdBy.profilePicture)}}" alt="">
+                    <app-profile-picture class="author-pfp" [pfpFile]="article.createdBy.profilePicture" emSize="2"></app-profile-picture>
+
                     <span class="author-name">{{article.createdBy.name}}</span>
                 </span>
             </div>
