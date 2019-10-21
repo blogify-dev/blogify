@@ -1,8 +1,8 @@
-package blogify.backend.static.fs
+package blogify.backend.resources.static.fs
 
 import blogify.backend.resources.models.Resource
-import blogify.backend.static.models.StaticResource
-import blogify.backend.static.models.StaticResourceHandle
+import blogify.backend.resources.static.models.StaticResource
+import blogify.backend.resources.static.models.StaticResourceHandle
 
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext

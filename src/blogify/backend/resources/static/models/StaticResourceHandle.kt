@@ -1,4 +1,4 @@
-package blogify.backend.static.models
+package blogify.backend.resources.static.models
 
 sealed class StaticResourceHandle(val code: String) {
 
