@@ -3,7 +3,7 @@ package blogify.backend.resources.static.models
 import io.ktor.http.ContentType
 
 /**
- * Represents an uploaded [StaticResource]. Only used while upload.
+ * Represents an uploaded [StaticData]. Only used while upload.
  *
  * @param contentType the [ContentType] of the uploaded data
  * @param data        the actual byte data
@@ -11,4 +11,4 @@ import io.ktor.http.ContentType
  * @author Benjozork
  */
 @Suppress("ArrayInDataClass")
-data class StaticResource(val contentType: ContentType, val data: ByteArray)
+data class StaticData(val contentType: ContentType, val data: ByteArray)

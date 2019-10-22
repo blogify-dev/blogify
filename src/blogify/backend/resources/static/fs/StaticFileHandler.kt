@@ -1,8 +1,9 @@
 package blogify.backend.resources.static.fs
 
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.static.models.StaticResource
+import blogify.backend.resources.static.models.StaticData
 import blogify.backend.resources.static.models.StaticResourceHandle
+
 import io.ktor.http.ContentType
 
 import kotlinx.coroutines.Dispatchers.IO
@@ -10,6 +11,11 @@ import kotlinx.coroutines.withContext
 
 import java.io.File
 
+/**
+ * Utility object for storing [StaticData] objects in the filesystem
+ *
+ * @author Benjozork, hamza1311
+ */
 object StaticFileHandler {
 
     private const val BASE_STATIC_FILE_PATH = "/var/static"
@@ -17,39 +23,39 @@ object StaticFileHandler {
     private val STATIC_FILE_SIGNATURE = byteArrayOf(0x6c, 0x75, 0x63, 0x79)
 
     /**
-     * Reads a file from filesystem and returns its [StaticResource]
+     * Reads a file from filesystem and returns its [StaticData]
      *
      * @param handle [StaticResourceHandle] for the file to read.
      *
-     * @return [StaticResource] of the requested file
+     * @return [StaticData] of the requested file
      *
      * @author hamza1311
      */
-    suspend fun readStaticResource(handle: StaticResourceHandle.Ok): StaticResource = withContext(IO) {
+    suspend fun readStaticResource(handle: StaticResourceHandle.Ok): StaticData = withContext(IO) {
 
         val file        = File("$BASE_STATIC_FILE_PATH/${handle.fileId}")
         val rawBytes    = file.readBytes().drop(STATIC_FILE_SIGNATURE.size)
         val contentType = String(rawBytes.takeWhile { it != 0x00.toByte() }.toByteArray())
         val content     = rawBytes.dropWhile { it != 0x00.toByte() }.drop(1).toByteArray()
 
-        return@withContext StaticResource(ContentType.parse(contentType), content)
+        return@withContext StaticData(ContentType.parse(contentType), content)
     }
 
     /**
-     * Writes a file containing an uploaded [StaticResource] onto the filesystem
+     * Writes a file containing an uploaded [StaticData] onto the filesystem
      *
-     * @param slotCode       the code of the slot, of the format `<resource class name>_<slot property name>`
-     * @param resource       the [Resource] instance on which the slot is present
-     * @param staticResource the actual byte data of the uploaded static resource
+     * @param slotCode   the code of the slot, of the format `<resource class name>_<slot property name>`
+     * @param resource   the [Resource] instance on which the slot is present
+     * @param staticData the actual byte data of the uploaded static resource
      *
-     * @return a [StaticResourceHandle.Ok] describing the stored [static resource][StaticResource]
+     * @return a [StaticResourceHandle.Ok] describing the stored [static resource][StaticData]
      *
      * @author Benjozork
      */
     suspend fun writeStaticResource (
         slotCode:       String,
         resource:       Resource,
-        staticResource: StaticResource
+        staticData: StaticData
     ): StaticResourceHandle.Ok = withContext(IO) {
 
         val fileId = "${resource.uuid}_$slotCode"
@@ -60,9 +66,9 @@ object StaticFileHandler {
         // Write contents
         targetFile.appendBytes (
              STATIC_FILE_SIGNATURE
-                + staticResource.contentType.toString().toByteArray()
+                + staticData.contentType.toString().toByteArray()
                 + 0x00
-                + staticResource.data
+                + staticData.data
         )
 
         // Return created handle
