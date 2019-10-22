@@ -3,6 +3,7 @@ package blogify.backend.resources.static.fs
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticResource
 import blogify.backend.resources.static.models.StaticResourceHandle
+import io.ktor.http.ContentType
 
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
@@ -15,8 +16,23 @@ object StaticFileHandler {
     private const val STATIC_FILE_EXTENSION = "blogifystatic"
     private val STATIC_FILE_SIGNATURE = byteArrayOf(0x6c, 0x75, 0x63, 0x79)
 
-    suspend fun readStaticResource(handle: StaticResourceHandle.Ok): ByteArray = withContext(IO) {
-        return@withContext byteArrayOf()
+    /**
+     * Reads a file from filesystem and returns its [StaticResource]
+     *
+     * @param handle [StaticResourceHandle] for the file to read.
+     *
+     * @return [StaticResource] of the requested file
+     *
+     * @author hamza1311
+     */
+    suspend fun readStaticResource(handle: StaticResourceHandle.Ok): StaticResource = withContext(IO) {
+
+        val file        = File("$BASE_STATIC_FILE_PATH/${handle.fileId}")
+        val rawBytes    = file.readBytes().drop(STATIC_FILE_SIGNATURE.size)
+        val contentType = String(rawBytes.takeWhile { it != 0x00.toByte() }.toByteArray())
+        val content     = rawBytes.dropWhile { it != 0x00.toByte() }.drop(1).toByteArray()
+
+        return@withContext StaticResource(ContentType.parse(contentType), content)
     }
 
     /**
