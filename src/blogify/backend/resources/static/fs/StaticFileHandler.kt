@@ -33,7 +33,7 @@ object StaticFileHandler {
      */
     suspend fun readStaticResource(handle: StaticResourceHandle.Ok): StaticData = withContext(IO) {
 
-        val file        = File("$BASE_STATIC_FILE_PATH/${handle.fileId}")
+        val file        = File("$BASE_STATIC_FILE_PATH/${handle.fileId}.$STATIC_FILE_EXTENSION")
         val rawBytes    = file.readBytes().drop(STATIC_FILE_SIGNATURE.size)
         val contentType = String(rawBytes.takeWhile { it != 0x00.toByte() }.toByteArray())
         val content     = rawBytes.dropWhile { it != 0x00.toByte() }.drop(1).toByteArray()
