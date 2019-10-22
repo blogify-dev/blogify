@@ -53,8 +53,8 @@ object StaticFileHandler {
      * @author Benjozork
      */
     suspend fun writeStaticResource (
-        slotCode:       String,
-        resource:       Resource,
+        slotCode:   String,
+        resource:   Resource,
         staticData: StaticData
     ): StaticResourceHandle.Ok = withContext(IO) {
 
@@ -64,7 +64,7 @@ object StaticFileHandler {
         val targetFile = File("$BASE_STATIC_FILE_PATH/$fileId.$STATIC_FILE_EXTENSION")
 
         // Write contents
-        targetFile.appendBytes (
+        targetFile.writeBytes (
              STATIC_FILE_SIGNATURE
                 + staticData.contentType.toString().toByteArray()
                 + 0x00
