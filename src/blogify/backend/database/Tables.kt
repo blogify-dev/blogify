@@ -7,6 +7,7 @@ import blogify.backend.resources.Comment
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Uploadable
+import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.UserService
 import blogify.backend.services.articles.CommentService
@@ -86,11 +87,7 @@ object Users : ResourceTable<User>() {
             password       = source[password],
             name           = source[name],
             email          = source[email],
-            profilePicture = source[profilePicture]?.let { notNullPfp ->
-                transaction {
-                    Uploadables.select { Uploadables.id eq notNullPfp }.single()
-                }.let { Uploadables.convert(callContext, it) }.get()
-            }
+            profilePicture = StaticResourceHandle.None(ContentType.Image.PNG)
         )
     }
 

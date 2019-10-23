@@ -19,7 +19,7 @@ object UserService : Service<User>(Users) {
             it[password] = res.password
             it[name] = res.name
             it[email] = res.email
-            it[profilePicture] = res.profilePicture?.longId
+            it[profilePicture] = -1
         }
 
         return@query res

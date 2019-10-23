@@ -4,6 +4,7 @@ import blogify.backend.auth.encoder
 import blogify.backend.auth.jwt.generateJWT
 import blogify.backend.database.Users
 import blogify.backend.resources.User
+import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.routes.handling.respondExceptionMessage
 import blogify.backend.services.UserService
 import blogify.backend.util.foldForOne
@@ -13,6 +14,7 @@ import blogify.backend.util.reason
 import blogify.backend.util.singleOrNullOrError
 
 import io.ktor.application.call
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -58,7 +60,7 @@ data class RegisterCredentials (
             password = this.password.hash(),
             email = this.email,
             name = this.name,
-            profilePicture = null
+            profilePicture = StaticResourceHandle.None(ContentType.Image.PNG)
         )
 
         UserService.add(created).fold(

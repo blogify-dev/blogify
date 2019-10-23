@@ -8,6 +8,7 @@ import io.ktor.http.ContentType
 
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
+import kotlin.random.Random
 
 import java.io.File
 
@@ -38,14 +39,16 @@ object StaticFileHandler {
         val contentType = String(rawBytes.takeWhile { it != 0x00.toByte() }.toByteArray())
         val content     = rawBytes.dropWhile { it != 0x00.toByte() }.drop(1).toByteArray()
 
+        if (! handle.contentType.match(contentType))
+            error("handle doesn't point to correct content type")
+
         return@withContext StaticData(ContentType.parse(contentType), content)
     }
 
     /**
      * Writes a file containing an uploaded [StaticData] onto the filesystem
      *
-     * @param slotCode   the code of the slot, of the format `<resource class name>_<slot property name>`
-     * @param resource   the [Resource] instance on which the slot is present
+     * @param baseHandle the original handle that should be updated
      * @param staticData the actual byte data of the uploaded static resource
      *
      * @return a [StaticResourceHandle.Ok] describing the stored [static resource][StaticData]
@@ -53,12 +56,12 @@ object StaticFileHandler {
      * @author Benjozork
      */
     suspend fun writeStaticResource (
-        slotCode:   String,
-        resource:   Resource,
+        baseHandle: StaticResourceHandle,
         staticData: StaticData
     ): StaticResourceHandle.Ok = withContext(IO) {
 
-        val fileId = "${resource.uuid}_$slotCode"
+        // Generate random ID
+        val fileId = Random.Default.nextLong()
 
         // Create file from base name, fileId and extension
         val targetFile = File("$BASE_STATIC_FILE_PATH/$fileId.$STATIC_FILE_EXTENSION")
@@ -72,7 +75,7 @@ object StaticFileHandler {
         )
 
         // Return created handle
-        return@withContext StaticResourceHandle.Ok(slotCode, fileId)
+        return@withContext StaticResourceHandle.Ok(baseHandle, fileId)
     }
 
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Uploadable
+import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.util.noslice
 
 import java.util.*
@@ -20,7 +21,7 @@ data class User (
     @noslice val password:       String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
              val name:           String,
              val email:          String,
-             val profilePicture: Uploadable?,
+             val profilePicture: StaticResourceHandle,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid)

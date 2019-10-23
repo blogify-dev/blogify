@@ -30,12 +30,18 @@ package blogify.backend.routes.handling
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
+import blogify.backend.resources.slicing.PropertyHandle
+import blogify.backend.resources.slicing.cachedPropMap
 import blogify.backend.resources.slicing.sanitize
 import blogify.backend.resources.slicing.slice
+import blogify.backend.resources.static.fs.StaticFileHandler
+import blogify.backend.resources.static.models.StaticData
+import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.util.BlogifyDsl
+import blogify.backend.util.reason
 import blogify.backend.util.toUUID
 
 import io.ktor.application.ApplicationCall
@@ -51,11 +57,25 @@ import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import com.andreapivetta.kolor.magenta
 import com.andreapivetta.kolor.yellow
+import io.ktor.http.ContentType
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.http.content.streamProvider
+import io.ktor.request.receiveMultipart
+import jdk.nashorn.internal.objects.annotations.Property
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.lang.Exception
 
 import java.util.UUID
+import kotlin.math.absoluteValue
+import kotlin.random.Random
+import kotlin.reflect.KClass
+import kotlin.reflect.full.declaredMemberFunctions
+import kotlin.reflect.full.functions
+import kotlin.reflect.full.isSuperclassOf
+import kotlin.reflect.full.superclasses
 
 val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
 
@@ -78,6 +98,18 @@ val defaultPredicateLambda: suspend (user: User, res: Resource) -> Boolean = { _
  * The default resource-less predicate used by the wrappers in this file
  */
 val defaultResourceLessPredicateLambda: suspend (user: User) -> Boolean = { _ -> true }
+
+class PipelineException(val code: HttpStatusCode, override val message: String) : Exception(message)
+
+suspend fun pipelineError(code: HttpStatusCode, message: String): Nothing = throw PipelineException(code, message)
+
+suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), block: suspend (Array<String?>) -> Unit) {
+    try {
+        block(wantedParams.map { param -> call.parameters[param] }.toTypedArray())
+    } catch (e: PipelineException) {
+        call.respond(HttpStatusCode.BadRequest, reason(e.message))
+    }
+}
 
 /**
  * Sends an object describing an exception as a response
@@ -147,6 +179,7 @@ suspend fun <R : Resource> CallPipeline.fetchWithId (
     authPredicate: suspend (User)                   -> Boolean = defaultResourceLessPredicateLambda
 ) {
     val params = call.parameters
+
     params["uuid"]?.let { id -> // Check if the query URL provides any UUID
         val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
 
@@ -201,7 +234,7 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 ) {
     val params = call.parameters
 
-    call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
+    params["uuid"]?.let { id -> // Check if the query URL provides any UUID
 
         val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
 
@@ -246,6 +279,54 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
         }
 
     } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
+}
+
+@Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
+@BlogifyDsl
+suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
+    crossinline fetch:  suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
+    crossinline modify: suspend (R, StaticResourceHandle) -> R,
+    crossinline update: suspend (R)                       -> ResourceResult<R>
+) = pipeline("uuid", "target") { (uuid, target) ->
+
+    uuid!!; target!!
+    val targetClass = R::class
+
+    // Find target property
+    val targetPropHandle = targetClass.cachedPropMap()[target]
+        ?.takeIf {
+            it is PropertyHandle.Ok
+                    && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
+        } as? PropertyHandle.Ok ?: pipelineError(HttpStatusCode.BadRequest, "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'")
+
+    // Find target resource
+    val targetResource = fetch(call, UUID.fromString(uuid)).get()
+
+    // Recieve data
+    val multiPartData = call.receiveMultipart()
+
+    var fileContentType: ContentType = ContentType.Application.Any
+    var fileBytes = byteArrayOf()
+
+    multiPartData.forEachPart { part ->
+        when (part) {
+            is PartData.FileItem -> {
+                part.streamProvider().use { input -> fileBytes = input.readBytes() }
+                fileContentType = part.contentType ?: ContentType.Application.Any
+            }
+        }
+    }
+
+    // Write to file
+    val newHandle = StaticFileHandler.writeStaticResource (
+        targetPropHandle.property.get(targetResource) as StaticResourceHandle,
+        StaticData(fileContentType, fileBytes)
+    )
+
+    // idk
+    val rep = modify(targetResource, newHandle)
+
+    call.respond(newHandle.toString())
 }
 
 /**
@@ -362,7 +443,7 @@ suspend inline fun <reified R : Resource> CallPipeline.updateWithId(
     replacement.uuid.let { fetch.invoke(call, it) }.fold(
         success = {
             if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-                runAuthenticated(
+                runAuthenticated (
                     predicate = { u -> authPredicate(u, replacement) },
                     block = doUpdate
                 ) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
