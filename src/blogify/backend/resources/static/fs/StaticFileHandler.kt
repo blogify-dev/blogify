@@ -1,6 +1,5 @@
 package blogify.backend.resources.static.fs
 
-import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticData
 import blogify.backend.resources.static.models.StaticResourceHandle
 
@@ -32,15 +31,12 @@ object StaticFileHandler {
      *
      * @author hamza1311
      */
-    suspend fun readStaticResource(handle: StaticResourceHandle.Ok): StaticData = withContext(IO) {
+    suspend fun readStaticResource(fileId: Long): StaticData = withContext(IO) {
 
-        val file        = File("$BASE_STATIC_FILE_PATH/${handle.fileId}.$STATIC_FILE_EXTENSION")
+        val file        = File("$BASE_STATIC_FILE_PATH/$fileId.$STATIC_FILE_EXTENSION")
         val rawBytes    = file.readBytes().drop(STATIC_FILE_SIGNATURE.size)
         val contentType = String(rawBytes.takeWhile { it != 0x00.toByte() }.toByteArray())
         val content     = rawBytes.dropWhile { it != 0x00.toByte() }.drop(1).toByteArray()
-
-        if (! handle.contentType.match(contentType))
-            error("handle doesn't point to correct content type")
 
         return@withContext StaticData(ContentType.parse(contentType), content)
     }
@@ -71,7 +67,7 @@ object StaticFileHandler {
              STATIC_FILE_SIGNATURE
                 + staticData.contentType.toString().toByteArray()
                 + 0x00
-                + staticData.data
+                + staticData.bytes
         )
 
         // Return created handle
