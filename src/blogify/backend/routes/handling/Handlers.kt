@@ -29,6 +29,7 @@ package blogify.backend.routes.handling
 
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Uploadables
+import blogify.backend.database.Users
 import blogify.backend.database.handling.query
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
@@ -66,6 +67,7 @@ import io.ktor.http.content.streamProvider
 import io.ktor.request.receiveMultipart
 import jdk.nashorn.internal.objects.annotations.Property
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.update
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -333,8 +335,16 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
         }
     }
 
-    // idk
+    // idk - temporary
     val rep = modify(targetResource, newHandle)
+
+    if (rep is User) {
+        query {
+            Users.update({Users.uuid eq rep.uuid}) {
+                it[profilePicture] = newHandle.fileId
+            }
+        }
+    }
 
     call.respond(newHandle.toString())
 }
