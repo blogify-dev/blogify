@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 data class Uploadable (
     @JsonIgnore @noslice
     val longId:      Long,
-    val collection:  String,
     val contentType: ContentType
 ) {
 

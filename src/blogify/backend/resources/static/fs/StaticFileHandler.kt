@@ -25,7 +25,7 @@ object StaticFileHandler {
     /**
      * Reads a file from filesystem and returns its [StaticData]
      *
-     * @param handle [StaticResourceHandle] for the file to read.
+     * @param fileId id of the file to read.
      *
      * @return [StaticData] of the requested file
      *

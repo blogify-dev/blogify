@@ -28,6 +28,8 @@
 package blogify.backend.routes.handling
 
 import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.database.Uploadables
+import blogify.backend.database.handling.query
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.slicing.PropertyHandle
@@ -63,6 +65,7 @@ import io.ktor.http.content.forEachPart
 import io.ktor.http.content.streamProvider
 import io.ktor.request.receiveMultipart
 import jdk.nashorn.internal.objects.annotations.Property
+import org.jetbrains.exposed.sql.insert
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -322,6 +325,13 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
         targetPropHandle.property.get(targetResource) as StaticResourceHandle,
         StaticData(fileContentType, fileBytes)
     )
+
+    query {
+        Uploadables.insert {
+            it[id] = newHandle.fileId
+            it[contentType] = newHandle.contentType.toString()
+        }
+    }
 
     // idk
     val rep = modify(targetResource, newHandle)

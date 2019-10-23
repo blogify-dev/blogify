@@ -115,13 +115,11 @@ object Comments : ResourceTable<Comment>() {
 object Uploadables : Table() {
 
     val id          = long    ("id").primaryKey()
-    val collection  = varchar ("collection", 255)
     val contentType = varchar ("content_type", 64)
 
     suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Uploadable, Service.Exception> {
         Uploadable (
             longId      = source[id],
-            collection  = source[collection],
             contentType = ContentType.parse(source[contentType])
         )
     }
