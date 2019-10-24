@@ -291,7 +291,7 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
     crossinline fetch:  suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
     crossinline modify: suspend (R, StaticResourceHandle) -> R,
-    crossinline update: suspend (R)                       -> ResourceResult<R>
+    crossinline update: suspend (R)                       -> ResourceResult<*>
 ) = pipeline("uuid", "target") { (uuid, target) ->
 
     uuid!!; target!!
@@ -307,7 +307,7 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
     // Find target resource
     val targetResource = fetch(call, UUID.fromString(uuid)).get()
 
-    // Recieve data
+    // Receive data
     val multiPartData = call.receiveMultipart()
 
     var fileContentType: ContentType = ContentType.Application.Any
@@ -330,21 +330,22 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
 
     query {
         Uploadables.insert {
-            it[id] = newHandle.fileId
+            it[fileId]      = newHandle.fileId
             it[contentType] = newHandle.contentType.toString()
         }
-    }
+
+    }.fold (
+        success = {},
+        failure = { println("fuck: ${it.toString()}") }
+    )
 
     // idk - temporary
     val rep = modify(targetResource, newHandle)
 
-    if (rep is User) {
-        query {
-            Users.update({Users.uuid eq rep.uuid}) {
-                it[profilePicture] = newHandle.fileId
-            }
-        }
-    }
+    update(rep).fold (
+        success = {},
+        failure = { println("fuck: ${it.toString()}") }
+    )
 
     call.respond(newHandle.toString())
 }
@@ -444,7 +445,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.updateWithId(
-    noinline update: suspend (R) -> ResourceResult<R>,
+    noinline update: suspend (R) -> ResourceResult<*>,
     fetch: suspend (ApplicationCall, UUID) -> ResourceResult<R>,
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) {

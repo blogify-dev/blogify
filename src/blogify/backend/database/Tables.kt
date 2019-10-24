@@ -74,7 +74,7 @@ object Users : ResourceTable<User>() {
     val password       = varchar ("password", 255)
     val email          = varchar ("email", 255)
     val name           = varchar ("name", 255)
-    val profilePicture = long    ("profile_picture").references(Uploadables.id, onDelete = ReferenceOption.CASCADE).nullable()
+    val profilePicture = long    ("profile_picture").nullable()
 
     init {
         index(true, username)
@@ -87,7 +87,9 @@ object Users : ResourceTable<User>() {
             password       = source[password],
             name           = source[name],
             email          = source[email],
-            profilePicture = StaticResourceHandle.None(ContentType.Image.PNG)
+            profilePicture = source[profilePicture]?.let { transaction {
+                Uploadables.select { Uploadables.fileId eq source[profilePicture]!! }.limit(1).single()
+            }.let { Uploadables.convert(callContext, it).get() } } ?: StaticResourceHandle.None(ContentType.Any)
         )
     }
 
@@ -114,13 +116,13 @@ object Comments : ResourceTable<Comment>() {
 
 object Uploadables : Table() {
 
-    val id          = long    ("id").primaryKey()
+    val fileId      = long    ("id").primaryKey()
     val contentType = varchar ("content_type", 64)
 
-    suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Uploadable, Service.Exception> {
-        Uploadable (
-            longId      = source[id],
-            contentType = ContentType.parse(source[contentType])
+    suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<StaticResourceHandle.Ok, Service.Exception> {
+        StaticResourceHandle.Ok (
+            baseHandle = StaticResourceHandle.None(ContentType.parse(source[contentType])),
+            fileId     = source[fileId]
         )
     }
 

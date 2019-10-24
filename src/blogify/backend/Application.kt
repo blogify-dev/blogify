@@ -40,8 +40,10 @@ import io.ktor.routing.routing
 import org.jetbrains.exposed.sql.SchemaUtils
 
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.sql.update
 
 import org.slf4j.event.Level
+import java.util.UUID
 
 const val version = "PRX3"
 

@@ -1,5 +1,7 @@
 package blogify.backend.util
 
+import blogify.backend.resources.models.Resource
+
 fun reason(text: String) = object { val reason = text }
 
 fun Byte.hex(): String {
