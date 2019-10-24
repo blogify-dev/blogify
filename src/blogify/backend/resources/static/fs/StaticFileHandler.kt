@@ -52,7 +52,6 @@ object StaticFileHandler {
      * @author Benjozork
      */
     suspend fun writeStaticResource (
-        baseHandle: StaticResourceHandle,
         staticData: StaticData
     ): StaticResourceHandle.Ok = withContext(IO) {
 

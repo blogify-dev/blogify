@@ -21,7 +21,6 @@ object UserService : Service<User>(Users) {
             it[password]       = res.password
             it[name]           = res.name
             it[email]          = res.email
-            it[profilePicture] = -1
         }
 
         return@query res

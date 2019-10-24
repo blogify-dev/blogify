@@ -120,7 +120,7 @@ object Uploadables : Table() {
 
     suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<StaticResourceHandle.Ok, Service.Exception> {
         StaticResourceHandle.Ok (
-            baseHandle = StaticResourceHandle.None(ContentType.parse(source[contentType])),
+            contentType = ContentType.parse(source[contentType]),
             fileId     = source[fileId]
         )
     }

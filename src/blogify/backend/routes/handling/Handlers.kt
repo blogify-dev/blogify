@@ -333,7 +333,6 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
 
     // Write to file
     val newHandle = StaticFileHandler.writeStaticResource (
-        targetPropHandle.property.get(targetResource) as StaticResourceHandle,
         StaticData(fileContentType, fileBytes)
     )
 

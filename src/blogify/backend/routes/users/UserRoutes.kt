@@ -30,10 +30,6 @@ fun Route.users() {
             deleteWithId(UserService::get, UserService::delete)
         }
 
-        post("/") {
-            createWithResource(UserService::add)
-        }
-
         patch("/{uuid}") {
             updateWithId(UserService::update, UserService::get, authPredicate = { _, _ -> true })
         }
