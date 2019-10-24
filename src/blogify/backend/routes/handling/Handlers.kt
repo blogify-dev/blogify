@@ -45,6 +45,7 @@ import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.type
 import blogify.backend.util.reason
+import blogify.backend.util.letCatchingOrNull
 import blogify.backend.util.toUUID
 
 import io.ktor.application.ApplicationCall
@@ -321,7 +322,7 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
     // Check content type
     val propContentType = targetPropHandle.property.returnType
         .findAnnotation<type>()
-        ?.contentType?.let(ContentType.Companion::parse) ?: ContentType.Any
+        ?.contentType?.letCatchingOrNull(ContentType.Companion::parse) ?: ContentType.Any
 
     if (! fileContentType.match(propContentType)) {
         pipelineError ( // Throw an error

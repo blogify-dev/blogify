@@ -71,7 +71,7 @@ object StaticFileHandler {
         )
 
         // Return created handle
-        return@withContext StaticResourceHandle.Ok(baseHandle, fileId)
+        return@withContext StaticResourceHandle.Ok(staticData.contentType, fileId)
     }
 
 }

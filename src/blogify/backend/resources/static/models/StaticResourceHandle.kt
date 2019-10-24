@@ -26,7 +26,7 @@ sealed class StaticResourceHandle(val contentType: ContentType) {
      * @param baseHandle the [StaticResourceHandle] from which this [Ok] handle will be created
      * @param fileId     the file ID to make it point to
      */
-    class Ok(baseHandle: StaticResourceHandle, val fileId: Long): StaticResourceHandle(baseHandle.contentType) {
+    class Ok(contentType: ContentType, val fileId: Long): StaticResourceHandle(contentType) {
         override fun toString(): String = "Ok(contentType=$contentType, fileId=$fileId)"
     }
 
