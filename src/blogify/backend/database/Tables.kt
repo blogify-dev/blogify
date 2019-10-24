@@ -73,7 +73,7 @@ object Users : ResourceTable<User>() {
     val password       = varchar ("password", 255)
     val email          = varchar ("email", 255)
     val name           = varchar ("name", 255)
-    val profilePicture = long    ("profile_picture").nullable()
+    val profilePicture = varchar ("profile_picture", 32).nullable()
 
     init {
         index(true, username)
@@ -115,13 +115,13 @@ object Comments : ResourceTable<Comment>() {
 
 object Uploadables : Table() {
 
-    val fileId      = long    ("id").primaryKey()
+    val fileId      = varchar ("id", 32).primaryKey()
     val contentType = varchar ("content_type", 64)
 
     suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<StaticResourceHandle.Ok, Service.Exception> {
         StaticResourceHandle.Ok (
             contentType = ContentType.parse(source[contentType]),
-            fileId     = source[fileId]
+            fileId      = source[fileId]
         )
     }
 

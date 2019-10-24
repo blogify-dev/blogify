@@ -21,7 +21,7 @@ export class ShowAllArticlesComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-
+        console.log(this.articles);
     }
 
     async navigateToNewArticle() {

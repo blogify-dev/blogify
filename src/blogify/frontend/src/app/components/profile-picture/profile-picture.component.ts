@@ -23,7 +23,6 @@ export class ProfilePictureComponent implements OnInit {
 
     handleError() {
         this.erroredOut = true;
-        console.log('FUCK');
     }
 
 }
