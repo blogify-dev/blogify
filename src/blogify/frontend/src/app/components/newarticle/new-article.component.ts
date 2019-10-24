@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
 import { User } from '../../models/User';
+import { StaticFile } from "../../models/Static";
 
 @Component({
     selector: 'app-new-article',
@@ -16,7 +17,7 @@ export class NewArticleComponent implements OnInit {
         categories: [],
         content: '',
         summary: '',
-        createdBy: new User('', '', '', '', {fileId: -1, contentType: {}}),
+        createdBy: new User('', '', '', '', new StaticFile('-1')),
         createdAt: Date.now(),
     };
 

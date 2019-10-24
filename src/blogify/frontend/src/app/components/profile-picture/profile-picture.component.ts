@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { StaticContentService } from '../../services/static/static-content.service';
+import {StaticFile} from "../../models/Static";
 
 @Component({
     selector: 'app-profile-picture',
@@ -8,8 +9,7 @@ import { StaticContentService } from '../../services/static/static-content.servi
 })
 export class ProfilePictureComponent implements OnInit {
 
-    @Input() pfpFileId: string;
-    @Input() userUUID: string;
+    @Input() pfpFile: StaticFile;
     @Input() emSize: number;
 
     sourceUrl: string;
@@ -18,9 +18,7 @@ export class ProfilePictureComponent implements OnInit {
     constructor(private staticContentService: StaticContentService) {}
 
     ngOnInit() {
-        console.log(this.pfpFileId)
-        this.sourceUrl = this.staticContentService.profilePictureUrl(this.userUUID, this.pfpFileId);
-        console.log(this.sourceUrl)
+        this.sourceUrl = this.staticContentService.urlFor(this.pfpFile);
     }
 
     handleError() {
