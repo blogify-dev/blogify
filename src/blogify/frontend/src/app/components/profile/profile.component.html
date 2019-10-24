@@ -1,7 +1,7 @@
 <section class="profile">
 
     <div id="profile-header">
-        <app-profile-picture id="header-pfp" [pfpFile]="user.profilePicture" emSize="3"></app-profile-picture>
+        <app-profile-picture id="header-pfp" [pfpFileId]="user.profilePicture.fileId.toString()" emSize="3" [userUUID]="user.uuid"></app-profile-picture>
 
         <h1 id="header-full-name">{{user.name}}</h1>
     </div>

@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { StaticFile } from '../../models/Static';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
 
-    private readonly dummyUser: User = new User('', '', '', '', new StaticFile(-1, ''));
+    private readonly dummyUser: User = new User('', '', '', '', {fileId: -1, contentType: {}});
 
     private currentUserToken_ = new BehaviorSubject('');
     private currentUserUuid_ = new BehaviorSubject('');

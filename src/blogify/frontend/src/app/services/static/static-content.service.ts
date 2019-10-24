@@ -8,8 +8,6 @@ export class StaticContentService {
 
     constructor() {}
 
-    urlFor(file: StaticFile): string {
-      return `/api/get/${file.collection}/${file.id}`
-    }
+    profilePictureUrl = (userUUID: string, fileId: string): string => `/api/get/${fileId}`;
 
 }

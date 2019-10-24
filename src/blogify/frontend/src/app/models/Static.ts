@@ -1,8 +1,8 @@
 export class StaticFile {
 
     constructor (
-        public id: number,
-        public collection: string
+        public fileId: number,
+        public contentType: object
     ) {}
 
 }

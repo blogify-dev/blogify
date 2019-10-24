@@ -55,7 +55,7 @@ object StaticFileHandler {
     ): StaticResourceHandle.Ok = withContext(IO) {
 
         // Generate random ID
-        val fileId = Random.Default.nextLong()
+        var fileId: Long
 
         // Create file from base name, fileId and extension
         val targetFile = File("$BASE_STATIC_FILE_PATH/$fileId.$STATIC_FILE_EXTENSION")
