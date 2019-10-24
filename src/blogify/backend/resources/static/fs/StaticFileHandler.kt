@@ -44,7 +44,6 @@ object StaticFileHandler {
     /**
      * Writes a file containing an uploaded [StaticData] onto the filesystem
      *
-     * @param baseHandle the original handle that should be updated
      * @param staticData the actual byte data of the uploaded static resource
      *
      * @return a [StaticResourceHandle.Ok] describing the stored [static resource][StaticData]

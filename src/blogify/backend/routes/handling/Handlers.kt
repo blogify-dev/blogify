@@ -103,11 +103,11 @@ val defaultResourceLessPredicateLambda: suspend (user: User) -> Boolean = { _ ->
 
 class PipelineException(val code: HttpStatusCode, override val message: String) : Exception(message)
 
-suspend fun pipelineError(code: HttpStatusCode = HttpStatusCode.BadRequest, message: String): Nothing = throw PipelineException(code, message)
+fun pipelineError(code: HttpStatusCode = HttpStatusCode.BadRequest, message: String): Nothing = throw PipelineException(code, message)
 
-suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), block: suspend (Array<String?>) -> Unit) {
+suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), block: suspend (Array<String>) -> Unit) {
     try {
-        block(wantedParams.map { param -> call.parameters[param] }.toTypedArray())
+        block(wantedParams.map { param -> call.parameters[param] ?: error("Parameter $param is null") }.toTypedArray())
     } catch (e: PipelineException) {
         call.respond(e.code, reason(e.message))
     }
@@ -291,7 +291,6 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
     crossinline update: suspend (R)                       -> ResourceResult<*>
 ) = pipeline("uuid", "target") { (uuid, target) ->
 
-    uuid!!; target!!
     val targetClass = R::class
 
     // Find target property
