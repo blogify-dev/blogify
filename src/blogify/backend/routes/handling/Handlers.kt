@@ -106,7 +106,7 @@ suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), bl
     try {
         block(wantedParams.map { param -> call.parameters[param] }.toTypedArray())
     } catch (e: PipelineException) {
-        call.respond(HttpStatusCode.BadRequest, reason(e.message))
+        call.respond(e.code, reason(e.message))
     }
 }
 
