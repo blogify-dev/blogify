@@ -1,6 +1,6 @@
 package blogify.backend.util
 
-import blogify.backend.resources.models.Resource
+import io.ktor.http.ContentType
 
 fun reason(text: String) = object { val reason = text }
 
@@ -11,6 +11,8 @@ fun <T, R> T.letCatchingOrNull(block: (T) -> R): R? {
         null
     }
 }
+
+infix fun ContentType.matches(other: ContentType) = this.match(other)
 
 fun Byte.hex(): String {
     val raw = this.toInt().toString(16).toUpperCase()

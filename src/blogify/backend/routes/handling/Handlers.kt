@@ -46,6 +46,7 @@ import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.type
 import blogify.backend.util.reason
 import blogify.backend.util.letCatchingOrNull
+import blogify.backend.util.matches
 import blogify.backend.util.toUUID
 
 import io.ktor.application.ApplicationCall
@@ -323,7 +324,7 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
         .findAnnotation<type>()
         ?.contentType?.letCatchingOrNull(ContentType.Companion::parse) ?: ContentType.Any
 
-    if (! fileContentType.match(propContentType)) {
+    if (!(propContentType matches fileContentType)) {
         pipelineError ( // Throw an error
             HttpStatusCode.UnsupportedMediaType,
             "property '${targetPropHandle.property.name}' of class '${targetClass.simpleName}' does not accept content type '$fileContentType'"
