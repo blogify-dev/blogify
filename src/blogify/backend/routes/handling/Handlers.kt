@@ -43,6 +43,7 @@ import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
+import blogify.backend.annotations.type
 import blogify.backend.util.reason
 import blogify.backend.util.toUUID
 
@@ -74,6 +75,7 @@ import java.lang.Exception
 import java.util.UUID
 
 import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSuperclassOf
 
 val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
@@ -100,7 +102,7 @@ val defaultResourceLessPredicateLambda: suspend (user: User) -> Boolean = { _ ->
 
 class PipelineException(val code: HttpStatusCode, override val message: String) : Exception(message)
 
-suspend fun pipelineError(code: HttpStatusCode, message: String): Nothing = throw PipelineException(code, message)
+suspend fun pipelineError(code: HttpStatusCode = HttpStatusCode.BadRequest, message: String): Nothing = throw PipelineException(code, message)
 
 suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), block: suspend (Array<String?>) -> Unit) {
     try {
@@ -314,6 +316,18 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
                 fileContentType = part.contentType ?: ContentType.Application.Any
             }
         }
+    }
+
+    // Check content type
+    val propContentType = targetPropHandle.property.returnType
+        .findAnnotation<type>()
+        ?.contentType?.let(ContentType.Companion::parse) ?: ContentType.Any
+
+    if (! fileContentType.match(propContentType)) {
+        pipelineError ( // Throw an error
+            HttpStatusCode.UnsupportedMediaType,
+            "property '${targetPropHandle.property.name}' of class '${targetClass.simpleName}' does not accept content type '$fileContentType'"
+        )
     }
 
     // Write to file

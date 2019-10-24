@@ -8,4 +8,5 @@ package blogify.backend.annotations
 @Suppress("ClassName")
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
+@MustBeDocumented
 annotation class noslice
