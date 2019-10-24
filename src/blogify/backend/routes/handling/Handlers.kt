@@ -29,7 +29,6 @@ package blogify.backend.routes.handling
 
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Uploadables
-import blogify.backend.database.Users
 import blogify.backend.database.handling.query
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
@@ -55,32 +54,27 @@ import io.ktor.util.pipeline.PipelineContext
 import io.ktor.util.pipeline.PipelineInterceptor
 import io.ktor.request.ContentTransformationException
 import io.ktor.request.receive
-
-import com.github.kittinunf.result.coroutines.SuspendableResult
-
-import com.andreapivetta.kolor.magenta
-import com.andreapivetta.kolor.yellow
 import io.ktor.http.ContentType
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
 import io.ktor.http.content.streamProvider
 import io.ktor.request.receiveMultipart
-import jdk.nashorn.internal.objects.annotations.Property
+
+import com.github.kittinunf.result.coroutines.SuspendableResult
+
+import com.andreapivetta.kolor.magenta
+import com.andreapivetta.kolor.yellow
+
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.update
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.lang.Exception
 
+import java.lang.Exception
 import java.util.UUID
-import kotlin.math.absoluteValue
-import kotlin.random.Random
+
 import kotlin.reflect.KClass
-import kotlin.reflect.full.declaredMemberFunctions
-import kotlin.reflect.full.functions
 import kotlin.reflect.full.isSuperclassOf
-import kotlin.reflect.full.superclasses
 
 val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
 
@@ -336,7 +330,7 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
 
     }.fold (
         success = {},
-        failure = { println("fuck: ${it.toString()}") }
+        failure = { println("error: $it") }
     )
 
     // idk - temporary
@@ -344,7 +338,7 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
 
     update(rep).fold (
         success = {},
-        failure = { println("fuck: ${it.toString()}") }
+        failure = { println("error: $it") }
     )
 
     call.respond(newHandle.toString())

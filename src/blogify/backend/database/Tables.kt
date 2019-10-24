@@ -6,7 +6,6 @@ import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.models.Uploadable
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.UserService
