@@ -1,6 +1,6 @@
 package blogify.backend.resources.models
 
-import blogify.backend.util.noslice
+import blogify.backend.annotations.noslice
 
 import io.ktor.http.ContentType
 

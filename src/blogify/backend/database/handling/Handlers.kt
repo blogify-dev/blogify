@@ -1,7 +1,7 @@
 package blogify.backend.database.handling
 
 import blogify.backend.database.Database
-import blogify.backend.util.BlogifyDsl
+import blogify.backend.annotations.BlogifyDsl
 
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 

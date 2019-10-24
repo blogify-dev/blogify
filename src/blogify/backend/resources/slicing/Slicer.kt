@@ -1,9 +1,7 @@
 package blogify.backend.resources.slicing
 
 import blogify.backend.resources.models.Resource
-import blogify.backend.util.noslice
-
-import kotlin.reflect.full.declaredMemberProperties
+import blogify.backend.annotations.noslice
 
 /**
  * Represents the result of [getPropValueOnInstance].

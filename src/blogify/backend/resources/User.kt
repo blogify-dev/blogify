@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.models.Uploadable
 import blogify.backend.resources.static.models.StaticResourceHandle
-import blogify.backend.util.noslice
+import blogify.backend.annotations.noslice
 
 import java.util.*
 
@@ -17,11 +16,11 @@ import java.util.*
     property  = "uuid"
 )
 data class User (
-             val username:       String,
+    val username:       String,
     @noslice val password:       String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
-             val name:           String,
-             val email:          String,
-             val profilePicture: StaticResourceHandle,
+    val name:           String,
+    val email:          String,
+    val profilePicture: StaticResourceHandle,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid)

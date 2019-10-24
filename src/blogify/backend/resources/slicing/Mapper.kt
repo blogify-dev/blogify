@@ -1,7 +1,7 @@
 package blogify.backend.resources.slicing
 
 import blogify.backend.resources.models.Resource
-import blogify.backend.util.noslice
+import blogify.backend.annotations.noslice
 
 import com.andreapivetta.kolor.green
 

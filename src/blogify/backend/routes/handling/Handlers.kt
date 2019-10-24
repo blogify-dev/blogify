@@ -42,7 +42,7 @@ import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
-import blogify.backend.util.BlogifyDsl
+import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.util.reason
 import blogify.backend.util.toUUID
 
