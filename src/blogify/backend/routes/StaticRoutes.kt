@@ -2,13 +2,19 @@ package blogify.backend.routes
 
 import blogify.backend.resources.User
 import blogify.backend.resources.static.fs.StaticFileHandler
+import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.routes.handling.pipeline
+import blogify.backend.routes.handling.pipelineError
 import blogify.backend.routes.handling.uploadToResource
 import blogify.backend.services.UserService
 
 import io.ktor.application.call
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.response.respond
 import io.ktor.response.respondBytes
 import io.ktor.routing.Route
+import io.ktor.routing.delete
 import io.ktor.routing.get
 import io.ktor.routing.post
 
@@ -32,6 +38,21 @@ fun Route.static() {
             val data = StaticFileHandler.readStaticResource(actualId.toLong())
 
             call.respondBytes(data.bytes, data.contentType)
+        }
+
+    }
+
+    delete("/delete/{uploadableId}") {
+
+        pipeline("uploadableId") { (uploadableId) ->
+
+            // VERY TEMP
+            val handle = StaticResourceHandle.Ok(ContentType.Any, uploadableId)
+
+            if (StaticFileHandler.deleteStaticResource(handle)) {
+                call.respond(HttpStatusCode.OK)
+            } else pipelineError(HttpStatusCode.InternalServerError, "couldn't delete static resource file")
+
         }
 
     }
