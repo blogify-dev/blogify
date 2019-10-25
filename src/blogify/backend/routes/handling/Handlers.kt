@@ -341,7 +341,7 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
             ?.contentType?.letCatchingOrNull(ContentType.Companion::parse) ?: ContentType.Any
 
         if (!(propContentType matches fileContentType)) {
-            pipelineError( // Throw an error
+            pipelineError ( // Throw an error
                 HttpStatusCode.UnsupportedMediaType,
                 "property '${targetPropHandle.property.name}' of class '${targetClass.simpleName}' does not accept content type '$fileContentType'"
             )
@@ -358,7 +358,7 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
                 it[contentType] = newHandle.contentType.toString()
             }
 
-        }.fold(
+        }.fold (
             success = {},
             failure = { println("error: $it") }
         )
@@ -366,7 +366,7 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
         // idk - temporary
         val rep = modify(targetResource, newHandle)
 
-        update(rep).fold(
+        update(rep).fold (
             success = {},
             failure = { println("error: $it") }
         )
