@@ -44,6 +44,7 @@ import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.type
+import blogify.backend.auth.handling.UserAuthPredicate
 import blogify.backend.util.reason
 import blogify.backend.util.letCatchingOrNull
 import blogify.backend.util.matches
@@ -111,6 +112,15 @@ suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), bl
         block(wantedParams.map { param -> call.parameters[param] ?: error("Parameter $param is null") }.toTypedArray())
     } catch (e: PipelineException) {
         call.respond(e.code, reason(e.message))
+    }
+}
+
+suspend fun CallPipeline.handleAuthentication(funcName: String = "<unspecified>", predicate: UserAuthPredicate, block: CallPipeLineFunction) {
+    if (predicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
+        runAuthenticated(predicate, block)
+    } else {
+        logUnusedAuth(funcName)
+        block(this, Unit)
     }
 }
 
@@ -287,75 +297,84 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
-    crossinline fetch:  suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
-    crossinline modify: suspend (R, StaticResourceHandle) -> R,
-    crossinline update: suspend (R)                       -> ResourceResult<*>
+    crossinline fetch:         suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
+    crossinline modify:        suspend (R, StaticResourceHandle) -> R,
+    crossinline update:        suspend (R)                       -> ResourceResult<*>,
+       noinline authPredicate: UserAuthPredicate = defaultResourceLessPredicateLambda
 ) = pipeline("uuid", "target") { (uuid, target) ->
 
-    val targetClass = R::class
+    handleAuthentication("uploadToResource", authPredicate) {
 
-    // Find target property
-    val targetPropHandle = targetClass.cachedPropMap()[target]
-        ?.takeIf {
-            it is PropertyHandle.Ok
-                    && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
-        } as? PropertyHandle.Ok ?: pipelineError(HttpStatusCode.BadRequest, "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'")
+        val targetClass = R::class
 
-    // Find target resource
-    val targetResource = fetch(call, UUID.fromString(uuid)).get()
+        // Find target property
+        val targetPropHandle = targetClass.cachedPropMap()[target]
+            ?.takeIf {
+                it is PropertyHandle.Ok
+                        && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
+            } as? PropertyHandle.Ok ?: pipelineError(
+            HttpStatusCode.BadRequest,
+            "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
+        )
 
-    // Receive data
-    val multiPartData = call.receiveMultipart()
+        // Find target resource
+        val targetResource = fetch(call, UUID.fromString(uuid)).get()
 
-    var fileContentType: ContentType = ContentType.Application.Any
-    var fileBytes = byteArrayOf()
+        // Receive data
+        val multiPartData = call.receiveMultipart()
 
-    multiPartData.forEachPart { part ->
-        when (part) {
-            is PartData.FileItem -> {
-                part.streamProvider().use { input -> fileBytes = input.readBytes() }
-                fileContentType = part.contentType ?: ContentType.Application.Any
+        var fileContentType: ContentType = ContentType.Application.Any
+        var fileBytes = byteArrayOf()
+
+        multiPartData.forEachPart { part ->
+            when (part) {
+                is PartData.FileItem -> {
+                    part.streamProvider().use { input -> fileBytes = input.readBytes() }
+                    fileContentType = part.contentType ?: ContentType.Application.Any
+                }
             }
         }
-    }
 
-    // Check content type
-    val propContentType = targetPropHandle.property.returnType
-        .findAnnotation<type>()
-        ?.contentType?.letCatchingOrNull(ContentType.Companion::parse) ?: ContentType.Any
+        // Check content type
+        val propContentType = targetPropHandle.property.returnType
+            .findAnnotation<type>()
+            ?.contentType?.letCatchingOrNull(ContentType.Companion::parse) ?: ContentType.Any
 
-    if (!(propContentType matches fileContentType)) {
-        pipelineError ( // Throw an error
-            HttpStatusCode.UnsupportedMediaType,
-            "property '${targetPropHandle.property.name}' of class '${targetClass.simpleName}' does not accept content type '$fileContentType'"
-        )
-    }
-
-    // Write to file
-    val newHandle = StaticFileHandler.writeStaticResource (
-        StaticData(fileContentType, fileBytes)
-    )
-
-    query {
-        Uploadables.insert {
-            it[fileId]      = newHandle.fileId
-            it[contentType] = newHandle.contentType.toString()
+        if (!(propContentType matches fileContentType)) {
+            pipelineError( // Throw an error
+                HttpStatusCode.UnsupportedMediaType,
+                "property '${targetPropHandle.property.name}' of class '${targetClass.simpleName}' does not accept content type '$fileContentType'"
+            )
         }
 
-    }.fold (
-        success = {},
-        failure = { println("error: $it") }
-    )
+        // Write to file
+        val newHandle = StaticFileHandler.writeStaticResource(
+            StaticData(fileContentType, fileBytes)
+        )
 
-    // idk - temporary
-    val rep = modify(targetResource, newHandle)
+        query {
+            Uploadables.insert {
+                it[fileId] = newHandle.fileId
+                it[contentType] = newHandle.contentType.toString()
+            }
 
-    update(rep).fold (
-        success = {},
-        failure = { println("error: $it") }
-    )
+        }.fold(
+            success = {},
+            failure = { println("error: $it") }
+        )
 
-    call.respond(newHandle.toString())
+        // idk - temporary
+        val rep = modify(targetResource, newHandle)
+
+        update(rep).fold(
+            success = {},
+            failure = { println("error: $it") }
+        )
+
+        call.respond(newHandle.toString())
+
+    }
+
 }
 
 /**

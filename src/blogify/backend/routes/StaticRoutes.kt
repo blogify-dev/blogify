@@ -16,16 +16,16 @@ fun Route.static() {
 
     post("/testupload/{uuid}") {
         uploadToResource<User> (
-            fetch  = UserService::get,
-            modify = { r, h -> r.copy(profilePicture = h) },
-            update = UserService::update
+            fetch         = UserService::get,
+            modify        = { r, h -> r.copy(profilePicture = h) },
+            update        = UserService::update,
+            authPredicate = { _ -> true }
         )
     }
 
     get("/get/{uploadableId}") {
 
         pipeline("uploadableId") { (uploadableId) ->
-            uploadableId!!
             val data = StaticFileHandler.readStaticResource(uploadableId.toLong())
 
             call.respondBytes(data.bytes, data.contentType)
