@@ -1,5 +1,7 @@
 package blogify.backend.routes
 
+import blogify.backend.database.Uploadables
+import blogify.backend.database.handling.query
 import blogify.backend.resources.User
 import blogify.backend.resources.static.fs.StaticFileHandler
 import blogify.backend.resources.static.models.StaticResourceHandle
@@ -17,6 +19,10 @@ import io.ktor.routing.Route
 import io.ktor.routing.delete
 import io.ktor.routing.get
 import io.ktor.routing.post
+
+import org.jetbrains.exposed.sql.deleteWhere
+
+import com.github.kittinunf.result.coroutines.failure
 
 fun Route.static() {
 
@@ -49,6 +55,12 @@ fun Route.static() {
             // VERY TEMP
             val handle = StaticResourceHandle.Ok(ContentType.Any, uploadableId)
 
+            // Delete in DB
+            query {
+                Uploadables.deleteWhere { Uploadables.fileId eq uploadableId }
+            }.failure { pipelineError(HttpStatusCode.InternalServerError, "couldn't delete static resource from db") }
+
+            // Delete in FS
             if (StaticFileHandler.deleteStaticResource(handle)) {
                 call.respond(HttpStatusCode.OK)
             } else pipelineError(HttpStatusCode.InternalServerError, "couldn't delete static resource file")

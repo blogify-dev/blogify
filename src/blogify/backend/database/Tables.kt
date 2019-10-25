@@ -17,7 +17,7 @@ import com.github.kittinunf.result.coroutines.SuspendableResult
 import io.ktor.application.ApplicationCall
 import io.ktor.http.ContentType
 
-import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.ReferenceOption.*
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.select
@@ -35,7 +35,7 @@ object Articles : ResourceTable<Article>() {
 
     val title      = varchar ("title", 512)
     val createdAt  = long    ("created_at")
-    val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
+    val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = SET_NULL)
     val content    = text    ("content")
     val summary    = text    ("summary")
 
@@ -55,7 +55,7 @@ object Articles : ResourceTable<Article>() {
 
     object Categories : Table() {
 
-        val article = uuid("article").primaryKey().references(Articles.uuid, onDelete = ReferenceOption.CASCADE)
+        val article = uuid("article").primaryKey().references(Articles.uuid, onDelete = CASCADE)
         val name    = varchar("name", 255).primaryKey()
 
         @Suppress("RedundantSuspendModifier")
@@ -73,7 +73,7 @@ object Users : ResourceTable<User>() {
     val password       = varchar ("password", 255)
     val email          = varchar ("email", 255)
     val name           = varchar ("name", 255)
-    val profilePicture = varchar ("profile_picture", 32).nullable()
+    val profilePicture = varchar ("profile_picture", 32).references(Uploadables.fileId, onDelete = SET_NULL, onUpdate = RESTRICT).nullable()
 
     init {
         index(true, username)
@@ -96,10 +96,10 @@ object Users : ResourceTable<User>() {
 
 object Comments : ResourceTable<Comment>() {
 
-    val commenter     = uuid ("commenter").references(Users.uuid, onDelete = ReferenceOption.SET_NULL)
-    val article       = uuid ("article").references(Articles.uuid, onDelete = ReferenceOption.CASCADE)
+    val commenter     = uuid ("commenter").references(Users.uuid, onDelete = SET_NULL)
+    val article       = uuid ("article").references(Articles.uuid, onDelete = CASCADE)
     val content       = text ("content")
-    val parentComment = uuid ("parent_comment").references(uuid, onDelete = ReferenceOption.CASCADE).nullable()
+    val parentComment = uuid ("parent_comment").references(uuid, onDelete = CASCADE).nullable()
 
     override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Comment, Service.Exception.Fetching> {
         Comment (
