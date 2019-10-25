@@ -312,10 +312,10 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
             ?.takeIf {
                 it is PropertyHandle.Ok
                         && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
-            } as? PropertyHandle.Ok ?: pipelineError(
-            HttpStatusCode.BadRequest,
-            "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
-        )
+            } as? PropertyHandle.Ok
+            ?: pipelineError (
+                message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
+            )
 
         // Find target resource
         val targetResource = fetch(call, UUID.fromString(uuid)).get()
