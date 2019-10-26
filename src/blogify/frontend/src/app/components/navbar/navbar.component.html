@@ -6,9 +6,8 @@
 
             <span class="navbar-elem navbar-link" id="home">
                 <a routerLink="home" id="home-img-container">
-                    <img height="26em"
-                     src="assets/images/logo.svg"
-                     alt="Blogify" />
+                    <img src="assets/images/logo.svg"
+                         alt="Blogify" />
                 </a>
             </span>
 
@@ -18,10 +17,11 @@
 
             <span class="navbar-elem navbar-link" id="navbar-login">
 
-                <a (click)="navigateToLogin()" *ngIf="authService.userToken == ''">
+                <a (click)="navigateToLogin()" *ngIf="authService.userToken === ''">
                     Login
                 </a>
-                <span id="profile-display" *ngIf="authService.userToken != ''">
+
+                <span id="profile-display" *ngIf="authService.userToken !== ''">
                     <span id="profile-text" (click)="navigateToProfile()" >Profile</span>
                     <span id="profile-username" (click)="navigateToProfile()">{{username}}</span>
                 </span>

@@ -4,8 +4,6 @@
 
 #navbar-list {
 
-    height: 5.25em;
-
     display:         flex;
     flex-direction:  row;
     justify-content: space-between;
@@ -19,7 +17,7 @@
         align-items:     center;
     }
 
-    padding: 1em 1.5em;
+    padding: 1.75em 1.5em;
     @media (min-width: $query-desktop) {
         padding-left: 3em;
     }
@@ -48,6 +46,7 @@
                 align-items:     center;
 
                 img {
+                    height: 2.5em;
                     filter: var(--logo-filter);
                 }
             }
