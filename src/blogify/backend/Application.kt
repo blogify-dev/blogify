@@ -45,7 +45,7 @@ import org.jetbrains.exposed.sql.update
 import org.slf4j.event.Level
 import java.util.UUID
 
-const val version = "PRX3"
+const val version = "PRX4"
 
 const val asciiLogo = """
     __     __               _  ____      
@@ -105,7 +105,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     // Default headers
 
     install(DefaultHeaders) {
-        header("Server", "blogify-core PRX3")
+        header("Server", "blogify-core PRX4")
         header("X-Powered-By", "Ktor 1.2.3")
     }
 
