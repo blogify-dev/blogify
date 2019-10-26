@@ -31,7 +31,7 @@ fun Route.static() {
             fetch         = UserService::get,
             modify        = { r, h -> r.copy(profilePicture = h) },
             update        = UserService::update,
-            authPredicate = { true /*TODO: Fix authentication*/ }
+            authPredicate = { user: User, uuid: String -> user.uuid.toString() == uuid }
         )
     }
 

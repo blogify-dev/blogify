@@ -304,10 +304,10 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
     crossinline fetch:         suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
     crossinline modify:        suspend (R, StaticResourceHandle) -> R,
     crossinline update:        suspend (R)                       -> ResourceResult<*>,
-    noinline authPredicate: UserAuthPredicate = defaultResourceLessPredicateLambda
+    noinline authPredicate: (User, String) -> Boolean = { _, _ -> true }
 ) = pipeline("uuid", "target") { (uuid, target) ->
 
-    handleAuthentication("uploadToResource", authPredicate) {
+    handleAuthentication("uploadToResource", { authPredicate(it, uuid) }) {
 
         val targetClass = R::class
 
