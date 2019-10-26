@@ -27,7 +27,7 @@ export class AuthService {
         const uuid = await this.getUserUUIDFromToken(it.token);
 
         // Fix JS bullshit
-        const fetchedUserObj: User = await this.fetchUser(uuid.uuid);
+        const fetchedUserObj: User = await this.fetchUser(uuid);
         const fetchedUser = new User(fetchedUserObj.uuid, fetchedUserObj.username, fetchedUserObj.name, fetchedUserObj.email, fetchedUserObj.profilePicture);
 
         this.currentUser_.next(fetchedUser);
