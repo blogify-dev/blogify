@@ -15,9 +15,10 @@
         <h1 class="header-title">{{article.title}}</h1>
 
         <div class="header-bottom">
+            <app-profile-picture class="author-pfp" [pfpFile]="article.createdBy.profilePicture" emSize="2"></app-profile-picture>
             <span class="user">{{article.createdBy.name}}</span>
 
-            <span class="date">Created {{article.createdAt | relativeTime}}</span>
+            <span class="date">{{article.createdAt | relativeTime}}</span>
 
             <button routerLink="/article/update/{{article.uuid}}"
                     id="button-update"
