@@ -8,6 +8,7 @@ import io.ktor.routing.*
 import blogify.backend.database.Articles
 import blogify.backend.database.Users
 import blogify.backend.resources.Article
+import blogify.backend.resources.models.eqr
 import blogify.backend.resources.slicing.sanitize
 import blogify.backend.resources.slicing.slice
 import blogify.backend.routes.handling.*

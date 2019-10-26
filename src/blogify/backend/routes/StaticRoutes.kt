@@ -3,7 +3,10 @@ package blogify.backend.routes
 import blogify.backend.database.Uploadables
 import blogify.backend.database.handling.query
 import blogify.backend.resources.User
+import blogify.backend.resources.models.eqr
 import blogify.backend.resources.static.fs.StaticFileHandler
+import blogify.backend.routes.handling.CallPipeLineFunction
+import blogify.backend.routes.handling.handleAuthentication
 import blogify.backend.routes.handling.pipeline
 import blogify.backend.routes.handling.pipelineError
 import blogify.backend.routes.handling.uploadToResource
@@ -19,10 +22,10 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.select
 
 import com.github.kittinunf.result.coroutines.failure
 import com.github.kittinunf.result.coroutines.map
-import org.jetbrains.exposed.sql.select
 
 fun Route.static() {
 
@@ -31,7 +34,7 @@ fun Route.static() {
             fetch         = UserService::get,
             modify        = { r, h -> r.copy(profilePicture = h) },
             update        = UserService::update,
-            authPredicate = { user: User, uuid: String -> user.uuid.toString() == uuid }
+            authPredicate = { user: User, manipulated: User -> user eqr manipulated }
         )
     }
 
@@ -50,7 +53,7 @@ fun Route.static() {
 
     delete("/delete/{uploadableId}") {
 
-        pipeline("uploadableId") { (uploadableId) ->
+        val doDelete: CallPipeLineFunction = { pipeline("uploadableId") { (uploadableId) ->
             // TODO: None of this should be executed unless the owner is logged in. Fix that
             // not-so VERY TEMP
             val handle = query {
@@ -68,7 +71,9 @@ fun Route.static() {
                 call.respond(HttpStatusCode.OK)
             } else pipelineError(HttpStatusCode.InternalServerError, "couldn't delete static resource file")
 
-        }
+        } }
+
+        handleAuthentication("resourceDelete", { _ -> true }, doDelete)
 
     }
 

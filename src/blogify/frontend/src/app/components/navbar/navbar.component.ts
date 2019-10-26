@@ -22,11 +22,11 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit() {
-        this.authService.userProfile.then(user => {
-            this.username = user.username;
-        });
-
-        console.log(this.authService.userToken);
+        if (this.authService.isLoggedIn()) {
+            this.authService.userProfile.then(user => {
+                this.username = user.username;
+            });
+        }
     }
 
     ngAfterViewInit() {

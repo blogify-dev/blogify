@@ -5,7 +5,6 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { User } from 'src/app/models/User';
 import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
-import { StaticContentService } from '../../services/static/static-content.service';
 
 @Component({
     selector: 'app-profile',
@@ -13,29 +12,29 @@ import { StaticContentService } from '../../services/static/static-content.servi
     styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit, OnDestroy {
+
     routeMapSubscription: Subscription;
     user: User;
     articles: Article[];
 
-    constructor(
+    constructor (
         private activatedRoute: ActivatedRoute,
         private authService: AuthService,
         private articleService: ArticleService,
-        private staticContentService: StaticContentService
     ) {}
 
     async ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
+
             const username = map.get('username');
+
             this.user = await this.authService.getByUsername(username);
+
             this.articleService.getArticleByForUser(username,
                 ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
             ).then(it => {
                 this.articles = it;
-                console.log(it)
             });
-            console.log(username);
-            console.log(this.user);
         });
     }
 

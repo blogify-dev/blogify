@@ -5,6 +5,7 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 
 import blogify.backend.database.Comments
+import blogify.backend.resources.models.eqr
 import blogify.backend.routes.handling.*
 import blogify.backend.services.articles.CommentService
 import blogify.backend.util.expandCommentNode

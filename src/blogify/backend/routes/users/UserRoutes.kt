@@ -1,13 +1,14 @@
 package blogify.backend.routes.users
 
 import blogify.backend.database.Users
-
 import blogify.backend.resources.User
+import blogify.backend.resources.models.eqr
 import blogify.backend.resources.slicing.sanitize
 import blogify.backend.resources.slicing.slice
 import blogify.backend.routes.handling.*
 import blogify.backend.services.UserService
 import blogify.backend.services.models.Service
+
 import io.ktor.application.call
 import io.ktor.response.respond
 import io.ktor.routing.*
@@ -63,7 +64,7 @@ fun Route.users() {
                 fetch         = UserService::get,
                 modify        = { r, h -> r.copy(profilePicture = h) },
                 update        = UserService::update,
-                authPredicate = { user: User, uuid: String -> user.uuid.toString() == uuid }
+                authPredicate = { user: User, manipulated: User -> user eqr manipulated }
             )
         }
 

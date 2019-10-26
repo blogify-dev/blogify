@@ -45,6 +45,7 @@ import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.type
 import blogify.backend.auth.handling.UserAuthPredicate
+import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
 import blogify.backend.util.letCatchingOrNull
 import blogify.backend.util.matches
@@ -301,13 +302,17 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
-    crossinline fetch:         suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
-    crossinline modify:        suspend (R, StaticResourceHandle) -> R,
-    crossinline update:        suspend (R)                       -> ResourceResult<*>,
-    noinline authPredicate: (User, String) -> Boolean = { _, _ -> true }
+    crossinline fetch:        suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
+    crossinline modify:       suspend (R, StaticResourceHandle) -> R,
+    crossinline update:       suspend (R)                       -> ResourceResult<*>,
+      noinline authPredicate: suspend (User, R)                 -> Boolean = defaultPredicateLambda
 ) = pipeline("uuid", "target") { (uuid, target) ->
 
-    handleAuthentication("uploadToResource", { authPredicate(it, uuid) }) {
+    // Find target resource
+    val targetResource = fetch(call, UUID.fromString(uuid))
+        .getOrPipelineError(message = "couldn't fetch resource") // Handle result
+
+    handleAuthentication("uploadToResource", { authPredicate(it, targetResource) }) {
 
         val targetClass = R::class
 
@@ -320,9 +325,6 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
             ?: pipelineError (
                 message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
             )
-
-        // Find target resource
-        val targetResource = fetch(call, UUID.fromString(uuid)).get()
 
         // Receive data
         val multiPartData = call.receiveMultipart()

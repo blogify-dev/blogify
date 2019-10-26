@@ -110,7 +110,7 @@ fun Route.auth() {
             call.parameters["token"]?.let { token ->
 
                 validateJwt(call, token).fold(
-                    success = { call.respond(it.uuid) },
+                    success = { call.respond( object { val uuid = it.uuid }) },
                     failure = { call.respondExceptionMessage(Service.Exception(BException(it))) }
                 )
 

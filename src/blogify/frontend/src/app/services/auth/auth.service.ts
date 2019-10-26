@@ -1,8 +1,8 @@
-import {Injectable, OnInit} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {LoginCredentials, RegisterCredentials, User} from 'src/app/models/User';
 import {BehaviorSubject, Observable} from 'rxjs';
-import { StaticFile } from "../../models/Static";
+import {StaticFile} from '../../models/Static';
 
 @Injectable({
     providedIn: 'root'
@@ -14,7 +14,6 @@ export class AuthService {
 
     private readonly dummyUser: User = new User('', '', '', '', new StaticFile('-1'));
 
-    private currentUserToken_ = new BehaviorSubject('');
     private currentUserUuid_ = new BehaviorSubject('');
     private currentUser_ = new BehaviorSubject(this.dummyUser);
 
@@ -35,7 +34,7 @@ export class AuthService {
 
             localStorage.setItem('userToken', it.token);
         } else {
-            it = { token: localStorage.getItem('userToken') };
+            it = { token: creds }
         }
 
         const uuid = await this.getUserUUIDFromToken(it.token);
@@ -55,12 +54,11 @@ export class AuthService {
     }
 
     isLoggedIn(): boolean {
-        return this.userToken !== '';
+        return this.userToken !== null;
     }
 
     private async getUserUUIDFromToken(token: string): Promise<string> {
-        const userUUIDObservable = this.httpClient.get<UserUUID>(`/api/auth/${token}`);
-        const uuid = await userUUIDObservable.toPromise();
+        const uuid = await this.httpClient.get<UserUUID>(`/api/auth/${token}`).toPromise();
         this.currentUserUuid_.next(uuid.uuid);
         return uuid.uuid;
     }
@@ -69,9 +67,8 @@ export class AuthService {
         return this.httpClient.get<User>(`/api/users/${uuid}`).toPromise()
     }
 
-    get userToken(): string {
-        const token = localStorage.getItem('userToken');
-        return token == null ? '' : token;
+    get userToken(): string | null {
+        return localStorage.getItem('userToken');
     }
 
     get userUUID(): Promise<string> {
