@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Article } from '../../models/Article';
+import { BehaviorSubject } from 'rxjs';
+import { StaticFile } from "../../models/Static";
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
 
-    private readonly dummyUser: User = new User('', '', '', '');
+    private readonly dummyUser: User = new User('', '', '', '', new StaticFile('-1'));
 
-    // private currentUserToken_ = new BehaviorSubject('');
+    private currentUserToken_ = new BehaviorSubject('');
     private currentUserUuid_ = new BehaviorSubject('');
     private currentUser_ = new BehaviorSubject(this.dummyUser);
 
@@ -27,10 +27,8 @@ export class AuthService {
         const uuid = await this.getUserUUIDFromToken(it.token);
 
         // Fix JS bullshit
-        const fetchedUserObj: User = await this.fetchUser(uuid);
-        const fetchedUser = new User(fetchedUserObj.uuid, fetchedUserObj.username, fetchedUserObj.name, fetchedUserObj.email);
-
-        console.log(`TYPE CHECK: ${fetchedUser instanceof User}`);
+        const fetchedUserObj: User = await this.fetchUser(uuid.uuid);
+        const fetchedUser = new User(fetchedUserObj.uuid, fetchedUserObj.username, fetchedUserObj.name, fetchedUserObj.email, fetchedUserObj.profilePicture);
 
         this.currentUser_.next(fetchedUser);
         this.currentUserUuid_.next(fetchedUser.uuid);

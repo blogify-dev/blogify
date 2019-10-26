@@ -11,7 +11,7 @@ import io.ktor.response.respond
 import blogify.backend.resources.User
 import blogify.backend.routes.handling.CallPipeLineFunction
 import blogify.backend.routes.handling.CallPipeline
-import blogify.backend.util.BlogifyDsl
+import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.util.reason
 
 

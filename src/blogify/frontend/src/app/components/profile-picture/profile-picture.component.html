@@ -1,0 +1,7 @@
+<img class="pfp-image"
+     src="{{sourceUrl}}"
+     alt="Profile picture"
+     [style.width]="emSize + 'em'"
+     [style.height]="emSize + 'em'"
+     [style.border-color]="this.erroredOut ? 'transparent' : 'initial'"
+     (error)="handleError()"/>

@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Article } from '../../models/Article';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
+import { StaticContentService } from '../../services/static/static-content.service';
 import { faCommentAlt, faPencilAlt, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -18,14 +19,13 @@ export class ShowAllArticlesComponent implements OnInit {
     @Input() title = 'Articles';
     @Input() articles: Article[];
 
-    constructor(
+    constructor (
         private authService: AuthService,
+        private staticContentService: StaticContentService,
         private router: Router
     ) {}
 
-    ngOnInit() {
-
-    }
+    ngOnInit() {}
 
     async navigateToNewArticle() {
         if (this.authService.userToken === '') {

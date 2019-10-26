@@ -11,10 +11,12 @@ import blogify.backend.routes.users.users
 import blogify.backend.database.Database
 import blogify.backend.database.Articles
 import blogify.backend.database.Comments
+import blogify.backend.database.Uploadables
 import blogify.backend.database.Users
 import blogify.backend.routes.auth
 import blogify.backend.database.handling.query
 import blogify.backend.resources.models.Resource
+import blogify.backend.routes.static
 import blogify.backend.util.SinglePageApplication
 
 import io.ktor.application.call
@@ -31,7 +33,6 @@ import io.ktor.features.DefaultHeaders
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.content.CachingOptions
-import io.ktor.http.content.OutgoingContent
 import io.ktor.jackson.jackson
 import io.ktor.routing.route
 import io.ktor.routing.routing
@@ -39,8 +40,10 @@ import io.ktor.routing.routing
 import org.jetbrains.exposed.sql.SchemaUtils
 
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.sql.update
 
 import org.slf4j.event.Level
+import java.util.UUID
 
 const val version = "PRX3"
 
@@ -131,7 +134,8 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             Articles,
             Articles.Categories,
             Users,
-            Comments
+            Comments,
+            Uploadables
         )
     }}
 
@@ -143,6 +147,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             articles()
             users()
             auth()
+            static()
         }
 
         get("/") {

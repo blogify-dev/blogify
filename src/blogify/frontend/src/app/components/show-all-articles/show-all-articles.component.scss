@@ -16,8 +16,12 @@
 
         $search-icon-break: 1300px;
 
+        #header-title {
+            margin-right: 1em;
+        }
+
         #header-search-pad {
-            width: 85%;
+            flex-grow: 1;
             @media (min-width: 0) and (max-width: $search-icon-break) {
                 display: none;
             }
@@ -36,6 +40,8 @@
             font-weight: bold;
 
             cursor: pointer;
+
+            margin-left: 1em;
         }
     }
 
@@ -70,6 +76,21 @@
             flex-direction:  row;
             justify-content: space-between;
             align-items:     center;
+
+            .article-author {
+                display:         flex;
+                flex-direction:  row;
+                justify-content: flex-start;
+                align-items:     center;
+
+                .author-pfp {
+                    margin-right: .85em;
+                }
+
+                .author-name { font-size: 1.4em; }
+
+            }
+
         }
 
         .article-second-line {
@@ -84,7 +105,7 @@
             .article-posted-at { font-size: 1.30em; }
         }
 
-        .read-more { color: var(--card-fg); }
+        .article-read-more { color: var(--card-fg); }
 
         .article-last-line {
             width: 100%;

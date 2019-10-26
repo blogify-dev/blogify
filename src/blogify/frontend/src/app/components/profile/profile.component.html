@@ -1,5 +1,11 @@
 <section class="profile" *ngIf="user">
 
+    <div id="profile-header">
+        <app-profile-picture id="header-pfp" [pfpFile]="user.profilePicture" emSize="3"></app-profile-picture>
+
+        <h1 id="header-full-name">{{user.name}}</h1>
+    </div>
+
     <app-show-all-articles appCompact title="Articles by {{user.username}}" [articles]="articles"></app-show-all-articles>
 
 </section>

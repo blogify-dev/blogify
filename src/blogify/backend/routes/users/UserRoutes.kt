@@ -9,6 +9,7 @@ import io.ktor.routing.route
 import blogify.backend.resources.User
 import blogify.backend.routes.handling.*
 import blogify.backend.services.UserService
+import io.ktor.routing.patch
 
 /**
  * Defines the API routes for interacting with [users][User].
@@ -29,8 +30,8 @@ fun Route.users() {
             deleteWithId(UserService::get, UserService::delete)
         }
 
-        post("/") {
-            createWithResource(UserService::add)
+        patch("/{uuid}") {
+            updateWithId(UserService::update, UserService::get, authPredicate = { _, _ -> true })
         }
 
     }

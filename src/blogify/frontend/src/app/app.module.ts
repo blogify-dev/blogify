@@ -20,6 +20,7 @@ import { CreateCommentComponent } from './components/comment/create-comment/crea
 import { RelativeTimePipe } from './pipes/relative-time/relative-time.pipe';
 import { UpdateArticleComponent } from './components/update-article/update-article.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { ProfilePictureComponent } from './components/profile-picture/profile-picture.component';
 
 @NgModule({
     declarations: [
@@ -38,6 +39,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
         CreateCommentComponent,
         RelativeTimePipe,
         UpdateArticleComponent,
+        ProfilePictureComponent,
     ],
     imports: [
         BrowserModule,
