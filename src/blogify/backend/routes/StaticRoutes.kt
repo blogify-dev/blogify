@@ -23,6 +23,8 @@ import io.ktor.routing.post
 import org.jetbrains.exposed.sql.deleteWhere
 
 import com.github.kittinunf.result.coroutines.failure
+import com.github.kittinunf.result.coroutines.map
+import org.jetbrains.exposed.sql.select
 
 fun Route.static() {
 
@@ -52,8 +54,11 @@ fun Route.static() {
 
         pipeline("uploadableId") { (uploadableId) ->
 
-            // VERY TEMP
-            val handle = StaticResourceHandle.Ok(ContentType.Any, uploadableId)
+            // not-so VERY TEMP
+            val handle = query {
+                Uploadables.select { Uploadables.fileId eq uploadableId }.single()
+            }.map { Uploadables.convert(call, it).get() }.get()
+
 
             // Delete in DB
             query {
