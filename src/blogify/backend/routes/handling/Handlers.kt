@@ -67,6 +67,7 @@ import io.ktor.request.receiveMultipart
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import com.andreapivetta.kolor.magenta
+import com.andreapivetta.kolor.red
 import com.andreapivetta.kolor.yellow
 
 import org.jetbrains.exposed.sql.insert
@@ -74,9 +75,9 @@ import org.jetbrains.exposed.sql.insert
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import java.lang.Exception
 import java.util.UUID
 
+import kotlin.Exception
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSuperclassOf
@@ -105,11 +106,14 @@ val defaultResourceLessPredicateLambda: suspend (user: User) -> Boolean = { _ ->
 
 class PipelineException(val code: HttpStatusCode, override val message: String) : Exception(message)
 
-fun pipelineError(code: HttpStatusCode = HttpStatusCode.BadRequest, message: String): Nothing = throw PipelineException(code, message)
+fun pipelineError(code: HttpStatusCode = HttpStatusCode.BadRequest, message: String, rootException: Exception? = null): Nothing {
+    logger.debug("pipeline error - $message".red() + rootException?.let { " - ${it::class.simpleName} - ${it.message}".red() })
+    throw PipelineException(code, message)
+}
 
 suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), block: suspend (Array<String>) -> Unit) {
     try {
-        block(wantedParams.map { param -> call.parameters[param] ?: error("Parameter $param is null") }.toTypedArray())
+        block(wantedParams.map { param -> call.parameters[param] ?: pipelineError(message = "query parameter $param is null") }.toTypedArray())
     } catch (e: PipelineException) {
         call.respond(e.code, reason(e.message))
     }
