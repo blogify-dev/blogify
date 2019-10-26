@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { StaticContentService } from '../../services/static/static-content.service';
-import {StaticFile} from "../../models/Static";
+import { StaticContentService } from '../../../services/static/static-content.service';
+import { StaticFile } from "../../../models/Static";
 
 @Component({
     selector: 'app-profile-picture',
@@ -10,7 +10,7 @@ import {StaticFile} from "../../models/Static";
 export class ProfilePictureComponent implements OnInit {
 
     @Input() pfpFile: StaticFile;
-    @Input() emSize: number;
+    @Input() emSize: number = 3;
 
     sourceUrl: string;
     erroredOut = false;

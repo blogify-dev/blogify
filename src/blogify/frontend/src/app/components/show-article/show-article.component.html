@@ -3,23 +3,30 @@
     <div class="article-header">
 
         <div class="header-categories">
+            <!-- Categories -->
             <div class="article-tags" *ngIf="article.categories.length > 0">
                 <span *ngFor="let tag of article.categories">{{tag.name}}</span>
             </div>
 
+            <!-- No categories -->
             <span class="article-no-tags" *ngIf="article.categories.length == 0">
                 <em>No tags</em>
             </span>
         </div>
 
+        <!-- Title -->
         <h1 class="header-title">{{article.title}}</h1>
 
         <div class="header-bottom">
-            <app-profile-picture class="author-pfp" [pfpFile]="article.createdBy.profilePicture" emSize="2"></app-profile-picture>
+
+            <!-- Author -->
+            <app-profile-picture class="author-pfp" [pfpFile]="article.createdBy.profilePicture" emSize="2.85"></app-profile-picture>
             <span class="user">{{article.createdBy.name}}</span>
 
+            <!-- Timestamp -->
             <span class="date">{{article.createdAt | relativeTime}}</span>
 
+             <!-- Update button -->
             <button routerLink="/article/update/{{article.uuid}}"
                     id="button-update"
                     class="hollow small neutral"
@@ -27,6 +34,7 @@
                 Update
             </button>
 
+            <!-- Delete button -->
             <button (click)="deleteArticle()"
                     id="button-delete"
                     class="hollow small negative"
@@ -38,16 +46,21 @@
 
     </div>
 
+    <!-- Markdown-rendered content -->
     <markdown data="{{article.content}}" [line]="'6, 10-16'" [lineOffset]="5"></markdown>
 
+    <!-- Comments section -->
     <div class="article-comments">
 
+        <!-- Comments title -->
         <div class="comments-header">
             <h2>Comments</h2>
         </div>
 
+        <!-- Article reply box -->
         <app-create-comment [replying]="true" [article]="article"></app-create-comment>
 
+        <!-- Comments list -->
         <app-article-comments [article]="article"></app-article-comments>
 
     </div>

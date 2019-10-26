@@ -15,7 +15,7 @@ const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'register', component: LoginComponent },
     { path: 'new-article', component: NewArticleComponent },
-    { path: 'profile/:username', component: ProfileComponent },
+    { path: 'profile/**', component: ProfileComponent },
     { path: 'article/:uuid', component: ShowArticleComponent },
     { path: 'article/update/:uuid', component: UpdateArticleComponent },
     { path: 'user/update', component: UpdateUserComponent },

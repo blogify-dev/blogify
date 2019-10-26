@@ -1,5 +1,5 @@
 <p>update-user works!</p>
 
-<input type="file" [(ngModel)]="file">
+<input type="file" (change)="fileChange($event)">
 
 <button (click)="setProfilePicture()">yeah</button>

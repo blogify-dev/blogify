@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {AuthService} from "../../services/auth/auth.service";
+import {AuthService} from "../../shared/auth/auth.service";
 import {ActivatedRoute} from "@angular/router";
 import {Subscription} from "rxjs";
 
@@ -9,18 +9,19 @@ import {Subscription} from "rxjs";
     styleUrls: ['./update-user.component.scss']
 })
 export class UpdateUserComponent implements OnInit {
+
     file: File = null;
 
-    constructor(
+    constructor (
         private authService: AuthService,
-    ) { }
+    ) {}
 
-    ngOnInit() {
+    ngOnInit() {}
+
+    async fileChange(event) {
+        let file: File = event.target.files[0];
+        await this.authService.addProfilePicture(file, (await this.authService.userUUID))
     }
 
-    async setProfilePicture() {
-        const yeet = await this.authService.addProfilePicture(this.file, (await this.authService.userUUID))
-        console.log(yeet)
-    }
 
 }

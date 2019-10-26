@@ -1,15 +1,19 @@
 <section class="articles">
 
     <div id="articles-header">
+        <!-- Page title -->
         <h1 id="header-title">{{title}}</h1>
 
+        <!-- Search pad -->
         <!--suppress HtmlFormInputWithoutLabel -->
         <input id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help">
 
+        <!-- Search icon -->
         <a id="header-search-icon">
             <fa-icon [icon]="faSearch" size="2x"></fa-icon>
         </a>
 
+        <!-- New article -->
         <a id="header-create-btn" (click)="navigateToNewArticle()">
             <fa-icon [icon]="faPencil" size="2x"></fa-icon>
         </a>
@@ -18,18 +22,22 @@
         <div class="article" *ngFor="let article of articles">
 
             <div class="article-first-line">
+                <!-- Title -->
                 <h1 class="header-title">{{article.title}}</h1>
 
+                <!-- Author -->
                 <span class="article-author">
-                    <app-profile-picture class="author-pfp" [pfpFile]="article.createdBy.profilePicture" emSize="2"></app-profile-picture>
+                    <app-profile-picture class="author-pfp" [pfpFile]="article.createdBy.profilePicture" emSize="2.8"></app-profile-picture>
 
                     <span class="author-name">{{article.createdBy.name}}</span>
                 </span>
             </div>
 
             <div class="article-second-line">
+                <!-- Summary -->
                 <span class="article-summary">{{article.summary}}</span>
 
+                <!-- Timestamp -->
                 <span class="article-posted-at">{{article.createdAt | relativeTime}}</span>
             </div>
 
@@ -38,14 +46,17 @@
             </h3>
 
             <div class="article-last-line">
+                <!-- Comment count -->
                 <!-- TODO: Actually impalement this-->
                 <h4 class="article-comments-count"><fa-icon [icon]="faCommentAlt" size="lg"></fa-icon> 4</h4>
 
+                <!-- Categories -->
                 <div class="article-tags" *ngIf="article.categories.length > 0">
                     <span class="tags-title">Tags:&nbsp;</span>
                     <span *ngFor="let tag of article.categories">{{tag.name}}</span>
                 </div>
 
+                <!-- No categories -->
                 <span class="article-no-tags" *ngIf="article.categories.length == 0">
                     <em>No tags</em>
                 </span>

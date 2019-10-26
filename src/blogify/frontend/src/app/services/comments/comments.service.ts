@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Comment } from '../../models/Comment';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
 import { Article } from '../../models/Article';
 

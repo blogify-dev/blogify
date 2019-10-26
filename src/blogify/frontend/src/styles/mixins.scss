@@ -1,6 +1,5 @@
 @import "queries";
 
-
 @mixin pageContainer($padding: true, $percent: percentage(2 / 3)) {
     background-color: var(--body-bg);
 

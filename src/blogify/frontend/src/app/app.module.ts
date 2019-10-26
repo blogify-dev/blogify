@@ -20,9 +20,10 @@ import { CreateCommentComponent } from './components/comment/create-comment/crea
 import { RelativeTimePipe } from './pipes/relative-time/relative-time.pipe';
 import { UpdateArticleComponent } from './components/update-article/update-article.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { ProfilePictureComponent } from './components/profile-picture/profile-picture.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { UpdateUserComponent } from './components/update-user/update-user.component';
+import { SharedModule } from './shared/shared.module';
+import { ProfileModule } from './components/profile/profile/profile.module';
 
 @NgModule({
     declarations: [
@@ -41,8 +42,7 @@ import { UpdateUserComponent } from './components/update-user/update-user.compon
         CreateCommentComponent,
         RelativeTimePipe,
         UpdateArticleComponent,
-        ProfilePictureComponent,
-        UpdateUserComponent,
+        UpdateUserComponent
     ],
     imports: [
         BrowserModule,
@@ -52,8 +52,11 @@ import { UpdateUserComponent } from './components/update-user/update-user.compon
         FormsModule,
         FontAwesomeModule,
         MarkdownModule.forRoot(),
+        ProfileModule,
+        SharedModule,
     ],
     providers: [],
+    exports: [],
     bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

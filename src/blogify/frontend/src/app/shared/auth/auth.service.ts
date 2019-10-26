@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {LoginCredentials, RegisterCredentials, User} from 'src/app/models/User';
-import {BehaviorSubject, Observable} from 'rxjs';
-import {StaticFile} from '../../models/Static';
-import {StaticContentService} from "../static/static-content.service";
+import { HttpClient } from '@angular/common/http';
+import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { StaticFile } from '../../models/Static';
+import { StaticContentService } from '../../services/static/static-content.service';
 
 @Injectable({
     providedIn: 'root'
