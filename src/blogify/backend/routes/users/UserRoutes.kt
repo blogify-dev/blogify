@@ -1,10 +1,6 @@
 package blogify.backend.routes.users
 
 import blogify.backend.database.Users
-import io.ktor.routing.Route
-import io.ktor.routing.get
-import io.ktor.routing.delete
-import io.ktor.routing.route
 
 import blogify.backend.resources.User
 import blogify.backend.resources.slicing.sanitize
@@ -14,7 +10,7 @@ import blogify.backend.services.UserService
 import blogify.backend.services.models.Service
 import io.ktor.application.call
 import io.ktor.response.respond
-import io.ktor.routing.patch
+import io.ktor.routing.*
 
 /**
  * Defines the API routes for interacting with [users][User].
@@ -60,6 +56,15 @@ fun Route.users() {
                 failure = { call.respondExceptionMessage(it) }
             )
 
+        }
+
+        post("/profilePicture/{uuid}") {
+            uploadToResource (
+                fetch         = UserService::get,
+                modify        = { r, h -> r.copy(profilePicture = h) },
+                update        = UserService::update,
+                authPredicate = { true /*TODO: Fix authentication*/ }
+            )
         }
 
     }
