@@ -1,0 +1,28 @@
+.tab-container {
+
+    display:         flex;
+    flex-direction:  row;
+    justify-content: flex-start;
+    align-items:     center;
+
+    .tab {
+
+        margin-right: 1.75em;
+
+        &.activated {
+            border-bottom: solid 3px var(--body-fg);
+            font-weight: 600;
+        }
+        &:not(.activated) {
+            transform: translateY(-.13em);
+        }
+
+        .tab-name {
+            font-size: 2em;
+
+            cursor: pointer;
+        }
+
+    }
+
+}
