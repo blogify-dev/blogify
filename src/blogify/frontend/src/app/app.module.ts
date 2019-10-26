@@ -22,6 +22,7 @@ import { UpdateArticleComponent } from './components/update-article/update-artic
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ProfilePictureComponent } from './components/profile-picture/profile-picture.component';
 import { MarkdownModule } from 'ngx-markdown';
+import { UpdateUserComponent } from './components/update-user/update-user.component';
 
 @NgModule({
     declarations: [
@@ -41,6 +42,7 @@ import { MarkdownModule } from 'ngx-markdown';
         RelativeTimePipe,
         UpdateArticleComponent,
         ProfilePictureComponent,
+        UpdateUserComponent,
     ],
     imports: [
         BrowserModule,

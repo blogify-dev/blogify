@@ -3,12 +3,10 @@ import {HttpClient} from '@angular/common/http';
 import {LoginCredentials, RegisterCredentials, User} from 'src/app/models/User';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {StaticFile} from '../../models/Static';
+import {StaticContentService} from "../static/static-content.service";
 
 @Injectable({
     providedIn: 'root'
-
-
-
 })
 export class AuthService {
 
@@ -17,7 +15,7 @@ export class AuthService {
     private currentUserUuid_ = new BehaviorSubject('');
     private currentUser_ = new BehaviorSubject(this.dummyUser);
 
-    constructor(private httpClient: HttpClient) {
+    constructor(private httpClient: HttpClient, private staticContentService: StaticContentService) {
         if (localStorage.getItem('userToken') !== null) {
             this.login(localStorage.getItem('userToken'))
         }
@@ -102,6 +100,10 @@ export class AuthService {
 
     getByUsername(username: string): Promise<User> {
         return this.httpClient.get<User>(`/api/users/byUsername/${username}`).toPromise()
+    }
+
+    addProfilePicture(file: File, userUUID: string, userToken: string = this.userToken) {
+        return this.staticContentService.uploadFile(file, userToken, `/api/users/profilePicture/${userUUID}/?target=profilePicture`)
     }
 
 }
