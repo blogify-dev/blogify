@@ -89,6 +89,10 @@ export class AuthService {
         }
     }
 
+    getByUsername(username: string): Promise<User> {
+        return this.httpClient.get<User>(`/api/users/byUsername/${username}`).toPromise()
+    }
+
 }
 
 interface UserToken {

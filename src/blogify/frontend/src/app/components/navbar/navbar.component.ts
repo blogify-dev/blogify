@@ -43,9 +43,9 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     }
 
     async navigateToProfile() {
-        const userUUID = await this.authService.userUUID;
-        console.log(userUUID);
-        const url = `/profile/${userUUID}`;
+        // const user = await this.authService.userProfile;
+        // console.log(user);
+        const url = `/profile/${this.username}`;
         await this.router.navigateByUrl(url);
     }
 

@@ -15,6 +15,10 @@ export class ArticleService {
     async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {
         const articlesObs = this.httpClient.get<Article[]>(`/api/articles/?fields=${fields.join(',')}&amount=${amount}`);
         const articles = await articlesObs.toPromise();
+        return this.uuidToObjectInArticle(articles)
+    }
+
+    private async uuidToObjectInArticle(articles: Article[]) {
         const userUUIDs = new Set<string>();
         articles.forEach(it => {
             userUUIDs.add(it.createdBy.toString());
@@ -38,8 +42,9 @@ export class ArticleService {
         return article;
     }
 
-    async getArticleByForUser(uuid: string, fields: string[] = []): Promise<Article[]> {
-        return this.httpClient.get<Article[]>(`/api/articles/forUser/${uuid}?fields=${fields.join(',')}`).toPromise();
+    async getArticleByForUser(username: string, fields: string[] = []): Promise<Article[]> {
+        const articles = await this.httpClient.get<Article[]>(`/api/articles/forUser/${username}?fields=${fields.join(',')}`).toPromise();
+        return this.uuidToObjectInArticle(articles);
     }
 
     async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<object> {
