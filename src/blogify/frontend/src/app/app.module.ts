@@ -21,6 +21,7 @@ import { RelativeTimePipe } from './pipes/relative-time/relative-time.pipe';
 import { UpdateArticleComponent } from './components/update-article/update-article.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ProfilePictureComponent } from './components/profile-picture/profile-picture.component';
+import { MarkdownModule } from 'ngx-markdown';
 
 @NgModule({
     declarations: [
@@ -47,7 +48,8 @@ import { ProfilePictureComponent } from './components/profile-picture/profile-pi
         AppRoutingModule,
         HttpClientModule,
         FormsModule,
-        FontAwesomeModule
+        FontAwesomeModule,
+        MarkdownModule.forRoot(),
     ],
     providers: [],
     bootstrap: [AppComponent]

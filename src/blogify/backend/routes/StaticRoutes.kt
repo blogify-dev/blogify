@@ -4,14 +4,12 @@ import blogify.backend.database.Uploadables
 import blogify.backend.database.handling.query
 import blogify.backend.resources.User
 import blogify.backend.resources.static.fs.StaticFileHandler
-import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.routes.handling.pipeline
 import blogify.backend.routes.handling.pipelineError
 import blogify.backend.routes.handling.uploadToResource
 import blogify.backend.services.UserService
 
 import io.ktor.application.call
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.response.respondBytes
@@ -33,7 +31,7 @@ fun Route.static() {
             fetch         = UserService::get,
             modify        = { r, h -> r.copy(profilePicture = h) },
             update        = UserService::update,
-            authPredicate = { _ -> true }
+            authPredicate = { true /*TODO: Fix authentication*/ }
         )
     }
 
@@ -53,7 +51,7 @@ fun Route.static() {
     delete("/delete/{uploadableId}") {
 
         pipeline("uploadableId") { (uploadableId) ->
-
+            // TODO: None of this should be executed unless the owner is logged in. Fix that
             // not-so VERY TEMP
             val handle = query {
                 Uploadables.select { Uploadables.fileId eq uploadableId }.single()

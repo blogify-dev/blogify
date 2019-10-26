@@ -14,7 +14,7 @@ import { User } from '../../models/User';
 })
 export class ShowArticleComponent implements OnInit {
 
-    routeMapSubscription: Subscription;S
+    routeMapSubscription: Subscription;
     article: Article;
     user: User;
 
