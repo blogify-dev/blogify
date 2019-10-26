@@ -26,7 +26,7 @@ typealias UserAuthPredicate = suspend (user: User) -> Boolean
  * @param mustBe the mustBe to whom the token must belong to
  */
 fun isUser(mustBe: User): UserAuthPredicate = { user ->
-        mustBe == user
+        mustBe eqr user
 }
 
 /**

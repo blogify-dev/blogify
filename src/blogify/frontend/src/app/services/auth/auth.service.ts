@@ -1,11 +1,14 @@
-import { Injectable } from '@angular/core';
+import {Injectable, OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
-import { BehaviorSubject } from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import { StaticFile } from "../../models/Static";
 
 @Injectable({
     providedIn: 'root'
+
+
+
 })
 export class AuthService {
 
@@ -15,14 +18,25 @@ export class AuthService {
     private currentUserUuid_ = new BehaviorSubject('');
     private currentUser_ = new BehaviorSubject(this.dummyUser);
 
-    constructor(private httpClient: HttpClient) {}
+    constructor(private httpClient: HttpClient) {
+        if (localStorage.getItem('userToken') !== null) {
+            this.login(localStorage.getItem('userToken'))
+        }
+    }
 
-    async login(user: LoginCredentials): Promise<UserToken> {
-        const token = this.httpClient.post<UserToken>('/api/auth/signin', user, {responseType: "json"});
-        const it = await token.toPromise();
+    async login(creds: LoginCredentials | string): Promise<UserToken> {
 
+        let token: Observable<UserToken>;
+        let it: UserToken;
 
-        localStorage.setItem("userToken", it.token);
+        if (typeof creds !== 'string') {
+            token = this.httpClient.post<UserToken>('/api/auth/signin', creds, { responseType: 'json' });
+            it = await token.toPromise();
+
+            localStorage.setItem('userToken', it.token);
+        } else {
+            it = { token: localStorage.getItem('userToken') };
+        }
 
         const uuid = await this.getUserUUIDFromToken(it.token);
 
@@ -56,7 +70,7 @@ export class AuthService {
     }
 
     get userToken(): string {
-        const token = localStorage.getItem("userToken");
+        const token = localStorage.getItem('userToken');
         return token == null ? '' : token;
     }
 

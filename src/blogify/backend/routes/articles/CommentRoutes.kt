@@ -27,19 +27,19 @@ fun Route.articleComments() {
         }
 
         delete("/{uuid}") {
-            deleteWithId(CommentService::get, CommentService::delete, authPredicate = { user, comment -> comment.commenter == user })
+            deleteWithId(CommentService::get, CommentService::delete, authPredicate = { user, comment -> comment.commenter eqr user })
         }
 
         patch("/{uuid}") {
-            updateWithId(
+            updateWithId (
                 update = CommentService::update,
                 fetch = CommentService::get,
-                authPredicate = { user, comment -> comment.commenter == user }
+                authPredicate = { user, comment -> comment.commenter eqr user }
             )
         }
 
         post("/") {
-            createWithResource(CommentService::add, authPredicate = { user, comment -> comment.commenter == user })
+            createWithResource(CommentService::add, authPredicate = { user, comment -> comment.commenter eqr user })
         }
 
         get("/tree/{uuid}") {

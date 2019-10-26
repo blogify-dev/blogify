@@ -27,6 +27,8 @@ import java.util.*
 
 open class Resource(open val uuid: UUID = UUID.randomUUID()) {
 
+    infix fun eqr(other: Resource) = this.uuid == other.uuid
+
     object ObjectResolver : ObjectIdResolver {
 
         object FakeApplicationCall : ApplicationCall {

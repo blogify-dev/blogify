@@ -57,19 +57,19 @@ fun Route.articles() {
         }
 
         delete("/{uuid}") {
-            deleteWithId(ArticleService::get, ArticleService::delete, authPredicate = { user, article -> article.createdBy.uuid == user.uuid })
+            deleteWithId(ArticleService::get, ArticleService::delete, authPredicate = { user, article -> article.createdBy == user })
         }
 
         patch("/{uuid}") {
             updateWithId (
                 update = ArticleService::update,
                 fetch = ArticleService::get,
-                authPredicate = { user, article -> article.createdBy.uuid == user.uuid }
+                authPredicate = { user, article -> article.createdBy eqr user }
             )
         }
 
         post("/") {
-            createWithResource(ArticleService::add, authPredicate = { user, article -> article.createdBy.uuid == user.uuid })
+            createWithResource(ArticleService::add, authPredicate = { user, article -> article.createdBy eqr user })
         }
 
         articleComments()
