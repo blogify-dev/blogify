@@ -19,9 +19,11 @@ export class UpdateUserComponent implements OnInit {
     ngOnInit() {}
 
     async fileChange(event) {
-        let file: File = event.target.files[0];
-        await this.authService.addProfilePicture(file, (await this.authService.userUUID))
+        this.file = event.target.files[0];
     }
 
+    async setProfilePicture() {
+        await this.authService.addProfilePicture(this.file, (await this.authService.userUUID))
+    }
 
 }
