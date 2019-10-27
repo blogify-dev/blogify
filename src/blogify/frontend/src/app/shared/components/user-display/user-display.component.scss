@@ -1,3 +1,10 @@
+:host {
+    display:         inline-flex;
+    flex-direction:  column;
+    justify-content: center;
+    align-items:     center;
+}
+
 .user-display {
 
     display:         inline-flex;
@@ -12,7 +19,7 @@
     }
 
     .display-info {
-        margin-left: .7em;
+        margin-left: .5em;
 
         font-size: 1.75em;
         font-weight: 600;
