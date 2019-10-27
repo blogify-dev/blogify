@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { CommentsService } from '../../services/comments/comments.service';
 import { Comment } from '../../models/Comment';
 import { Article } from '../../models/Article';
-import { AuthService } from '../../services/auth/auth.service';
+import { AuthService } from '../../shared/auth/auth.service';
 
 @Component({
     selector: 'app-article-comments',

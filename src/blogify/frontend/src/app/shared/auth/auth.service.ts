@@ -1,36 +1,45 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Article } from '../../models/Article';
+import { StaticFile } from '../../models/Static';
+import { StaticContentService } from '../../services/static/static-content.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
 
-    private readonly dummyUser: User = new User('', '', '', '');
+    private readonly dummyUser: User = new User('', '', '', '', new StaticFile('-1'));
 
-    // private currentUserToken_ = new BehaviorSubject('');
     private currentUserUuid_ = new BehaviorSubject('');
     private currentUser_ = new BehaviorSubject(this.dummyUser);
 
-    constructor(private httpClient: HttpClient) {}
+    constructor(private httpClient: HttpClient, private staticContentService: StaticContentService) {
+        if (localStorage.getItem('userToken') !== null) {
+            this.login(localStorage.getItem('userToken'))
+        }
+    }
 
-    async login(user: LoginCredentials): Promise<UserToken> {
-        const token = this.httpClient.post<UserToken>('/api/auth/signin', user, {responseType: "json"});
-        const it = await token.toPromise();
+    async login(creds: LoginCredentials | string): Promise<UserToken> {
 
+        let token: Observable<UserToken>;
+        let it: UserToken;
 
-        localStorage.setItem("userToken", it.token);
+        if (typeof creds !== 'string') {
+            token = this.httpClient.post<UserToken>('/api/auth/signin', creds, { responseType: 'json' });
+            it = await token.toPromise();
+
+            localStorage.setItem('userToken', it.token);
+        } else {
+            it = { token: creds }
+        }
 
         const uuid = await this.getUserUUIDFromToken(it.token);
 
         // Fix JS bullshit
         const fetchedUserObj: User = await this.fetchUser(uuid);
-        const fetchedUser = new User(fetchedUserObj.uuid, fetchedUserObj.username, fetchedUserObj.name, fetchedUserObj.email);
-
-        console.log(`TYPE CHECK: ${fetchedUser instanceof User}`);
+        const fetchedUser = new User(fetchedUserObj.uuid, fetchedUserObj.username, fetchedUserObj.name, fetchedUserObj.email, fetchedUserObj.profilePicture);
 
         this.currentUser_.next(fetchedUser);
         this.currentUserUuid_.next(fetchedUser.uuid);
@@ -43,12 +52,11 @@ export class AuthService {
     }
 
     isLoggedIn(): boolean {
-        return this.userToken !== '';
+        return this.userToken !== null;
     }
 
     private async getUserUUIDFromToken(token: string): Promise<string> {
-        const userUUIDObservable = this.httpClient.get<UserUUID>(`/api/auth/${token}`);
-        const uuid = await userUUIDObservable.toPromise();
+        const uuid = await this.httpClient.get<UserUUID>(`/api/auth/${token}`).toPromise();
         this.currentUserUuid_.next(uuid.uuid);
         return uuid.uuid;
     }
@@ -57,9 +65,8 @@ export class AuthService {
         return this.httpClient.get<User>(`/api/users/${uuid}`).toPromise()
     }
 
-    get userToken(): string {
-        const token = localStorage.getItem("userToken");
-        return token == null ? '' : token;
+    get userToken(): string | null {
+        return localStorage.getItem('userToken');
     }
 
     get userUUID(): Promise<string> {
@@ -89,6 +96,14 @@ export class AuthService {
         } else {
             return this.fetchUser(await this.userUUID)
         }
+    }
+
+    getByUsername(username: string): Promise<User> {
+        return this.httpClient.get<User>(`/api/users/byUsername/${username}`).toPromise()
+    }
+
+    addProfilePicture(file: File, userUUID: string, userToken: string = this.userToken) {
+        return this.staticContentService.uploadFile(file, userToken, `/api/users/profilePicture/${userUUID}/?target=profilePicture`)
     }
 
 }

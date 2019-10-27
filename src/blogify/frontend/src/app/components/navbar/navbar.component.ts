@@ -1,7 +1,9 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { AuthService } from '../../services/auth/auth.service';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import { AuthService } from '../../shared/auth/auth.service';
 import { Router } from '@angular/router';
 import { DarkModeService } from '../../services/darkmode/dark-mode.service';
+import { User } from '../../models/User';
+import { faBell, faMoon, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({
@@ -13,20 +15,21 @@ export class NavbarComponent implements OnInit, AfterViewInit {
 
     @ViewChild('darkModeToggle', {static: false, read: ElementRef}) darkModeToggle: ElementRef;
 
-    username: string;
-    constructor(
+    user: User;
+
+    faSignOutAlt = faSignOutAlt;
+    faBell = faBell;
+    faMoon = faMoon;
+
+    constructor (
         public authService: AuthService,
         private router: Router,
         private darkModeService: DarkModeService,
-    ) {
-    }
+    ) {}
 
-    ngOnInit() {
-        this.authService.userProfile.then(user => {
-            this.username = user.username;
-        });
-
-        console.log(this.authService.userToken);
+    async ngOnInit() {
+        this.user = await this.authService.userProfile;
+        console.log(this.user.profilePicture);
     }
 
     ngAfterViewInit() {
@@ -43,10 +46,10 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     }
 
     async navigateToProfile() {
-        const userUUID = await this.authService.userUUID;
-        console.log(userUUID);
-        const url = `/profile/${userUUID}`;
-        await this.router.navigateByUrl(url);
+        await this.authService.userProfile.then(it => {
+            const url = `/profile/${it.username}`;
+            this.router.navigateByUrl(url);
+        });
     }
 
     toggleDarkMode() {

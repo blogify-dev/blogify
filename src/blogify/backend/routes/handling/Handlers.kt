@@ -28,14 +28,27 @@
 package blogify.backend.routes.handling
 
 import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.database.Uploadables
+import blogify.backend.database.handling.query
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
+import blogify.backend.resources.slicing.PropertyHandle
+import blogify.backend.resources.slicing.cachedPropMap
 import blogify.backend.resources.slicing.sanitize
 import blogify.backend.resources.slicing.slice
+import blogify.backend.resources.static.fs.StaticFileHandler
+import blogify.backend.resources.static.models.StaticData
+import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
-import blogify.backend.util.BlogifyDsl
+import blogify.backend.annotations.BlogifyDsl
+import blogify.backend.annotations.type
+import blogify.backend.auth.handling.UserAuthPredicate
+import blogify.backend.util.getOrPipelineError
+import blogify.backend.util.reason
+import blogify.backend.util.letCatchingOrNull
+import blogify.backend.util.matches
 import blogify.backend.util.toUUID
 
 import io.ktor.application.ApplicationCall
@@ -46,16 +59,29 @@ import io.ktor.util.pipeline.PipelineContext
 import io.ktor.util.pipeline.PipelineInterceptor
 import io.ktor.request.ContentTransformationException
 import io.ktor.request.receive
+import io.ktor.http.ContentType
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.http.content.streamProvider
+import io.ktor.request.receiveMultipart
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import com.andreapivetta.kolor.magenta
+import com.andreapivetta.kolor.red
 import com.andreapivetta.kolor.yellow
+
+import org.jetbrains.exposed.sql.insert
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.util.UUID
+
+import kotlin.Exception
+import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.isSuperclassOf
 
 val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
 
@@ -78,6 +104,30 @@ val defaultPredicateLambda: suspend (user: User, res: Resource) -> Boolean = { _
  * The default resource-less predicate used by the wrappers in this file
  */
 val defaultResourceLessPredicateLambda: suspend (user: User) -> Boolean = { _ -> true }
+
+class PipelineException(val code: HttpStatusCode, override val message: String) : Exception(message)
+
+fun pipelineError(code: HttpStatusCode = HttpStatusCode.BadRequest, message: String, rootException: Exception? = null): Nothing {
+    logger.debug("pipeline error - $message".red() + rootException?.let { " - ${it::class.simpleName} - ${it.message}".red() })
+    throw PipelineException(code, message)
+}
+
+suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), block: suspend (Array<String>) -> Unit) {
+    try {
+        block(wantedParams.map { param -> call.parameters[param] ?: pipelineError(message = "query parameter $param is null") }.toTypedArray())
+    } catch (e: PipelineException) {
+        call.respond(e.code, reason(e.message))
+    }
+}
+
+suspend fun CallPipeline.handleAuthentication(funcName: String = "<unspecified>", predicate: UserAuthPredicate, block: CallPipeLineFunction) {
+    if (predicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
+        runAuthenticated(predicate, block)
+    } else {
+        logUnusedAuth(funcName)
+        block(this, Unit)
+    }
+}
 
 /**
  * Sends an object describing an exception as a response
@@ -147,6 +197,7 @@ suspend fun <R : Resource> CallPipeline.fetchWithId (
     authPredicate: suspend (User)                   -> Boolean = defaultResourceLessPredicateLambda
 ) {
     val params = call.parameters
+
     params["uuid"]?.let { id -> // Check if the query URL provides any UUID
         val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
 
@@ -201,7 +252,7 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 ) {
     val params = call.parameters
 
-    call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
+    params["uuid"]?.let { id -> // Check if the query URL provides any UUID
 
         val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
 
@@ -246,6 +297,90 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
         }
 
     } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
+}
+
+@Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
+@BlogifyDsl
+suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
+    crossinline fetch:        suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
+    crossinline modify:       suspend (R, StaticResourceHandle) -> R,
+    crossinline update:       suspend (R)                       -> ResourceResult<*>,
+      noinline authPredicate: suspend (User, R)                 -> Boolean = defaultPredicateLambda
+) = pipeline("uuid", "target") { (uuid, target) ->
+
+    // Find target resource
+    val targetResource = fetch(call, UUID.fromString(uuid))
+        .getOrPipelineError(message = "couldn't fetch resource") // Handle result
+
+    handleAuthentication("uploadToResource", { authPredicate(it, targetResource) }) {
+
+        val targetClass = R::class
+
+        // Find target property
+        val targetPropHandle = targetClass.cachedPropMap()[target]
+            ?.takeIf {
+                it is PropertyHandle.Ok
+                        && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
+            } as? PropertyHandle.Ok
+            ?: pipelineError (
+                message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
+            )
+
+        // Receive data
+        val multiPartData = call.receiveMultipart()
+
+        var fileContentType: ContentType = ContentType.Application.Any
+        var fileBytes = byteArrayOf()
+
+        multiPartData.forEachPart { part ->
+            when (part) {
+                is PartData.FileItem -> {
+                    part.streamProvider().use { input -> fileBytes = input.readBytes() }
+                    fileContentType = part.contentType ?: ContentType.Application.Any
+                }
+            }
+        }
+
+        // Check content type
+        val propContentType = targetPropHandle.property.returnType
+            .findAnnotation<type>()
+            ?.contentType?.letCatchingOrNull(ContentType.Companion::parse) ?: ContentType.Any
+
+        if (!(propContentType matches fileContentType)) {
+            pipelineError ( // Throw an error
+                HttpStatusCode.UnsupportedMediaType,
+                "property '${targetPropHandle.property.name}' of class '${targetClass.simpleName}' does not accept content type '$fileContentType'"
+            )
+        }
+
+        // Write to file
+        val newHandle = StaticFileHandler.writeStaticResource(
+            StaticData(fileContentType, fileBytes)
+        )
+
+        query {
+            Uploadables.insert {
+                it[fileId] = newHandle.fileId
+                it[contentType] = newHandle.contentType.toString()
+            }
+
+        }.fold (
+            success = {},
+            failure = { println("error: $it") }
+        )
+
+        // idk - temporary
+        val rep = modify(targetResource, newHandle)
+
+        update(rep).fold (
+            success = {},
+            failure = { println("error: $it") }
+        )
+
+        call.respond(newHandle.toString())
+
+    }
+
 }
 
 /**
@@ -343,7 +478,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.updateWithId(
-    noinline update: suspend (R) -> ResourceResult<R>,
+    noinline update: suspend (R) -> ResourceResult<*>,
     fetch: suspend (ApplicationCall, UUID) -> ResourceResult<R>,
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) {
@@ -362,7 +497,7 @@ suspend inline fun <reified R : Resource> CallPipeline.updateWithId(
     replacement.uuid.let { fetch.invoke(call, it) }.fold(
         success = {
             if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-                runAuthenticated(
+                runAuthenticated (
                     predicate = { u -> authPredicate(u, replacement) },
                     block = doUpdate
                 ) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches

@@ -54,7 +54,11 @@
             justify-content: flex-start;
             align-items:     center;
 
-            .user {  }
+            .user {
+                margin-left: .5em;
+                font-size: 1.85em;
+                font-weight: bold;
+            }
 
             #button-update {
                 margin-left: auto;

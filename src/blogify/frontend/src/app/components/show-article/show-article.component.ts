@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../../services/auth/auth.service';
+import { AuthService } from '../../shared/auth/auth.service';
 import { CommentsService } from '../../services/comments/comments.service';
 import { User } from '../../models/User';
 
@@ -14,7 +14,7 @@ import { User } from '../../models/User';
 })
 export class ShowArticleComponent implements OnInit {
 
-    routeMapSubscription: Subscription;S
+    routeMapSubscription: Subscription;
     article: Article;
     user: User;
 

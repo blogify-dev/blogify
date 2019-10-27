@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Article } from '../../../models/Article';
 import { CommentsService } from '../../../services/comments/comments.service';
-import { AuthService } from '../../../services/auth/auth.service';
+import { AuthService } from '../../../shared/auth/auth.service';
 import { User } from '../../../models/User';
 import { Comment } from '../../../models/Comment';
 

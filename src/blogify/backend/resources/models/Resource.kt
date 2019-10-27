@@ -115,3 +115,5 @@ open class Resource(open val uuid: UUID = UUID.randomUUID()) {
     }
 
 }
+
+infix fun <T : Resource> T.eqr(other: T) = this.uuid == other.uuid
