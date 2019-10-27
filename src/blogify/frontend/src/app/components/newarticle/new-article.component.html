@@ -1,11 +1,11 @@
 <!--suppress HtmlFormInputWithoutLabel -->
 <div id="new-article" *ngIf="user != undefined">
 
-    <span class="header-row">
-        <span>New Article</span>
+    <div id="header-row">
+        <h1>New Article</h1>
 
         <app-user-display info="username" [user]="user"></app-user-display>
-    </span>
+    </div>
 
     <span class="data-row" id="title-row">
         <span>Title</span>
