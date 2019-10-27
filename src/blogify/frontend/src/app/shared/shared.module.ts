@@ -7,8 +7,8 @@ import { ShowAllArticlesComponent } from './components/show-all-articles/show-al
 import { FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import { RelativeTimePipe } from './relative-time/relative-time.pipe';
 import { UserDisplayComponent } from './components/user-display/user-display.component';
-import {DarkThemeDirective} from './directives/dark-theme/dark-theme.directive';
-import {CompactDirective} from './directives/compact/compact.directive';
+import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
+import { CompactDirective } from './directives/compact/compact.directive';
 
 @NgModule({
     declarations: [
