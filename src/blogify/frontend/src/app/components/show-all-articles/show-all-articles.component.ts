@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Article } from '../../models/Article';
+import { Comment } from '../../models/Comment'
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { faCommentAlt, faPencilAlt, faSearch } from '@fortawesome/free-solid-svg-icons';
