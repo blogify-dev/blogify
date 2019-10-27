@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Article } from "../../../../models/Article";
 import { ArticleService } from "../../../../services/article/article.service";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import {map} from "rxjs/operators";
 
 @Component({
@@ -15,19 +15,16 @@ export class OverviewComponent implements OnInit {
 
     constructor(
         private articleService: ArticleService,
-        private activatedRoute: ActivatedRoute,
+        private router: Router
     ) {}
 
     ngOnInit() {
-        this.activatedRoute.data.pipe(
-            map(it => it["username"])
-        ).subscribe(username => {
-            this.articleService.getArticleByForUser(
-                username,
-                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
-            ).then(articles => {
-                this.articles = articles
-            })
+        const username = this.router.url.split('/')[2]
+        this.articleService.getArticleByForUser(
+            username,
+            ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
+        ).then(articles => {
+            this.articles = articles
         })
     }
 

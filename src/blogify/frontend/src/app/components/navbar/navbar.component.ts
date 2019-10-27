@@ -13,8 +13,6 @@ import { faBell, faMoon, faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
 })
 export class NavbarComponent implements OnInit, AfterViewInit {
 
-    @ViewChild('darkModeToggle', {static: false, read: ElementRef}) darkModeToggle: ElementRef;
-
     user: User;
 
     faSignOutAlt = faSignOutAlt;
@@ -35,7 +33,6 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     ngAfterViewInit() {
         if (window.matchMedia('prefers-color-scheme: dark')) {
             this.darkModeService.setDarkMode(true);
-            this.darkModeToggle.nativeElement.setAttribute('checked', '');
         }
     }
 
