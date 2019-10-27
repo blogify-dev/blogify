@@ -26,11 +26,7 @@
                 <h1 class="header-title">{{article.title}}</h1>
 
                 <!-- Author -->
-                <span class="article-author">
-                    <app-profile-picture class="author-pfp" [pfpFile]="article.createdBy.profilePicture" emSize="2.8"></app-profile-picture>
-
-                    <span class="author-name">{{article.createdBy.name}}</span>
-                </span>
+                <app-user-display [user]="article.createdBy" emSize="2.25"></app-user-display>
             </div>
 
             <div class="article-second-line">

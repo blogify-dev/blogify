@@ -16,7 +16,6 @@ export class ShowArticleComponent implements OnInit {
 
     routeMapSubscription: Subscription;
     article: Article;
-    user: User;
 
     constructor (
         private activatedRoute: ActivatedRoute,
