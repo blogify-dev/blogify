@@ -10,7 +10,7 @@ Please try to only use these colors in all other files. This ensures consistency
     --body-bg: rgb(255, 255, 255);
     --body-ct: rgb(215, 215, 215);
 
-    --header-fg: rgb(60, 60, 60);
+    --header-fg: rgb(70, 70, 70);
     --header-bg: rgb(240, 240, 240);
     --header-ct: rgb(200, 200, 200);
 
@@ -20,11 +20,11 @@ Please try to only use these colors in all other files. This ensures consistency
 
     --border-color: rgb(200, 200, 200);
 
-    --accent-mild:     hsl(20,  55%, 68%);
+    --accent-mild:     hsl(41,  47%, 66%);
     --accent-negative: hsl(8,   42%, 64%);
-    --accent-neutral:  hsl(177, 57%, 54%);
+    --accent-neutral: hsl(175,  41%, 60%);
     --accent-positive: hsl(158, 49%, 54%);
-    --accent-gray:     hsl(240, 1%,  55%);
+    --accent-gray:     hsl(240,  1%, 57%);
 
     --logo-filter: brightness(0);
 
@@ -35,7 +35,7 @@ Please try to only use these colors in all other files. This ensures consistency
 
         --header-fg: rgb(245, 245, 245);
         --header-bg: rgb(50, 50, 50);
-        --header-ct: rgb(40, 40, 40);
+        --header-ct: rgb(95, 95, 95);
 
         --card-fg: rgb(250, 250, 250);
         --card-bg: rgb(45, 45, 45);
@@ -43,11 +43,11 @@ Please try to only use these colors in all other files. This ensures consistency
 
         --border-color: rgb(80, 80, 80);
 
-        --accent-mild:     hsl(20,  65%, 68%);
-        --accent-negative: hsl(8,   52%, 64%);
-        --accent-neutral:  hsl(177, 67%, 54%);
-        --accent-positive: hsl(158, 59%, 54%);
-        --accent-gray: hsl(240, 1%, 57%);
+        --accent-mild:     hsl(41,  47%, 66%);
+        --accent-negative: hsl(8,   42%, 64%);
+        --accent-neutral: hsl(175,  41%, 60%);
+        --accent-positive: hsl(158, 49%, 54%);
+        --accent-gray:     hsl(240,  1%, 57%);
 
         --logo-filter: none;
 
