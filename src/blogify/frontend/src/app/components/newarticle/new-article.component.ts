@@ -3,6 +3,7 @@ import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
 import { User } from '../../models/User';
 import { StaticFile } from "../../models/Static";
+import { AuthService } from '../../shared/auth/auth.service';
 
 @Component({
     selector: 'app-new-article',
@@ -20,16 +21,15 @@ export class NewArticleComponent implements OnInit {
         createdBy: new User('', '', '', '', new StaticFile('-1')),
         createdAt: Date.now(),
     };
+    user: User;
 
+    constructor(private articleService: ArticleService, private authService: AuthService) {}
 
-    constructor(private articleService: ArticleService) {
-    }
-
-    ngOnInit() {
+    async ngOnInit() {
+        this.user = await this.authService.userProfile;
     }
 
     createNewArticle() {
-        console.log(this.article);
         this.articleService.createNewArticle(this.article).then(article =>
             console.log(article)
         );

@@ -19,8 +19,9 @@ export class OverviewComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        const username = this.router.url.split('/')[2]
-        this.articleService.getArticleByForUser(
+        const username = this.router.url.split('/')[2];
+
+        this.articleService.getArticleByForUser (
             username,
             ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
         ).then(articles => {
