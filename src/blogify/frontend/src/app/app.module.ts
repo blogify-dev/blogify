@@ -10,14 +10,12 @@ import { HomeComponent } from './components/home/home.component';
 import { RouterModule } from '@angular/router';
 import { NewArticleComponent } from './components/newarticle/new-article.component';
 import { ShowArticleComponent } from './components/show-article/show-article.component';
-import { ShowAllArticlesComponent } from './components/show-all-articles/show-all-articles.component';
 import { ArticleCommentsComponent } from './components/comment/article-comments.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
 import { CompactDirective } from './directives/compact/compact.directive';
 import { SingleCommentComponent } from './components/comment/single-comment/single-comment.component';
 import { CreateCommentComponent } from './components/comment/create-comment/create-comment.component';
-import { RelativeTimePipe } from './pipes/relative-time/relative-time.pipe';
 import { UpdateArticleComponent } from './components/update-article/update-article.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MarkdownModule } from 'ngx-markdown';
@@ -33,14 +31,12 @@ import { ProfileModule } from './components/profile/profile/profile.module';
         HomeComponent,
         NewArticleComponent,
         ShowArticleComponent,
-        ShowAllArticlesComponent,
         ArticleCommentsComponent,
         NavbarComponent,
         DarkThemeDirective,
         CompactDirective,
         SingleCommentComponent,
         CreateCommentComponent,
-        RelativeTimePipe,
         UpdateArticleComponent,
         UpdateUserComponent
     ],

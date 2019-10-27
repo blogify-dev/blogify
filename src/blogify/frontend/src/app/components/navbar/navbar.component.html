@@ -20,7 +20,7 @@
 
         </span>
 
-        <span id="navbar-right">
+        <span id="navbar-right" *ngIf="user">
 
             <span id="profile" *ngIf="authService.isLoggedIn()" (click)="navigateToProfile()">
                 <!-- <fa-icon size="lg" [icon]="faUser" [transform]="{ y: -2 }"></fa-icon> -->
