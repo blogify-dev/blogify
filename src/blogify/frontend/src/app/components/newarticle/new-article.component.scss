@@ -1,0 +1,40 @@
+@import "../../../styles/mixins";
+
+#new-article {
+
+    @include pageContainer;
+
+    display:         flex;
+    flex-direction:  column;
+    justify-content: stretch;
+    align-items:     flex-start;
+
+    .data-row {
+        width: 100%;
+
+        &:not(:first-child) {
+            margin-top: 1em;
+        }
+
+        & *:first-child {
+            width: 40%;
+
+            font-size: 1.5em;
+        }
+        & *:last-child {
+            flex-grow: 1;
+        }
+
+        &#submit button {
+            width: 20%;
+            flex-grow: 0;
+            margin-left: auto;
+        }
+
+        display:         flex;
+        flex-direction:  row;
+        justify-content: space-between;
+        align-items:     flex-start;
+    }
+
+}

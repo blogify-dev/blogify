@@ -1,26 +1,32 @@
 <!--suppress HtmlFormInputWithoutLabel -->
-<h1>
-    New Article
-</h1>
-<h3>
-    Title: <input [(ngModel)]="article.title">
-    <br>
-    Text: <textarea rows="5" [(ngModel)]="article.content">
-    <br>
-    Summary:<input [(ngModel)]="article.summary">
-    <br>
-    <button (click)="createNewArticle()">Create New Article</button>
-</h3>
+<div id="new-article">
 
+    <h1>New Article</h1>
 
-<br>
-<br>
+    <span class="data-row" id="title-row">
+        <span>Title</span>
+        <input [(ngModel)]="article.title">
+    </span>
 
-<ng-container *ngFor="let cat of article.categories">
-    <input [(ngModel)]="cat.name">
-</ng-container>
+    <span class="data-row" id="summary-row">
+        <span>Summary</span>
+        <input [(ngModel)]="article.summary">
+    </span>
 
-<button (click)="addCategory()">Add Category</button>
+    <span class="data-row" id="content-row">
+        <span>Content</span>
+        <textarea rows="5" [(ngModel)]="article.content"></textarea>
+    </span>
 
+    <span class="data-row" id="submit">
+         <button (click)="createNewArticle()">Create New Article</button>
+    </span>
 
-<div>article: {{article | json}}</div>
+    <ng-container *ngFor="let cat of article.categories">
+        <input [(ngModel)]="cat.name">
+    </ng-container>
+
+    <button (click)="addCategory()">Add Category</button>
+
+</div>
+
