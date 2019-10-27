@@ -1,8 +1,8 @@
-import {Component, OnInit} from '@angular/core';
-import {Tab, TabList} from '../../../../shared/components/tab-header/tab-header.component';
-import {User} from '../../../../models/User';
-import {ActivatedRoute, Params} from '@angular/router';
-import {AuthService} from '../../../../shared/auth/auth.service';
+import { Component, OnInit } from '@angular/core';
+import { Tab, TabList } from '../../../../shared/components/tab-header/tab-header.component';
+import { User } from '../../../../models/User';
+import { ActivatedRoute, Params } from '@angular/router';
+import { AuthService } from '../../../../shared/auth/auth.service';
 
 @Component({
     selector: 'app-main-profile',
