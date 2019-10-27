@@ -18,7 +18,10 @@ export class MainProfileComponent implements OnInit {
         new Tab('Settings', 'settings')
     ];
 
-    constructor(private authService: AuthService, private route: ActivatedRoute) {}
+    constructor (
+        private authService: AuthService,
+        private route: ActivatedRoute
+    ) {}
 
     ngOnInit() {
         this.route.params.subscribe(async (params: Params) => {
