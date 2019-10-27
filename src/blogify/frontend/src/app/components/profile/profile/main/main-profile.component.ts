@@ -13,10 +13,16 @@ export class MainProfileComponent implements OnInit {
 
     user: User;
 
-    tabs: TabList = [
-        new Tab('Overview', 'overview'),
+    baseTabs: TabList = [
+        new Tab('Overview', 'overview')
+
+    ];
+
+    loggedInTabs: TabList = [
         new Tab('Settings', 'settings')
     ];
+
+    finalTabs: TabList = this.baseTabs;
 
     constructor (
         private authService: AuthService,
@@ -26,6 +32,14 @@ export class MainProfileComponent implements OnInit {
     ngOnInit() {
         this.route.params.subscribe(async (params: Params) => {
             let username = params['username'];
+
+            if (this.authService.isLoggedIn()) {
+                const loggedInUsername = (await this.authService.userProfile).username;
+
+                if (username === loggedInUsername) {
+                    this.finalTabs = this.baseTabs.concat(this.loggedInTabs);
+                }
+            }
 
             this.user = await this.authService.getByUsername(username);
         })

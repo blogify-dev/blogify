@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import {ActivatedRoute, Params, Router} from '@angular/router';
 
 @Component({
     selector: 'app-tab-header',
