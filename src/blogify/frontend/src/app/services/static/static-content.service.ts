@@ -26,7 +26,7 @@ export class StaticContentService {
         const input = new FormData();
         input.append('lUcY', file);
 
-        return this.httpClient.post(url, input, httpOptions).toPromise()
+        return this.httpClient.post<any>(url, input, httpOptions).toPromise()
 
     }
 

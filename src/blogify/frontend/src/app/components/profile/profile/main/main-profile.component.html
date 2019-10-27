@@ -1,4 +1,4 @@
-<div id="main-container">
+<div id="main-container" *ngIf="user">
 
     <div id="container-header">
         <app-profile-picture [pfpFile]="user.profilePicture"></app-profile-picture>

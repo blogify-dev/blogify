@@ -19,7 +19,6 @@ import { CreateCommentComponent } from './components/comment/create-comment/crea
 import { UpdateArticleComponent } from './components/update-article/update-article.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MarkdownModule } from 'ngx-markdown';
-import { UpdateUserComponent } from './components/update-user/update-user.component';
 import { SharedModule } from './shared/shared.module';
 import { ProfileModule } from './components/profile/profile/profile.module';
 
@@ -38,7 +37,6 @@ import { ProfileModule } from './components/profile/profile/profile.module';
         SingleCommentComponent,
         CreateCommentComponent,
         UpdateArticleComponent,
-        UpdateUserComponent
     ],
     imports: [
         BrowserModule,
