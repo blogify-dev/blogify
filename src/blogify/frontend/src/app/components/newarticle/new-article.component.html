@@ -1,10 +1,17 @@
 <!--suppress HtmlFormInputWithoutLabel -->
-<p>new-article works!</p>
+<h1>
+    New Article
+</h1>
+<h3>
+    Title: <input [(ngModel)]="article.title">
+    <br>
+    Text: <textarea rows="5" [(ngModel)]="article.content">
+    <br>
+    Summary:<input [(ngModel)]="article.summary">
+    <br>
+    <button (click)="createNewArticle()">Create New Article</button>
+</h3>
 
-Title: <input [(ngModel)]="article.title">
-Text: <input [(ngModel)]="article.content">
-Summary:<input [(ngModel)]="article.summary">
-<button (click)="createNewArticle()">Create New Article</button>
 
 <br>
 <br>
@@ -13,7 +20,7 @@ Summary:<input [(ngModel)]="article.summary">
     <input [(ngModel)]="cat.name">
 </ng-container>
 
-<button (click)="addCategory()">Add cat</button>
+<button (click)="addCategory()">Add Category</button>
 
 
 <div>article: {{article | json}}</div>
