@@ -12,8 +12,8 @@ import { NewArticleComponent } from './components/newarticle/new-article.compone
 import { ShowArticleComponent } from './components/show-article/show-article.component';
 import { ArticleCommentsComponent } from './components/comment/article-comments.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
-import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
-import { CompactDirective } from './directives/compact/compact.directive';
+import { DarkThemeDirective } from './shared/directives/dark-theme/dark-theme.directive';
+import { CompactDirective } from './shared/directives/compact/compact.directive';
 import { SingleCommentComponent } from './components/comment/single-comment/single-comment.component';
 import { CreateCommentComponent } from './components/comment/create-comment/create-comment.component';
 import { UpdateArticleComponent } from './components/update-article/update-article.component';
@@ -32,8 +32,6 @@ import { ProfileModule } from './components/profile/profile/profile.module';
         ShowArticleComponent,
         ArticleCommentsComponent,
         NavbarComponent,
-        DarkThemeDirective,
-        CompactDirective,
         SingleCommentComponent,
         CreateCommentComponent,
         UpdateArticleComponent,

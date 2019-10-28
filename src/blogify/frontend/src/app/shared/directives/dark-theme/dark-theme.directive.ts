@@ -1,5 +1,5 @@
 import { Directive, ElementRef } from '@angular/core';
-import { DarkModeService } from "../../services/darkmode/dark-mode.service";
+import { DarkModeService } from"../../../services/darkmode/dark-mode.service";
 
 @Directive({
     selector: '[appDarkTheme]'

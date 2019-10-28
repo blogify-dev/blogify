@@ -20,8 +20,7 @@
         <div class="header-bottom">
 
             <!-- Author -->
-            <app-profile-picture class="author-pfp" [pfpFile]="article.createdBy.profilePicture" emSize="2.85"></app-profile-picture>
-            <span class="user">{{article.createdBy.name}}</span>
+            <app-user-display [user]="article.createdBy" emSize="2.75"></app-user-display>
 
             <!-- Timestamp -->
             <span class="date">{{article.createdAt | relativeTime}}</span>

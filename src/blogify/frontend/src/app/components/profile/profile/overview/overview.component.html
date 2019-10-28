@@ -1,1 +1,4 @@
-<app-show-all-articles [articles]="articles"></app-show-all-articles>
+<ng-container *ngIf="articles != undefined">
+    <app-show-all-articles appCompact [articles]="articles" [allowCreate]="false"></app-show-all-articles>
+</ng-container>
+
