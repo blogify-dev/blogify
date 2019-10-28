@@ -11,11 +11,13 @@ import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.UserService
 import blogify.backend.services.articles.CommentService
 import blogify.backend.services.models.Service
+import blogify.backend.util.tsvector
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import io.ktor.application.ApplicationCall
 import io.ktor.http.ContentType
+import org.jetbrains.exposed.sql.Column
 
 import org.jetbrains.exposed.sql.ReferenceOption.*
 import org.jetbrains.exposed.sql.ResultRow
@@ -33,11 +35,12 @@ abstract class ResourceTable<R : Resource> : Table() {
 
 object Articles : ResourceTable<Article>() {
 
-    val title      = varchar ("title", 512)
+    val title: Column<String> = varchar ("title", 512)
     val createdAt  = long    ("created_at")
     val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = SET_NULL)
     val content    = text    ("content")
     val summary    = text    ("summary")
+    val doc = tsvector("doc")
 
     override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Article, Service.Exception.Fetching> {
         Article (
