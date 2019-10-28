@@ -18,6 +18,7 @@ export class ShowAllArticlesComponent implements OnInit {
 
     @Input() title = 'Articles';
     @Input() articles: Article[];
+    @Input() allowCreate = true;
 
     constructor (
         private authService: AuthService,
