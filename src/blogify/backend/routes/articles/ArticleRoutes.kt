@@ -16,7 +16,10 @@ import blogify.backend.services.UserService
 import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.models.Service
 import io.ktor.response.respond
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.jetbrains.exposed.sql.transactions.transaction
 
 fun Route.articles() {
 
@@ -71,6 +74,23 @@ fun Route.articles() {
 
         post("/") {
             createWithResource(ArticleService::add, authPredicate = { user, article -> article.createdBy eqr user })
+        }
+
+        get("/search") {
+            val query = call.parameters["query"] ?: error("query is null")
+
+            transaction {
+                val statement = TransactionManager.current().connection.createStatement()
+                val selectQuery = """
+                SELECT * FROM articles
+                WHERE doc @@ to_tsquery('$query');
+                """.trimIndent()
+                println(query)
+                statement.executeQuery(selectQuery)
+            }
+
+            // TODO: Parse this result and respond
+
         }
 
         articleComments()
