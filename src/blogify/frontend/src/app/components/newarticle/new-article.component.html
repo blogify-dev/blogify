@@ -23,7 +23,8 @@
     </span>
 
     <span class="data-row" id="submit">
-         <button (click)="createNewArticle()">Create New Article</button>
+         <button class="positive rounded hollow" (click)="createNewArticle()">Save draft</button>
+         <button class="positive rounded" (click)="createNewArticle()">Submit</button>
     </span>
 
     <ng-container *ngFor="let cat of article.categories">

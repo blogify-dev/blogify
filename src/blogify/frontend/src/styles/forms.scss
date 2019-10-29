@@ -109,6 +109,7 @@ button {
     border: 1px solid transparent;
     border-radius: $std-border-radius;
 
+    font-size: 1.25em;
     font-weight: 600;
 
     // Color classes
@@ -140,5 +141,6 @@ button {
 
     &.rounded {
         border-radius: 1.15em;
+        padding: .5em 1.15em;
     }
 }
