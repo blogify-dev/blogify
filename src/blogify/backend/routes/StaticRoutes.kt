@@ -30,11 +30,11 @@ import com.github.kittinunf.result.coroutines.map
 fun Route.static() {
 
     post("/testupload/{uuid}") {
-        uploadToResource<User> (
+        uploadToResource (
             fetch         = UserService::get,
             modify        = { r, h -> r.copy(profilePicture = h) },
             update        = UserService::update,
-            authPredicate = { user: User, manipulated: User -> user eqr manipulated }
+            authPredicate = { user, manipulated -> user eqr manipulated }
         )
     }
 

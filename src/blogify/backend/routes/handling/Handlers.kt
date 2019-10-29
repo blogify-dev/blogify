@@ -49,6 +49,7 @@ import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
 import blogify.backend.util.letCatchingOrNull
 import blogify.backend.util.matches
+import blogify.backend.util.short
 import blogify.backend.util.toUUID
 
 import io.ktor.application.ApplicationCall
@@ -70,8 +71,12 @@ import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.andreapivetta.kolor.magenta
 import com.andreapivetta.kolor.red
 import com.andreapivetta.kolor.yellow
+import com.github.kittinunf.result.coroutines.failure
+import com.github.kittinunf.result.coroutines.map
+import org.jetbrains.exposed.sql.deleteWhere
 
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -302,10 +307,10 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
-    crossinline fetch:        suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
-    crossinline modify:       suspend (R, StaticResourceHandle) -> R,
-    crossinline update:       suspend (R)                       -> ResourceResult<*>,
-      noinline authPredicate: suspend (User, R)                 -> Boolean = defaultPredicateLambda
+    crossinline fetch:         suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
+    crossinline modify:        suspend (R, StaticResourceHandle) -> R,
+    crossinline update:        suspend (R)                       -> ResourceResult<*>,
+       noinline authPredicate: suspend (User, R)                 -> Boolean = defaultPredicateLambda
 ) = pipeline("uuid", "target") { (uuid, target) ->
 
     // Find target resource
@@ -363,21 +368,71 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
                 it[fileId] = newHandle.fileId
                 it[contentType] = newHandle.contentType.toString()
             }
-
-        }.fold (
-            success = {},
-            failure = { println("error: $it") }
-        )
+        }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing static resource to db")
 
         // idk - temporary
         val rep = modify(targetResource, newHandle)
 
-        update(rep).fold (
-            success = {},
-            failure = { println("error: $it") }
-        )
+        update(rep)
+            .getOrPipelineError(HttpStatusCode.InternalServerError, "error while updating resource ${targetResource.uuid.short()} with new information")
 
         call.respond(newHandle.toString())
+
+    }
+
+}
+
+@BlogifyDsl
+suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
+    crossinline fetch:         suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
+       noinline authPredicate: suspend (User, R)                 -> Boolean = defaultPredicateLambda
+) = pipeline("uuid", "target") { (uuid, target) ->
+
+    // Find target resource
+    val targetResource = fetch(call, UUID.fromString(uuid))
+        .getOrPipelineError(message = "couldn't fetch resource") // Handle result
+
+    handleAuthentication("uploadToResource", { authPredicate(it, targetResource) }) {
+
+        val targetClass = R::class
+
+        // Find target property
+        val targetPropHandle = targetClass.cachedPropMap()[target]
+            ?.takeIf {
+                it is PropertyHandle.Ok
+                        && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
+            } as? PropertyHandle.Ok
+            ?: pipelineError (
+                message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
+            )
+
+        when (val targetPropHandleValue = targetPropHandle.property.get(targetResource) as StaticResourceHandle) {
+            is StaticResourceHandle.Ok -> {
+
+                val uploadableId = targetPropHandleValue.fileId
+
+                // Fake handle
+                val handle = query {
+                    Uploadables.select { Uploadables.fileId eq uploadableId }.single()
+                }.map { Uploadables.convert(call, it).get() }.get()
+
+
+                // Delete in DB
+                query {
+                    Uploadables.deleteWhere { Uploadables.fileId eq uploadableId }
+                }.failure { pipelineError(HttpStatusCode.InternalServerError, "couldn't delete static resource from db") }
+
+                // Delete in FS
+                if (StaticFileHandler.deleteStaticResource(handle)) {
+                    call.respond(HttpStatusCode.OK)
+                } else pipelineError(HttpStatusCode.InternalServerError, "couldn't delete static resource file")
+
+            }
+            is StaticResourceHandle.None -> {
+                call.respond(HttpStatusCode.NotFound)
+                return@handleAuthentication
+            }
+        }
 
     }
 

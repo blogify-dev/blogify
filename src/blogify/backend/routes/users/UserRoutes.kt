@@ -64,7 +64,14 @@ fun Route.users() {
                 fetch         = UserService::get,
                 modify        = { r, h -> r.copy(profilePicture = h) },
                 update        = UserService::update,
-                authPredicate = { user: User, manipulated: User -> user eqr manipulated }
+                authPredicate = { user, manipulated -> user eqr manipulated }
+            )
+        }
+
+        delete("/profilePicture/{uuid}") {
+            deleteOnResource (
+                fetch         = UserService::get,
+                authPredicate = { user, manipulated -> user eqr manipulated }
             )
         }
 
