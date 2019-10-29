@@ -76,23 +76,6 @@ fun Route.articles() {
             createWithResource(ArticleService::add, authPredicate = { user, article -> article.createdBy eqr user })
         }
 
-        get("/search") {
-            val query = call.parameters["query"] ?: error("query is null")
-
-            transaction {
-                val statement = TransactionManager.current().connection.createStatement()
-                val selectQuery = """
-                SELECT * FROM articles
-                WHERE doc @@ to_tsquery('$query');
-                """.trimIndent()
-                println(query)
-                statement.executeQuery(selectQuery)
-            }
-
-            // TODO: Parse this result and respond
-
-        }
-
         articleComments()
 
     }

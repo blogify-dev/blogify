@@ -11,7 +11,6 @@ import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.UserService
 import blogify.backend.services.articles.CommentService
 import blogify.backend.services.models.Service
-import blogify.backend.util.tsvector
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
@@ -40,7 +39,6 @@ object Articles : ResourceTable<Article>() {
     val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = SET_NULL)
     val content    = text    ("content")
     val summary    = text    ("summary")
-    val doc = tsvector("doc")
 
     override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Article, Service.Exception.Fetching> {
         Article (

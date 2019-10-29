@@ -36,17 +36,6 @@ object ArticleService : Service<Article>(Articles) {
             }
         }
 
-        transaction {
-            val statement = TransactionManager.current().connection.createStatement()
-            val query = """
-                UPDATE articles
-                SET doc = to_tsvector(articles.content)
-                WHERE uuid = '${res.uuid}';
-            """.trimIndent()
-            println(query)
-            statement.execute(query)
-        }
-
         return@query res // So that we return the resource and not an insert statement
     }.mapError { e -> Exception.Creating(e) } // Wrap possible error
 
