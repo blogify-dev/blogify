@@ -59,7 +59,6 @@ fun Route.static() {
                 Uploadables.select { Uploadables.fileId eq uploadableId }.single()
             }.map { Uploadables.convert(call, it).get() }.get()
 
-
             // Delete in DB
             query {
                 Uploadables.deleteWhere { Uploadables.fileId eq uploadableId }

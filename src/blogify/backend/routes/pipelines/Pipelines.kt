@@ -4,7 +4,6 @@ import blogify.backend.auth.handling.UserAuthPredicate
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.routes.handling.defaultResourceLessPredicateLambda
 import blogify.backend.routes.handling.logUnusedAuth
-import blogify.backend.routes.handling.logger
 import blogify.backend.util.reason
 
 import io.ktor.application.ApplicationCall
@@ -15,6 +14,9 @@ import io.ktor.util.pipeline.PipelineContext
 import io.ktor.util.pipeline.PipelineInterceptor
 
 import com.andreapivetta.kolor.red
+import org.slf4j.LoggerFactory
+
+private val logger = LoggerFactory.getLogger("blogify-pipeline-manager")
 
 /**
  * Represents a server call pipeline
@@ -54,6 +56,10 @@ suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), bl
         block(this, wantedParams.map { param -> call.parameters[param] ?: pipelineError(message = "query parameter $param is null") }.toTypedArray())
     } catch (e: PipelineException) {
         call.respond(e.code, reason(e.message))
+    } catch (e: Exception) {
+        logger.error("unhandled exception in pipeline - ${e::class.simpleName} - ${e.message}")
+        logger.error("stack trace ->\n${e.stackTrace.joinToString(separator = "\n")}")
+        call.respond(HttpStatusCode.InternalServerError, reason("unhandled exception in pipeline"))
     }
 }
 

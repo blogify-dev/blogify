@@ -90,7 +90,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSuperclassOf
 
-val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
+private val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
 
 /**
  * The default predicate used by the wrappers in this file
@@ -500,7 +500,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
-suspend inline fun <reified R : Resource> CallPipeline.updateWithId(
+suspend inline fun <reified R : Resource> CallPipeline.updateWithId (
     noinline update: suspend (R) -> ResourceResult<*>,
     fetch: suspend (ApplicationCall, UUID) -> ResourceResult<R>,
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
