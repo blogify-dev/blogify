@@ -44,9 +44,12 @@ import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.type
-import blogify.backend.auth.handling.UserAuthPredicate
+import blogify.backend.routes.pipelines.CallPipeLineFunction
+import blogify.backend.routes.pipelines.CallPipeline
+import blogify.backend.routes.pipelines.handleAuthentication
+import blogify.backend.routes.pipelines.pipeline
+import blogify.backend.routes.pipelines.pipelineError
 import blogify.backend.util.getOrPipelineError
-import blogify.backend.util.reason
 import blogify.backend.util.letCatchingOrNull
 import blogify.backend.util.matches
 import blogify.backend.util.short
@@ -57,7 +60,6 @@ import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.util.pipeline.PipelineContext
-import io.ktor.util.pipeline.PipelineInterceptor
 import io.ktor.request.ContentTransformationException
 import io.ktor.request.receive
 import io.ktor.http.ContentType
@@ -91,16 +93,6 @@ import kotlin.reflect.full.isSuperclassOf
 val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
 
 /**
- * Represents a server call pipeline
- */
-typealias CallPipeline = PipelineContext<Unit, ApplicationCall>
-
-/**
- * Represents a server call handler function
- */
-typealias CallPipeLineFunction = PipelineInterceptor<Unit, ApplicationCall>
-
-/**
  * The default predicate used by the wrappers in this file
  */
 val defaultPredicateLambda: suspend (user: User, res: Resource) -> Boolean = { _, _ -> true }
@@ -109,30 +101,6 @@ val defaultPredicateLambda: suspend (user: User, res: Resource) -> Boolean = { _
  * The default resource-less predicate used by the wrappers in this file
  */
 val defaultResourceLessPredicateLambda: suspend (user: User) -> Boolean = { _ -> true }
-
-class PipelineException(val code: HttpStatusCode, override val message: String) : Exception(message)
-
-fun pipelineError(code: HttpStatusCode = HttpStatusCode.BadRequest, message: String, rootException: Exception? = null): Nothing {
-    logger.debug("pipeline error - $message".red() + rootException?.let { " - ${it::class.simpleName} - ${it.message}".red() })
-    throw PipelineException(code, message)
-}
-
-suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), block: suspend (Array<String>) -> Unit) {
-    try {
-        block(wantedParams.map { param -> call.parameters[param] ?: pipelineError(message = "query parameter $param is null") }.toTypedArray())
-    } catch (e: PipelineException) {
-        call.respond(e.code, reason(e.message))
-    }
-}
-
-suspend fun CallPipeline.handleAuthentication(funcName: String = "<unspecified>", predicate: UserAuthPredicate, block: CallPipeLineFunction) {
-    if (predicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-        runAuthenticated(predicate, block)
-    } else {
-        logUnusedAuth(funcName)
-        block(this, Unit)
-    }
-}
 
 /**
  * Sends an object describing an exception as a response
@@ -359,13 +327,13 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
         }
 
         // Write to file
-        val newHandle = StaticFileHandler.writeStaticResource(
+        val newHandle = StaticFileHandler.writeStaticResource (
             StaticData(fileContentType, fileBytes)
         )
 
         query {
             Uploadables.insert {
-                it[fileId] = newHandle.fileId
+                it[fileId]      = newHandle.fileId
                 it[contentType] = newHandle.contentType.toString()
             }
         }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing static resource to db")

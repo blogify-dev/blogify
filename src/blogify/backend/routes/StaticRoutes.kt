@@ -2,14 +2,13 @@ package blogify.backend.routes
 
 import blogify.backend.database.Uploadables
 import blogify.backend.database.handling.query
-import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.static.fs.StaticFileHandler
-import blogify.backend.routes.handling.CallPipeLineFunction
-import blogify.backend.routes.handling.handleAuthentication
-import blogify.backend.routes.handling.pipeline
-import blogify.backend.routes.handling.pipelineError
+import blogify.backend.routes.pipelines.CallPipeLineFunction
 import blogify.backend.routes.handling.uploadToResource
+import blogify.backend.routes.pipelines.handleAuthentication
+import blogify.backend.routes.pipelines.pipeline
+import blogify.backend.routes.pipelines.pipelineError
 import blogify.backend.services.UserService
 
 import io.ktor.application.call
