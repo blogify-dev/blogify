@@ -25,9 +25,6 @@ import io.ktor.client.request.url
 import io.ktor.content.TextContent
 import io.ktor.http.ContentType
 import io.ktor.response.respond
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.util.*
 
 fun Route.articles() {
 
@@ -84,35 +81,33 @@ fun Route.articles() {
             createWithResource(
                 ArticleService::add,
                 authPredicate = { user, article -> article.createdBy eqr user },
-                doAfter = {
-                    val client = HttpClient()
-                    val json = jacksonObjectMapper()
-                    val strjSON = json.writeValueAsString(it)
-                    println(strjSON)
-                    println()
-                    val res = client.post<String> {
-                        url("http://es:9200/articles/_create/${it.uuid}")
-                        body = TextContent(strjSON, contentType = ContentType.Application.Json)
+                doAfter = { article ->
+                    HttpClient().use { client ->
+                        val objectMapper = jacksonObjectMapper()
+                        val jsonAsString = objectMapper.writeValueAsString(article)
+                        println(jsonAsString)
+                        client.post<String> {
+                            url("http://es:9200/articles/_create/${article.uuid}")
+                            body = TextContent(jsonAsString, contentType = ContentType.Application.Json)
+                        }.also { println(it) }
                     }
-                    println(res)
-                })
+                }
+            )
         }
 
         get("/search") {
-            val query = call.parameters["q"]
-            println("q: $query")
-            val json = jacksonObjectMapper()
+            call.parameters["q"]?.let { query ->
+                HttpClient().use { client ->
+                    val objectMapper = jacksonObjectMapper()
 
-            val client = HttpClient()
-
-            val res = client.get<String>("http://es:9200/articles/_search?q=$query")
-
-            val test = withContext(Dispatchers.IO) { json.readValue<Search<Article>>(res) }
-            println(res)
-            println()
-            val src = test.hits.hits.map { l -> l._source }
-            src.forEach { l -> println(l) }
-            call.respond(src)
+                    val request = client.get<String>("http://es:9200/articles/_search?q=$query").also { println(it) }
+                    val parsedResponse = objectMapper.readValue<Search<Article>>(request)
+                    val hits = parsedResponse.hits.hits.map { l -> l._source }
+                    println("hits")
+                    hits.forEach { println(it) }
+                    call.respond(hits)
+                }
+            }
         }
 
         articleComments()
