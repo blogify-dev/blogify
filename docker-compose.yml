@@ -24,7 +24,10 @@ services:
     environment:
       - 'discovery.type=single-node'
       - 'node.name=es'
+    volumes:
+      - 'es-data:/usr/share/elasticsearch/data'
 
 volumes:
   db-data:
   static-data:
+  es-data:
