@@ -96,13 +96,24 @@ fun Route.articles() {
         }
 
         get("/search") {
-            call.parameters["q"]?.let { query ->
+            val params = call.parameters
+            val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
+            params["q"]?.let { query ->
                 HttpClient().use { client ->
                     val objectMapper = jacksonObjectMapper()
 
                     val request = client.get<String>("http://es:9200/articles/_search?q=$query").also { println(it) }
                     val parsedResponse = objectMapper.readValue<Search<Article>>(request)
                     val hits = parsedResponse.hits.hits.map { l -> l._source }
+                    try {
+                        selectedPropertyNames?.let { props ->
+
+                            call.respond(hits.map { it.slice(props) })
+
+                        } ?: call.respond(hits.map { it.sanitize() })
+                    } catch (bruhMoment: Service.Exception) {
+                        call.respondExceptionMessage(bruhMoment)
+                    }
                     println("hits")
                     hits.forEach { println(it) }
                     call.respond(hits)
