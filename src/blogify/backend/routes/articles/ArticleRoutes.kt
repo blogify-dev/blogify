@@ -20,9 +20,14 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.url
+import io.ktor.content.TextContent
+import io.ktor.http.ContentType
 import io.ktor.response.respond
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.*
 
 fun Route.articles() {
 
@@ -76,7 +81,21 @@ fun Route.articles() {
         }
 
         post("/") {
-            createWithResource(ArticleService::add, authPredicate = { user, article -> article.createdBy eqr user })
+            createWithResource(
+                ArticleService::add,
+                authPredicate = { user, article -> article.createdBy eqr user },
+                doAfter = {
+                    val client = HttpClient()
+                    val json = jacksonObjectMapper()
+                    val strjSON = json.writeValueAsString(it)
+                    println(strjSON)
+                    println()
+                    val res = client.post<String> {
+                        url("http://es:9200/articles/_create/${it.uuid}")
+                        body = TextContent(strjSON, contentType = ContentType.Application.Json)
+                    }
+                    println(res)
+                })
         }
 
         get("/search") {
@@ -86,7 +105,7 @@ fun Route.articles() {
 
             val client = HttpClient()
 
-            val res = client.get<String>("http://172.18.0.2:9200/articles/_search?q=$query")
+            val res = client.get<String>("http://es:9200/articles/_search?q=$query")
 
             val test = withContext(Dispatchers.IO) { json.readValue<Search<Article>>(res) }
             println(res)

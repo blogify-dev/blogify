@@ -46,6 +46,11 @@ dependencies {
     compile("io.ktor:ktor-auth-jwt:$ktor_version")
     compile("io.ktor:ktor-jackson:$ktor_version")
 
+    // Ktor client
+
+    compile("io.ktor:ktor-client-cio:$ktor_version")
+
+
     // Database stuff
 
     compile("org.postgresql:postgresql:$pg_driver_version")
@@ -68,8 +73,6 @@ dependencies {
 
     compile("com.github.kittinunf.result:result:2.2.0")
     compile("com.github.kittinunf.result:result-coroutines:2.2.0")
-
-    compile("io.ktor:ktor-client-cio:$ktor_version")
 
     // JJWT
 
