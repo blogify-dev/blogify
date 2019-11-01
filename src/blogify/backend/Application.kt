@@ -40,10 +40,8 @@ import io.ktor.routing.routing
 import org.jetbrains.exposed.sql.SchemaUtils
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.sql.update
 
 import org.slf4j.event.Level
-import java.util.UUID
 
 const val version = "PRX4"
 
@@ -57,7 +55,9 @@ const val asciiLogo = """
 ---- Version $version - Development build -
 """
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+fun main(args: Array<String>) {
+    io.ktor.server.netty.EngineMain.main(args)
+}
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads

@@ -7,6 +7,7 @@ services:
       - '5005:5005'
     depends_on:
       - db
+      - es
     volumes:
       - 'static-data:/var/static/'
   db:
@@ -15,6 +16,14 @@ services:
       - '5432:5432'
     volumes:
       - 'db-data:/var/lib/postgresql/data'
+  es:
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.4.0'
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+    environment:
+      - 'discovery.type=single-node'
+      - 'node.name=es'
 
 volumes:
   db-data:

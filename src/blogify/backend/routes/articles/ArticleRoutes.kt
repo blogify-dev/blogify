@@ -9,17 +9,20 @@ import blogify.backend.database.Articles
 import blogify.backend.database.Users
 import blogify.backend.resources.Article
 import blogify.backend.resources.models.eqr
+import blogify.backend.resources.search.Search
 import blogify.backend.resources.slicing.sanitize
 import blogify.backend.resources.slicing.slice
 import blogify.backend.routes.handling.*
 import blogify.backend.services.UserService
 import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.models.Service
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
 import io.ktor.response.respond
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.transaction
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 fun Route.articles() {
 
@@ -74,6 +77,23 @@ fun Route.articles() {
 
         post("/") {
             createWithResource(ArticleService::add, authPredicate = { user, article -> article.createdBy eqr user })
+        }
+
+        get("/search") {
+            val query = call.parameters["q"]
+            println("q: $query")
+            val json = jacksonObjectMapper()
+
+            val client = HttpClient()
+
+            val res = client.get<String>("http://172.18.0.2:9200/articles/_search?q=$query")
+
+            val test = withContext(Dispatchers.IO) { json.readValue<Search<Article>>(res) }
+            println(res)
+            println()
+            val src = test.hits.hits.map { l -> l._source }
+            src.forEach { l -> println(l) }
+            call.respond(src)
         }
 
         articleComments()

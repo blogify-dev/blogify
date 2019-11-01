@@ -69,6 +69,8 @@ dependencies {
     compile("com.github.kittinunf.result:result:2.2.0")
     compile("com.github.kittinunf.result:result-coroutines:2.2.0")
 
+    compile("io.ktor:ktor-client-cio:$ktor_version")
+
     // JJWT
 
     compile("io.jsonwebtoken:jjwt-api:0.10.7")
