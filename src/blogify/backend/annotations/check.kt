@@ -7,5 +7,5 @@ import org.intellij.lang.annotations.Language
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 annotation class check (
-    @Language(value = "RegExp") val check: String
+    @Language(value = "RegExp") val pattern: String
 )

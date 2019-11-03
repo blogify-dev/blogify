@@ -72,7 +72,7 @@ fun <M : Mapped> KClass<M>.buildPropMap(): PropMap {
                 PropertyHandle.AccessDenied(name)
             } else {
                 if (self.returnType.findAnnotation<check>() != null) {
-                    val regex = Regex(self.returnType.findAnnotation<check>()!!.check)
+                    val regex = Regex(self.returnType.findAnnotation<check>()!!.pattern)
                     PropertyHandle.Ok(name, regex, self as KProperty1<Any, Any>)
                 } else {
                     PropertyHandle.Ok(name, null, self as KProperty1<Any, Any>)
