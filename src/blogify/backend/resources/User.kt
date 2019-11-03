@@ -1,5 +1,6 @@
 package blogify.backend.resources
 
+import blogify.backend.annotations.check
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.annotations.noslice

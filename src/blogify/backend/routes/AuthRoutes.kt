@@ -1,5 +1,6 @@
 package blogify.backend.routes
 
+import blogify.backend.annotations.check
 import blogify.backend.auth.encoder
 import blogify.backend.auth.jwt.generateJWT
 import blogify.backend.auth.jwt.validateJwt
@@ -44,7 +45,7 @@ data class LoginCredentials (
 
 data class RegisterCredentials (
     val username: String,
-    val password: String,
+    val password: @check("[\\w+.]") String,
     val name:     String,
     val email:    String
 ) {
