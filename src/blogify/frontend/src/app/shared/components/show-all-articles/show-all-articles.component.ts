@@ -28,6 +28,10 @@ export class ShowAllArticlesComponent implements OnInit {
 
     ngOnInit() {}
 
+    async startSearch() {
+        alert('searching !')
+    }
+
     async navigateToNewArticle() {
         if (this.authService.userToken === '') {
             const url = `/login?redirect=/new-article`;

@@ -6,7 +6,7 @@
 
         <!-- Search pad -->
         <!--suppress HtmlFormInputWithoutLabel -->
-        <input id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help">
+        <input id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help" (keydown.enter)="startSearch()">
 
         <!-- Search icon -->
         <a id="header-search-icon" routerLink="/search">
