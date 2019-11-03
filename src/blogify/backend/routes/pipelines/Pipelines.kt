@@ -14,6 +14,7 @@ import io.ktor.util.pipeline.PipelineContext
 import io.ktor.util.pipeline.PipelineInterceptor
 
 import com.andreapivetta.kolor.red
+
 import org.slf4j.LoggerFactory
 
 private val logger = LoggerFactory.getLogger("blogify-pipeline-manager")
