@@ -2,8 +2,10 @@ package blogify.backend.routes.pipelines
 
 import blogify.backend.auth.handling.UserAuthPredicate
 import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.resources.User
 import blogify.backend.routes.handling.defaultResourceLessPredicateLambda
 import blogify.backend.routes.handling.logUnusedAuth
+import blogify.backend.services.models.ResourceResult
 import blogify.backend.util.reason
 
 import io.ktor.application.ApplicationCall
@@ -14,6 +16,7 @@ import io.ktor.util.pipeline.PipelineContext
 import io.ktor.util.pipeline.PipelineInterceptor
 
 import com.andreapivetta.kolor.red
+
 import org.slf4j.LoggerFactory
 
 private val logger = LoggerFactory.getLogger("blogify-pipeline-manager")
@@ -57,8 +60,12 @@ suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), bl
     } catch (e: PipelineException) {
         call.respond(e.code, reason(e.message))
     } catch (e: Exception) {
-        logger.error("unhandled exception in pipeline - ${e::class.simpleName} - ${e.message}")
-        logger.error("stack trace ->\n${e.stackTrace.joinToString(separator = "\n")}")
+        logger.error (
+            """
+            |unhandled exception in pipeline - ${e::class.simpleName} - ${e.message}
+            |${e.stackTrace.joinToString(prefix = "\t", separator = "\n\t")}
+            """.trimMargin()
+        )
         call.respond(HttpStatusCode.InternalServerError, reason("unhandled exception in pipeline"))
     }
 }
