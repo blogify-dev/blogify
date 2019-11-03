@@ -45,7 +45,7 @@ data class LoginCredentials (
 
 data class RegisterCredentials (
     val username: String,
-    val password: @check("[\\w+.]") String,
+    val password: @check(".{8,}") String,
     val name:     String,
     val email:    String
 ) {

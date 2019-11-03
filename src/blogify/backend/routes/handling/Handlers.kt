@@ -44,6 +44,7 @@ import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.type
+import blogify.backend.resources.slicing.verify
 import blogify.backend.routes.pipelines.CallPipeLineFunction
 import blogify.backend.routes.pipelines.CallPipeline
 import blogify.backend.routes.pipelines.handleAuthentication
@@ -71,7 +72,6 @@ import io.ktor.request.receiveMultipart
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import com.andreapivetta.kolor.magenta
-import com.andreapivetta.kolor.red
 import com.andreapivetta.kolor.yellow
 import com.github.kittinunf.result.coroutines.failure
 import com.github.kittinunf.result.coroutines.map
@@ -85,7 +85,6 @@ import org.slf4j.LoggerFactory
 
 import java.util.UUID
 
-import kotlin.Exception
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSuperclassOf
@@ -420,13 +419,18 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
 suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
     noinline create:        suspend (R)       -> ResourceResult<R>,
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
-) {
+) = pipeline {
     try {
 
-        val rec = call.receive<R>()
+        val received = call.receive<R>() // Receive a resource from the request body
+
+        val verifiedReceived = received.verify() // Verify received resource
+        verifiedReceived.entries
+            .firstOrNull { !it.value } // Find any that were not valid
+            ?.run { pipelineError(HttpStatusCode.BadRequest, "invalid value for property '${key.name}'") }
 
         val doCreate: CallPipeLineFunction = {
-            val res = create(rec)
+            val res = create(received)
 
             res.fold (
                 success = {
@@ -437,7 +441,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
         }
 
         if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-            runAuthenticated(predicate = { u -> authPredicate(u, rec) }, block = doCreate) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
+            runAuthenticated(predicate = { u -> authPredicate(u, received) }, block = doCreate) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
         } else {
             logUnusedAuth("createWithResource")
             doCreate(this, Unit) // Run doCreate without checking predicate
