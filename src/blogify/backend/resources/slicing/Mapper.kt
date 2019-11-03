@@ -68,7 +68,7 @@ fun <M : Mapped> KClass<M>.buildPropMap(): PropMap {
         .associateBy {
             it.name
         }.mapValues { (name, self) ->
-            if (self.annotations.any { a -> a.annotationClass == noslice::class }) {
+            if (self.findAnnotation<noslice>() != null) {
                 PropertyHandle.AccessDenied(name)
             } else {
                 if (self.returnType.findAnnotation<check>() != null) {
