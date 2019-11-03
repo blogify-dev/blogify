@@ -1,7 +1,11 @@
 package blogify.backend.annotations
 
+import org.intellij.lang.annotations.Language
+
 @Suppress("ClassName")
 @Target(AnnotationTarget.TYPE)
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
-annotation class check(val check: String)
+annotation class check (
+    @Language(value = "RegExp") val check: String
+)
