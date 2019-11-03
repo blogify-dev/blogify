@@ -49,7 +49,8 @@ dependencies {
     // Ktor client
 
     compile("io.ktor:ktor-client-cio:$ktor_version")
-
+    compile("io.ktor:ktor-client-json:$ktor_version")
+    compile("io.ktor:ktor-client-json-jvm:$ktor_version")
 
     // Database stuff
 

@@ -2,9 +2,6 @@
 
 package blogify.backend.routes.articles
 
-import io.ktor.application.call
-import io.ktor.routing.*
-
 import blogify.backend.database.Articles
 import blogify.backend.database.Users
 import blogify.backend.resources.Article
@@ -16,15 +13,20 @@ import blogify.backend.routes.handling.*
 import blogify.backend.services.UserService
 import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.models.Service
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+
+import io.ktor.application.call
+import io.ktor.routing.*
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.url
+import io.ktor.client.features.json.JsonFeature
 import io.ktor.content.TextContent
 import io.ktor.http.ContentType
 import io.ktor.response.respond
+
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 
 fun Route.articles() {
 
@@ -99,12 +101,12 @@ fun Route.articles() {
             val params = call.parameters
             val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
             params["q"]?.let { query ->
-                HttpClient().use { client ->
+                HttpClient() { install(JsonFeature) }.use { client ->
                     val objectMapper = jacksonObjectMapper()
 
-                    val request = client.get<String>("http://es:9200/articles/_search?q=$query").also { println(it) }
-                    val parsedResponse = objectMapper.readValue<Search<Article>>(request)
-                    val hits = parsedResponse.hits.hits.map { l -> l._source }
+                    val request = client.get<String>("http://es:9200/articles/_search?q=$query")
+                    val parsed = objectMapper.readValue<Search<Article>>(request)
+                    val hits = parsed.hits.hits.map { l -> l._source }
                     try {
                         selectedPropertyNames?.let { props ->
 
