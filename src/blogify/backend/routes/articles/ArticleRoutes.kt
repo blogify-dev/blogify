@@ -102,10 +102,7 @@ fun Route.articles() {
             val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
             params["q"]?.let { query ->
                 HttpClient() { install(JsonFeature) }.use { client ->
-                    val objectMapper = jacksonObjectMapper()
-
-                    val request = client.get<String>("http://es:9200/articles/_search?q=$query")
-                    val parsed = objectMapper.readValue<Search<Article>>(request)
+                    val parsed = client.get<Search<Article>>("http://es:9200/articles/_search?q=$query")
                     val hits = parsed.hits.hits.map { l -> l._source }
                     try {
                         selectedPropertyNames?.let { props ->
