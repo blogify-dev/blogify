@@ -1,0 +1,40 @@
+<div class="article">
+
+    <div class="article-first-line">
+        <!-- Title -->
+        <h1 class="header-title">{{article.title}}</h1>
+
+        <!-- Author -->
+        <app-user-display [user]="article.createdBy" emSize="2.25"></app-user-display>
+    </div>
+
+    <div class="article-second-line">
+        <!-- Summary -->
+        <span class="article-summary">{{article.summary}}</span>
+
+        <!-- Timestamp -->
+        <span class="article-posted-at">{{article.createdAt | relativeTime}}</span>
+    </div>
+
+    <h3 class="article-read-more">
+        <a class="article-read-more" routerLink="/article/{{article.uuid}}">Read More</a>
+    </h3>
+
+    <div class="article-last-line">
+        <!-- Comment count -->
+        <!-- TODO: Actually impalement this-->
+        <h4 class="article-comments-count"><fa-icon [icon]="faCommentAlt" size="lg"></fa-icon> 4</h4>
+
+        <!-- Categories -->
+        <div class="article-tags" *ngIf="article.categories.length > 0">
+            <span class="tags-title">Tags:&nbsp;</span>
+            <span *ngFor="let tag of article.categories">{{tag.name}}</span>
+        </div>
+
+        <!-- No categories -->
+        <span class="article-no-tags" *ngIf="article.categories.length == 0">
+                    <em>No tags</em>
+                </span>
+    </div>
+
+</div>
