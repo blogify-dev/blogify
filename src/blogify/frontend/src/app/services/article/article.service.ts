@@ -103,8 +103,7 @@ export class ArticleService {
     }
 
     search(query: string, fields: string[]) {
-        const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}`
-        console.log(url)
-        return  this.httpClient.get<Article[]>(url).toPromise();
+        const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}`;
+        return this.httpClient.get<Article[]>(url).toPromise();
     }
 }

@@ -9,8 +9,8 @@ import { RelativeTimePipe } from './relative-time/relative-time.pipe';
 import { UserDisplayComponent } from './components/user-display/user-display.component';
 import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
 import { CompactDirective } from './directives/compact/compact.directive';
-import { SearchComponent } from "./components/search/search.component";
 import {FormsModule} from "@angular/forms";
+import { SingleArticleBoxComponent } from './components/show-all-articles/single-article-box/single-article-box.component';
 
 @NgModule({
     declarations: [
@@ -21,7 +21,7 @@ import {FormsModule} from "@angular/forms";
         ProfilePictureComponent,
         ShowAllArticlesComponent,
         UserDisplayComponent,
-        SearchComponent,
+        SingleArticleBoxComponent,
     ],
     imports: [
         CommonModule,
