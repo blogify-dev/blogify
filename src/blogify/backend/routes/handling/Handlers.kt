@@ -421,7 +421,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
     noinline create:        suspend (R)       -> ResourceResult<R>,
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda,
     noinline doAfter: suspend (R) -> Unit = {}
-) {
+) = pipeline {
     try {
 
         val rec = call.receive<R>()
