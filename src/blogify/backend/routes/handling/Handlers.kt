@@ -435,6 +435,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
             res.fold (
                 success = {
                     call.respond(HttpStatusCode.Created)
+                    doAfter(rec)
                 },
                 failure = call::respondExceptionMessage
             )
@@ -450,7 +451,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
     } catch (e: ContentTransformationException) {
         call.respond(HttpStatusCode.BadRequest)
     }
-} // KT-33440 | Doesn't compile when lambda called with invoke() for now */
+} // KT-33440 | Doesn't compile when lambda called with invoke() for now
 
 /**
  * Adds a handler to a [CallPipeline] that handles deleting a new resource.

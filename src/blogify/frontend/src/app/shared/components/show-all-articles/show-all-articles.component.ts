@@ -3,7 +3,8 @@ import { Article } from '../../../models/Article';
 import { AuthService } from '../../auth/auth.service';
 import { Router } from '@angular/router';
 import { StaticContentService } from '../../../services/static/static-content.service';
-import { faCommentAlt, faPencilAlt, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faPencilAlt, faSearch } from '@fortawesome/free-solid-svg-icons';
+import {ArticleService} from '../../../services/article/article.service';
 
 @Component({
     selector: 'app-show-all-articles',
@@ -14,19 +15,38 @@ export class ShowAllArticlesComponent implements OnInit {
 
     faSearch = faSearch;
     faPencil = faPencilAlt;
-    faCommentAlt = faCommentAlt;
+    faArrowLeft = faArrowLeft;
 
     @Input() title = 'Articles';
     @Input() articles: Article[];
     @Input() allowCreate = true;
 
+    showingSearchResults = false;
+    searchQuery: string;
+    searchResults: Article[];
+
     constructor (
         private authService: AuthService,
+        private articleService: ArticleService,
         private staticContentService: StaticContentService,
         private router: Router
     ) {}
 
     ngOnInit() {}
+
+    async startSearch() {
+        this.articleService.search (
+            this.searchQuery,
+            ['title', 'summary', 'createdBy', 'categories', 'createdAt']
+        ).then(it => {
+            this.searchResults = it;
+            this.showingSearchResults = true;
+        })
+    }
+
+    async stopSearch() {
+        this.showingSearchResults = false;
+    }
 
     async navigateToNewArticle() {
         if (this.authService.userToken === '') {

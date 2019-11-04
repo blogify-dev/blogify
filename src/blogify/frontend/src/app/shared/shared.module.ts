@@ -9,6 +9,8 @@ import { RelativeTimePipe } from './relative-time/relative-time.pipe';
 import { UserDisplayComponent } from './components/user-display/user-display.component';
 import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
 import { CompactDirective } from './directives/compact/compact.directive';
+import {FormsModule} from "@angular/forms";
+import { SingleArticleBoxComponent } from './components/show-all-articles/single-article-box/single-article-box.component';
 
 @NgModule({
     declarations: [
@@ -18,12 +20,14 @@ import { CompactDirective } from './directives/compact/compact.directive';
         TabHeaderComponent,
         ProfilePictureComponent,
         ShowAllArticlesComponent,
-        UserDisplayComponent
+        UserDisplayComponent,
+        SingleArticleBoxComponent,
     ],
     imports: [
         CommonModule,
         ProfileRoutingModule,
-        FontAwesomeModule
+        FontAwesomeModule,
+        FormsModule,
     ],
     exports: [
         RelativeTimePipe,

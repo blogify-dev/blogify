@@ -5,7 +5,7 @@ import { LoginComponent } from './components/login/login.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { NewArticleComponent } from './components/newarticle/new-article.component';
 import { ShowArticleComponent } from './components/show-article/show-article.component';
-import { UpdateArticleComponent } from './components/update-article/update-article.component';
+import { UpdateArticleComponent } from './components/update-article/update-article.component';;
 
 
 const routes: Routes = [
