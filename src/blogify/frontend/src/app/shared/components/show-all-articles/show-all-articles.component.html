@@ -11,10 +11,10 @@
 
         <!-- Search pad -->
         <!--suppress HtmlFormInputWithoutLabel -->
-        <input [(ngModel)]="this.searchQuery" id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help" (keydown.enter)="startSearch()" *ngIf="showingPad">
+        <input [(ngModel)]="this.searchQuery" id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help" (keydown.enter)="startSearch()">
 
         <!-- Search icon -->
-        <a id="header-search-icon" (click)="showPad()" *ngIf="!showingPad">
+        <a id="header-search-icon">
             <fa-icon [icon]="faSearch" size="2x"></fa-icon>
         </a>
 

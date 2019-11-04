@@ -25,8 +25,6 @@ export class ShowAllArticlesComponent implements OnInit {
     searchQuery: string;
     searchResults: Article[];
 
-    showingPad = false;
-
     constructor (
         private authService: AuthService,
         private articleService: ArticleService,
@@ -60,7 +58,4 @@ export class ShowAllArticlesComponent implements OnInit {
         }
     }
 
-    showPad() {
-        this.showingPad = true
-    }
 }

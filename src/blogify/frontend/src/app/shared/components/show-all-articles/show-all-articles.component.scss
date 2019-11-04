@@ -26,9 +26,9 @@
 
         #header-search-pad {
             flex-grow: 1;
-            //@media (min-width: 0) and (max-width: $search-icon-break) {
-            //    display: none;
-            //}
+            @media (min-width: 0) and (max-width: $search-icon-break) {
+                display: none;
+            }
         }
 
         #header-search-icon {
