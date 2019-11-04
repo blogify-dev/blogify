@@ -419,8 +419,7 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
     noinline create:        suspend (R)       -> ResourceResult<R>,
-    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda,
-    noinline doAfter: suspend (R) -> Unit = {}
+    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) = pipeline {
     try {
 
