@@ -418,7 +418,8 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
     noinline create:        suspend (R)       -> ResourceResult<R>,
-    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
+    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda,
+    noinline doAfter: suspend (R) -> Unit = {}
 ) = pipeline {
     try {
 
@@ -435,7 +436,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
             res.fold (
                 success = {
                     call.respond(HttpStatusCode.Created)
-                    doAfter(rec)
+                    doAfter(received)
                 },
                 failure = call::respondExceptionMessage
             )
