@@ -1,18 +1,19 @@
 package blogify.backend.routes
 
+import blogify.backend.annotations.check
 import blogify.backend.auth.encoder
 import blogify.backend.auth.jwt.generateJWT
+import blogify.backend.auth.jwt.validateJwt
 import blogify.backend.database.Users
 import blogify.backend.resources.User
+import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.routes.handling.respondExceptionMessage
 import blogify.backend.services.UserService
-import blogify.backend.util.foldForOne
-import blogify.backend.util.hash
-import blogify.backend.util.letIn
-import blogify.backend.util.reason
-import blogify.backend.util.singleOrNullOrError
+import blogify.backend.services.models.Service
+import blogify.backend.util.*
 
 import io.ktor.application.call
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -44,7 +45,7 @@ data class LoginCredentials (
 
 data class RegisterCredentials (
     val username: String,
-    val password: String,
+    val password: @check(".{8,}") String,
     val name:     String,
     val email:    String
 ) {
@@ -57,13 +58,14 @@ data class RegisterCredentials (
             username = this.username,
             password = this.password.hash(),
             email = this.email,
-            name = this.name
+            name = this.name,
+            profilePicture = StaticResourceHandle.None(ContentType.Image.PNG)
         )
 
         UserService.add(created).fold(
             success = {},
             failure = {
-                error("$created: signup couldn't create user")
+                error("$created: signup couldn't create user\nError:$it")
             }
         )
 
@@ -71,8 +73,6 @@ data class RegisterCredentials (
     }
 
 }
-
-val validTokens = mutableMapOf<User, String>()
 
 fun Route.auth() {
 
@@ -89,9 +89,6 @@ fun Route.auth() {
                         one = { singleUser ->
                             if (credentials.matchFor(singleUser)) {
                                 val token = generateJWT(singleUser)
-
-                                validTokens[singleUser] = token
-                                validTokens.letIn(3600 * 1000L) { it.remove(singleUser) }
 
                                 call.respond(object { @Suppress("unused") val token = token })
                             } else {
@@ -113,13 +110,11 @@ fun Route.auth() {
         get("/{token}") {
             call.parameters["token"]?.let { token ->
 
-                val user = validTokens
-                    .filter { it.value == token } // Check for user with token
-                    .keys.singleOrNullOrError() ?: error("user not found")
+                validateJwt(call, token).fold(
+                    success = { call.respond( object { val uuid = it.uuid }) },
+                    failure = { call.respondExceptionMessage(Service.Exception(BException(it))) }
+                )
 
-                // User is found and only exists once
-
-                call.respond(object { @Suppress("unused") val uuid = user.uuid })
             } ?: call.respond(HttpStatusCode.BadRequest)
         }
 

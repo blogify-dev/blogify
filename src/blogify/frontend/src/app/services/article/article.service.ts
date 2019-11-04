@@ -1,8 +1,7 @@
-/* tslint:disable:no-shadowed-variable */
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Article } from '../../models/Article';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
 
 @Injectable({
@@ -16,6 +15,10 @@ export class ArticleService {
     async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {
         const articlesObs = this.httpClient.get<Article[]>(`/api/articles/?fields=${fields.join(',')}&amount=${amount}`);
         const articles = await articlesObs.toPromise();
+        return this.uuidToObjectInArticle(articles)
+    }
+
+    private async uuidToObjectInArticle(articles: Article[]) {
         const userUUIDs = new Set<string>();
         articles.forEach(it => {
             userUUIDs.add(it.createdBy.toString());
@@ -39,8 +42,9 @@ export class ArticleService {
         return article;
     }
 
-    async getArticleByForUser(uuid: string, fields: string[] = []): Promise<Article[]> {
-        return this.httpClient.get<Article[]>(`/api/articles/forUser/${uuid}?fields=${fields.join(',')}`).toPromise();
+    async getArticleByForUser(username: string, fields: string[] = []): Promise<Article[]> {
+        const articles = await this.httpClient.get<Article[]>(`/api/articles/forUser/${username}?fields=${fields.join(',')}`).toPromise();
+        return this.uuidToObjectInArticle(articles);
     }
 
     async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<object> {
@@ -60,14 +64,13 @@ export class ArticleService {
             title,
             summary,
             categories,
-            createdBy: this.authService.userUUID,
+            createdBy: await this.authService.userUUID,
         };
 
         return this.httpClient.post(`/api/articles/`, newArticle, httpOptions).toPromise();
     }
 
-    // noinspection JSUnusedGlobalSymbols
-    updateArticle(uuid: string, article: Article, userToken: string = this.authService.userToken) {
+    updateArticle(article: Article, uuid: string = article.uuid, userToken: string = this.authService.userToken) {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
@@ -75,10 +78,18 @@ export class ArticleService {
             })
         };
 
-        return this.httpClient.patch<Article>(`/api/articles/${uuid}`, article, httpOptions);
+        const newArticle = {
+            uuid: article.uuid,
+            content: article.content,
+            title: article.title,
+            summary: article.summary,
+            categories: article.categories,
+            createdBy: article.createdBy.uuid,
+        };
+
+        return this.httpClient.patch<Article>(`/api/articles/${uuid}`, newArticle, httpOptions).toPromise();
     }
 
-    // noinspection JSUnusedGlobalSymbols
     deleteArticle(uuid: string, userToken: string = this.authService.userToken) {
         const httpOptions = {
             headers: new HttpHeaders({

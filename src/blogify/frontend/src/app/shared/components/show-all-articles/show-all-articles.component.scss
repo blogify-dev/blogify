@@ -1,7 +1,7 @@
-@import "../../../styles/fonts";
-@import "../../../styles/colours";
-@import "../../../styles/layouts";
-@import "../../../styles/mixins";
+@import "../../../../styles/fonts";
+@import "../../../../styles/colours";
+@import "../../../../styles/layouts";
+@import "../../../../styles/mixins";
 
 :host {
     &.no-padding       { .articles { @include pageContainer(false) } }
@@ -16,8 +16,12 @@
 
         $search-icon-break: 1300px;
 
+        #header-title {
+            margin-right: 1em;
+        }
+
         #header-search-pad {
-            width: 85%;
+            flex-grow: 1;
             @media (min-width: 0) and (max-width: $search-icon-break) {
                 display: none;
             }
@@ -25,17 +29,16 @@
 
         #header-search-icon {
             margin-left: auto;
-            margin-right: 2.3em;
+
             @media (min-width: $search-icon-break) {
                 display: none;
             }
         }
 
         #header-create-btn {
-            font-size: 2em;
-            font-weight: bold;
-
             cursor: pointer;
+
+            margin-left: 2.7em;
         }
     }
 
@@ -59,7 +62,7 @@
 
         padding: 1.2em 1.5em;
 
-        margin-top: 2%;
+        margin-top: 1.25em;
 
         .article-first-line {
             width: 100%;
@@ -70,6 +73,25 @@
             flex-direction:  row;
             justify-content: space-between;
             align-items:     center;
+
+            .header-title {
+                text-align: left;
+            }
+
+            .article-author {
+                display:         flex;
+                flex-direction:  row;
+                justify-content: flex-start;
+                align-items:     center;
+
+                .author-pfp {
+                    margin-right: .85em;
+                }
+
+                .author-name { font-size: 1.7em; font-weight: 600; }
+
+            }
+
         }
 
         .article-second-line {
@@ -84,7 +106,7 @@
             .article-posted-at { font-size: 1.30em; }
         }
 
-        .read-more { color: var(--card-fg); }
+        .article-read-more { color: var(--card-fg); }
 
         .article-last-line {
             width: 100%;

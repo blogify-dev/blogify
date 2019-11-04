@@ -1,0 +1,13 @@
+<div id="main-container" *ngIf="user">
+
+    <div id="container-header">
+        <app-profile-picture [pfpFile]="user.profilePicture"></app-profile-picture>
+
+        <span id="header-user-name">{{user.name}}</span>
+
+        <app-tab-header id="header-tabs" [tabs]="finalTabs"></app-tab-header>
+    </div>
+
+    <router-outlet></router-outlet>
+
+</div>

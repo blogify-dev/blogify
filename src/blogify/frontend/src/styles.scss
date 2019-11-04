@@ -6,6 +6,7 @@
 @import "styles/layouts";
 @import "styles/forms";
 @import "styles/titles";
+@import "styles/code";
 
 * {
     transition: color 150ms ease-in-out, background-color 150ms ease-in-out;
@@ -17,11 +18,8 @@
     text-decoration: none;
     border: none;
     outline: none;
-
     font-family: $nunito;
-    font-size: 12px;
-
-    color: var(--body-fg);
+    font-size: 10px;
 }
 
 #parent {
@@ -31,6 +29,8 @@
 
     display:        flex;
     flex-direction: column;
+
+    color: var(--body-fg);
 
     #license-info {
         margin-top: auto;

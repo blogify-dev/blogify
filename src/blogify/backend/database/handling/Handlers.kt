@@ -1,6 +1,7 @@
 package blogify.backend.database.handling
 
 import blogify.backend.database.Database
+import blogify.backend.annotations.BlogifyDsl
 
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
@@ -21,6 +22,7 @@ import java.lang.Exception
  *
  * @see [Dispatchers.IO]
  */
+@BlogifyDsl
 suspend fun <T : Any> query(block: suspend () -> T): SuspendableResult<T, Database.Exception> {
         return SuspendableResult.of<T, Exception> { // The transaction can throw any Exception; specify that
             withContext(Dispatchers.IO) { newSuspendedTransaction { block() } } // Run the transaction

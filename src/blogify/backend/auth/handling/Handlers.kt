@@ -9,9 +9,10 @@ import io.ktor.request.header
 import io.ktor.response.respond
 
 import blogify.backend.resources.User
-import blogify.backend.routes.handling.CallPipeLineFunction
-import blogify.backend.routes.handling.CallPipeline
-import blogify.backend.util.BlogifyDsl
+import blogify.backend.routes.pipelines.CallPipeLineFunction
+import blogify.backend.annotations.BlogifyDsl
+import blogify.backend.resources.models.eqr
+import blogify.backend.routes.pipelines.CallPipeline
 import blogify.backend.util.reason
 
 
@@ -26,7 +27,7 @@ typealias UserAuthPredicate = suspend (user: User) -> Boolean
  * @param mustBe the mustBe to whom the token must belong to
  */
 fun isUser(mustBe: User): UserAuthPredicate = { user ->
-        mustBe == user
+        mustBe eqr user
 }
 
 /**

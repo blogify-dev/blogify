@@ -1,19 +1,37 @@
 <!--suppress HtmlFormInputWithoutLabel -->
-<p>new-article works!</p>
+<div id="new-article" *ngIf="user != undefined">
 
-Title: <input [(ngModel)]="article.title">
-Text: <input [(ngModel)]="article.content">
-Summary:<input [(ngModel)]="article.summary">
-<button (click)="createNewArticle()">Create New Article</button>
+    <div id="header-row">
+        <h1>New Article</h1>
 
-<br>
-<br>
+        <app-user-display info="username" [user]="user"></app-user-display>
+    </div>
 
-<ng-container *ngFor="let cat of article.categories">
-    <input [(ngModel)]="cat.name">
-</ng-container>
+    <span class="data-row" id="title-row">
+        <span>Title</span>
+        <input [(ngModel)]="article.title">
+    </span>
 
-<button (click)="addCategory()">Add cat</button>
+    <span class="data-row" id="summary-row">
+        <span>Summary</span>
+        <input [(ngModel)]="article.summary">
+    </span>
 
+    <span class="data-row" id="content-row">
+        <span>Content</span>
+        <textarea rows="5" [(ngModel)]="article.content"></textarea>
+    </span>
 
-<div>article: {{article | json}}</div>
+    <span class="data-row" id="submit">
+         <button class="positive rounded hollow" (click)="createNewArticle()">Save draft</button>
+         <button class="positive rounded" (click)="createNewArticle()">Submit</button>
+    </span>
+
+    <ng-container *ngFor="let cat of article.categories">
+        <input [(ngModel)]="cat.name">
+    </ng-container>
+
+    <button (click)="addCategory()">Add Category</button>
+
+</div>
+

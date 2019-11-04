@@ -1,4 +1,4 @@
-<div class="comment-reply" *ngIf="replying">
+<div class="comment-reply" *ngIf="replying && replyComment != undefined">
     <textarea rows="4" [(ngModel)]="replyComment.content" type="text" class="reply-text" placeholder="Type your response ..."></textarea>
 
     <div class="reply-submit">

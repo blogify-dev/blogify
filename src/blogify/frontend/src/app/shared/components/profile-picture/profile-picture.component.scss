@@ -1,0 +1,11 @@
+:host {
+    display:         flex;
+    flex-direction:  row;
+    justify-content: center;
+    align-items:     center;
+}
+
+.pfp-image {
+    border-radius: 50%;
+    border: 1px solid var(--header-fg);
+}

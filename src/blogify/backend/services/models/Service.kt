@@ -89,7 +89,7 @@ abstract class Service<R : Resource>(val table: ResourceTable<R>) {
 
     abstract suspend fun add(res: R): ResourceResult<R>
 
-    abstract suspend fun update(res: R): ResourceResult<R>
+    abstract suspend fun update(res: R): SuspendableResult<*, Exception>
 
     /**
      * Deletes an instance of [R] from the database

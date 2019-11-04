@@ -1,5 +1,7 @@
-<section class="profile">
+<section class="profile" *ngIf="user">
 
-    <app-show-all-articles appCompact title="Articles by {{user.username}}" [articles]="articles"></app-show-all-articles>
+    <app-main-profile></app-main-profile>
+
+    <hr>
 
 </section>

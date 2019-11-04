@@ -11,9 +11,9 @@ import com.github.kittinunf.result.coroutines.mapError
 
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-
-import java.util.UUID
 
 object ArticleService : Service<Article>(Articles) {
 
@@ -37,26 +37,24 @@ object ArticleService : Service<Article>(Articles) {
         }
 
         return@query res // So that we return the resource and not an insert statement
-    }.mapError { e -> Service.Exception.Creating(e) } // Wrap possible error
+    }.mapError { e -> Exception.Creating(e) } // Wrap possible error
 
-    override suspend fun update(res: Article): ResourceResult<Article> =
-        query {
-            Articles.update({ uuid eq res.uuid }) {
-                it[title]   = res.title
-                it[content] = res.content
-                it[summary] = res.summary
+    override suspend fun update(res: Article): ResourceResult<*> = query {
+        Articles.update(where = { uuid eq res.uuid }) {
+            it[title]   = res.title
+            it[content] = res.content
+            it[summary] = res.summary
+        }
+
+        val cats = res.categories
+
+        Articles.Categories.deleteWhere { Articles.Categories.article eq res.uuid }
+
+        cats.forEach { cat ->
+            Articles.Categories.update {
+                it[name] = cat.name
             }
-
-            val cats = res.categories
-
-            Articles.Categories.deleteWhere { Articles.Categories.article eq res.uuid }
-
-            cats.forEach { cat ->
-                Articles.Categories.update {
-                    it[name] = cat.name
-                }
-            }
-            return@query res
-        }.mapError { e -> Service.Exception.Updating(e) }
+        }
+    }.mapError { e -> Exception.Updating(e) }
 
 }

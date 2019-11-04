@@ -28,14 +28,32 @@
 package blogify.backend.routes.handling
 
 import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.database.Uploadables
+import blogify.backend.database.handling.query
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
+import blogify.backend.resources.slicing.PropertyHandle
+import blogify.backend.resources.slicing.cachedPropMap
 import blogify.backend.resources.slicing.sanitize
 import blogify.backend.resources.slicing.slice
+import blogify.backend.resources.static.fs.StaticFileHandler
+import blogify.backend.resources.static.models.StaticData
+import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
-import blogify.backend.util.BlogifyDsl
+import blogify.backend.annotations.BlogifyDsl
+import blogify.backend.annotations.type
+import blogify.backend.resources.slicing.verify
+import blogify.backend.routes.pipelines.CallPipeLineFunction
+import blogify.backend.routes.pipelines.CallPipeline
+import blogify.backend.routes.pipelines.handleAuthentication
+import blogify.backend.routes.pipelines.pipeline
+import blogify.backend.routes.pipelines.pipelineError
+import blogify.backend.util.getOrPipelineError
+import blogify.backend.util.letCatchingOrNull
+import blogify.backend.util.matches
+import blogify.backend.util.short
 import blogify.backend.util.toUUID
 
 import io.ktor.application.ApplicationCall
@@ -43,31 +61,35 @@ import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.util.pipeline.PipelineContext
-import io.ktor.util.pipeline.PipelineInterceptor
 import io.ktor.request.ContentTransformationException
 import io.ktor.request.receive
+import io.ktor.http.ContentType
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.http.content.streamProvider
+import io.ktor.request.receiveMultipart
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import com.andreapivetta.kolor.magenta
 import com.andreapivetta.kolor.yellow
+import com.github.kittinunf.result.coroutines.failure
+import com.github.kittinunf.result.coroutines.map
+import org.jetbrains.exposed.sql.deleteWhere
+
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.util.UUID
 
-val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
+import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.isSuperclassOf
 
-/**
- * Represents a server call pipeline
- */
-typealias CallPipeline = PipelineContext<Unit, ApplicationCall>
-
-/**
- * Represents a server call handler function
- */
-typealias CallPipeLineFunction = PipelineInterceptor<Unit, ApplicationCall>
+private val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
 
 /**
  * The default predicate used by the wrappers in this file
@@ -147,6 +169,7 @@ suspend fun <R : Resource> CallPipeline.fetchWithId (
     authPredicate: suspend (User)                   -> Boolean = defaultResourceLessPredicateLambda
 ) {
     val params = call.parameters
+
     params["uuid"]?.let { id -> // Check if the query URL provides any UUID
         val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
 
@@ -201,7 +224,7 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 ) {
     val params = call.parameters
 
-    call.parameters["uuid"]?.let { id -> // Check if the query URL provides any UUID
+    params["uuid"]?.let { id -> // Check if the query URL provides any UUID
 
         val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
 
@@ -248,6 +271,140 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
     } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
 }
 
+@Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
+@BlogifyDsl
+suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
+    crossinline fetch:         suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
+    crossinline modify:        suspend (R, StaticResourceHandle) -> R,
+    crossinline update:        suspend (R)                       -> ResourceResult<*>,
+       noinline authPredicate: suspend (User, R)                 -> Boolean = defaultPredicateLambda
+) = pipeline("uuid", "target") { (uuid, target) ->
+
+    // Find target resource
+    val targetResource = fetch(call, UUID.fromString(uuid))
+        .getOrPipelineError(message = "couldn't fetch resource") // Handle result
+
+    handleAuthentication("uploadToResource", { authPredicate(it, targetResource) }) {
+
+        val targetClass = R::class
+
+        // Find target property
+        val targetPropHandle = targetClass.cachedPropMap()[target]
+            ?.takeIf {
+                it is PropertyHandle.Ok
+                        && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
+            } as? PropertyHandle.Ok
+            ?: pipelineError (
+                message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
+            )
+
+        // Receive data
+        val multiPartData = call.receiveMultipart()
+
+        var fileContentType: ContentType = ContentType.Application.Any
+        var fileBytes = byteArrayOf()
+
+        multiPartData.forEachPart { part ->
+            when (part) {
+                is PartData.FileItem -> {
+                    part.streamProvider().use { input -> fileBytes = input.readBytes() }
+                    fileContentType = part.contentType ?: ContentType.Application.Any
+                }
+            }
+        }
+
+        // Check content type
+        val propContentType = targetPropHandle.property.returnType
+            .findAnnotation<type>()
+            ?.contentType?.letCatchingOrNull(ContentType.Companion::parse) ?: ContentType.Any
+
+        if (!(propContentType matches fileContentType)) {
+            pipelineError ( // Throw an error
+                HttpStatusCode.UnsupportedMediaType,
+                "property '${targetPropHandle.property.name}' of class '${targetClass.simpleName}' does not accept content type '$fileContentType'"
+            )
+        }
+
+        // Write to file
+        val newHandle = StaticFileHandler.writeStaticResource (
+            StaticData(fileContentType, fileBytes)
+        )
+
+        query {
+            Uploadables.insert {
+                it[fileId]      = newHandle.fileId
+                it[contentType] = newHandle.contentType.toString()
+            }
+        }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing static resource to db")
+
+        // idk - temporary
+        val rep = modify(targetResource, newHandle)
+
+        update(rep)
+            .getOrPipelineError(HttpStatusCode.InternalServerError, "error while updating resource ${targetResource.uuid.short()} with new information")
+
+        call.respond(newHandle.toString())
+
+    }
+
+}
+
+@BlogifyDsl
+suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
+    crossinline fetch:         suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
+       noinline authPredicate: suspend (User, R)                 -> Boolean = defaultPredicateLambda
+) = pipeline("uuid", "target") { (uuid, target) ->
+
+    // Find target resource
+    val targetResource = fetch(call, UUID.fromString(uuid))
+        .getOrPipelineError(message = "couldn't fetch resource") // Handle result
+
+    handleAuthentication("uploadToResource", { authPredicate(it, targetResource) }) {
+
+        val targetClass = R::class
+
+        // Find target property
+        val targetPropHandle = targetClass.cachedPropMap()[target]
+            ?.takeIf {
+                it is PropertyHandle.Ok
+                        && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
+            } as? PropertyHandle.Ok
+            ?: pipelineError (
+                message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
+            )
+
+        when (val targetPropHandleValue = targetPropHandle.property.get(targetResource) as StaticResourceHandle) {
+            is StaticResourceHandle.Ok -> {
+
+                val uploadableId = targetPropHandleValue.fileId
+
+                // Fake handle
+                val handle = query {
+                    Uploadables.select { Uploadables.fileId eq uploadableId }.single()
+                }.map { Uploadables.convert(call, it).get() }.get()
+
+
+                // Delete in DB
+                query {
+                    Uploadables.deleteWhere { Uploadables.fileId eq uploadableId }
+                }.failure { pipelineError(HttpStatusCode.InternalServerError, "couldn't delete static resource from db") }
+
+                // Delete in FS
+                if (StaticFileHandler.deleteStaticResource(handle)) {
+                    call.respond(HttpStatusCode.OK)
+                } else pipelineError(HttpStatusCode.InternalServerError, "couldn't delete static resource file")
+
+            }
+            is StaticResourceHandle.None -> {
+                call.respond(HttpStatusCode.NotFound)
+                return@handleAuthentication
+            }
+        }
+
+    }
+
+}
+
 /**
  * Adds a handler to a [CallPipeline] that handles creating a new resource.
  *
@@ -262,13 +419,18 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
     noinline create:        suspend (R)       -> ResourceResult<R>,
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
-) {
+) = pipeline {
     try {
 
-        val rec = call.receive<R>()
+        val received = call.receive<R>() // Receive a resource from the request body
+
+        val verifiedReceived = received.verify() // Verify received resource
+        verifiedReceived.entries
+            .firstOrNull { !it.value } // Find any that were not valid
+            ?.run { pipelineError(HttpStatusCode.BadRequest, "invalid value for property '${key.name}'") }
 
         val doCreate: CallPipeLineFunction = {
-            val res = create(rec)
+            val res = create(received)
 
             res.fold (
                 success = {
@@ -279,7 +441,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
         }
 
         if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-            runAuthenticated(predicate = { u -> authPredicate(u, rec) }, block = doCreate) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
+            runAuthenticated(predicate = { u -> authPredicate(u, received) }, block = doCreate) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
         } else {
             logUnusedAuth("createWithResource")
             doCreate(this, Unit) // Run doCreate without checking predicate
@@ -342,8 +504,8 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
-suspend inline fun <reified R : Resource> CallPipeline.updateWithId(
-    noinline update: suspend (R) -> ResourceResult<R>,
+suspend inline fun <reified R : Resource> CallPipeline.updateWithId (
+    noinline update: suspend (R) -> ResourceResult<*>,
     fetch: suspend (ApplicationCall, UUID) -> ResourceResult<R>,
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) {
@@ -362,7 +524,7 @@ suspend inline fun <reified R : Resource> CallPipeline.updateWithId(
     replacement.uuid.let { fetch.invoke(call, it) }.fold(
         success = {
             if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-                runAuthenticated(
+                runAuthenticated (
                     predicate = { u -> authPredicate(u, replacement) },
                     block = doUpdate
                 ) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches

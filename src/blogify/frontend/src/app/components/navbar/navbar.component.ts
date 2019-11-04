@@ -1,7 +1,9 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { AuthService } from '../../services/auth/auth.service';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import { AuthService } from '../../shared/auth/auth.service';
 import { Router } from '@angular/router';
 import { DarkModeService } from '../../services/darkmode/dark-mode.service';
+import { User } from '../../models/User';
+import { faBell, faMoon, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({
@@ -11,23 +13,26 @@ import { DarkModeService } from '../../services/darkmode/dark-mode.service';
 })
 export class NavbarComponent implements OnInit, AfterViewInit {
 
-    @ViewChild('darkModeToggle', {static: false, read: ElementRef}) darkModeToggle: ElementRef;
+    user: User;
 
-    constructor(
+    faSignOutAlt = faSignOutAlt;
+    faBell = faBell;
+    faMoon = faMoon;
+
+    constructor (
         public authService: AuthService,
         private router: Router,
         private darkModeService: DarkModeService,
-    ) {
-    }
+    ) {}
 
-    ngOnInit() {
-        console.log(this.authService.userToken);
+    async ngOnInit() {
+        this.user = await this.authService.userProfile;
+        console.log(this.user.profilePicture);
     }
 
     ngAfterViewInit() {
         if (window.matchMedia('prefers-color-scheme: dark')) {
             this.darkModeService.setDarkMode(true);
-            this.darkModeToggle.nativeElement.setAttribute('checked', '');
         }
     }
 
@@ -38,8 +43,10 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     }
 
     async navigateToProfile() {
-        const url = `/profile/${this.authService.userUUID}`;
-        await this.router.navigateByUrl(url);
+        await this.authService.userProfile.then(it => {
+            const url = `/profile/${it.username}`;
+            this.router.navigateByUrl(url);
+        });
     }
 
     toggleDarkMode() {
@@ -48,4 +55,7 @@ export class NavbarComponent implements OnInit, AfterViewInit {
 
     }
 
+    logout() {
+        this.authService.logout();
+    }
 }

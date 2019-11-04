@@ -1,0 +1,8 @@
+<span class="user-display"
+      [style.font-size]="emSize / EM_SIZE_TEXT_RATIO + 'em'"
+      routerLink="/profile/{{user.username}}">
+
+    <app-profile-picture class="display-pfp" [pfpFile]="user.profilePicture" emSize="{{emSize}}"></app-profile-picture>
+    <span class="display-info">{{infoText}}</span>
+
+</span>

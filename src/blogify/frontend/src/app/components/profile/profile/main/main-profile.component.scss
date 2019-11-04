@@ -1,0 +1,24 @@
+@import "../../../../../styles/mixins";
+
+#main-container {
+    @include pageContainer;
+
+    #container-header {
+
+        margin-bottom: 1em;
+
+        display:         flex;
+        flex-direction:  row;
+        justify-content: space-between;
+        align-items:     center;
+
+        #header-user-name {
+            margin-left: .5em;
+            margin-right: auto;
+
+            font-size: 2.75em;
+            font-weight: 600;
+        }
+
+    }
+}

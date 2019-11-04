@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../services/auth/auth.service';
+import { AuthService } from '../../shared/auth/auth.service';
 import { LoginCredentials, RegisterCredentials, User } from '../../models/User';
 import { Router} from '@angular/router';
 
@@ -31,8 +31,8 @@ export class LoginComponent implements OnInit {
 
             console.log(token);
 
-            const uuid = this.authService.userUUID;
-            this.user  = this.authService.userProfile;
+            const uuid = await this.authService.userUUID;
+            this.user  = await this.authService.userProfile;
 
             console.log('LOGIN ->');
             console.log(uuid);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
+import blogify.backend.annotations.check
 import blogify.backend.database.Articles
 import blogify.backend.resources.models.Resource
 import blogify.backend.database.handling.query
@@ -28,7 +29,8 @@ import java.util.*
     property  = "uuid"
 )
 data class Article (
-    val title: String,
+    val title: @check("\\w+") String,
+
     val createdAt: Long = Date().time,
 
     @JsonIdentityReference(alwaysAsId = true)

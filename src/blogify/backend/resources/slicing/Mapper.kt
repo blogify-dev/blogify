@@ -1,7 +1,8 @@
 package blogify.backend.resources.slicing
 
-import blogify.backend.resources.models.Resource
-import blogify.backend.util.noslice
+import blogify.backend.annotations.check
+import blogify.backend.annotations.noslice
+import blogify.backend.resources.slicing.models.Mapped
 
 import com.andreapivetta.kolor.green
 
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.findAnnotation
 
 private val logger = LoggerFactory.getLogger("blogify-datamap")
 
@@ -24,12 +26,14 @@ sealed class PropertyHandle(val name: String) {
     /**
      * Represents a valid handle, which points to a [KProperty1]
      *
-     * @param    name     the canonical name of the property
-     * @property property the property that is pointed to
+     * @param name the canonical name of the property
+     *
+     * @property regexCheck a regular expression that the value of the property is checked against by [verify] if the property is of type [String]
+     * @property property   the property that is pointed to
      *
      * @author Benjozork
      */
-    class Ok(name: String, val property: KProperty1<Any, Any>) : PropertyHandle(name)
+    class Ok(name: String, val regexCheck: Regex?, val property: KProperty1<Any, Any>) : PropertyHandle(name)
 
     /**
      * Represents a handle that points to a property that cannot be accessed due to security policy reasons. This incident will be reported.
@@ -46,7 +50,7 @@ sealed class PropertyHandle(val name: String) {
  *
  * @author Benjozork
  */
-private typealias PropMap = Map<String, PropertyHandle>
+typealias PropMap = Map<String, PropertyHandle>
 
 /**
  * Builds a [property map][PropMap] on the receiver [KClass]
@@ -58,16 +62,22 @@ private typealias PropMap = Map<String, PropertyHandle>
  * @author Benjozork
  */
 @Suppress("UNCHECKED_CAST")
-fun <R : Resource> KClass<R>.buildPropMap(): PropMap {
+fun <M : Mapped> KClass<M>.buildPropMap(): PropMap {
     return this.declaredMemberProperties
         .asSequence()
         .associateBy {
             it.name
         }.mapValues { (name, self) ->
-            if (self.annotations.any { a -> a.annotationClass == noslice::class })
+            if (self.findAnnotation<noslice>() != null) {
                 PropertyHandle.AccessDenied(name)
-            else
-                PropertyHandle.Ok(name, self as KProperty1<Any, Any>)
+            } else {
+                if (self.returnType.findAnnotation<check>() != null) {
+                    val regex = Regex(self.returnType.findAnnotation<check>()!!.pattern)
+                    PropertyHandle.Ok(name, regex, self as KProperty1<Any, Any>)
+                } else {
+                    PropertyHandle.Ok(name, null, self as KProperty1<Any, Any>)
+                }
+            }
         }.also { logger.debug("built propmap for class ${this.simpleName}".green()) }
 }
 
@@ -87,7 +97,7 @@ private val propMapCache: MutableMap<KClass<*>, PropMap> = mutableMapOf()
  *
  * @author Benjozork
  */
-fun <R : Resource> R.cachedPropMap(): PropMap {
+fun <M : Mapped> M.cachedPropMap(): PropMap {
     var cached: PropMap? = propMapCache[this::class]
     if (cached == null) {
         cached = this::class.buildPropMap()
@@ -97,7 +107,7 @@ fun <R : Resource> R.cachedPropMap(): PropMap {
     return cached
 }
 
-fun <TResource : Resource> KClass<TResource>.cachedPropMap(): PropMap {
+fun <M : Mapped> KClass<M>.cachedPropMap(): PropMap {
     var cached: PropMap? = propMapCache[this]
     if (cached == null) {
         cached = this.buildPropMap()

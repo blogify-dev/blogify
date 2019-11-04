@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../../services/auth/auth.service';
+import { AuthService } from '../../shared/auth/auth.service';
 import { CommentsService } from '../../services/comments/comments.service';
 import { User } from '../../models/User';
 
@@ -14,9 +14,8 @@ import { User } from '../../models/User';
 })
 export class ShowArticleComponent implements OnInit {
 
-    routeMapSubscription: Subscription;S
+    routeMapSubscription: Subscription;
     article: Article;
-    user: User;
 
     constructor (
         private activatedRoute: ActivatedRoute,
@@ -38,8 +37,8 @@ export class ShowArticleComponent implements OnInit {
                 ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
             );
 
-            this.showUpdateButton = this.authService.userUUID == this.article.createdBy.uuid;
-            this.showDeleteButton = this.authService.userUUID == this.article.createdBy.uuid;
+            this.showUpdateButton = (await this.authService.userUUID) == this.article.createdBy.uuid;
+            this.showDeleteButton = (await this.authService.userUUID) == this.article.createdBy.uuid;
 
             console.log(this.article);
         });
