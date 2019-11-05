@@ -1,0 +1,66 @@
+@import "../../../styles/mixins";
+@import "../../../styles/queries";
+
+#update-article {
+
+    @include pageContainer;
+
+    display:         flex;
+    flex-direction:  column;
+    justify-content: stretch;
+    align-items:     flex-start;
+
+    #header-row {
+        width: 100%;
+
+        display:         flex;
+        flex-direction:  row;
+        justify-content: space-between;
+        align-items:     center;
+    }
+
+    .data-row {
+        width: 100%;
+
+        &:not(:first-child) {
+            margin-top: 1em;
+        }
+
+        & span:first-child {
+            width: 40%;
+
+            font-size: 1.5em;
+
+            @media (max-width: $query-desktop) {
+                font-size: 1.6em;
+                margin-bottom: .5em;
+            }
+        }
+
+        & input:last-child,
+        & textarea:last-child {
+            flex-grow: 1;
+        }
+
+        &#submit {
+            flex-direction: row;
+            justify-content: flex-end;
+            * { font-size: 1.35em; }
+
+            button {
+                flex-grow: 0;
+                margin-left: .5em;
+            }
+        }
+
+        display:         flex;
+        flex-direction:  row;
+        justify-content: space-between;
+        align-items:     stretch;
+
+        @media (max-width: $query-desktop) {
+            flex-direction:  column;
+        }
+    }
+
+}

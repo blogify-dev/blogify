@@ -1,8 +1,37 @@
 <!--suppress HtmlFormInputWithoutLabel -->
-<div *ngIf="article">
-    Title: <input [(ngModel)]="article.title">
-    Text: <input [(ngModel)]="article.content">
-    Summary:<input [(ngModel)]="article.summary">
-    <button (click)="updateArticle()">Create New Article</button>
-    <p>{{article | json}}</p>
+
+<div id="update-article" *ngIf="user && article">
+
+    <div id="header-row">
+        <h1>Update Article</h1>
+
+        <app-user-display info="username" [user]="user"></app-user-display>
+    </div>
+
+    <span class="data-row" id="title-row">
+        <span>Title</span>
+        <input [(ngModel)]="article.title">
+    </span>
+
+    <span class="data-row" id="summary-row">
+        <span>Summary</span>
+        <input [(ngModel)]="article.summary">
+    </span>
+
+    <span class="data-row" id="content-row">
+        <span>Content</span>
+        <textarea rows="5" [(ngModel)]="article.content"></textarea>
+    </span>
+
+    <span class="data-row" id="submit">
+         <button class="positive rounded hollow" (click)="updateArticle()">Save draft</button>
+         <button class="positive rounded" (click)="updateArticle()">Submit</button>
+    </span>
+
+    <ng-container *ngFor="let cat of article.categories">
+        <input [(ngModel)]="cat.name">
+    </ng-container>
+
+    <button (click)="addCategory()">Add Category</button>
+
 </div>
