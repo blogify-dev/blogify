@@ -1,10 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Article } from '../../../models/Article';
 import { AuthService } from '../../auth/auth.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { StaticContentService } from '../../../services/static/static-content.service';
 import { faArrowLeft, faPencilAlt, faSearch } from '@fortawesome/free-solid-svg-icons';
-import {ArticleService} from '../../../services/article/article.service';
+import { ArticleService } from '../../../services/article/article.service';
 
 @Component({
     selector: 'app-show-all-articles',
@@ -29,12 +29,31 @@ export class ShowAllArticlesComponent implements OnInit {
         private authService: AuthService,
         private articleService: ArticleService,
         private staticContentService: StaticContentService,
+        private activatedRoute: ActivatedRoute,
         private router: Router
     ) {}
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.activatedRoute.url.subscribe((it: UrlSegment[]) => {
+            const isSearching = it[it.length - 1].parameters['search'] != undefined;
+            if (isSearching) { // We are in a search page
+                const query = it[it.length - 1].parameters['search'];
+                const actualQuery = query.match(/"\w+"/) != null ? query.substring(1, query.length - 1): null;
+                if (actualQuery != null) {
+                    this.searchQuery = actualQuery;
+                    this.startSearch();
+                }
+            } else { // we are in a regular listing
+                this.stopSearch();
+            }
+        })
+    }
 
-    async startSearch() {
+    async navigateToSearch() {
+        await this.router.navigate([{search: `"${this.searchQuery}"`}])
+    }
+
+    private async startSearch() {
         this.articleService.search (
             this.searchQuery,
             ['title', 'summary', 'createdBy', 'categories', 'createdAt']
