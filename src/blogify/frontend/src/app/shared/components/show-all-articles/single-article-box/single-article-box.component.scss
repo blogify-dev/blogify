@@ -1,3 +1,5 @@
+@import "../../../../../styles/layouts";
+
 .article {
 
     display:         flex;
@@ -9,6 +11,7 @@
     background: var(--card-bg);
 
     border: none;
+    border-radius: $std-border-radius;
 
     $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.20);
     -webkit-box-shadow: $box-shadow;
