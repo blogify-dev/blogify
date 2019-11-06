@@ -50,11 +50,11 @@ export class ShowAllArticlesComponent implements OnInit {
 
     async navigateToNewArticle() {
         if (this.authService.userToken === '') {
-            const url = `/login?redirect=/new-article`;
+            const url = `/login?redirect=/article/new`;
             console.log(url);
             await this.router.navigateByUrl(url);
         } else {
-            await this.router.navigateByUrl('/new-article');
+            await this.router.navigateByUrl('/article/new');
         }
     }
 

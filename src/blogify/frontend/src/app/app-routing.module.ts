@@ -5,7 +5,7 @@ import { LoginComponent } from './components/login/login.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { NewArticleComponent } from './components/newarticle/new-article.component';
 import { ShowArticleComponent } from './components/show-article/show-article.component';
-import { UpdateArticleComponent } from './components/update-article/update-article.component';;
+import { UpdateArticleComponent } from './components/update-article/update-article.component';
 
 
 const routes: Routes = [
@@ -13,7 +13,7 @@ const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'login', component: LoginComponent },
     { path: 'register', component: LoginComponent },
-    { path: 'new-article', component: NewArticleComponent },
+    { path: 'article/new', component: NewArticleComponent },
     { path: 'profile/**', component: ProfileComponent },
     { path: 'article/:uuid', component: ShowArticleComponent },
     { path: 'article/update/:uuid', component: UpdateArticleComponent },
