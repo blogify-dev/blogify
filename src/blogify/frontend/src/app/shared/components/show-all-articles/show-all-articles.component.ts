@@ -43,14 +43,14 @@ export class ShowAllArticlesComponent implements OnInit {
                     this.searchQuery = actualQuery;
                     this.startSearch();
                 }
-            } else { // we are in a regular listing
+            } else { // We are in a regular listing
                 this.stopSearch();
             }
         })
     }
 
     async navigateToSearch() {
-        await this.router.navigate([{search: `"${this.searchQuery}"`}])
+        await this.router.navigate([{ search: `"${this.searchQuery}"` }], { relativeTo: this.activatedRoute })
     }
 
     private async startSearch() {
