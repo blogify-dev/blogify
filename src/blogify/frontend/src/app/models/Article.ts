@@ -1,15 +1,17 @@
 import { User } from './User';
 
 export class Article {
-    constructor(
+
+    constructor (
         public uuid: string,
         public title: string,
         public content: string,
         public summary: string,
-        public createdBy: User,
+        public createdBy: User | string,
         public createdAt: number,
         public categories: Category[],
     ) {}
+
 }
 
 export interface Category {

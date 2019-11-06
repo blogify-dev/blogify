@@ -1,9 +1,8 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Article } from '../../models/Article';
-import { AuthService } from '../../shared/auth/auth.service';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Article} from '../../models/Article';
+import {AuthService} from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
-import {consoleTestResultHandler} from "tslint/lib/test";
 
 @Injectable({
     providedIn: 'root'
@@ -16,22 +15,21 @@ export class ArticleService {
     async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {
         const articlesObs = this.httpClient.get<Article[]>(`/api/articles/?fields=${fields.join(',')}&amount=${amount}`);
         const articles = await articlesObs.toPromise();
-        return this.uuidToObjectInArticle(articles)
+        return this.fetchUserObjects(articles)
     }
 
-    private async uuidToObjectInArticle(articles: Article[]) {
-        const userUUIDs = new Set<string>();
-        articles.forEach(it => {
-            userUUIDs.add(it.createdBy.toString());
+    private async fetchUserObjects(articles: Article[]) {
+        const userUUIDs = articles
+            .filter (it => typeof it.createdBy === 'string')
+            .map    (it => <string> it.createdBy);
+        const userObjects = await Promise.all (
+            [...userUUIDs].map(it => this.authService.fetchUser(it))
+        );
+        return articles.map(a => {
+            a.createdBy = userObjects
+                .find(u => u.uuid === <string> a.createdBy);
+            return a
         });
-        const users = await Promise.all(([...userUUIDs]).map(it => this.authService.fetchUser(it.toString())));
-        const out: Article[] = [];
-        articles.forEach((article) => {
-            const copy = article;
-            copy.createdBy = users.find((user) => user.uuid === article.createdBy.toString());
-            out.push(copy);
-        });
-        return out;
     }
 
     async getArticleByUUID(uuid: string, fields: string[] = []): Promise<Article> {
@@ -45,7 +43,7 @@ export class ArticleService {
 
     async getArticleByForUser(username: string, fields: string[] = []): Promise<Article[]> {
         const articles = await this.httpClient.get<Article[]>(`/api/articles/forUser/${username}?fields=${fields.join(',')}`).toPromise();
-        return this.uuidToObjectInArticle(articles);
+        return this.fetchUserObjects(articles);
     }
 
     async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<object> {
@@ -85,7 +83,7 @@ export class ArticleService {
             title: article.title,
             summary: article.summary,
             categories: article.categories,
-            createdBy: article.createdBy.uuid,
+            createdBy: (typeof article.createdBy === 'string') ? article.createdBy : article.createdBy.uuid,
         };
 
         return this.httpClient.patch<Article>(`/api/articles/${uuid}`, newArticle, httpOptions).toPromise();
@@ -104,6 +102,9 @@ export class ArticleService {
 
     search(query: string, fields: string[]) {
         const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}`;
-        return this.httpClient.get<Article[]>(url).toPromise();
+        return this.httpClient.get<Article[]>(url)
+            .toPromise()
+            .then(articles => this.fetchUserObjects(articles)); // Make sure user data is present
     }
+
 }
