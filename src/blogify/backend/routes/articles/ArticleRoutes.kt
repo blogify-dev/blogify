@@ -27,6 +27,7 @@ import io.ktor.response.respond
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.ktor.client.request.delete
 
 fun Route.articles() {
 
@@ -68,7 +69,19 @@ fun Route.articles() {
         }
 
         delete("/{uuid}") {
-            deleteWithId(ArticleService::get, ArticleService::delete, authPredicate = { user, article -> article.createdBy == user })
+            deleteWithId(
+                fetch = ArticleService::get,
+                delete = ArticleService::delete,
+                authPredicate = { user, article -> article.createdBy == user },
+                doAfter = { id ->
+                    HttpClient().use { client ->
+                        client.delete<String> {
+                            url("http://es:9200/articles/_doc/$id")
+                        }.also { println(it) }
+                    }
+                    // DELETE /<index>/_doc/<_id>
+                }
+            )
         }
 
         patch("/{uuid}") {

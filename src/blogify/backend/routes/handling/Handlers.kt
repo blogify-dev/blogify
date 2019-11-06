@@ -469,7 +469,8 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
 suspend fun <R: Resource> CallPipeline.deleteWithId (
     fetch:         suspend (ApplicationCall, UUID) -> ResourceResult<R>,
     delete:        suspend (UUID)                  -> ResourceResult<*>,
-    authPredicate: suspend (User, R)               -> Boolean = defaultPredicateLambda
+    authPredicate: suspend (User, R)               -> Boolean = defaultPredicateLambda,
+    doAfter: suspend (String) -> Unit = {}
 ) {
     call.parameters["uuid"]?.let { id ->
 
@@ -477,6 +478,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
             delete.invoke(id.toUUID()).fold (
                 success = {
                     call.respond(HttpStatusCode.OK)
+                    doAfter(id)
                 },
                 failure = call::respondExceptionMessage
             )
