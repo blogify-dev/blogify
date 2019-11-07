@@ -20,27 +20,27 @@
 
         </span>
 
-        <span id="navbar-right" *ngIf="user || !this.authService.isLoggedIn()">
+        <span id="navbar-right" *ngIf="user || !(this.authService.observeIsLoggedIn() | async)">
 
-            <span id="profile" *ngIf="authService.isLoggedIn()" (click)="navigateToProfile()">
+            <span id="profile" *ngIf="authService.observeIsLoggedIn() | async" (click)="navigateToProfile()">
                 <!-- <fa-icon size="lg" [icon]="faUser" [transform]="{ y: -2 }"></fa-icon> -->
                 <app-profile-picture [pfpFile]="user.profilePicture" emSize="2"></app-profile-picture>
                 {{user.name}}
             </span>
 
-            <span class="separator" *ngIf="authService.isLoggedIn()"></span>
+            <span class="separator" *ngIf="authService.observeIsLoggedIn() | async"></span>
 
-            <span id="logout" *ngIf="authService.isLoggedIn()" (click)="logout()">
+            <span id="logout" *ngIf="authService.observeIsLoggedIn() | async" (click)="logout()">
                 <fa-icon size="lg" [icon]="faSignOutAlt" [transform]="{ y: -1, x: 2, size: 21 }"></fa-icon>
             </span>
 
-            <span id="login" *ngIf="!authService.isLoggedIn()" (click)="navigateToLogin()">
+            <span id="login" *ngIf="!(authService.observeIsLoggedIn() | async)" (click)="navigateToLogin()">
                 Login
             </span>
 
             <span class="separator"></span>
 
-            <span id="notifications" *ngIf="authService.isLoggedIn()">
+            <span id="notifications" *ngIf="authService.observeIsLoggedIn() | async">
                 <fa-icon size="lg" [icon]="faBell" [transform]="{ y: -1, size: 19 }"></fa-icon>
             </span>
 

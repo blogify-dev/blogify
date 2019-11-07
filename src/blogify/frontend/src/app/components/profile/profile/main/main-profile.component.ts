@@ -33,7 +33,7 @@ export class MainProfileComponent implements OnInit {
         this.route.params.subscribe(async (params: Params) => {
             let username = params['username'];
 
-            if (this.authService.isLoggedIn()) {
+            if (await this.authService.observeIsLoggedIn()) {
                 const loggedInUsername = (await this.authService.userProfile).username;
 
                 if (username === loggedInUsername) {

@@ -44,7 +44,7 @@ export class SingleCommentComponent implements OnInit {
         // We're ready, so we can populate the dummy reply comment
 
         this.replyComment = {
-            commenter: this.authService.isLoggedIn() ? await this.authService.userProfile : '',
+            commenter: await this.authService.observeIsLoggedIn() ? await this.authService.userProfile : '',
             article: this.comment.article,
             content: '',
             uuid: ''
@@ -58,7 +58,7 @@ export class SingleCommentComponent implements OnInit {
         console.log(this.replyComment.commenter instanceof User);
 
         // Make sure the user is authenticated
-        if (this.authService.isLoggedIn() && this.replyComment.commenter instanceof User) {
+        if (this.authService.observeIsLoggedIn() && this.replyComment.commenter instanceof User) {
             await this.commentsService.replyToComment (
                 this.replyComment.content,
                 this.comment.article.uuid,

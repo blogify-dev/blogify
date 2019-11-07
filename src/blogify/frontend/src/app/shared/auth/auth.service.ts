@@ -4,6 +4,7 @@ import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StaticFile } from '../../models/Static';
 import { StaticContentService } from '../../services/static/static-content.service';
+import {Router} from '@angular/router';
 
 @Injectable({
     providedIn: 'root'
@@ -14,11 +15,33 @@ export class AuthService {
 
     private currentUserUuid_ = new BehaviorSubject('');
     private currentUser_ = new BehaviorSubject(this.dummyUser);
+    private loginObservable_ = new BehaviorSubject<boolean>(false);
 
-    constructor(private httpClient: HttpClient, private staticContentService: StaticContentService) {
-        if (localStorage.getItem('userToken') !== null) {
-            this.login(localStorage.getItem('userToken'))
+    constructor (
+        private httpClient: HttpClient,
+        private staticContentService: StaticContentService,
+        private router: Router
+    ) {
+        this.attemptRestoreLogin()
+    }
+
+    private attemptRestoreLogin() {
+        const token = AuthService.attemptFindLocalToken();
+        if (token == null) {
+            console.info('[blogifyAuth] No stored token, asking user for login');
+            this.router.navigateByUrl('/login?redirect=/home')
+        } else {
+            this.login(token).then (
+                (res) => {
+                    console.info('[blogifyAuth] Logged in with stored token')
+                }, (err) => {
+                    console.error('[blogifyAuth] Error while attempting stored token, not logging in.')
+                });
         }
+    }
+
+    private static attemptFindLocalToken(): string | null {
+        return localStorage.getItem('userToken');
     }
 
     async login(creds: LoginCredentials | string): Promise<UserToken> {
@@ -26,12 +49,12 @@ export class AuthService {
         let token: Observable<UserToken>;
         let it: UserToken;
 
-        if (typeof creds !== 'string') {
+        if (typeof creds !== 'string') { // user / password
             token = this.httpClient.post<UserToken>('/api/auth/signin', creds, { responseType: 'json' });
             it = await token.toPromise();
 
             localStorage.setItem('userToken', it.token);
-        } else {
+        } else { // token
             it = { token: creds }
         }
 
@@ -43,16 +66,22 @@ export class AuthService {
 
         this.currentUser_.next(fetchedUser);
         this.currentUserUuid_.next(fetchedUser.uuid);
+        this.loginObservable_.next(true);
 
         return it
+    }
+
+    logout() {
+        localStorage.removeItem("userToken");
+        this.loginObservable_.next(false);
     }
 
     async register(credentials: RegisterCredentials): Promise<User> {
         return this.httpClient.post<User>('/api/auth/signup', credentials).toPromise();
     }
 
-    isLoggedIn(): boolean {
-        return this.userToken !== null;
+    observeIsLoggedIn(): Observable<boolean> {
+        return this.loginObservable_;
     }
 
     private async getUserUUIDFromToken(token: string): Promise<string> {
@@ -84,10 +113,6 @@ export class AuthService {
 
     get userProfile(): Promise<User> {
         return this.getUser()
-    }
-
-    logout() {
-        localStorage.removeItem("userToken")
     }
 
     private async getUser(): Promise<User> {
