@@ -28,14 +28,14 @@ export class AuthService {
     private attemptRestoreLogin() {
         const token = AuthService.attemptFindLocalToken();
         if (token == null) {
-            console.info('[blogifyAuth] No stored token, asking user for login');
-            this.router.navigateByUrl('/login?redirect=/home')
+            console.info('[blogifyAuth] No stored token');
         } else {
             this.login(token).then (
                 (res) => {
                     console.info('[blogifyAuth] Logged in with stored token')
                 }, (err) => {
-                    console.error('[blogifyAuth] Error while attempting stored token, not logging in.')
+                    console.error('[blogifyAuth] Error while attempting stored token, not logging in and clearing token.')
+                    localStorage.removeItem('userToken');
                 });
         }
     }
