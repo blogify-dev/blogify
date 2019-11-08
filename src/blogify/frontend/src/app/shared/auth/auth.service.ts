@@ -34,7 +34,7 @@ export class AuthService {
                 (res) => {
                     console.info('[blogifyAuth] Logged in with stored token')
                 }, (err) => {
-                    console.error('[blogifyAuth] Error while attempting stored token, not logging in and clearing token.')
+                    console.error('[blogifyAuth] Error while attempting stored token, not logging in and clearing token.');
                     localStorage.removeItem('userToken');
                 });
         }
