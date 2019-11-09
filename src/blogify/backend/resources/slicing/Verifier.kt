@@ -1,6 +1,7 @@
 package blogify.backend.resources.slicing
 
 import blogify.backend.resources.slicing.models.Mapped
+import blogify.backend.util.filterThenMapValues
 
 /**
  * Verifies that a [Mapped] object's [String] properties conform to
@@ -8,9 +9,9 @@ import blogify.backend.resources.slicing.models.Mapped
  *
  * @author Benjozork
  */
-fun Mapped.verify(): Map<PropertyHandle.Ok, Boolean> = this.cachedPropMap()
-    .filterValues { it is PropertyHandle.Ok }
-    .mapValues    { it.value as PropertyHandle.Ok }
-    .filterValues { it.property.returnType.classifier == String::class }
-    .map          { it.value to (it.value.regexCheck?.let { regex -> (it.value.property.get(this) as String).matches(regex) } ?: true) }
-    .toMap()
+fun Mapped.verify(): Map<PropertyHandle.Ok, Boolean> = this.cachedPropMap().okHandles()
+    .mapKeys { it.value } // Use property handles as keys
+    .filterThenMapValues (
+        { it.property.returnType.classifier == String::class },
+        { (it.value.regexCheck?.let { regex -> (it.value.property.get(this) as String).matches(regex) } ?: true) }
+    )

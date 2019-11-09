@@ -44,12 +44,15 @@ import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.type
+import blogify.backend.resources.slicing.models.Mapped
+import blogify.backend.resources.slicing.okHandles
 import blogify.backend.resources.slicing.verify
 import blogify.backend.routes.pipelines.CallPipeLineFunction
 import blogify.backend.routes.pipelines.CallPipeline
 import blogify.backend.routes.pipelines.handleAuthentication
 import blogify.backend.routes.pipelines.pipeline
 import blogify.backend.routes.pipelines.pipelineError
+import blogify.backend.util.filterThenMapValues
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.letCatchingOrNull
 import blogify.backend.util.matches
@@ -383,7 +386,6 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
                     Uploadables.select { Uploadables.fileId eq uploadableId }.single()
                 }.map { Uploadables.convert(call, it).get() }.get()
 
-
                 // Delete in DB
                 query {
                     Uploadables.deleteWhere { Uploadables.fileId eq uploadableId }
@@ -497,6 +499,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
 
     } ?: call.respond(HttpStatusCode.BadRequest)
 }
+
 /**
  * Adds a handler to a [CallPipeline] that handles updating a resource with the given uuid.
  *
@@ -540,4 +543,21 @@ suspend inline fun <reified R : Resource> CallPipeline.updateWithId (
         failure = call::respondExceptionMessage
     )
 
+}
+
+/**
+ * Adds a handler to a [CallPipeline] that returns the validation regexps for a certain class.
+ *
+ * @param M the class for which to return validations
+ *
+ * @author Benjozork
+ */
+suspend inline fun <reified M : Mapped> CallPipeline.getValidations() {
+    call.respond (
+        M::class.cachedPropMap().okHandles()
+            .filterThenMapValues (
+                { it.regexCheck != null },
+                { it.value.regexCheck!!.pattern }
+            )
+    )
 }

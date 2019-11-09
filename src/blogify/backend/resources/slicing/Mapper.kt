@@ -3,6 +3,7 @@ package blogify.backend.resources.slicing
 import blogify.backend.annotations.check
 import blogify.backend.annotations.noslice
 import blogify.backend.resources.slicing.models.Mapped
+import blogify.backend.util.filterThenMapValues
 
 import com.andreapivetta.kolor.green
 
@@ -107,6 +108,15 @@ fun <M : Mapped> M.cachedPropMap(): PropMap {
     return cached
 }
 
+/**
+ * Fetches (or computes if the class is not in the cache) a [property map][PropMap] for the reciever [KClass]
+ *
+ * @receiver the [class][KClass] for which the [PropMap] should be obtained
+ *
+ * @return the obtained [PropMap]
+ *
+ * @author Benjozork
+ */
 fun <M : Mapped> KClass<M>.cachedPropMap(): PropMap {
     var cached: PropMap? = propMapCache[this]
     if (cached == null) {
@@ -116,3 +126,10 @@ fun <M : Mapped> KClass<M>.cachedPropMap(): PropMap {
 
     return cached
 }
+
+/**
+ * Returns a PropMap containing only handles that are [ok][PropertyHandle.Ok]
+ *
+ * @author Benjozork
+ */
+fun PropMap.okHandles() = this.filterThenMapValues({ it is PropertyHandle.Ok }, { it.value as PropertyHandle.Ok })
