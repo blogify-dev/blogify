@@ -1,5 +1,5 @@
 <!--suppress HtmlFormInputWithoutLabel -->
-<div id="new-article" *ngIf="user != undefined">
+<div id="new-article" *ngIf="user != undefined" [formGroup]="form">
 
     <div id="header-row">
         <h1>New Article</h1>
@@ -9,26 +9,28 @@
 
     <span class="data-row" id="title-row">
         <span>Title</span>
-        <input [(ngModel)]="article.title">
+        <input formControlName="title">
     </span>
 
     <span class="data-row" id="summary-row">
         <span>Summary</span>
-        <input [(ngModel)]="article.summary">
+        <input formControlName="summary">
     </span>
 
     <span class="data-row" id="content-row">
         <span>Content</span>
-        <textarea rows="5" [(ngModel)]="article.content"></textarea>
+        <textarea rows="5" formControlName="content"></textarea>
     </span>
 
     <span class="data-row" id="submit">
-         <button class="positive rounded hollow" (click)="createNewArticle()">Save draft</button>
-         <button class="positive rounded" (click)="createNewArticle()">Submit</button>
+         <button [disabled]="!form.valid" class="positive rounded hollow" (click)="createNewArticle()">Save draft</button>
+         <button [disabled]="!form.valid" class="positive rounded" (click)="createNewArticle()">Submit</button>
     </span>
 
-    <ng-container *ngFor="let cat of article.categories">
-        <input [(ngModel)]="cat.name">
+    <ng-container formArrayName="categories">
+        <div *ngFor="let control of formCategories.controls; index as i">
+            <input type="text" formControlName="{{i}}">
+        </div>
     </ng-container>
 
     <button (click)="addCategory()">Add Category</button>

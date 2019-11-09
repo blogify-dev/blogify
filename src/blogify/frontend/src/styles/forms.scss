@@ -12,6 +12,10 @@ input, textarea {
 
     border-radius: $std-border-radius;
     border: 1px solid var(--border-color);
+
+    &.ng-invalid.ng-touched {
+        border-color: var(--accent-negative);
+    }
 }
 
 input[type="checkbox"]:not(.togglebox) {
@@ -111,6 +115,12 @@ button {
 
     font-size: 1.25em;
     font-weight: 600;
+
+    // Disabled
+
+    &[disabled] {
+        opacity: .6;
+    }
 
     // Color classes
 
