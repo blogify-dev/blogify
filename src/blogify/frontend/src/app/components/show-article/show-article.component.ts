@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../shared/auth/auth.service';
-import { CommentsService } from '../../services/comments/comments.service';
 import { User } from '../../models/User';
 
 @Component({
@@ -21,7 +20,7 @@ export class ShowArticleComponent implements OnInit {
         private activatedRoute: ActivatedRoute,
         private articleService: ArticleService,
         public authService: AuthService,
-        private commentsService: CommentsService
+        private router: Router
     ) {}
 
     showUpdateButton = false;
@@ -47,6 +46,7 @@ export class ShowArticleComponent implements OnInit {
 
     deleteArticle() {
         this.articleService.deleteArticle(this.article.uuid).then(it => console.log(it));
+        this.router.navigateByUrl("/home").then(() => {})
     }
 
 }
