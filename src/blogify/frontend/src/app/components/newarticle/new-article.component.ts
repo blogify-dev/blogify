@@ -89,8 +89,7 @@ export class NewArticleComponent implements OnInit {
         ).then(async uuid => {
             this.result = { status: 'success', message: 'Article created successfully' };
             await this.router.navigateByUrl(`/article/${uuid}`)
-        }
-        ).catch(() =>
+        }).catch(() =>
             this.result = { status: 'error', message: 'Error while creating article' }
         );
     }

@@ -60,7 +60,7 @@
         <app-create-comment [replying]="true" [article]="article"></app-create-comment>
 
         <!-- Comments list -->
-        <app-article-comments *ngIf="article.numberOfComments > 0" [article]="article"></app-article-comments>
+        <app-article-comments [article]="article"></app-article-comments>
 
     </div>
 
