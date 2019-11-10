@@ -9,14 +9,7 @@ import * as uuid from 'uuid/v4';
 })
 export class ArticleService {
 
-    constructor(private httpClient: HttpClient, private authService: AuthService) {
-    }
-
-    async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {
-        const articlesObs = this.httpClient.get<Article[]>(`/api/articles/?fields=${fields.join(',')}&amount=${amount}`);
-        const articles = await articlesObs.toPromise();
-        return this.fetchUserObjects(articles)
-    }
+    constructor(private httpClient: HttpClient, private authService: AuthService) {}
 
     private async fetchUserObjects(articles: Article[]): Promise<Article[]> {
         const userUUIDs = articles
@@ -32,6 +25,23 @@ export class ArticleService {
         });
     }
 
+    private async fetchCommentCount(articles: Article[]): Promise<Article[]> {
+        return Promise.all(articles.map(async a => {
+            a.numberOfComments = await this.httpClient.get<number>('/api/articles/' + a.uuid + '/commentCount').toPromise();
+            return a
+        }));
+    }
+
+    private async prepareArticleData(articles: Article[]): Promise<Article[]> {
+        return this.fetchUserObjects(articles).then(articles2 => this.fetchCommentCount(articles2))
+    }
+
+    async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {
+        const articlesObs = this.httpClient.get<Article[]>(`/api/articles/?fields=${fields.join(',')}&amount=${amount}`);
+        const articles = await articlesObs.toPromise();
+        return this.prepareArticleData(articles)
+    }
+
     async getArticleByUUID(uuid: string, fields: string[] = []): Promise<Article> {
 
         const actualFieldsString: string = fields.length === 0 ? "" : `?fields=${fields.join(',')}`;
@@ -44,6 +54,10 @@ export class ArticleService {
     async getArticleByForUser(username: string, fields: string[] = []): Promise<Article[]> {
         const articles = await this.httpClient.get<Article[]>(`/api/articles/forUser/${username}?fields=${fields.join(',')}`).toPromise();
         return this.fetchUserObjects(articles);
+    }
+
+    async getCommentCountForArticle(article: Article): Promise<number> {
+        return this.httpClient.get<number>('/api/articles/' + article.uuid + '/commentCount').toPromise()
     }
 
     async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<any> {
@@ -106,7 +120,7 @@ export class ArticleService {
             .toPromise()
             .then(hits => {
                 if (hits != null) {
-                    return this.fetchUserObjects(hits);
+                    return this.prepareArticleData(hits);
                 } else {
                     return Promise.all([]);
                 }

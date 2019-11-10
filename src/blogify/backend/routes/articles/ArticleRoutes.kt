@@ -3,8 +3,10 @@
 package blogify.backend.routes.articles
 
 import blogify.backend.database.Articles
+import blogify.backend.database.Comments
 import blogify.backend.database.Users
 import blogify.backend.resources.Article
+import blogify.backend.resources.Comment
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.search.Search
 import blogify.backend.resources.search.asDocument
@@ -13,6 +15,7 @@ import blogify.backend.resources.slicing.slice
 import blogify.backend.routes.handling.*
 import blogify.backend.services.UserService
 import blogify.backend.services.articles.ArticleService
+import blogify.backend.services.articles.CommentService
 import blogify.backend.services.models.Service
 
 import io.ktor.application.call
@@ -37,6 +40,10 @@ fun Route.articles() {
 
         get("/{uuid}") {
             fetchWithId(ArticleService::get)
+        }
+
+        get("/{uuid}/commentCount") {
+            countReferringToResource(ArticleService::get, CommentService::getReferring, Comments.article)
         }
 
         get("/forUser/{username}") {

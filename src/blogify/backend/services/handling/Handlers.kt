@@ -12,6 +12,7 @@ import io.ktor.application.ApplicationCall
 import com.github.kittinunf.result.coroutines.map
 import com.github.kittinunf.result.coroutines.mapError
 
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -24,6 +25,8 @@ import java.util.UUID
  * @param table the [ResourceTable] to query
  *
  * @return a [ResourceResultSet] that represents the success of the query, with a Database.Exception wrapped in if necessary.
+ *
+ * @author Benjozork
  */
 suspend fun <R : Resource> fetchAllFromTable(callContext: ApplicationCall, table: ResourceTable<R>): ResourceResultSet<R> {
     return query {
@@ -43,6 +46,8 @@ suspend fun <R : Resource> fetchAllFromTable(callContext: ApplicationCall, table
  * @param limit       the number of [resources][Resource] to fetch
  *
  * @return a [ResourceResultSet] that represents the success of the query, with a Database.Exception wrapped in if necessary.
+ *
+ * @author Benjozork
  */
 suspend fun <R : Resource> fetchNumberFromTable(callContext: ApplicationCall, table: ResourceTable<R>, limit: Int): ResourceResultSet<R> {
     return query {
@@ -62,6 +67,8 @@ suspend fun <R : Resource> fetchNumberFromTable(callContext: ApplicationCall, ta
  * @param id          the [UUID] of the resource to fetch
  *
  * @return a [ResourceResultSet] that represents the success of the query, with a Database.Exception wrapped in if necessary.
+ *
+ * @author Benjozork
  */
 suspend fun <R : Resource> fetchWithIdFromTable(callContext: ApplicationCall, table: ResourceTable<R>, id: UUID): ResourceResult<R> {
     return query {
@@ -78,6 +85,8 @@ suspend fun <R : Resource> fetchWithIdFromTable(callContext: ApplicationCall, ta
  * @param id    the [UUID] of the resource to delete
  *
  * @return a [ResourceResult] that represents the success of the deletion, with a Database.Exception wrapped in if necessary.
+ *
+ * @author Benjozork
  */
 suspend fun <R : Resource> deleteWithIdInTable(table: ResourceTable<R>, id: UUID): ResourceResult<UUID> {
     return query {
@@ -85,4 +94,22 @@ suspend fun <R : Resource> deleteWithIdInTable(table: ResourceTable<R>, id: UUID
         return@query id
     }
         .mapError { e -> Service.Exception.Deleting(e) } // Wrap a possible DBEx inside a Service exception
+}
+
+/**
+ * Returns the number of items in [referenceTable] that refer to [referenceValue] in their [referenceField] column.
+ *
+ * @param referenceTable the table to look for references in
+ * @param referenceField the column in which the reference is stored
+ * @param referenceValue the value to count occurrences for
+ *
+ * @return the number of instances of [referenceValue] in [referenceTable]
+ *
+ * @author Benjozork
+ */
+suspend fun <R : Resource, A : Any> countReferringInTable(referenceTable: ResourceTable<R>, referenceField: Column<A>, referenceValue: A): ResourceResult<Int> {
+    return query {
+        referenceTable.select { referenceField eq referenceValue }.count()
+    }
+        .mapError { e -> Service.Exception(e) }
 }

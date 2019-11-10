@@ -19,7 +19,6 @@ export class HomeComponent implements OnInit {
             ['title', 'summary', 'createdBy', 'categories', 'createdAt', 'numberOfComments']
         ).then( articles => {
             this.articles = articles;
-            console.log(articles);
         });
     }
 

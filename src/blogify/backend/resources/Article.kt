@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blogify.backend.annotations.check
+import blogify.backend.annotations.noslice
 import blogify.backend.database.Articles
 import blogify.backend.resources.models.Resource
 import blogify.backend.database.handling.query
@@ -42,8 +43,6 @@ data class Article (
     val summary: String,
 
     val categories: List<Category>,
-
-    val numberOfComments: Int = 0,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid) {

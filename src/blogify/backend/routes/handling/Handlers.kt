@@ -44,6 +44,7 @@ import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.type
+import blogify.backend.database.ResourceTable
 import blogify.backend.resources.slicing.models.Mapped
 import blogify.backend.resources.slicing.okHandles
 import blogify.backend.resources.slicing.verify
@@ -78,8 +79,9 @@ import com.andreapivetta.kolor.magenta
 import com.andreapivetta.kolor.yellow
 import com.github.kittinunf.result.coroutines.failure
 import com.github.kittinunf.result.coroutines.map
-import org.jetbrains.exposed.sql.deleteWhere
 
+import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 
@@ -349,6 +351,22 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
         call.respond(newHandle.toString())
 
     }
+
+}
+
+@Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
+@BlogifyDsl
+suspend fun <R : Resource> CallPipeline.countReferringToResource (
+    fetch:           suspend (ApplicationCall, UUID) -> ResourceResult<R>,
+    countReferences: suspend (Column<UUID>, R)       -> ResourceResult<Int>,
+    referenceField:  Column<UUID>
+) = pipeline("uuid") { (uuid) ->
+
+    // Find target resource
+    val targetResource = fetch(call, UUID.fromString(uuid))
+        .getOrPipelineError(message = "couldn't fetch resource") // Handle result
+
+    call.respond(countReferences(referenceField, targetResource).getOrPipelineError(message = "error while fetching comment count"))
 
 }
 

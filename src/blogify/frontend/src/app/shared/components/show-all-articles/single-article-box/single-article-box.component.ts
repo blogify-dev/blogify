@@ -1,5 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {Article} from "../../../../models/Article";
+import { Component, Input, OnInit } from '@angular/core';
+import { Article } from "../../../../models/Article";
+import { ArticleService } from '../../../../services/article/article.service';
 import { faCommentAlt } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -12,9 +13,8 @@ export class SingleArticleBoxComponent implements OnInit {
     @Input() article: Article;
     faCommentAlt = faCommentAlt;
 
+    constructor() {}
 
-    constructor() { }
-
-    ngOnInit() { }
+    ngOnInit() {}
 
 }
