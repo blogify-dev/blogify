@@ -29,7 +29,7 @@ import java.util.*
     property  = "uuid"
 )
 data class Article (
-    val title: @check("\\w+") String,
+    val title: @check("^[^\\p{C}]+$") String,
 
     val createdAt: Long = Date().time,
 
