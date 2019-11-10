@@ -24,6 +24,8 @@
         </a>
     </div>
 
+    <app-filtering-menu></app-filtering-menu>
+
     <div id="articles-main" *ngIf="!showingSearchResults">
         <app-single-article-box *ngFor="let article of articles" [article]="article"></app-single-article-box>
     </div>

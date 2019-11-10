@@ -11,6 +11,7 @@ import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive
 import { CompactDirective } from './directives/compact/compact.directive';
 import {FormsModule} from "@angular/forms";
 import { SingleArticleBoxComponent } from './components/show-all-articles/single-article-box/single-article-box.component';
+import { FilteringMenuComponent } from './components/show-all-articles/filtering-menu/filtering-menu.component';
 
 @NgModule({
     declarations: [
@@ -22,6 +23,7 @@ import { SingleArticleBoxComponent } from './components/show-all-articles/single
         ShowAllArticlesComponent,
         UserDisplayComponent,
         SingleArticleBoxComponent,
+        FilteringMenuComponent,
     ],
     imports: [
         CommonModule,
