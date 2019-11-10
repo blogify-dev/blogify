@@ -26,6 +26,11 @@ import io.ktor.response.respondRedirect
 import io.ktor.routing.get
 import io.ktor.application.Application
 import io.ktor.application.install
+import io.ktor.client.HttpClient
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.url
+import io.ktor.content.TextContent
 import io.ktor.features.CachingHeaders
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
@@ -136,7 +141,48 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             Users,
             Comments,
             Uploadables
-        )
+        ).also {
+            val json  = """
+                {
+                  "name": "articles",
+                  "fields": [
+                    {
+                      "name": "title",
+                      "type": "string"
+                    },
+                    {
+                      "name": "createdAt",
+                      "type": "float"
+                    },
+                    {
+                      "name": "createdBy",
+                      "type": "string"
+                    },
+                    {
+                      "name": "content",
+                      "type": "string"
+                    },
+                    {
+                      "name": "summary",
+                      "type": "string"
+                    },
+                    {
+                      "name": "categories",
+                      "type": "string[]",
+                      "facet": true
+                    }
+                  ],
+                  "default_sorting_field": "createdAt"
+                }
+            """.trimIndent()
+            HttpClient().use { client ->
+                client.post<String> {
+                    url("http://ts:8108/collections")
+                    body = TextContent(json, contentType = ContentType.Application.Json)
+                    header("X-TYPESENSE-API-KEY", "Hu52dwsas2AdxdE")
+                }.also { println(it) }
+            }
+        }
     }}
 
     // Initialize routes
