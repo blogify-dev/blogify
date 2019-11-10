@@ -45,10 +45,9 @@ export class NewArticleComponent implements OnInit {
     }
 
     private validateOnServer(fieldName: string): ValidatorFn {
-        const this_ = this;
-        return function (control: AbstractControl): ValidationErrors | null {
-            if (this_.validations === undefined) return null; // Validations are not ready; assume valid
-            const validationRegex = this_.validations[fieldName];
+        return (control: AbstractControl): ValidationErrors | null => {
+            if (this.validations === undefined) return null; // Validations are not ready; assume valid
+            const validationRegex = this.validations[fieldName];
             if (validationRegex === undefined) return null; // No validation for the field; assume valid
 
             const matchResult = (<string> control.value).match(validationRegex); // Match validation against value
@@ -76,6 +75,7 @@ export class NewArticleComponent implements OnInit {
         'categories': this.formCategories
     });
 
+    // noinspection JSMethodCanBeStatic
     transformArticleData(input: object): object {
         input['categories'] = input['categories'].map(cat => { return { name: cat }});
         return input
@@ -85,7 +85,7 @@ export class NewArticleComponent implements OnInit {
         this.articleService.createNewArticle (
             (<Article> this.transformArticleData(this.form.value))
         ).then(() =>
-            this.result = { status: 'success', message: 'Article created successfuly' }
+            this.result = { status: 'success', message: 'Article created successfully' }
         ).catch(() =>
             this.result = { status: 'error', message: 'Error while creating article' }
         );
