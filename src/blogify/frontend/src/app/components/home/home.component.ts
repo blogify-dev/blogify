@@ -16,7 +16,7 @@ export class HomeComponent implements OnInit {
 
     ngOnInit() {
         this.articleService.getAllArticles (
-            ['title', 'summary', 'createdBy', 'categories', 'createdAt']
+            ['title', 'summary', 'createdBy', 'categories', 'createdAt', 'numberOfComments']
         ).then( articles => {
             this.articles = articles;
             console.log(articles);

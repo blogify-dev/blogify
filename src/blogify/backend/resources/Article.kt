@@ -16,11 +16,12 @@ import java.util.*
 /**
  * Represents an Article [Resource].
  *
- * @property title     The title of the [Article].
- * @property createdAt The time of creation of the [Article], in `UNIX` timestamp format.
- * @property createdBy The UUID of the [User] author of the article.
- * @property content   The [Content][Article.Content] of the article. Not included in the JSON serialization.
-
+ * @property title      The title of the [Article].
+ * @property createdAt  The time of creation of the [Article], in `UNIX` timestamp format.
+ * @property createdBy  The UUID of the [User] author of the article.
+ * @property content    The content of the article.
+ * @property summary    The summary of the article.
+ * @property categories The [categories][Article.Category] of the article.
  */
 @JsonIdentityInfo (
     scope     = Article::class,
@@ -41,6 +42,8 @@ data class Article (
     val summary: String,
 
     val categories: List<Category>,
+
+    val numberOfComments: Int = 0,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid) {

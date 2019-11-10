@@ -23,7 +23,7 @@
     <div class="article-last-line">
         <!-- Comment count -->
         <!-- TODO: Actually impalement this-->
-        <h4 class="article-comments-count"><fa-icon [icon]="faCommentAlt" size="lg"></fa-icon> 4</h4>
+        <h4 class="article-comments-count"><fa-icon [icon]="faCommentAlt" size="lg"></fa-icon> {{article.numberOfComments}}</h4>
 
         <!-- Categories -->
         <div class="article-tags" *ngIf="article.categories.length > 0">

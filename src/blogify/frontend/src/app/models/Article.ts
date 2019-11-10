@@ -10,6 +10,7 @@ export class Article {
         public createdBy: User | string,
         public createdAt: number,
         public categories: Category[],
+        public numberOfComments: number = 0,
     ) {}
 
 }

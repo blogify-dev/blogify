@@ -24,6 +24,7 @@ export class NewArticleComponent implements OnInit {
         summary: '',
         createdBy: new User('', '', '', '', new StaticFile('-1')),
         createdAt: Date.now(),
+        numberOfComments: 0,
     };
 
     user: User;
@@ -83,9 +84,9 @@ export class NewArticleComponent implements OnInit {
     createNewArticle() {
         this.articleService.createNewArticle (
             (<Article> this.transformArticleData(this.form.value))
-        ).then(_ =>
+        ).then(() =>
             this.result = { status: 'success', message: 'Article created successfuly' }
-        ).catch(_ =>
+        ).catch(() =>
             this.result = { status: 'error', message: 'Error while creating article' }
         );
     }

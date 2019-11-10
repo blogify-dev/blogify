@@ -48,6 +48,9 @@ object Articles : ResourceTable<Article>() {
             createdBy  = UserService.get(callContext, source[createdBy]).get(),
             content    = source[content],
             summary    = source[summary],
+            numberOfComments = transaction {
+                Comments.select { Comments.article eq source[uuid] }.count()
+            },
             categories = transaction {
                 Categories.select { Categories.article eq source[uuid] }.toList()
             }.map { Categories.convert(it) }
