@@ -68,13 +68,10 @@ export class ShowAllArticlesComponent implements OnInit {
     }
 
     async navigateToNewArticle() {
-        if (! await this.authService.observeIsLoggedIn().toPromise()) {
-            const url = `/login?redirect=/article/new`;
-            console.log(url);
-            await this.router.navigateByUrl(url);
-        } else {
-            await this.router.navigateByUrl('/article/new');
-        }
+        this.authService.observeIsLoggedIn().subscribe(it => {
+            if (it) this.router.navigateByUrl('/article/new');
+            else this.router.navigateByUrl('/login?redirect=/article/new')
+        });
     }
 
 }
