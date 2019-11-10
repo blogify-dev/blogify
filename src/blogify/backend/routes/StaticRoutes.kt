@@ -42,10 +42,14 @@ fun Route.static() {
         pipeline("uploadableId") { (uploadableId) ->
 
             val actualId = uploadableId.takeWhile(Char::isDigit) // Allow for trailing extensions
+            if (actualId != "") {
+                val data = StaticFileHandler.readStaticResource(actualId.toLong())
 
-            val data = StaticFileHandler.readStaticResource(actualId.toLong())
+                call.respondBytes(data.bytes, data.contentType)
+            } else {
+                call.respond(HttpStatusCode.NoContent)
+            }
 
-            call.respondBytes(data.bytes, data.contentType)
         }
 
     }
