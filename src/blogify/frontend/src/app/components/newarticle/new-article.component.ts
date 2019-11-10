@@ -6,7 +6,8 @@ import { StaticFile } from "../../models/Static";
 import { AuthService } from '../../shared/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import {Router} from "@angular/router";
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { Router } from "@angular/router";
 
 type Result = 'none' | 'success' | 'error';
 
@@ -16,6 +17,8 @@ type Result = 'none' | 'success' | 'error';
     styleUrls: ['./new-article.component.scss']
 })
 export class NewArticleComponent implements OnInit {
+
+    faPlus = faPlus;
 
     article: Article = {
         uuid: '',

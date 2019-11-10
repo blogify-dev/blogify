@@ -22,20 +22,26 @@
         <textarea rows="5" [formControl]="formContent"></textarea>
     </span>
 
+    <span class="data-row" id="categories-row" formArrayName="categories">
+        <span>Categories</span>
+
+        <a id="category-add" (click)="addCategory()">
+            <fa-icon [icon]="faPlus" size="lg" [transform]="{ y: 9, size: 16 }"></fa-icon>
+        </a>
+
+        <span id="categories-container">
+            <span *ngFor="let control of formCategories.controls; index as i">
+                <input type="text" formControlName="{{i}}">
+            </span>
+        </span>
+    </span>
+
     <span class="data-row" id="submit">
         <span [className]="result.status" id="submit-result-container">{{result.message}}</span>
 
          <button [disabled]="!form.valid" class="positive rounded hollow" (click)="createNewArticle()">Save draft</button>
          <button [disabled]="!form.valid" class="positive rounded" (click)="createNewArticle()">Submit</button>
     </span>
-
-    <ng-container formArrayName="categories">
-        <div *ngFor="let control of formCategories.controls; index as i">
-            <input type="text" formControlName="{{i}}">
-        </div>
-    </ng-container>
-
-    <button (click)="addCategory()">Add Category</button>
 
 </div>
 
