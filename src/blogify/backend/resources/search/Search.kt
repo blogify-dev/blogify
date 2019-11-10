@@ -1,55 +1,56 @@
 package blogify.backend.resources.search
 
-import blogify.backend.resources.models.Resource
+import blogify.backend.resources.Article
+import blogify.backend.services.UserService
+import java.util.*
 
 /**
- * TODO complete doc
- *
  * @author hamza1311
  */
-data class Search<S : Resource> (
-    val _shards:   Shards,
-    val hits:      Hits<S>,
-    val timed_out: Boolean,
-    val took:      Int
+data class Search(
+    val facet_counts: List<Any>,
+    val found: Int,
+    val hits: List<Hit>,
+    val page: Int,
+    val search_time_ms: Int
 ) {
-
-    /**
-     * TODO complete doc
-     */
-    data class Shards (
-        val failed:     Int,
-        val skipped:    Int,
-        val successful: Int,
-        val total:      Int
+    data class Hit(
+        val document: Document,
+        val highlights: List<Highlight>
     )
 
-    /**
-     * TODO complete doc
-     */
-    data class Hits<S : Resource> (
-        val hits:      List<Hit<S>>,
-        val max_score: Double,
-        val total:     Total
-    )
+    data class Document(
+        val categories: List<String>,
+        val content: String,
+        val createdAt: Double,
+        val createdBy: UUID,
+        val summary: String,
+        val title: String,
+        val id: UUID
+    ) {
+        suspend fun article(): Article = Article(
+            title = title,
+            content = content,
+            summary = summary,
+            createdBy = UserService.get(id = createdBy).get(),
+            categories = categories.map { Article.Category(it) },
+            createdAt = createdAt.toLong(),
+            uuid = id
+        )
+    }
 
-    /**
-     * TODO complete doc
-     */
-    data class Hit<S : Resource> (
-        val _id:     String,
-        val _index:  String,
-        val _score:  Double,
-        val _source: S,
-        val _type:   String
+    data class Highlight(
+        val `field`: String,
+        val snippet: String
     )
-
-    /**
-     * TODO complete doc
-     */
-    data class Total (
-        val relation: String,
-        val value:    Int
-    )
-
 }
+
+fun Article.asDocument(): Search.Document = Search.Document(
+    title = this.title,
+    content = this.content,
+    summary = this.summary,
+    createdBy = this.createdBy.uuid,
+    categories = this.categories.map { it.name },
+    createdAt = this.createdAt.toDouble(),
+    id = this.uuid
+)

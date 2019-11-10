@@ -514,7 +514,8 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
 suspend inline fun <reified R : Resource> CallPipeline.updateWithId (
     noinline update: suspend (R) -> ResourceResult<*>,
     fetch: suspend (ApplicationCall, UUID) -> ResourceResult<R>,
-    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
+    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda,
+    noinline doAfter: suspend (R) -> Unit = {}
 ) {
 
     val replacement = call.receive<R>()
@@ -522,12 +523,13 @@ suspend inline fun <reified R : Resource> CallPipeline.updateWithId (
     val doUpdate: CallPipeLineFunction = {
         update(replacement).fold(
             success = {
+                doAfter(it as R)
                 call.respond(HttpStatusCode.OK)
             },
             failure = call::respondExceptionMessage
         )
     }
-    
+
     replacement.uuid.let { fetch.invoke(call, it) }.fold(
         success = {
             if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate

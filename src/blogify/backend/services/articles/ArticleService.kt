@@ -55,6 +55,7 @@ object ArticleService : Service<Article>(Articles) {
                 it[name] = cat.name
             }
         }
+        return@query res // So that we return the resource
     }.mapError { e -> Exception.Updating(e) }
 
 }
