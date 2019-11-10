@@ -18,7 +18,7 @@ export class ArticleService {
         return this.fetchUserObjects(articles)
     }
 
-    private async fetchUserObjects(articles: Article[]) {
+    private async fetchUserObjects(articles: Article[]): Promise<Article[]> {
         const userUUIDs = articles
             .filter (it => typeof it.createdBy === 'string')
             .map    (it => <string> it.createdBy);
@@ -104,7 +104,13 @@ export class ArticleService {
         const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}`;
         return this.httpClient.get<Article[]>(url)
             .toPromise()
-            .then(articles => this.fetchUserObjects(articles)); // Make sure user data is present
+            .then(hits => {
+                if (hits != null) {
+                    return this.fetchUserObjects(hits);
+                } else {
+                    return Promise.all([]);
+                }
+            }); // Make sure user data is present
     }
 
 }

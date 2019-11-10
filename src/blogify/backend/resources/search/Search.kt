@@ -7,10 +7,10 @@ import java.util.*
 /**
  * @author hamza1311
  */
-data class Search(
-    val facet_counts: List<Any>,
-    val found: Int,
-    val hits: List<Hit>,
+data class Search (
+    val facet_counts: List<Any>?, // |\
+    val found: Int?,              // | Will not appear on no results
+    val hits: List<Hit>?,         // |/
     val page: Int,
     val search_time_ms: Int
 ) {

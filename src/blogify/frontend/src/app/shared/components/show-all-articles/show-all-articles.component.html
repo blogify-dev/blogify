@@ -19,7 +19,7 @@
         </a>
 
         <!-- New article -->
-        <a id="header-create-btn" (click)="navigateToNewArticle()" *ngIf="allowCreate">
+        <a id="header-create-btn" (click)="navigateToNewArticle()" *ngIf="allowCreate && !forceNoAllowCreate">
             <fa-icon [icon]="faPencil" size="2x"></fa-icon>
         </a>
     </div>
@@ -31,6 +31,10 @@
     </div>
 
     <div id="search-results" *ngIf="showingSearchResults">
+        <div id="results-empty" *ngIf="searchResults.length === 0">
+            <fa-icon [icon]="faCross" size="5x"></fa-icon>
+            <span id="empty-text">No search results :(</span>
+        </div>
         <app-single-article-box *ngFor="let article of searchResults" [article]="article"></app-single-article-box>
     </div>
 

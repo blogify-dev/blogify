@@ -25,6 +25,7 @@ import io.ktor.response.respond
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.request.*
+import io.ktor.http.HttpStatusCode
 
 fun Route.articles() {
 
@@ -131,19 +132,18 @@ fun Route.articles() {
             params["q"]?.let { query ->
                 HttpClient { install(JsonFeature) }.use { client ->
                     val parsed = client.get<Search>("http://ts:8108/collections/articles/documents/search?q=$query&query_by=content,title")
-                    val hits = parsed.hits.map { it.document.article() }
-                    try {
-                        selectedPropertyNames?.let { props ->
+                    parsed.hits?.let { hits -> // Some hits
+                        val hitResources = hits.map { it.document.article() }
+                        try {
+                            selectedPropertyNames?.let { props ->
 
-                            call.respond(hits.map { it.slice(props) })
+                                call.respond(hitResources.map { it.slice(props) })
 
-                        } ?: call.respond(hits.map { it.sanitize() })
-                    } catch (bruhMoment: Service.Exception) {
-                        call.respondExceptionMessage(bruhMoment)
-                    }
-                    println("hits")
-                    hits.forEach { println(it) }
-                    call.respond(hits)
+                            } ?: call.respond(hitResources.map { it.sanitize() })
+                        } catch (bruhMoment: Service.Exception) {
+                            call.respondExceptionMessage(bruhMoment)
+                        }
+                    } ?: call.respond(HttpStatusCode.NoContent) // No hits
                 }
             }
         }

@@ -46,4 +46,31 @@
         }
     }
 
+    #articles-main {
+
+    }
+
+    #search-results {
+        display:         flex;
+        flex-direction:  column;
+        justify-content: flex-end;
+        align-items:     center;
+
+        > * { width: 100%; }
+
+        #results-empty {
+            display:         flex;
+            flex-direction:  column;
+            justify-content: flex-start;
+            align-items:     center;
+
+            margin-top: 5em;
+
+            #empty-text {
+                font-size: 1.65em;
+                font-weight: 600;
+            }
+        }
+    }
+
 }
