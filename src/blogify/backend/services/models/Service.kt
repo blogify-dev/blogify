@@ -90,9 +90,9 @@ abstract class Service<R : Resource>(val table: ResourceTable<R>) {
     }
 
     /**
-     * Returns the number of items in [inTable] that refer to [withValue] in their [inField] column.
+     * Returns the number of [R] that refer to [withValue] in [table].
      *
-     * @param inField   the column in which the reference is stored
+     * @param inField   the column of [table] in which the reference is stored
      * @param withValue the [Resource] to count occurrences of
      *
      * @return the number of instances of [withValue] in [table]
