@@ -6,7 +6,8 @@ import { StaticFile } from "../../models/Static";
 import { AuthService } from '../../shared/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+
+type Result = 'none' | 'success' | 'error';
 
 @Component({
     selector: 'app-new-article',
@@ -27,6 +28,8 @@ export class NewArticleComponent implements OnInit {
 
     user: User;
     validations: object;
+
+    result: { status: Result, message: string } = { status: 'none', message: null };
 
     constructor (
         private articleService: ArticleService,
@@ -78,11 +81,12 @@ export class NewArticleComponent implements OnInit {
     }
 
     createNewArticle() {
-        alert('a');
         this.articleService.createNewArticle (
             (<Article> this.transformArticleData(this.form.value))
-        ).then(article =>
-            console.warn(article)
+        ).then(_ =>
+            this.result = { status: 'success', message: 'Article created successfuly' }
+        ).catch(_ =>
+            this.result = { status: 'error', message: 'Error while creating article' }
         );
     }
 

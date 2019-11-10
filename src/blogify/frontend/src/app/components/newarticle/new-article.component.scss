@@ -26,7 +26,7 @@
             margin-top: 1em;
         }
 
-        & span:first-child {
+        &:not(:last-of-type) span:first-child {
             width: 40%;
 
             font-size: 1.5em;
@@ -43,9 +43,30 @@
         }
 
         &#submit {
+            width: 60%;
+            margin-left: auto;
+
             flex-direction: row;
             justify-content: flex-end;
+            align-items: center;
             * { font-size: 1.35em; }
+
+            #submit-result-container {
+                margin-right: auto;
+                text-align: center;
+
+                &.none {
+                    display: none;
+                }
+
+                &.success {
+                    color: var(--accent-positive);
+                }
+
+                &.error {
+                    color: var(--accent-negative);
+                }
+            }
 
             button {
                 flex-grow: 0;
