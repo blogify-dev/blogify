@@ -413,8 +413,9 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
  * @param R             the type of [Resource] to be created
  * @param create        the [function][Function] that retrieves that creates the resource using the call
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
+ * @param doAfter       the [function][Function] that is executed after resource creation
  *
- * @author Benjozork
+ * @author Benjozork, hamza1311
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
@@ -437,8 +438,8 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
 
             res.fold (
                 success = {
-                    call.respond(HttpStatusCode.Created)
-                    doAfter(received)
+                    call.respond(HttpStatusCode.Created, it)
+                    doAfter(it)
                 },
                 failure = call::respondExceptionMessage
             )
@@ -464,8 +465,9 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
  * @param fetch         the [function][Function] that retrieves the specified resource. If no [authPredicate] is provided, this is skipped.
  * @param delete        the [function][Function] that deletes the specified resource
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
+ * @param doAfter       the [function][Function] that is executed after resource deletion
  *
- * @author Benjozork
+ * @author Benjozork, hamza1311
  */
 @BlogifyDsl
 suspend fun <R: Resource> CallPipeline.deleteWithId (
@@ -506,6 +508,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
  * @param R             the type of [Resource] to be created
  * @param update        the [function][Function] that retrieves that creates the resource using the call
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
+ * @param doAfter       the [function][Function] that is executed after resource update
  *
  * @author hamza1311
  */

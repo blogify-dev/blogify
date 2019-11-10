@@ -46,7 +46,7 @@ export class ArticleService {
         return this.fetchUserObjects(articles);
     }
 
-    async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<object> {
+    async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<any> {
 
         const httpOptions = {
             headers: new HttpHeaders({
@@ -66,7 +66,7 @@ export class ArticleService {
             createdBy: await this.authService.userUUID,
         };
 
-        return this.httpClient.post(`/api/articles/`, newArticle, httpOptions).toPromise();
+        return this.httpClient.post<any>(`/api/articles/`, newArticle, httpOptions).toPromise();
     }
 
     updateArticle(article: Article, uuid: string = article.uuid, userToken: string = this.authService.userToken) {

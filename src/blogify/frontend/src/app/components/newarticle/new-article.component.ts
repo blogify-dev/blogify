@@ -6,6 +6,7 @@ import { StaticFile } from "../../models/Static";
 import { AuthService } from '../../shared/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import {Router} from "@angular/router";
 
 type Result = 'none' | 'success' | 'error';
 
@@ -35,7 +36,8 @@ export class NewArticleComponent implements OnInit {
     constructor (
         private articleService: ArticleService,
         private authService: AuthService,
-        private http: HttpClient
+        private http: HttpClient,
+        private router: Router,
     ) {}
 
     async ngOnInit() {
@@ -84,8 +86,10 @@ export class NewArticleComponent implements OnInit {
     createNewArticle() {
         this.articleService.createNewArticle (
             (<Article> this.transformArticleData(this.form.value))
-        ).then(() =>
-            this.result = { status: 'success', message: 'Article created successfully' }
+        ).then(async uuid => {
+            this.result = { status: 'success', message: 'Article created successfully' };
+            await this.router.navigateByUrl(`/article/${uuid}`)
+        }
         ).catch(() =>
             this.result = { status: 'error', message: 'Error while creating article' }
         );
