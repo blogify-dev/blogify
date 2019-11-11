@@ -17,6 +17,7 @@ import blogify.backend.routes.auth
 import blogify.backend.database.handling.query
 import blogify.backend.resources.models.Resource
 import blogify.backend.routes.static
+import blogify.backend.search.Typesense
 import blogify.backend.util.SinglePageApplication
 import blogify.backend.util.TYPESENSE_API_KEY
 
@@ -199,18 +200,8 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
               "default_sorting_field": "dsf_jank"
             }""".trimIndent()
 
-            HttpClient().use { client ->
-                client.post<String> {
-                    url("http://ts:8108/collections")
-                    body = TextContent(articleJson, contentType = ContentType.Application.Json)
-                    header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
-                }.also { println(it) }
-                client.post<String> {
-                    url("http://ts:8108/collections")
-                    body = TextContent(userJson, contentType = ContentType.Application.Json)
-                    header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
-                }.also { println(it) }
-            }
+            Typesense.submitResourceTemplate(articleJson)
+            Typesense.submitResourceTemplate(userJson)
 
         }
     }}
