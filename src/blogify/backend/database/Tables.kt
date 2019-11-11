@@ -15,7 +15,6 @@ import blogify.backend.services.models.Service
 import io.ktor.application.ApplicationCall
 import io.ktor.http.ContentType
 
-import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ReferenceOption.*
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
