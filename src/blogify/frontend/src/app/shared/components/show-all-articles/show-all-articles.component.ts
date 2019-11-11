@@ -17,7 +17,7 @@ export class ShowAllArticlesComponent implements OnInit {
     faPencil = faPencilAlt;
     faArrowLeft = faArrowLeft;
 
-    faCross = faTimes;
+    faTimes = faTimes;
 
     @Input() title = 'Articles';
     @Input() articles: Article[];

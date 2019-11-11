@@ -46,7 +46,7 @@
 
     <div id="search-results" *ngIf="showingSearchResults">
         <div id="results-empty" *ngIf="searchResults.length === 0">
-            <fa-icon [icon]="faCross" size="5x"></fa-icon>
+            <fa-icon [icon]="faTimes" size="5x"></fa-icon>
             <span id="empty-text">No search results :(</span>
         </div>
         <app-single-article-box *ngFor="let article of searchResults" [article]="article"></app-single-article-box>
