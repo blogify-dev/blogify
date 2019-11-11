@@ -12,9 +12,9 @@ export class ArticleService {
     constructor(private httpClient: HttpClient, private authService: AuthService) {}
 
     private async fetchUserObjects(articles: Article[]): Promise<Article[]> {
-        const userUUIDs = articles
+        const userUUIDs = new Set([...articles
             .filter (it => typeof it.createdBy === 'string')
-            .map    (it => <string> it.createdBy);
+            .map    (it => <string> it.createdBy)]); // Converting to a Set makes sure a single UUID is not fetched more than once
         const userObjects = await Promise.all (
             [...userUUIDs].map(it => this.authService.fetchUser(it))
         );
