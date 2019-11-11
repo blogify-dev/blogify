@@ -6,7 +6,6 @@ import blogify.backend.database.Articles
 import blogify.backend.database.Comments
 import blogify.backend.database.Users
 import blogify.backend.resources.Article
-import blogify.backend.resources.Comment
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.search.Search
 import blogify.backend.resources.search.asDocument
@@ -138,7 +137,7 @@ fun Route.articles() {
             val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
             params["q"]?.let { query ->
                 HttpClient { install(JsonFeature) }.use { client ->
-                    val parsed = client.get<Search>("http://ts:8108/collections/articles/documents/search?q=$query&query_by=content,title")
+                    val parsed = client.get<Search<Search.ArticleDocument>>("http://ts:8108/collections/articles/documents/search?q=$query&query_by=content,title")
                     parsed.hits?.let { hits -> // Some hits
                         val hitResources = hits.map { it.document.article() }
                         try {
