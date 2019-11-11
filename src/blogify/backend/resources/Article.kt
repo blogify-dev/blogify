@@ -31,7 +31,7 @@ import java.util.*
     property  = "uuid"
 )
 data class Article (
-    val title: @check("^[^\\p{C}]+$") String,
+    val title: @check("^.{0,512}") String,
 
     val createdAt: Long = Date().time,
 
