@@ -27,7 +27,7 @@ export class ArticleService {
 
     private async fetchCommentCount(articles: Article[]): Promise<Article[]> {
         return Promise.all(articles.map(async a => {
-            a.numberOfComments = await this.httpClient.get<number>('/api/articles/' + a.uuid + '/commentCount').toPromise();
+            a.numberOfComments = await this.httpClient.get<number>(`/api/articles/${a.uuid}/commentCount`).toPromise();
             return a
         }));
     }
@@ -54,10 +54,6 @@ export class ArticleService {
     async getArticleByForUser(username: string, fields: string[] = []): Promise<Article[]> {
         const articles = await this.httpClient.get<Article[]>(`/api/articles/forUser/${username}?fields=${fields.join(',')}`).toPromise();
         return this.fetchUserObjects(articles);
-    }
-
-    async getCommentCountForArticle(article: Article): Promise<number> {
-        return this.httpClient.get<number>('/api/articles/' + article.uuid + '/commentCount').toPromise()
     }
 
     async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<any> {
