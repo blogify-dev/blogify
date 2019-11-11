@@ -4,7 +4,6 @@ import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StaticFile } from '../../models/Static';
 import { StaticContentService } from '../../services/static/static-content.service';
-import {Router} from '@angular/router';
 
 @Injectable({
     providedIn: 'root'
@@ -20,7 +19,6 @@ export class AuthService {
     constructor (
         private httpClient: HttpClient,
         private staticContentService: StaticContentService,
-        private router: Router
     ) {
         this.attemptRestoreLogin()
     }
@@ -31,9 +29,9 @@ export class AuthService {
             console.info('[blogifyAuth] No stored token');
         } else {
             this.login(token).then (
-                (res) => {
+                () => {
                     console.info('[blogifyAuth] Logged in with stored token')
-                }, (err) => {
+                }, () => {
                     console.error('[blogifyAuth] Error while attempting stored token, not logging in and clearing token.');
                     localStorage.removeItem('userToken');
                 });
@@ -94,6 +92,7 @@ export class AuthService {
         return this.httpClient.get<User>(`/api/users/${uuid}`).toPromise()
     }
 
+    // noinspection JSMethodCanBeStatic
     get userToken(): string | null {
         return localStorage.getItem('userToken');
     }
@@ -129,6 +128,11 @@ export class AuthService {
 
     addProfilePicture(file: File, userUUID: string, userToken: string = this.userToken) {
         return this.staticContentService.uploadFile(file, userToken, `/api/users/profilePicture/${userUUID}/?target=profilePicture`)
+    }
+
+    search(query: string, fields: string[]) {
+        const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}`;
+        return this.httpClient.get<User[]>(url).toPromise()
     }
 
 }

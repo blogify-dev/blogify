@@ -14,7 +14,7 @@ import java.util.*
 data class Search<H> (
     val facet_counts: List<Any>?, // |\
     val found: Int?,              // | Will not appear on no results
-    val hits: List<Hit<H>>?,         // |/
+    val hits: List<Hit<H>>?,      // |/
     val page: Int,
     val search_time_ms: Int
 ) {
