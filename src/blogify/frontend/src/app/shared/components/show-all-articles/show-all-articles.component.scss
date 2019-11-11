@@ -24,19 +24,21 @@
             margin-right: 1em;
         }
 
-        #header-search-pad {
+        #header-search-pad, #header-mobile-search-pad {
             flex-grow: 1;
-            //@media (min-width: 0) and (max-width: $search-icon-break) {
-            //    display: none;
-            //}
+            &#header-search-pad {
+                @media (min-width: 0) and (max-width: $search-icon-break) {
+                    display: none;
+                }
+            }
         }
 
         #header-search-icon {
             margin-left: auto;
 
-            //@media (min-width: $search-icon-break) {
-            //    display: none;
-            //}
+            @media (min-width: $search-icon-break) {
+                display: none;
+            }
         }
 
         #header-create-btn {

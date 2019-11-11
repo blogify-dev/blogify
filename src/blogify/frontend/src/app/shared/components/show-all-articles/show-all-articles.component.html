@@ -7,14 +7,28 @@
         </a>
 
         <!-- Page title -->
-        <h1 id="header-title">{{showingSearchResults ? 'Search results' :  title}}</h1>
+        <h1 *ngIf="!showingMobileSearchBar" id="header-title">{{showingSearchResults ? 'Search results' :  title}}</h1>
 
-        <!-- Search pad -->
+        <!-- Desktop search pad -->
         <!--suppress HtmlFormInputWithoutLabel -->
-        <input [(ngModel)]="this.searchQuery" *ngIf="showSearchBar" id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help" (keydown.enter)="navigateToSearch()">
+        <input [(ngModel)]="this.searchQuery"
+               *ngIf="!showingMobileSearchBar"
+               id="header-search-pad"
+               type="text" placeholder="Search / Filter ... Type '?' for help"
+               (keydown.enter)="navigateToSearch()">
+
+        <!-- Mobile search pad -->
+        <!--suppress HtmlFormInputWithoutLabel -->
+        <input [(ngModel)]="this.searchQuery"
+               *ngIf="showingMobileSearchBar"
+               id="header-mobile-search-pad"
+               type="text" placeholder="Search / Filter ... Type '?' for help"
+               (keydown.enter)="navigateToSearch()"
+               (keydown.escape)="setShowSearchBar(false)"
+               (focusout)="setShowSearchBar(false)">
 
         <!-- Search icon -->
-        <a id="header-search-icon" *ngIf="!showSearchBar" (click)="setShowSearchBar(true)">
+        <a id="header-search-icon" *ngIf="!showingMobileSearchBar" (click)="setShowSearchBar(true)">
             <fa-icon [icon]="faSearch" size="2x"></fa-icon>
         </a>
 

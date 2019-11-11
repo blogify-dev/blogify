@@ -28,7 +28,7 @@ export class ShowAllArticlesComponent implements OnInit {
     showingSearchResults = false;
     searchQuery: string;
     searchResults: Article[];
-    showSearchBar: boolean;
+    showingMobileSearchBar: boolean;
 
     constructor (
         private authService: AuthService,
@@ -75,7 +75,7 @@ export class ShowAllArticlesComponent implements OnInit {
         this.showingSearchResults = false;
         this.forceNoAllowCreate = false;
         this.searchQuery = undefined;
-        this.showSearchBar = false
+        this.showingMobileSearchBar = false
     }
 
     async navigateToNewArticle() {
@@ -86,7 +86,7 @@ export class ShowAllArticlesComponent implements OnInit {
     }
 
     setShowSearchBar(val: boolean) {
-        this.showSearchBar = val
+        this.showingMobileSearchBar = val
     }
 
 }
