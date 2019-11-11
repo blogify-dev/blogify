@@ -78,7 +78,7 @@ data class RegisterCredentials (
                     client.post<String> {
                         url("http://ts:8108/collections/users/documents")
                         body = TextContent(jsonAsString, contentType = ContentType.Application.Json)
-                        header("X-TYPESENSE-API-KEY", "Hu52dwsas2AdxdE")
+                        header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
                     }.also { println(it) }
                 }
             },

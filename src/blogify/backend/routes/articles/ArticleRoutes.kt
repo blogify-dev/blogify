@@ -16,6 +16,7 @@ import blogify.backend.services.UserService
 import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.articles.CommentService
 import blogify.backend.services.models.Service
+import blogify.backend.util.TYPESENSE_API_KEY
 
 import io.ktor.application.call
 import io.ktor.routing.*
@@ -81,7 +82,7 @@ fun Route.articles() {
                     HttpClient().use { client ->
                         client.delete<String> {
                             url("http://ts:8108/collections/articles/documents/$id")
-                            header("X-TYPESENSE-API-KEY", "Hu52dwsas2AdxdE")
+                            header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
                         }.also { println(it) }
                     }
                 }
@@ -97,7 +98,7 @@ fun Route.articles() {
                     HttpClient().use { client ->
                         client.delete<String> {
                             url("http://ts:8108/collections/articles/documents/${replacement.uuid}")
-                            header("X-TYPESENSE-API-KEY", "Hu52dwsas2AdxdE")
+                            header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
                         }.also { println(it) }
 
                         val objectMapper = jacksonObjectMapper()
@@ -106,7 +107,7 @@ fun Route.articles() {
                         client.post<String> {
                             url("http://ts:8108/collections/articles/documents")
                             body = TextContent(jsonAsString, contentType = ContentType.Application.Json)
-                            header("X-TYPESENSE-API-KEY", "Hu52dwsas2AdxdE")
+                            header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
                         }.also { println(it) }
                     }
                 }
@@ -125,7 +126,7 @@ fun Route.articles() {
                         client.post<String> {
                             url("http://ts:8108/collections/articles/documents")
                             body = TextContent(jsonAsString, contentType = ContentType.Application.Json)
-                            header("X-TYPESENSE-API-KEY", "Hu52dwsas2AdxdE")
+                            header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
                         }.also { println(it) }
                     }
                 }
