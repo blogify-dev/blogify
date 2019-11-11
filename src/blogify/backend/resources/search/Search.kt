@@ -66,3 +66,12 @@ fun Article.asDocument(): Search.ArticleDocument = Search.ArticleDocument(
     createdAt = this.createdAt.toDouble(),
     id = this.uuid
 )
+
+
+fun User.asDocument(): Search.UserDocument = Search.UserDocument(
+    username = this.username,
+    name = this.name,
+    email = this.email,
+    dsf_jank = 0,
+    id = this.uuid
+)
