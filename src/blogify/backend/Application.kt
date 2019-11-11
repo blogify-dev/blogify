@@ -18,6 +18,7 @@ import blogify.backend.database.handling.query
 import blogify.backend.resources.models.Resource
 import blogify.backend.routes.static
 import blogify.backend.util.SinglePageApplication
+import blogify.backend.util.TYPESENSE_API_KEY
 
 import io.ktor.application.call
 import io.ktor.features.Compression
@@ -142,7 +143,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             Comments,
             Uploadables
         ).also {
-            val json  = """
+            val articleJson  = """
                 {
                   "name": "articles",
                   "fields": [
@@ -175,13 +176,42 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
                   "default_sorting_field": "createdAt"
                 }
             """.trimIndent()
+            val userJson = """{
+                "name": "users",
+                "fields": [
+                    {
+                      "name": "username",
+                      "type": "string"
+                    },
+                    {
+                      "name": "name",
+                      "type": "string"
+                    },
+                    {
+                      "name": "email",
+                      "type": "string"
+                    },
+                    {
+                      "name": "dsf_jank",
+                      "type": "int32"
+                    }
+              ],
+              "default_sorting_field": "dsf_jank"
+            }""".trimIndent()
+
             HttpClient().use { client ->
                 client.post<String> {
                     url("http://ts:8108/collections")
-                    body = TextContent(json, contentType = ContentType.Application.Json)
-                    header("X-TYPESENSE-API-KEY", "Hu52dwsas2AdxdE")
+                    body = TextContent(articleJson, contentType = ContentType.Application.Json)
+                    header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
+                }.also { println(it) }
+                client.post<String> {
+                    url("http://ts:8108/collections")
+                    body = TextContent(userJson, contentType = ContentType.Application.Json)
+                    header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
                 }.also { println(it) }
             }
+
         }
     }}
 
