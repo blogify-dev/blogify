@@ -25,10 +25,10 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.content.TextContent
 import io.ktor.http.ContentType
 import io.ktor.response.respond
-
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.request.*
 import io.ktor.http.HttpStatusCode
+
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 fun Route.articles() {
 

@@ -12,17 +12,16 @@ import blogify.backend.services.UserService
 import blogify.backend.services.articles.CommentService
 import blogify.backend.services.models.Service
 
-import com.github.kittinunf.result.coroutines.SuspendableResult
-
 import io.ktor.application.ApplicationCall
 import io.ktor.http.ContentType
-import org.jetbrains.exposed.sql.Column
 
 import org.jetbrains.exposed.sql.ReferenceOption.*
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+
+import com.github.kittinunf.result.coroutines.SuspendableResult
 
 abstract class ResourceTable<R : Resource> : Table() {
 
@@ -34,7 +33,7 @@ abstract class ResourceTable<R : Resource> : Table() {
 
 object Articles : ResourceTable<Article>() {
 
-    val title: Column<String> = varchar ("title", 512)
+    val title      = varchar ("title", 512)
     val createdAt  = long    ("created_at")
     val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = SET_NULL)
     val content    = text    ("content")
