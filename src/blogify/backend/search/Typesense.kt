@@ -37,7 +37,7 @@ object Typesense {
      * @param template the document template, in JSON format.
      *                 See the [typesense docs](https://typesense.org/docs/0.11.0/api/#create-collection) for more info.
      *
-     * @author Benjozork
+     * @author hamza1311, Benjozork
      */
     suspend fun submitResourceTemplate(template: String) {
         typesenseClient.use { client ->
