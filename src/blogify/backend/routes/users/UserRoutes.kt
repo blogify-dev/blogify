@@ -9,11 +9,15 @@ import blogify.backend.resources.slicing.slice
 import blogify.backend.routes.handling.*
 import blogify.backend.services.UserService
 import blogify.backend.services.models.Service
+import blogify.backend.util.TYPESENSE_API_KEY
 
 import io.ktor.application.call
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.request.url
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
@@ -34,7 +38,19 @@ fun Route.users() {
         }
 
         delete("/{uuid}") {
-            deleteWithId(UserService::get, UserService::delete)
+            deleteWithId(
+                UserService::get,
+                UserService::delete,
+                authPredicate = { user, manipulated -> user eqr manipulated },
+                doAfter = {id ->
+                    HttpClient().use { client ->
+                        client.delete<String> {
+                            url("http://ts:8108/collections/users/documents/$id")
+                            header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
+                        }.also { println(it) }
+                    }
+                }
+            )
         }
 
         patch("/{uuid}") {
