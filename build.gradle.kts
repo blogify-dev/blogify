@@ -17,7 +17,7 @@ plugins {
 }
 
 group   = "blogify"
-version = "PRX2"
+version = "0.1.0"
 
 application {
     mainClassName = "io.ktor.server.netty.EngineMain"
