@@ -14,7 +14,4 @@ fun <T, R> T.letCatchingOrNull(block: (T) -> R): R? {
 
 infix fun ContentType.matches(other: ContentType) = this.match(other)
 
-fun Byte.hex(): String {
-    val raw = this.toInt().toString(16).toUpperCase()
-    return if (raw.length == 1) "0$raw" else raw
-}
+const val TYPESENSE_API_KEY = "Hu52dwsas2AdxdE"

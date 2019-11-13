@@ -4,6 +4,7 @@ import blogify.backend.database.ResourceTable
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
 import blogify.backend.services.caching.cachedOrElse
+import blogify.backend.services.handling.countReferringInTable
 import blogify.backend.services.handling.deleteWithIdInTable
 import blogify.backend.services.handling.fetchNumberFromTable
 import blogify.backend.services.handling.fetchWithIdFromTable
@@ -16,6 +17,7 @@ import com.github.kittinunf.result.coroutines.mapError
 
 import kotlinx.coroutines.runBlocking
 
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.select
@@ -86,6 +88,19 @@ abstract class Service<R : Resource>(val table: ResourceTable<R>) {
             }
         }.mapError { Exception.Fetching(it) }
     }
+
+    /**
+     * Returns the number of [R] that refer to [withValue] in [table].
+     *
+     * @param inField   the column of [table] in which the reference is stored
+     * @param withValue the [Resource] to count occurrences of
+     *
+     * @return the number of instances of [withValue] in [table]
+     *
+     * @author Benjozork
+     */
+    suspend fun <T : Resource> getReferring(inField: Column<UUID>, withValue: T)
+            = countReferringInTable(table, inField, withValue.uuid)
 
     abstract suspend fun add(res: R): ResourceResult<R>
 

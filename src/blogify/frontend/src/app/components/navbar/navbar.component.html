@@ -11,68 +11,34 @@
                 </a>
             </span>
 
-            <!--<span class="navbar-elem navbar-link" id="home">
-                <a routerLink="home" id="home-img-container">
-                    <img src="assets/images/logo.svg"
-                         alt="Blogify" />
-                </a>
-            </span>-->
-
         </span>
 
-        <span id="navbar-right" *ngIf="user || !this.authService.isLoggedIn()">
+        <span id="navbar-right" *ngIf="!(authService.observeIsLoggedIn() | async) || user">
 
-            <span id="profile" *ngIf="authService.isLoggedIn()" (click)="navigateToProfile()">
-                <!-- <fa-icon size="lg" [icon]="faUser" [transform]="{ y: -2 }"></fa-icon> -->
+            <span id="profile" *ngIf="authService.observeIsLoggedIn() | async" (click)="navigateToProfile()">
                 <app-profile-picture [pfpFile]="user.profilePicture" emSize="2"></app-profile-picture>
                 {{user.name}}
             </span>
 
-            <span class="separator" *ngIf="authService.isLoggedIn()"></span>
+            <span class="separator" *ngIf="authService.observeIsLoggedIn() | async"></span>
 
-            <span id="logout" *ngIf="authService.isLoggedIn()" (click)="logout()">
+            <span id="logout" *ngIf="authService.observeIsLoggedIn() | async" (click)="logout()">
                 <fa-icon size="lg" [icon]="faSignOutAlt" [transform]="{ y: -1, x: 2, size: 21 }"></fa-icon>
             </span>
 
-            <span id="login" *ngIf="!authService.isLoggedIn()" (click)="navigateToLogin()">
+            <span id="login" *ngIf="!(authService.observeIsLoggedIn() | async)" (click)="navigateToLogin()">
                 Login
             </span>
 
             <span class="separator"></span>
 
-            <span id="notifications" *ngIf="authService.isLoggedIn()">
+            <!--<span id="notifications" *ngIf="authService.observeIsLoggedIn() | async">
                 <fa-icon size="lg" [icon]="faBell" [transform]="{ y: -1, size: 19 }"></fa-icon>
-            </span>
+            </span>-->
 
             <span id="theme-switch" (click)="toggleDarkMode()">
                 <fa-icon size="lg" [icon]="faMoon" [transform]="{ y: -2, size: 17 }"></fa-icon>
             </span>
-
-            <!--<span class="navbar-elem" id="profile-display" *ngIf="authService.isLoggedIn()">
-                <span id="profile-text" (click)="navigateToProfile()" >Profile</span>
-                <span id="profile-username" (click)="navigateToProfile()">{{user.username}}</span>
-            </span>
-
-            <span class="navbar-elem navbar-link" id="navbar-login">
-
-                <a (click)="navigateToLogin()" *ngIf="!authService.isLoggedIn()">
-                    Login
-                </a>
-
-            </span>
-
-            <span *ngIf="authService.isLoggedIn()" (click)="logout()">
-                Logout
-            </span>
-
-            <span id="navbar-dark-mode-toggle-container">
-
-                <span class="togglebox navbar-elem" id="navbar-dark-mode-toggle">
-                    <input id="toggle-dark-mode" type="checkbox" (change)="toggleDarkMode()" #darkModeToggle >
-                    <label for="toggle-dark-mode"><span class="toggle-circle"></span></label>
-                </span>
-
-            </span>-->
 
         </span>
 

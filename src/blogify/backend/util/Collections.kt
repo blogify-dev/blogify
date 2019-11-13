@@ -1,24 +1,5 @@
 package blogify.backend.util
 
-fun <T> Iterable<T>.singleOrNullOrError(): T? {
-    when (this) {
-        is List -> return when {
-            size == 1 -> this[0]
-            size > 1  -> error("Collection has multiple elements")
-            else      -> null
-        }
-        else -> {
-            val iterator = iterator()
-            if (!iterator.hasNext())
-                return null
-            val single = iterator.next()
-            if (iterator.hasNext())
-                error("Collection has multiple elements")
-            return single
-        }
-    }
-}
-
 /**
  * Allows to specify a function to execute depending on whether a collection has exactly one item, multiple items or no items.
  */
@@ -37,4 +18,21 @@ suspend fun <Ct, Rt> Iterable<Ct>.foldForOne (
     } else {
         one(e)
     }
+}
+
+fun <T : Any, R : Any> Collection<T>.filterMap(predicate: (T) -> Boolean, mapper: (T) -> R): Collection<R> {
+    return this.filter(predicate).map(mapper)
+}
+
+fun <K : Any, V : Any, R : Any> Map<K, V>.filterThenMapKeys (
+    predicate: (K) -> Boolean,
+    mapper:    (Map.Entry<K, V>) -> R
+): Map<R, V> {
+    return this.filterKeys(predicate).mapKeys(mapper)
+}
+fun <K : Any, V : Any, R : Any> Map<K, V>.filterThenMapValues (
+    predicate: (V) -> Boolean,
+    mapper:    (Map.Entry<K, V>) -> R
+): Map<K, R> {
+    return this.filterValues(predicate).mapValues(mapper)
 }

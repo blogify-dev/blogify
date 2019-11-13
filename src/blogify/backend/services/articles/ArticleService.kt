@@ -11,8 +11,6 @@ import com.github.kittinunf.result.coroutines.mapError
 
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
 object ArticleService : Service<Article>(Articles) {
@@ -51,10 +49,12 @@ object ArticleService : Service<Article>(Articles) {
         Articles.Categories.deleteWhere { Articles.Categories.article eq res.uuid }
 
         cats.forEach { cat ->
-            Articles.Categories.update {
+            Articles.Categories.insert {
                 it[name] = cat.name
+                it[article] = res.uuid
             }
         }
+        return@query res // So that we return the resource
     }.mapError { e -> Exception.Updating(e) }
 
 }

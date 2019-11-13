@@ -44,12 +44,16 @@ import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.type
+import blogify.backend.database.ResourceTable
+import blogify.backend.resources.slicing.models.Mapped
+import blogify.backend.resources.slicing.okHandles
 import blogify.backend.resources.slicing.verify
 import blogify.backend.routes.pipelines.CallPipeLineFunction
 import blogify.backend.routes.pipelines.CallPipeline
 import blogify.backend.routes.pipelines.handleAuthentication
 import blogify.backend.routes.pipelines.pipeline
 import blogify.backend.routes.pipelines.pipelineError
+import blogify.backend.util.filterThenMapValues
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.letCatchingOrNull
 import blogify.backend.util.matches
@@ -75,8 +79,9 @@ import com.andreapivetta.kolor.magenta
 import com.andreapivetta.kolor.yellow
 import com.github.kittinunf.result.coroutines.failure
 import com.github.kittinunf.result.coroutines.map
-import org.jetbrains.exposed.sql.deleteWhere
 
+import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 
@@ -349,6 +354,22 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
 
 }
 
+@Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
+@BlogifyDsl
+suspend fun <R : Resource> CallPipeline.countReferringToResource (
+    fetch:           suspend (ApplicationCall, UUID) -> ResourceResult<R>,
+    countReferences: suspend (Column<UUID>, R)       -> ResourceResult<Int>,
+    referenceField:  Column<UUID>
+) = pipeline("uuid") { (uuid) ->
+
+    // Find target resource
+    val targetResource = fetch(call, UUID.fromString(uuid))
+        .getOrPipelineError(message = "couldn't fetch resource") // Handle result
+
+    call.respond(countReferences(referenceField, targetResource).getOrPipelineError(message = "error while fetching comment count"))
+
+}
+
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
     crossinline fetch:         suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
@@ -383,7 +404,6 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
                     Uploadables.select { Uploadables.fileId eq uploadableId }.single()
                 }.map { Uploadables.convert(call, it).get() }.get()
 
-
                 // Delete in DB
                 query {
                     Uploadables.deleteWhere { Uploadables.fileId eq uploadableId }
@@ -411,14 +431,16 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
  * @param R             the type of [Resource] to be created
  * @param create        the [function][Function] that retrieves that creates the resource using the call
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
+ * @param doAfter       the [function][Function] that is executed after resource creation
  *
- * @author Benjozork
+ * @author Benjozork, hamza1311
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
     noinline create:        suspend (R)       -> ResourceResult<R>,
-    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
+    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda,
+    noinline doAfter: suspend (R) -> Unit = {}
 ) = pipeline {
     try {
 
@@ -434,7 +456,8 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
 
             res.fold (
                 success = {
-                    call.respond(HttpStatusCode.Created)
+                    call.respond(HttpStatusCode.Created, it)
+                    doAfter(it)
                 },
                 failure = call::respondExceptionMessage
             )
@@ -450,7 +473,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
     } catch (e: ContentTransformationException) {
         call.respond(HttpStatusCode.BadRequest)
     }
-} // KT-33440 | Doesn't compile when lambda called with invoke() for now */
+} // KT-33440 | Doesn't compile when lambda called with invoke() for now
 
 /**
  * Adds a handler to a [CallPipeline] that handles deleting a new resource.
@@ -460,14 +483,16 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
  * @param fetch         the [function][Function] that retrieves the specified resource. If no [authPredicate] is provided, this is skipped.
  * @param delete        the [function][Function] that deletes the specified resource
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
+ * @param doAfter       the [function][Function] that is executed after resource deletion
  *
- * @author Benjozork
+ * @author Benjozork, hamza1311
  */
 @BlogifyDsl
 suspend fun <R: Resource> CallPipeline.deleteWithId (
     fetch:         suspend (ApplicationCall, UUID) -> ResourceResult<R>,
     delete:        suspend (UUID)                  -> ResourceResult<*>,
-    authPredicate: suspend (User, R)               -> Boolean = defaultPredicateLambda
+    authPredicate: suspend (User, R)               -> Boolean = defaultPredicateLambda,
+    doAfter: suspend (String) -> Unit = {}
 ) {
     call.parameters["uuid"]?.let { id ->
 
@@ -475,6 +500,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
             delete.invoke(id.toUUID()).fold (
                 success = {
                     call.respond(HttpStatusCode.OK)
+                    doAfter(id)
                 },
                 failure = call::respondExceptionMessage
             )
@@ -493,12 +519,14 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
 
     } ?: call.respond(HttpStatusCode.BadRequest)
 }
+
 /**
  * Adds a handler to a [CallPipeline] that handles updating a resource with the given uuid.
  *
  * @param R             the type of [Resource] to be created
  * @param update        the [function][Function] that retrieves that creates the resource using the call
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
+ * @param doAfter       the [function][Function] that is executed after resource update
  *
  * @author hamza1311
  */
@@ -507,7 +535,8 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
 suspend inline fun <reified R : Resource> CallPipeline.updateWithId (
     noinline update: suspend (R) -> ResourceResult<*>,
     fetch: suspend (ApplicationCall, UUID) -> ResourceResult<R>,
-    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
+    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda,
+    noinline doAfter: suspend (R) -> Unit = {}
 ) {
 
     val replacement = call.receive<R>()
@@ -515,12 +544,13 @@ suspend inline fun <reified R : Resource> CallPipeline.updateWithId (
     val doUpdate: CallPipeLineFunction = {
         update(replacement).fold(
             success = {
+                doAfter(it as R)
                 call.respond(HttpStatusCode.OK)
             },
             failure = call::respondExceptionMessage
         )
     }
-    
+
     replacement.uuid.let { fetch.invoke(call, it) }.fold(
         success = {
             if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
@@ -536,4 +566,21 @@ suspend inline fun <reified R : Resource> CallPipeline.updateWithId (
         failure = call::respondExceptionMessage
     )
 
+}
+
+/**
+ * Adds a handler to a [CallPipeline] that returns the validation regexps for a certain class.
+ *
+ * @param M the class for which to return validations
+ *
+ * @author Benjozork
+ */
+suspend inline fun <reified M : Mapped> CallPipeline.getValidations() {
+    call.respond (
+        M::class.cachedPropMap().okHandles()
+            .filterThenMapValues (
+                { it.regexCheck != null },
+                { it.value.regexCheck!!.pattern }
+            )
+    )
 }

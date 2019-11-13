@@ -1,63 +1,55 @@
 <section class="articles">
 
     <div id="articles-header">
-        <!-- Page title -->
-        <h1 id="header-title">{{title}}</h1>
+        <!-- Back arrow, if necessary -->
+        <a id="header-search-back" (click)="stopSearch()" *ngIf="showingSearchResults">
+            <fa-icon [icon]="faArrowLeft" size="2x"></fa-icon>
+        </a>
 
-        <!-- Search pad -->
+        <!-- Page title -->
+        <h1 *ngIf="!showingMobileSearchBar" id="header-title">{{showingSearchResults ? 'Search results' :  title}}</h1>
+
+        <!-- Desktop search pad -->
         <!--suppress HtmlFormInputWithoutLabel -->
-        <input id="header-search-pad" type="text" placeholder="Search / Filter ... Type '?' for help">
+        <input [(ngModel)]="this.searchQuery"
+               *ngIf="!showingMobileSearchBar"
+               id="header-search-pad"
+               type="text" placeholder="Search / Filter ... Type '?' for help"
+               (keydown.enter)="navigateToSearch()">
+
+        <!-- Mobile search pad -->
+        <!--suppress HtmlFormInputWithoutLabel -->
+        <input [(ngModel)]="this.searchQuery"
+               *ngIf="showingMobileSearchBar"
+               id="header-mobile-search-pad"
+               type="text" placeholder="Search / Filter ... Type '?' for help"
+               (keydown.enter)="navigateToSearch()"
+               (keydown.escape)="setShowSearchBar(false)"
+               (focusout)="setShowSearchBar(false)">
 
         <!-- Search icon -->
-        <a id="header-search-icon">
+        <a id="header-search-icon" *ngIf="!showingMobileSearchBar" (click)="setShowSearchBar(true)">
             <fa-icon [icon]="faSearch" size="2x"></fa-icon>
         </a>
 
         <!-- New article -->
-        <a id="header-create-btn" (click)="navigateToNewArticle()" *ngIf="allowCreate">
+        <a id="header-create-btn" (click)="navigateToNewArticle()" *ngIf="allowCreate && !forceNoAllowCreate">
             <fa-icon [icon]="faPencil" size="2x"></fa-icon>
         </a>
     </div>
 
-        <div class="article" *ngFor="let article of articles">
+    <!--<app-filtering-menu></app-filtering-menu>-->
 
-            <div class="article-first-line">
-                <!-- Title -->
-                <h1 class="header-title">{{article.title}}</h1>
+    <div id="articles-main" *ngIf="!showingSearchResults">
+        <app-single-article-box *ngFor="let article of articles" [article]="article"></app-single-article-box>
+    </div>
 
-                <!-- Author -->
-                <app-user-display [user]="article.createdBy" emSize="2.25"></app-user-display>
-            </div>
-
-            <div class="article-second-line">
-                <!-- Summary -->
-                <span class="article-summary">{{article.summary}}</span>
-
-                <!-- Timestamp -->
-                <span class="article-posted-at">{{article.createdAt | relativeTime}}</span>
-            </div>
-
-            <h3 class="article-read-more">
-                <a class="article-read-more" routerLink="/article/{{article.uuid}}">Read More</a>
-            </h3>
-
-            <div class="article-last-line">
-                <!-- Comment count -->
-                <!-- TODO: Actually impalement this-->
-                <h4 class="article-comments-count"><fa-icon [icon]="faCommentAlt" size="lg"></fa-icon> 4</h4>
-
-                <!-- Categories -->
-                <div class="article-tags" *ngIf="article.categories.length > 0">
-                    <span class="tags-title">Tags:&nbsp;</span>
-                    <span *ngFor="let tag of article.categories">{{tag.name}}</span>
-                </div>
-
-                <!-- No categories -->
-                <span class="article-no-tags" *ngIf="article.categories.length == 0">
-                    <em>No tags</em>
-                </span>
-            </div>
-
+    <div id="search-results" *ngIf="showingSearchResults">
+        <div id="results-empty" *ngIf="searchResults.length === 0">
+            <fa-icon [icon]="faTimes" size="5x"></fa-icon>
+            <span id="empty-text">No search results :(</span>
         </div>
+        <app-single-article-box *ngFor="let article of searchResults" [article]="article"></app-single-article-box>
+    </div>
 
 </section>

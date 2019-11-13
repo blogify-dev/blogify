@@ -14,11 +14,32 @@ export class AuthService {
 
     private currentUserUuid_ = new BehaviorSubject('');
     private currentUser_ = new BehaviorSubject(this.dummyUser);
+    private loginObservable_ = new BehaviorSubject<boolean>(false);
 
-    constructor(private httpClient: HttpClient, private staticContentService: StaticContentService) {
-        if (localStorage.getItem('userToken') !== null) {
-            this.login(localStorage.getItem('userToken'))
+    constructor (
+        private httpClient: HttpClient,
+        private staticContentService: StaticContentService,
+    ) {
+        this.attemptRestoreLogin()
+    }
+
+    private attemptRestoreLogin() {
+        const token = AuthService.attemptFindLocalToken();
+        if (token == null) {
+            console.info('[blogifyAuth] No stored token');
+        } else {
+            this.login(token).then (
+                () => {
+                    console.info('[blogifyAuth] Logged in with stored token')
+                }, () => {
+                    console.error('[blogifyAuth] Error while attempting stored token, not logging in and clearing token.');
+                    localStorage.removeItem('userToken');
+                });
         }
+    }
+
+    private static attemptFindLocalToken(): string | null {
+        return localStorage.getItem('userToken');
     }
 
     async login(creds: LoginCredentials | string): Promise<UserToken> {
@@ -26,12 +47,12 @@ export class AuthService {
         let token: Observable<UserToken>;
         let it: UserToken;
 
-        if (typeof creds !== 'string') {
+        if (typeof creds !== 'string') { // user / password
             token = this.httpClient.post<UserToken>('/api/auth/signin', creds, { responseType: 'json' });
             it = await token.toPromise();
 
             localStorage.setItem('userToken', it.token);
-        } else {
+        } else { // token
             it = { token: creds }
         }
 
@@ -43,16 +64,22 @@ export class AuthService {
 
         this.currentUser_.next(fetchedUser);
         this.currentUserUuid_.next(fetchedUser.uuid);
+        this.loginObservable_.next(true);
 
         return it
+    }
+
+    logout() {
+        localStorage.removeItem("userToken");
+        this.loginObservable_.next(false);
     }
 
     async register(credentials: RegisterCredentials): Promise<User> {
         return this.httpClient.post<User>('/api/auth/signup', credentials).toPromise();
     }
 
-    isLoggedIn(): boolean {
-        return this.userToken !== null;
+    observeIsLoggedIn(): Observable<boolean> {
+        return this.loginObservable_;
     }
 
     private async getUserUUIDFromToken(token: string): Promise<string> {
@@ -65,6 +92,7 @@ export class AuthService {
         return this.httpClient.get<User>(`/api/users/${uuid}`).toPromise()
     }
 
+    // noinspection JSMethodCanBeStatic
     get userToken(): string | null {
         return localStorage.getItem('userToken');
     }
@@ -86,10 +114,6 @@ export class AuthService {
         return this.getUser()
     }
 
-    logout() {
-        localStorage.removeItem("userToken")
-    }
-
     private async getUser(): Promise<User> {
         if (this.currentUser_.getValue().uuid != '') {
             return this.currentUser_.getValue()
@@ -104,6 +128,11 @@ export class AuthService {
 
     addProfilePicture(file: File, userUUID: string, userToken: string = this.userToken) {
         return this.staticContentService.uploadFile(file, userToken, `/api/users/profilePicture/${userUUID}/?target=profilePicture`)
+    }
+
+    search(query: string, fields: string[]) {
+        const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}`;
+        return this.httpClient.get<User[]>(url).toPromise()
     }
 
 }

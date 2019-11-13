@@ -7,6 +7,9 @@ import com.zaxxer.hikari.HikariDataSource
 
 import org.jetbrains.exposed.sql.Database
 
+/**
+ * Meta object regrouping setup and utility functions for PostgreSQL.
+ */
 object Database {
 
     lateinit var instance: Database

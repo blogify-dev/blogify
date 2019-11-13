@@ -6,13 +6,20 @@ import blogify.backend.auth.jwt.generateJWT
 import blogify.backend.auth.jwt.validateJwt
 import blogify.backend.database.Users
 import blogify.backend.resources.User
+import blogify.backend.resources.search.asDocument
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.routes.handling.respondExceptionMessage
 import blogify.backend.services.UserService
 import blogify.backend.services.models.Service
 import blogify.backend.util.*
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 import io.ktor.application.call
+import io.ktor.client.HttpClient
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.url
+import io.ktor.content.TextContent
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
@@ -63,7 +70,18 @@ data class RegisterCredentials (
         )
 
         UserService.add(created).fold(
-            success = {},
+            success = { user ->
+                HttpClient().use { client ->
+                    val objectMapper = jacksonObjectMapper()
+                    val jsonAsString = objectMapper.writeValueAsString(user.asDocument())
+                    println(jsonAsString)
+                    client.post<String> {
+                        url("http://ts:8108/collections/users/documents")
+                        body = TextContent(jsonAsString, contentType = ContentType.Application.Json)
+                        header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
+                    }.also { println(it) }
+                }
+            },
             failure = {
                 error("$created: signup couldn't create user\nError:$it")
             }
@@ -111,7 +129,7 @@ fun Route.auth() {
             call.parameters["token"]?.let { token ->
 
                 validateJwt(call, token).fold(
-                    success = { call.respond( object { val uuid = it.uuid }) },
+                    success = { call.respond( object { @Suppress("unused") val uuid = it.uuid }) },
                     failure = { call.respondExceptionMessage(Service.Exception(BException(it))) }
                 )
 

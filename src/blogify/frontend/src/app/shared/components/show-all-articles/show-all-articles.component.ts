@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Article } from '../../../models/Article';
 import { AuthService } from '../../auth/auth.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { StaticContentService } from '../../../services/static/static-content.service';
-import { faCommentAlt, faPencilAlt, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faPencilAlt, faSearch, faTimes} from '@fortawesome/free-solid-svg-icons';
+import { ArticleService } from '../../../services/article/article.service';
 
 @Component({
     selector: 'app-show-all-articles',
@@ -14,28 +15,78 @@ export class ShowAllArticlesComponent implements OnInit {
 
     faSearch = faSearch;
     faPencil = faPencilAlt;
-    faCommentAlt = faCommentAlt;
+    faArrowLeft = faArrowLeft;
+
+    faTimes = faTimes;
 
     @Input() title = 'Articles';
     @Input() articles: Article[];
     @Input() allowCreate = true;
 
+    forceNoAllowCreate = false;
+
+    showingSearchResults = false;
+    searchQuery: string;
+    searchResults: Article[];
+    showingMobileSearchBar: boolean;
+
     constructor (
         private authService: AuthService,
+        private articleService: ArticleService,
         private staticContentService: StaticContentService,
+        private activatedRoute: ActivatedRoute,
         private router: Router
     ) {}
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.activatedRoute.url.subscribe((it: UrlSegment[]) => {
+            const isSearching = it[it.length - 1].parameters['search'] != undefined;
+            if (isSearching) { // We are in a search page
+                const query = it[it.length - 1].parameters['search'];
+                const actualQuery = query.match(/"\w+"/) != null ? query.substring(1, query.length - 1): null;
+                if (actualQuery != null) {
+                    this.searchQuery = actualQuery;
+                    this.startSearch();
+                }
+            } else { // We are in a regular listing
+                this.stopSearch();
+            }
+        })
+    }
+
+    async navigateToSearch() {
+        await this.router.navigate([{ search: `"${this.searchQuery}"` }], { relativeTo: this.activatedRoute })
+    }
+
+    private async startSearch() {
+        this.articleService.search (
+            this.searchQuery,
+            ['title', 'summary', 'createdBy', 'categories', 'createdAt']
+        ).then(it => {
+            this.searchResults = it;
+            this.showingSearchResults = true;
+            this.forceNoAllowCreate = true;
+        }).catch((err: Error) => {
+            console.error(`[blogifySearch] Error while search: ${err.name}: ${err.message}`)
+        });
+    }
+
+    async stopSearch() {
+        this.showingSearchResults = false;
+        this.forceNoAllowCreate = false;
+        this.searchQuery = undefined;
+        this.showingMobileSearchBar = false
+    }
 
     async navigateToNewArticle() {
-        if (this.authService.userToken === '') {
-            const url = `/login?redirect=/new-article`;
-            console.log(url);
-            await this.router.navigateByUrl(url);
-        } else {
-            await this.router.navigateByUrl('/new-article');
-        }
+        this.authService.observeIsLoggedIn().subscribe(it => {
+            if (it) this.router.navigateByUrl('/article/new');
+            else this.router.navigateByUrl('/login?redirect=/article/new')
+        });
+    }
+
+    setShowSearchBar(val: boolean) {
+        this.showingMobileSearchBar = val
     }
 
 }

@@ -17,6 +17,7 @@ import blogify.backend.routes.auth
 import blogify.backend.database.handling.query
 import blogify.backend.resources.models.Resource
 import blogify.backend.routes.static
+import blogify.backend.search.Typesense
 import blogify.backend.util.SinglePageApplication
 
 import io.ktor.application.call
@@ -40,12 +41,10 @@ import io.ktor.routing.routing
 import org.jetbrains.exposed.sql.SchemaUtils
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.sql.update
 
 import org.slf4j.event.Level
-import java.util.UUID
 
-const val version = "PRX4"
+const val version = "0.1.0"
 
 const val asciiLogo = """
     __     __               _  ____      
@@ -57,7 +56,9 @@ const val asciiLogo = """
 ---- Version $version - Development build -
 """
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+fun main(args: Array<String>) {
+    io.ktor.server.netty.EngineMain.main(args)
+}
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
@@ -105,7 +106,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     // Default headers
 
     install(DefaultHeaders) {
-        header("Server", "blogify-core PRX4")
+        header("Server", "blogify-core $version")
         header("X-Powered-By", "Ktor 1.2.3")
     }
 
@@ -136,7 +137,67 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             Users,
             Comments,
             Uploadables
-        )
+        ).also {
+            val articleJson  = """
+                {
+                  "name": "articles",
+                  "fields": [
+                    {
+                      "name": "title",
+                      "type": "string"
+                    },
+                    {
+                      "name": "createdAt",
+                      "type": "float"
+                    },
+                    {
+                      "name": "createdBy",
+                      "type": "string"
+                    },
+                    {
+                      "name": "content",
+                      "type": "string"
+                    },
+                    {
+                      "name": "summary",
+                      "type": "string"
+                    },
+                    {
+                      "name": "categories",
+                      "type": "string[]",
+                      "facet": true
+                    }
+                  ],
+                  "default_sorting_field": "createdAt"
+                }
+            """.trimIndent()
+            val userJson = """{
+                "name": "users",
+                "fields": [
+                    {
+                      "name": "username",
+                      "type": "string"
+                    },
+                    {
+                      "name": "name",
+                      "type": "string"
+                    },
+                    {
+                      "name": "email",
+                      "type": "string"
+                    },
+                    {
+                      "name": "dsf_jank",
+                      "type": "int32"
+                    }
+              ],
+              "default_sorting_field": "dsf_jank"
+            }""".trimIndent()
+
+            Typesense.submitResourceTemplate(articleJson)
+            Typesense.submitResourceTemplate(userJson)
+
+        }
     }}
 
     // Initialize routes

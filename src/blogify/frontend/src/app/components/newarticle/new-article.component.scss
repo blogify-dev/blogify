@@ -26,7 +26,7 @@
             margin-top: 1em;
         }
 
-        & span:first-child {
+        &:not(:last-of-type) span:first-child {
             width: 40%;
 
             font-size: 1.5em;
@@ -42,10 +42,45 @@
             flex-grow: 1;
         }
 
+        &#categories-row {
+            span:first-child { margin-right: auto; }
+            justify-content: flex-end;
+
+            input {
+                margin: 0 .25em;
+            }
+
+            #category-add {
+                margin-right: .7em;
+                height: 100%;
+            }
+        }
+
         &#submit {
+            width: 60%;
+            margin-left: auto;
+
             flex-direction: row;
             justify-content: flex-end;
+
             * { font-size: 1.35em; }
+
+            #submit-result-container {
+                margin-right: auto;
+                text-align: center;
+
+                &.none {
+                    display: none;
+                }
+
+                &.success {
+                    color: var(--accent-positive);
+                }
+
+                &.error {
+                    color: var(--accent-negative);
+                }
+            }
 
             button {
                 flex-grow: 0;
@@ -56,7 +91,7 @@
         display:         flex;
         flex-direction:  row;
         justify-content: space-between;
-        align-items:     stretch;
+        align-items:     center;
 
         @media (max-width: $query-desktop) {
             flex-direction:  column;

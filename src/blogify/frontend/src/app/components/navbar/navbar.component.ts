@@ -25,9 +25,14 @@ export class NavbarComponent implements OnInit, AfterViewInit {
         private darkModeService: DarkModeService,
     ) {}
 
-    async ngOnInit() {
-        this.user = await this.authService.userProfile;
-        console.log(this.user.profilePicture);
+    ngOnInit() {
+        this.authService.observeIsLoggedIn().subscribe(async value => {
+            if (value) {
+                this.user = await this.authService.userProfile;
+            } else {
+                this.user = undefined;
+            }
+        });
     }
 
     ngAfterViewInit() {

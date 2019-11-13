@@ -8,10 +8,16 @@ input, button, textarea, select {
 input, textarea {
     color: var(--card-fg);
 
-    padding: .75em 1em;
+    padding: .65em .9em;
 
     border-radius: $std-border-radius;
     border: 1px solid var(--border-color);
+
+    font-size: 1.15em;
+
+    &.ng-invalid.ng-touched {
+        border-color: var(--accent-negative);
+    }
 }
 
 input[type="checkbox"]:not(.togglebox) {
@@ -111,6 +117,12 @@ button {
 
     font-size: 1.25em;
     font-weight: 600;
+
+    // Disabled
+
+    &[disabled] {
+        opacity: .6;
+    }
 
     // Color classes
 

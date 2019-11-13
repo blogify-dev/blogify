@@ -1,11 +1,11 @@
 <div class="comment" *ngIf="isReady">
 
     <div class="comment-user">
-        <span class="user">{{usernameText()}}</span>
+        <app-user-display [user]="comment.commenter" info="name" emSize="2.25"></app-user-display>
     </div>
 
     <div class="comment-content">
-        <span class="content-text">{{comment.content}}</span>
+        <markdown class="content-text">{{comment.content}}</markdown>
     </div>
 
     <div class="comment-buttons">

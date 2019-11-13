@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blogify.backend.annotations.check
+import blogify.backend.annotations.noslice
 import blogify.backend.database.Articles
 import blogify.backend.resources.models.Resource
 import blogify.backend.database.handling.query
@@ -16,11 +17,12 @@ import java.util.*
 /**
  * Represents an Article [Resource].
  *
- * @property title     The title of the [Article].
- * @property createdAt The time of creation of the [Article], in `UNIX` timestamp format.
- * @property createdBy The UUID of the [User] author of the article.
- * @property content   The [Content][Article.Content] of the article. Not included in the JSON serialization.
-
+ * @property title      The title of the [Article].
+ * @property createdAt  The time of creation of the [Article], in `UNIX` timestamp format.
+ * @property createdBy  The UUID of the [User] author of the article.
+ * @property content    The content of the article.
+ * @property summary    The summary of the article.
+ * @property categories The [categories][Article.Category] of the article.
  */
 @JsonIdentityInfo (
     scope     = Article::class,
@@ -29,7 +31,7 @@ import java.util.*
     property  = "uuid"
 )
 data class Article (
-    val title: @check("\\w+") String,
+    val title: @check("^.{0,512}") String,
 
     val createdAt: Long = Date().time,
 

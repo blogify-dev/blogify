@@ -23,17 +23,19 @@ export class CreateCommentComponent implements OnInit {
     constructor(private commentsService: CommentsService, private authService: AuthService) {}
 
     async ngOnInit() {
-        this.replyComment = {
-            commenter: this.authService.isLoggedIn() ? await this.authService.userProfile : '',
-            article: this.comment === undefined ? this.article : this.comment.article,
-            content: '',
-            uuid: ''
-        };
+        this.authService.observeIsLoggedIn().subscribe(async value => {
+            this.replyComment = {
+                commenter: value ? await this.authService.userProfile : '',
+                article: this.comment === undefined ? this.article : this.comment.article,
+                content: '',
+                uuid: ''
+            };
+        });
     }
 
     async doReply() {
         // Make sure the user is authenticated
-        if (this.authService.isLoggedIn() && this.replyComment.commenter instanceof User) {
+        if (this.authService.observeIsLoggedIn() && this.replyComment.commenter instanceof User) {
 
             if (this.comment === undefined) { // Reply to article
                 await this.commentsService.createComment (

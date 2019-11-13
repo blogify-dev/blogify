@@ -1,5 +1,5 @@
 <!--suppress HtmlFormInputWithoutLabel -->
-<div id="new-article" *ngIf="user != undefined">
+<div id="new-article" *ngIf="user != undefined" [formGroup]="form">
 
     <div id="header-row">
         <h1>New Article</h1>
@@ -9,29 +9,39 @@
 
     <span class="data-row" id="title-row">
         <span>Title</span>
-        <input [(ngModel)]="article.title">
+        <input [formControl]="formTitle">
     </span>
 
     <span class="data-row" id="summary-row">
         <span>Summary</span>
-        <input [(ngModel)]="article.summary">
+        <input [formControl]="formSummary">
     </span>
 
     <span class="data-row" id="content-row">
         <span>Content</span>
-        <textarea rows="5" [(ngModel)]="article.content"></textarea>
+        <textarea rows="5" [formControl]="formContent"></textarea>
+    </span>
+
+    <span class="data-row" id="categories-row" formArrayName="categories">
+        <span>Categories</span>
+
+        <a id="category-add" (click)="addCategory()">
+            <fa-icon [icon]="faPlus" size="lg" [transform]="{ y: 9, size: 16 }"></fa-icon>
+        </a>
+
+        <span id="categories-container">
+            <span *ngFor="let control of formCategories.controls; index as i">
+                <input type="text" formControlName="{{i}}">
+            </span>
+        </span>
     </span>
 
     <span class="data-row" id="submit">
-         <button class="positive rounded hollow" (click)="createNewArticle()">Save draft</button>
-         <button class="positive rounded" (click)="createNewArticle()">Submit</button>
+        <span [className]="result.status" id="submit-result-container">{{result.message}}</span>
+
+         <button [disabled]="!form.valid" class="positive rounded hollow" (click)="createNewArticle()">Save draft</button>
+         <button [disabled]="!form.valid" class="positive rounded" (click)="createNewArticle()">Submit</button>
     </span>
-
-    <ng-container *ngFor="let cat of article.categories">
-        <input [(ngModel)]="cat.name">
-    </ng-container>
-
-    <button (click)="addCategory()">Add Category</button>
 
 </div>
 
