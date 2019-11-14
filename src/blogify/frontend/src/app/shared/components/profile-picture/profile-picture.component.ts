@@ -14,7 +14,6 @@ export class ProfilePictureComponent implements OnInit {
     @Input() emSize: number = 3;
 
     sourceUrl: string | null = null;
-    erroredOut = false;
 
     faUser = faUser;
 
@@ -24,10 +23,6 @@ export class ProfilePictureComponent implements OnInit {
         if (this.pfpFile.fileId !== undefined) {
             this.sourceUrl = this.staticContentService.urlFor(this.pfpFile);
         }
-    }
-
-    handleError() {
-        this.erroredOut = true;
     }
 
 }

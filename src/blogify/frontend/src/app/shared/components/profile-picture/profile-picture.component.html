@@ -3,8 +3,6 @@
      src="{{sourceUrl}}"
      alt="Profile picture"
      [style.width]="emSize + 'em'"
-     [style.height]="emSize + 'em'"
-     [style.border-color]="this.erroredOut ? 'transparent' : 'initial'"
-     (error)="handleError()"/>
+     [style.height]="emSize + 'em'">
 
 <fa-icon *ngIf="sourceUrl === null" [icon]="faUser" size="2x"></fa-icon>
