@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { StaticContentService } from '../../../services/static/static-content.service';
 import { StaticFile } from "../../../models/Static";
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-profile-picture',
@@ -12,13 +13,17 @@ export class ProfilePictureComponent implements OnInit {
     @Input() pfpFile: StaticFile;
     @Input() emSize: number = 3;
 
-    sourceUrl: string;
+    sourceUrl: string | null = null;
     erroredOut = false;
+
+    faUser = faUser;
 
     constructor(private staticContentService: StaticContentService) {}
 
     ngOnInit() {
-        this.sourceUrl = this.staticContentService.urlFor(this.pfpFile);
+        if (this.pfpFile.fileId !== undefined) {
+            this.sourceUrl = this.staticContentService.urlFor(this.pfpFile);
+        }
     }
 
     handleError() {
