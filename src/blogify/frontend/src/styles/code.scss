@@ -5,7 +5,14 @@ code * { font-family: $source; }
 pre[class*="language-"] {
     border:          none !important;
     box-shadow:      none !important;
-    * { text-shadow: none !important; }
+    * {
+        text-shadow: none !important;
+        font-size: 1.3em !important;
+    }
+
+    &:not(:first-child) {
+        margin-top: 1.25em;
+    }
 
     background: var(--card-bg) !important;
 }

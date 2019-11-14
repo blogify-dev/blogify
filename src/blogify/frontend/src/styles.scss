@@ -36,3 +36,13 @@
         margin-top: auto;
     }
 }
+
+// No idea why, but this doesn't work in SA
+markdown {
+    * {
+        font-size: 1.35em;
+    }
+    p:not(:last-of-type) {
+        margin-top: 1.15em;
+    }
+}
