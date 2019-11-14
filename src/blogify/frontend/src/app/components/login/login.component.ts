@@ -27,42 +27,51 @@ export class LoginComponent implements OnInit {
     }
 
     async login() {
-        this.authService.login(this.loginCredentials).then(async token => {
+        this.authService.login(this.loginCredentials)
+            .then(async token => {
+                console.log(token);
 
-            console.log(token);
+                const uuid = await this.authService.userUUID;
+                this.user = await this.authService.userProfile;
 
-            const uuid = await this.authService.userUUID;
-            this.user  = await this.authService.userProfile;
+                console.log('LOGIN ->');
+                console.log(uuid);
+                console.log(this.user);
+                console.log(this.loginCredentials);
+                console.log(this.authService.userToken);
+                console.log(this.redirectTo);
 
-            console.log('LOGIN ->');
-            console.log(uuid);
-            console.log(this.user);
-            console.log(this.loginCredentials);
-            console.log(this.authService.userToken);
-            console.log(this.redirectTo);
-
-            if (this.redirectTo) {
-                await this.router.navigateByUrl(this.redirectTo);
-            } else {
-                await this.router.navigateByUrl('/home');
-            }
-        });
+                if (this.redirectTo) {
+                    await this.router.navigateByUrl(this.redirectTo);
+                } else {
+                    await this.router.navigateByUrl('/home');
+                }
+            })
+            .catch((error) => {
+                alert("An error occurred during login");
+                console.error(`[login]: ${error}`)
+            });
     }
 
     async register() {
-        this.authService.register(this.registerCredentials).then(async user => {
-            this.user = user;
+        this.authService.register(this.registerCredentials)
+            .then(async user => {
+                this.user = user;
 
-            console.log('REGISTER ->');
-            console.log(this.user);
-            console.log(this.registerCredentials);
+                console.log('REGISTER ->');
+                console.log(this.user);
+                console.log(this.registerCredentials);
 
-            if (this.redirectTo) {
-                await this.router.navigateByUrl(this.redirectTo);
-            } else {
-                await this.router.navigateByUrl('/home');
-            }
-        });
+                if (this.redirectTo) {
+                    await this.router.navigateByUrl(this.redirectTo);
+                } else {
+                    await this.router.navigateByUrl('/home');
+                }
+            })
+            .catch((error) => {
+                alert("An error occurred during login");
+                console.error(`[register]: ${error}`)
+            });
     }
 
 

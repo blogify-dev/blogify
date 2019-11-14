@@ -19,7 +19,6 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.routes.static
 import blogify.backend.search.Typesense
 import blogify.backend.util.SinglePageApplication
-import blogify.backend.util.TYPESENSE_API_KEY
 
 import io.ktor.application.call
 import io.ktor.features.Compression
@@ -28,11 +27,6 @@ import io.ktor.response.respondRedirect
 import io.ktor.routing.get
 import io.ktor.application.Application
 import io.ktor.application.install
-import io.ktor.client.HttpClient
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.url
-import io.ktor.content.TextContent
 import io.ktor.features.CachingHeaders
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
@@ -50,7 +44,7 @@ import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
 
-const val version = "PRX4"
+const val version = "0.1.0"
 
 const val asciiLogo = """
     __     __               _  ____      
@@ -112,7 +106,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     // Default headers
 
     install(DefaultHeaders) {
-        header("Server", "blogify-core PRX4")
+        header("Server", "blogify-core $version")
         header("X-Powered-By", "Ktor 1.2.3")
     }
 

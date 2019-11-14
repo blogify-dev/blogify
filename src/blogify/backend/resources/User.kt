@@ -1,6 +1,5 @@
 package blogify.backend.resources
 
-import blogify.backend.annotations.check
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.annotations.noslice
@@ -22,7 +21,7 @@ data class User (
     @noslice val password:       String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
              val name:           String,
              val email:          String,
-             val profilePicture: @type("image/png") StaticResourceHandle,
+             val profilePicture: @type("image/*") StaticResourceHandle,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid)
