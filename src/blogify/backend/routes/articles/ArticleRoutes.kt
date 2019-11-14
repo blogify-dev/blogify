@@ -9,8 +9,8 @@ import blogify.backend.resources.Article
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.search.Search
 import blogify.backend.resources.search.asDocument
-import blogify.backend.resources.slicing.sanitize
-import blogify.backend.resources.slicing.slice
+import blogify.backend.resources.reflect.sanitize
+import blogify.backend.resources.reflect.slice
 import blogify.backend.routes.handling.*
 import blogify.backend.services.UserService
 import blogify.backend.services.articles.ArticleService

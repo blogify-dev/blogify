@@ -26,6 +26,8 @@ object Typesense {
 
     /**
      * Typesense API key
+     *
+     * TODO use an env variable instead
      */
     private const val TYPESENSE_API_KEY = "Hu52dwsas2AdxdE"
 

@@ -1,6 +1,8 @@
-package blogify.backend.resources.slicing
+package blogify.backend.resources.reflect
 
-import blogify.backend.resources.slicing.models.Mapped
+import blogify.backend.resources.reflect.models.Mapped
+import blogify.backend.resources.reflect.models.PropMap
+import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.util.filterThenMapValues
 
 /**
@@ -9,7 +11,7 @@ import blogify.backend.util.filterThenMapValues
  *
  * @author Benjozork
  */
-fun Mapped.verify(): Map<PropertyHandle.Ok, Boolean> = this.cachedPropMap().okHandles()
+fun Mapped.verify(): Map<PropMap.PropertyHandle.Ok, Boolean> = this.cachedPropMap().ok()
     .mapKeys { it.value } // Use property handles as keys
     .filterThenMapValues (
         { it.property.returnType.classifier == String::class },

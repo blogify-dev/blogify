@@ -1,7 +1,8 @@
-package blogify.backend.resources.slicing
+package blogify.backend.resources.reflect
 
 import blogify.backend.resources.models.Resource
 import blogify.backend.annotations.noslice
+import blogify.backend.resources.reflect.models.PropMap
 
 /**
  * Represents the result of [getPropValueOnInstance].
@@ -56,18 +57,18 @@ sealed class SlicedProperty(val name: String) {
  */
 @Suppress("UNCHECKED_CAST")
 private fun <R : Resource> getPropValueOnInstance(instance: R, propertyName: String): SlicedProperty {
-    return instance.cachedPropMap()
+    return instance.cachedPropMap().map
         .entries.firstOrNull { (name, _) -> name == propertyName }
         ?.value?.let { handle ->
             return when (handle) {
-                is PropertyHandle.Ok -> {
+                is PropMap.PropertyHandle.Ok -> {
                     if (handle.property.returnType.isMarkedNullable) {
                         SlicedProperty.NullableValue(propertyName, handle.property.get(instance))
                     } else {
                         SlicedProperty.Value(propertyName, handle.property.get(instance))
                     }
                 }
-                is PropertyHandle.AccessDenied -> SlicedProperty.AccessNotAllowed(handle.name)
+                is PropMap.PropertyHandle.AccessDenied -> SlicedProperty.AccessNotAllowed(handle.name)
             }
         } ?: SlicedProperty.NotFound(propertyName)
 }
@@ -120,7 +121,7 @@ fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any?
 fun <R : Resource> R.sanitize(): Map<String, Any?> {
     val sanitizedClassProps = this::class.cachedPropMap()
         .asSequence()
-        .filter { it.value is PropertyHandle.Ok }
+        .filter { it.value is PropMap.PropertyHandle.Ok }
         .map    { it.key }
         .toSet()
 

@@ -32,10 +32,9 @@ import blogify.backend.database.Uploadables
 import blogify.backend.database.handling.query
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.slicing.PropertyHandle
-import blogify.backend.resources.slicing.cachedPropMap
-import blogify.backend.resources.slicing.sanitize
-import blogify.backend.resources.slicing.slice
+import blogify.backend.resources.reflect.cachedPropMap
+import blogify.backend.resources.reflect.sanitize
+import blogify.backend.resources.reflect.slice
 import blogify.backend.resources.static.fs.StaticFileHandler
 import blogify.backend.resources.static.models.StaticData
 import blogify.backend.resources.static.models.StaticResourceHandle
@@ -44,10 +43,10 @@ import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.type
-import blogify.backend.database.ResourceTable
-import blogify.backend.resources.slicing.models.Mapped
-import blogify.backend.resources.slicing.okHandles
-import blogify.backend.resources.slicing.verify
+import blogify.backend.resources.reflect.models.Mapped
+import blogify.backend.resources.reflect.models.PropMap
+import blogify.backend.resources.reflect.models.ext.ok
+import blogify.backend.resources.reflect.verify
 import blogify.backend.routes.pipelines.CallPipeLineFunction
 import blogify.backend.routes.pipelines.CallPipeline
 import blogify.backend.routes.pipelines.handleAuthentication
@@ -296,9 +295,9 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
         // Find target property
         val targetPropHandle = targetClass.cachedPropMap()[target]
             ?.takeIf {
-                it is PropertyHandle.Ok
+                it is PropMap.PropertyHandle.Ok
                         && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
-            } as? PropertyHandle.Ok
+            } as? PropMap.PropertyHandle.Ok
             ?: pipelineError (
                 message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
             )
@@ -387,9 +386,9 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
         // Find target property
         val targetPropHandle = targetClass.cachedPropMap()[target]
             ?.takeIf {
-                it is PropertyHandle.Ok
+                it is PropMap.PropertyHandle.Ok
                         && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
-            } as? PropertyHandle.Ok
+            } as? PropMap.PropertyHandle.Ok
             ?: pipelineError (
                 message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
             )
@@ -577,7 +576,7 @@ suspend inline fun <reified R : Resource> CallPipeline.updateWithId (
  */
 suspend inline fun <reified M : Mapped> CallPipeline.getValidations() {
     call.respond (
-        M::class.cachedPropMap().okHandles()
+        M::class.cachedPropMap().ok()
             .filterThenMapValues (
                 { it.regexCheck != null },
                 { it.value.regexCheck!!.pattern }

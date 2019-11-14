@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
 import blogify.backend.resources.User
-import blogify.backend.resources.slicing.models.Mapped
+import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.services.UserService
 import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.articles.CommentService
