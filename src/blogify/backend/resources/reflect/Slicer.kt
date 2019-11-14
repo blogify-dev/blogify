@@ -2,6 +2,7 @@ package blogify.backend.resources.reflect
 
 import blogify.backend.resources.models.Resource
 import blogify.backend.annotations.noslice
+import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 
 /**
@@ -42,11 +43,11 @@ sealed class SlicedProperty(val name: String) {
 }
 
 /**
- * Reads a property from an instance of [R] with [a certain name][propertyName] using reflection
+ * Reads a property from an instance of [M] with [a certain name][propertyName] using reflection
  *
  * Shamelessly stolen from: [https://stackoverflow.com/a/35539628]
  *
- * @param instance     instance of [R] to read property from
+ * @param instance     instance of [M] to read property from
  * @param propertyName name of the property to read
  *
  * @return a [SlicedProperty] representing the result of the query. Can be either [SlicedProperty.Value] for success,
@@ -56,7 +57,7 @@ sealed class SlicedProperty(val name: String) {
  * @author hamza1311, Benjozork
  */
 @Suppress("UNCHECKED_CAST")
-private fun <R : Resource> getPropValueOnInstance(instance: R, propertyName: String): SlicedProperty {
+private fun <M : Mapped> getPropValueOnInstance(instance: M, propertyName: String): SlicedProperty {
     return instance.cachedPropMap().map
         .entries.firstOrNull { (name, _) -> name == propertyName }
         ?.value?.let { handle ->
@@ -84,7 +85,7 @@ private fun <R : Resource> getPropValueOnInstance(instance: R, propertyName: Str
  *
  * @author hamza1311, Benjozork
  */
-fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any?> {
+fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>): Map<String, Any?> {
 
     val selectedPropertiesSanitized = selectedPropertyNames.toMutableSet().apply {
         removeIf { it == "uuid" || it == "UUID" }
@@ -95,7 +96,7 @@ fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any?
     val accessDeniedProperties = mutableSetOf<String>()
 
     return selectedPropertiesSanitized.associateWith { propName ->
-        when (val result = getPropValueOnInstance<Resource>(this, propName)) {
+        when (val result = getPropValueOnInstance(this, propName)) {
             is SlicedProperty.Value            -> result.value
             is SlicedProperty.NullableValue    -> result.value
             is SlicedProperty.NotFound         -> unknownProperties += result.name
@@ -118,7 +119,7 @@ fun <R : Resource> R.slice(selectedPropertyNames: Set<String>): Map<String, Any?
  *
  * @author Benjozork
  */
-fun <R : Resource> R.sanitize(): Map<String, Any?> {
+fun <M : Mapped> M.sanitize(): Map<String, Any?> {
     val sanitizedClassProps = this::class.cachedPropMap()
         .asSequence()
         .filter { it.value is PropMap.PropertyHandle.Ok }
