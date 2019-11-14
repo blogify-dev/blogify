@@ -61,16 +61,16 @@ private fun <R : Resource> getPropValueOnInstance(instance: R, propertyName: Str
         .entries.firstOrNull { (name, _) -> name == propertyName }
         ?.value?.let { handle ->
             return when (handle) {
-                is PropMap.PropertyHandle.Ok -> {
+                is PropMap.PropertyHandle.Ok -> { // Handle is ok, proceed
                     if (handle.property.returnType.isMarkedNullable) {
                         SlicedProperty.NullableValue(propertyName, handle.property.get(instance))
                     } else {
                         SlicedProperty.Value(propertyName, handle.property.get(instance))
                     }
                 }
-                is PropMap.PropertyHandle.AccessDenied -> SlicedProperty.AccessNotAllowed(handle.name)
+                is PropMap.PropertyHandle.AccessDenied -> SlicedProperty.AccessNotAllowed(handle.name) // Handle is denied
             }
-        } ?: SlicedProperty.NotFound(propertyName)
+        } ?: SlicedProperty.NotFound(propertyName) // No property handle found
 }
 
 /**
