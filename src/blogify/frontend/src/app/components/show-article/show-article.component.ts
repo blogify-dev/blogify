@@ -5,6 +5,7 @@ import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../shared/auth/auth.service';
 import { User } from '../../models/User';
+import { faPenFancy, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-show-article',
@@ -22,6 +23,9 @@ export class ShowArticleComponent implements OnInit {
         public authService: AuthService,
         private router: Router
     ) {}
+
+    faEdit = faPenFancy;
+    faTimes = faTimes;
 
     showUpdateButton = false;
     showDeleteButton = false;

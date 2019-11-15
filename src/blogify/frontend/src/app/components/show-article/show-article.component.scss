@@ -54,18 +54,27 @@
             justify-content: flex-start;
             align-items:     center;
 
+            * { vertical-align: middle; }
+
             .user {
                 margin-left: .5em;
                 font-size: 1.85em;
-                font-weight: bold;
+            }
+
+            .date {
+                margin-left: .5em;
+                font-size: 1.5em;
+                margin-top: 4px;
             }
 
             #button-update {
                 margin-left: auto;
+                cursor: pointer;
             }
 
             #button-delete {
-                margin-left: 1em;
+                margin-left: 2em;
+                cursor: pointer;
             }
         }
 

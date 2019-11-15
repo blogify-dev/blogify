@@ -22,24 +22,33 @@
             <!-- Author -->
             <app-user-display [user]="article.createdBy" emSize="2.75"></app-user-display>
 
+            <span class="separator"></span>
+
             <!-- Timestamp -->
             <span class="date">{{article.createdAt | relativeTime}}</span>
 
              <!-- Update button -->
-            <button routerLink="/article/update/{{article.uuid}}"
+            <a id="button-update" routerLink="/article/update/{{article.uuid}}" *ngIf="showUpdateButton">
+                 <fa-icon [icon]="faEdit" size="2x" [transform]="{ size: 19 }"></fa-icon>
+            </a>
+
+            <!-- <button routerLink="/article/update/{{article.uuid}}"
                     id="button-update"
                     class="hollow small neutral"
                     *ngIf="showUpdateButton">
                 Update
-            </button>
+            </button> -->
 
             <!-- Delete button -->
-            <button (click)="deleteArticle()"
+            <a id="button-delete" class="hover-negative" (click)="deleteArticle()" *ngIf="showUpdateButton">
+                <fa-icon [icon]="faTimes" size="2x" [transform]="{ size: 22 }"></fa-icon>
+            </a>
+            <!-- <button (click)="deleteArticle()"
                     id="button-delete"
                     class="hollow small negative"
                     *ngIf="showDeleteButton">
                 Delete
-            </button>
+            </button> -->
 
         </div>
 
