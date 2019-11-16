@@ -4,16 +4,12 @@ import blogify.backend.database.Users
 import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.search.Search
-import blogify.backend.resources.reflect.cachedPropMap
-import blogify.backend.resources.reflect.doUpdate
-import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
 import blogify.backend.routes.handling.*
 import blogify.backend.services.UserService
 import blogify.backend.services.models.Service
 import blogify.backend.util.TYPESENSE_API_KEY
-import blogify.backend.util.toUUID
 
 import io.ktor.application.call
 import io.ktor.client.HttpClient
@@ -23,7 +19,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.url
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
 

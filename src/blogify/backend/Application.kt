@@ -15,6 +15,8 @@ import blogify.backend.database.Uploadables
 import blogify.backend.database.Users
 import blogify.backend.routes.auth
 import blogify.backend.database.handling.query
+import blogify.backend.resources.Article
+import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.routes.static
 import blogify.backend.search.Typesense
@@ -74,14 +76,15 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         jackson {
             enable(SerializationFeature.INDENT_OUTPUT)
 
-            // Register a serializer for Resource.
+            // Register a serializer for Resource and Type.
             // This will only affect pure Resource objects, so elements produced by the slicer are not affected,
             // since those don't use Jackson for root serialization.
 
-            val resourceModule = SimpleModule()
-            resourceModule.addSerializer(Resource.ResourceIdSerializer)
+            val blogifyModule = SimpleModule()
+            blogifyModule.addSerializer(Resource.ResourceIdSerializer)
+            blogifyModule.addSerializer(Typesense.Type.Serializer)
 
-            registerModule(resourceModule)
+            registerModule(blogifyModule)
         }
     }
 
@@ -138,64 +141,33 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             Comments,
             Uploadables
         ).also {
-            val articleJson  = """
-                {
-                  "name": "articles",
-                  "fields": [
-                    {
-                      "name": "title",
-                      "type": "string"
-                    },
-                    {
-                      "name": "createdAt",
-                      "type": "float"
-                    },
-                    {
-                      "name": "createdBy",
-                      "type": "string"
-                    },
-                    {
-                      "name": "content",
-                      "type": "string"
-                    },
-                    {
-                      "name": "summary",
-                      "type": "string"
-                    },
-                    {
-                      "name": "categories",
-                      "type": "string[]",
-                      "facet": true
-                    }
-                  ],
-                  "default_sorting_field": "createdAt"
-                }
-            """.trimIndent()
-            val userJson = """{
-                "name": "users",
-                "fields": [
-                    {
-                      "name": "username",
-                      "type": "string"
-                    },
-                    {
-                      "name": "name",
-                      "type": "string"
-                    },
-                    {
-                      "name": "email",
-                      "type": "string"
-                    },
-                    {
-                      "name": "dsf_jank",
-                      "type": "int32"
-                    }
-              ],
-              "default_sorting_field": "dsf_jank"
-            }""".trimIndent()
 
-            Typesense.submitResourceTemplate(articleJson)
-            Typesense.submitResourceTemplate(userJson)
+            val articleTemplate = Typesense.Template<Article> (
+                name = "articles",
+                fields = mapOf (
+                    "title"      to Typesense.Type.String(),
+                    "createdAt"  to Typesense.Type.Float(),
+                    "createdBy"  to Typesense.Type.String(),
+                    "content"    to Typesense.Type.String(),
+                    "summary"    to Typesense.Type.String(),
+                    "categories" to Typesense.Type.StringArray(true)
+                ),
+                defaultSortingField = "createdAt"
+            )
+
+            val userTemplate = Typesense.Template<User> (
+                name = "users",
+                fields = mapOf (
+                    "username" to Typesense.Type.String(),
+                    "name"     to Typesense.Type.String(),
+                    "email"    to Typesense.Type.String(),
+                    "dsf_jank" to Typesense.Type.Int32()
+                ),
+                defaultSortingField = "dsf_jank"
+            )
+
+            Typesense.submitResourceTemplate(articleTemplate)
+            Typesense.submitResourceTemplate(userTemplate)
 
         }
     }}
