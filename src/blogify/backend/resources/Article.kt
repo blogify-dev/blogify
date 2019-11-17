@@ -6,11 +6,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import blogify.backend.annotations.check
 import blogify.backend.annotations.SearchDefaultSort
 import blogify.backend.annotations.NoSearch
-import blogify.backend.database.Articles
 import blogify.backend.resources.models.Resource
-import blogify.backend.database.handling.query
-
-import org.jetbrains.exposed.sql.select
 
 import java.util.*
 
@@ -58,10 +54,5 @@ data class Article (
      */
     data class Category(val name: String)
 
-    suspend fun category(): List<Category> = query {
-        Articles.Categories.select {
-            Articles.Categories.article eq this@Article.uuid
-        }.toList().map{ Articles.Categories.convert(it) }
-    }.get()
 
 }
