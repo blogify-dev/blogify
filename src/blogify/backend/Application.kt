@@ -20,6 +20,7 @@ import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.routes.static
 import blogify.backend.search.Typesense
+import blogify.backend.search.models.Template
 import blogify.backend.util.SinglePageApplication
 
 import io.ktor.application.call
@@ -59,6 +60,9 @@ const val asciiLogo = """
 ---- Version $version - Development build -
 """
 
+var articleTemplate: Template<Article>? = null
+var userTemplate: Template<User>? = null
+
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
@@ -83,7 +87,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
             val blogifyModule = SimpleModule()
             blogifyModule.addSerializer(Resource.ResourceIdSerializer)
-            blogifyModule.addSerializer(Typesense.Field.Serializer)
+            blogifyModule.addSerializer(Template.Field.Serializer)
 
             registerModule(blogifyModule)
         }
@@ -145,20 +149,24 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             )
         }
 
-        val articleTemplate = Typesense.Template<Article> (
+        @Suppress("RemoveExplicitTypeArguments")
+        articleTemplate = Template<Article> (
+            Article::class,
             name = "articles",
             fields = arrayOf (
                 Article::title,
                 Article::createdAt,
-                Article::createdBy,
+                // Article::createdBy,
                 Article::content,
-                Article::summary,
-                Article::categories //
+                Article::summary
+                // Article::categories
             ),
             defaultSortingField = "createdAt"
         )
 
-        val userTemplate = Typesense.Template<User> (
+        @Suppress("RemoveExplicitTypeArguments")
+        userTemplate = Template<User> (
+            User::class,
             name = "users",
             fields = arrayOf (
                 User::username,
@@ -170,8 +178,8 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
         // Submit the templates
 
-        Typesense.submitResourceTemplate(articleTemplate)
-        Typesense.submitResourceTemplate(userTemplate)
+        Typesense.submitResourceTemplate(articleTemplate!!)
+        Typesense.submitResourceTemplate(userTemplate!!)
     }
 
     // Initialize routes

@@ -2,16 +2,17 @@
 
 package blogify.backend.routes.articles
 
+import blogify.backend.articleTemplate
 import blogify.backend.database.Articles
 import blogify.backend.database.Comments
 import blogify.backend.database.Users
 import blogify.backend.resources.Article
 import blogify.backend.resources.models.eqr
-import blogify.backend.resources.search.Search
-import blogify.backend.resources.search.asDocument
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
 import blogify.backend.routes.handling.*
+import blogify.backend.search.Typesense
+import blogify.backend.search.ext.asSearchView
 import blogify.backend.services.UserService
 import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.articles.CommentService
@@ -21,12 +22,8 @@ import blogify.backend.util.TYPESENSE_API_KEY
 import io.ktor.application.call
 import io.ktor.routing.*
 import io.ktor.client.HttpClient
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.content.TextContent
-import io.ktor.http.ContentType
 import io.ktor.response.respond
 import io.ktor.client.request.*
-import io.ktor.http.HttpStatusCode
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
@@ -102,13 +99,13 @@ fun Route.articles() {
                         }.also { println(it) }
 
                         val objectMapper = jacksonObjectMapper()
-                        val jsonAsString = objectMapper.writeValueAsString(replacement.asDocument())
+                        /*val jsonAsString = objectMapper.writeValueAsString(replacement.asDocument())
                         println(jsonAsString)
                         client.post<String> {
                             url("http://ts:8108/collections/articles/documents")
                             body = TextContent(jsonAsString, contentType = ContentType.Application.Json)
                             header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
-                        }.also { println(it) }
+                        }.also { println(it) }*/
                     }
                 }
             )
@@ -119,7 +116,7 @@ fun Route.articles() {
                 ArticleService::add,
                 authPredicate = { user, article -> article.createdBy eqr user },
                 doAfter = { article ->
-                    HttpClient().use { client ->
+                   /* HttpClient().use { client ->
                         val objectMapper = jacksonObjectMapper()
                         val jsonAsString = objectMapper.writeValueAsString(article.asDocument())
                         println(jsonAsString)
@@ -128,7 +125,7 @@ fun Route.articles() {
                             body = TextContent(jsonAsString, contentType = ContentType.Application.Json)
                             header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
                         }.also { println(it) }
-                    }
+                    }*/
                 }
             )
         }
@@ -137,21 +134,22 @@ fun Route.articles() {
             val params = call.parameters
             val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
             params["q"]?.let { query ->
-                HttpClient { install(JsonFeature) }.use { client ->
-                    val parsed = client.get<Search<Search.ArticleDocument>>("http://ts:8108/collections/articles/documents/search?q=$query&query_by=content,title")
-                    parsed.hits?.let { hits -> // Some hits
-                        val hitResources = hits.map { it.document.article() }
-                        try {
-                            selectedPropertyNames?.let { props ->
+                val parsed = Typesense.search<Article>(query).asSearchView()
 
-                                call.respond(hitResources.map { it.slice(props) })
+                call.respond(parsed)
 
-                            } ?: call.respond(hitResources.map { it.sanitize() })
-                        } catch (bruhMoment: Service.Exception) {
-                            call.respondExceptionMessage(bruhMoment)
-                        }
-                    } ?: call.respond(HttpStatusCode.NoContent) // No hits
-                }
+                /*parsed.hits?.let { hits -> // Some hits
+                    val hitResources = hits.map { it.template.article() }
+                    try {
+                        selectedPropertyNames?.let { props ->
+
+                            call.respond(hitResources.map { it.slice(props) })
+
+                        } ?: call.respond(hitResources.map { it.sanitize() })
+                    } catch (bruhMoment: Service.Exception) {
+                        call.respondExceptionMessage(bruhMoment)
+                    }
+                } ?: call.respond(HttpStatusCode.NoContent) // No hits*/
             }
         }
 

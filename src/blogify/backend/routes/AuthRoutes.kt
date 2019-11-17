@@ -6,7 +6,6 @@ import blogify.backend.auth.jwt.generateJWT
 import blogify.backend.auth.jwt.validateJwt
 import blogify.backend.database.Users
 import blogify.backend.resources.User
-import blogify.backend.resources.search.asDocument
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.routes.handling.respondExceptionMessage
 import blogify.backend.services.UserService
@@ -71,7 +70,7 @@ data class RegisterCredentials (
 
         UserService.add(created).fold(
             success = { user ->
-                HttpClient().use { client ->
+                /*HttpClient().use { client ->
                     val objectMapper = jacksonObjectMapper()
                     val jsonAsString = objectMapper.writeValueAsString(user.asDocument())
                     println(jsonAsString)
@@ -80,7 +79,7 @@ data class RegisterCredentials (
                         body = TextContent(jsonAsString, contentType = ContentType.Application.Json)
                         header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
                     }.also { println(it) }
-                }
+                }*/
             },
             failure = {
                 error("$created: signup couldn't create user\nError:$it")

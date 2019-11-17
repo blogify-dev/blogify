@@ -1,11 +1,11 @@
 package blogify.backend.resources
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
-import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blogify.backend.annotations.check
-import blogify.backend.annotations.noslice
+import blogify.backend.annotations.SearchDefaultSort
+import blogify.backend.annotations.NoSearch
 import blogify.backend.database.Articles
 import blogify.backend.resources.models.Resource
 import blogify.backend.database.handling.query
@@ -31,19 +31,23 @@ import java.util.*
     property  = "uuid"
 )
 data class Article (
+
     val title: @check("^.{0,512}") String,
 
+    @SearchDefaultSort
     val createdAt: Long = Date().time,
 
-    @JsonIdentityReference(alwaysAsId = true)
+    @NoSearch
     val createdBy: User,
 
     val content: String,
 
     val summary: String,
 
+    @NoSearch
     val categories: List<Category>,
 
+    @NoSearch
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid) {
 
