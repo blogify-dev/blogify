@@ -13,10 +13,10 @@ import kotlin.reflect.full.findAnnotation
 private val templateCache: MutableMap<KClass<*>, Template<*>> = mutableMapOf()
 
 @Suppress("ObjectPropertyName", "UNCHECKED_CAST")
-val <R : Resource> KClass<R>._template: Template<R> get() {
+val <R : Resource> KClass<R>._searchTemplate: Template<R> get() {
     var cached: Template<R>? = templateCache[this::class] as? Template<R>?
     if (cached == null) {
-        cached = this._buildTemplate()
+        cached = this._buildSearchTemplate()
         templateCache[this::class] = cached
     }
 
@@ -24,7 +24,7 @@ val <R : Resource> KClass<R>._template: Template<R> get() {
 }
 
 @Suppress("FunctionName")
-fun <R : Resource> KClass<R>._buildTemplate(): Template<R> {
+fun <R : Resource> KClass<R>._buildSearchTemplate(): Template<R> {
     val fields = this.declaredMemberProperties
         .filter { it.findAnnotation<NoSearch>() == null && it.findAnnotation<NoSlice>() == null }.toTypedArray()
     return Template (

@@ -20,6 +20,7 @@ import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.routes.static
 import blogify.backend.search.Typesense
+import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Template
 import blogify.backend.util.SinglePageApplication
 
@@ -46,7 +47,6 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
-import kotlin.reflect.KProperty1
 
 const val version = "0.1.0"
 
@@ -149,37 +149,10 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             )
         }
 
-        @Suppress("RemoveExplicitTypeArguments")
-        articleTemplate = Template<Article> (
-            Article::class,
-            name = "articles",
-            fields = arrayOf (
-                Article::title,
-                Article::createdAt,
-                // Article::createdBy,
-                Article::content,
-                Article::summary
-                // Article::categories
-            ),
-            defaultSortingField = "createdAt"
-        )
+        // Submit search templates
 
-        @Suppress("RemoveExplicitTypeArguments")
-        userTemplate = Template<User> (
-            User::class,
-            name = "users",
-            fields = arrayOf (
-                User::username,
-                User::name,
-                User::email
-            ),
-            defaultSortingField = "username"
-        )
-
-        // Submit the templates
-
-        Typesense.submitResourceTemplate(articleTemplate!!)
-        Typesense.submitResourceTemplate(userTemplate!!)
+        Typesense.submitResourceTemplate(Article::class._searchTemplate)
+        Typesense.submitResourceTemplate(User::class._searchTemplate)
     }
 
     // Initialize routes
