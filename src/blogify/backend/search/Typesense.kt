@@ -1,7 +1,7 @@
 package blogify.backend.search
 
 import blogify.backend.resources.models.Resource
-import blogify.backend.search.ext._template
+import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.Template
 
@@ -15,9 +15,11 @@ import io.ktor.client.response.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.client.call.receive
+import io.ktor.client.features.defaultRequest
+import io.ktor.client.request.get
 
 import com.andreapivetta.kolor.green
-import io.ktor.client.request.get
 
 import org.slf4j.LoggerFactory
 
@@ -45,12 +47,23 @@ object Typesense {
      */
     private const val TYPESENSE_API_KEY = "Hu52dwsas2AdxdE"
 
-    val typesenseClient = HttpClient { install(JsonFeature) { serializer = JacksonSerializer(); } }
+    val typesenseClient = HttpClient {
+        install(JsonFeature) { serializer = JacksonSerializer(); }
+
+        // Always include Typesense headers
+        defaultRequest {
+            header(TYPESENSE_API_KEY_HEADER, TYPESENSE_API_KEY)
+        }
+
+        // Allows us to read response even when status < 300
+        expectSuccess = false
+    }
 
     /**
      * Uploads a document template to the Typesense REST API
      *
-     * @param template the document template, in JSON format.
+     * @param R        class associated with [template]
+     * @param template the document template.
      *                 See the [typesense docs](https://typesense.org/docs/0.11.0/api/#create-collection) for more info.
      *
      * @author hamza1311, Benjozork
@@ -58,7 +71,6 @@ object Typesense {
     suspend fun <R : Resource> submitResourceTemplate(template: Template<R>) {
         typesenseClient.post<HttpResponse> {
             url("$TYPESENSE_URL/collections")
-            header(TYPESENSE_API_KEY_HEADER, TYPESENSE_API_KEY)
             contentType(ContentType.Application.Json)
 
             body = template
@@ -68,13 +80,16 @@ object Typesense {
                 HttpStatusCode.Conflict -> { // Both of those cases mean the template either already exists or was created
                     logger.info("uploaded Typesense template '${template.name}'".green())
                 }
-                else -> error("error while uploading Typesense template: '${status.value} ${status.description}'")
+                else -> {
+                    val bodyMessage = response.receive<Map<String, Any?>>()["message"] as? String
+                    error("error while uploading Typesense template '${template.name}': '${status.value} ${status.description} / ${bodyMessage}'")
+                }
             }
         }
     }
 
     suspend inline fun <reified R : Resource> search(query: String): Search<R> {
-        val template = R::class._template
+        val template = R::class._searchTemplate
         return typesenseClient.get {
             val excludedFieldsString = template.fields.joinToString(separator = ",") { it.name }
             url("http://ts:8108/collections/articles/documents/search?q=$query&query_by=content,title&exclude_fields=$excludedFieldsString")
