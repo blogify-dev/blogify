@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blogify.backend.annotations.check
-import blogify.backend.annotations.SearchDefaultSort
 import blogify.backend.annotations.NoSearch
 import blogify.backend.resources.models.Resource
 
@@ -30,7 +29,6 @@ data class Article (
 
     val title: @check("^.{0,512}") String,
 
-    @SearchDefaultSort
     val createdAt: Long = Date().time,
 
     @NoSearch
