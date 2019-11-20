@@ -67,7 +67,7 @@ export class ShowAllArticlesComponent implements OnInit {
             this.showingSearchResults = true;
             this.forceNoAllowCreate = true;
         }).catch((err: Error) => {
-            console.error(`[blogifySearch] Error while search: ${err.name}: ${err.message}`)
+            console.error(`[blogifySearch] Error during search: ${err.name}: ${err.message}`)
         });
     }
 
