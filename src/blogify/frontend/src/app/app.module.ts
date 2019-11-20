@@ -19,6 +19,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MarkdownModule } from 'ngx-markdown';
 import { SharedModule } from './shared/shared.module';
 import { ProfileModule } from './components/profile/profile/profile.module';
+import { FooterComponent } from './components/footer/footer.component';
 
 @NgModule({
     declarations: [
@@ -33,6 +34,7 @@ import { ProfileModule } from './components/profile/profile/profile.module';
         SingleCommentComponent,
         CreateCommentComponent,
         UpdateArticleComponent,
+        FooterComponent,
     ],
     imports: [
         BrowserModule,
