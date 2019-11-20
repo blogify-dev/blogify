@@ -14,23 +14,26 @@ private val templateCache: MutableMap<KClass<*>, Template<*>> = mutableMapOf()
 
 @Suppress("ObjectPropertyName", "UNCHECKED_CAST")
 val <R : Resource> KClass<R>._searchTemplate: Template<R> get() {
-    var cached: Template<R>? = templateCache[this::class] as? Template<R>?
+    var cached: Template<R>? = templateCache[this] as? Template<R>?
     if (cached == null) {
         cached = this._buildSearchTemplate()
-        templateCache[this::class] = cached
+        templateCache[this] = cached
     }
 
     return cached
 }
 
+private const val TEMPLATE_DEFAULT_DSF = "_dsf_jank"
+
 @Suppress("FunctionName")
 fun <R : Resource> KClass<R>._buildSearchTemplate(): Template<R> {
     val fields = this.declaredMemberProperties
         .filter { it.findAnnotation<NoSearch>() == null && it.findAnnotation<NoSlice>() == null }.toTypedArray()
+    val sortingFieldName = fields.firstOrNull { it.findAnnotation<SearchDefaultSort>() != null }?.name ?: TEMPLATE_DEFAULT_DSF
     return Template (
         klass  = this,
         name   = this.simpleName!!,
         fields = fields,
-        defaultSortingField = (fields.firstOrNull { it.findAnnotation<SearchDefaultSort>() != null } ?: fields.first()).name
+        defaultSortingField = sortingFieldName
     )
 }
