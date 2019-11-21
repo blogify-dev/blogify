@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
@@ -20,6 +20,7 @@ import { MarkdownModule } from 'ngx-markdown';
 import { SharedModule } from './shared/shared.module';
 import { ProfileModule } from './components/profile/profile/profile.module';
 import { FooterComponent } from './components/footer/footer.component';
+import { ClipboardModule } from "ngx-clipboard";
 
 @NgModule({
     declarations: [
@@ -47,6 +48,7 @@ import { FooterComponent } from './components/footer/footer.component';
         MarkdownModule.forRoot(),
         ProfileModule,
         SharedModule,
+        ClipboardModule,
     ],
     providers: [],
     exports: [],

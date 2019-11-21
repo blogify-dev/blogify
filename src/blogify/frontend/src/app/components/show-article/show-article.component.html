@@ -32,6 +32,10 @@
                  <fa-icon [icon]="faEdit" size="2x" [transform]="{ size: 19 }"></fa-icon>
             </a>
 
+            <a (click)="copyUrlToClipboard()">
+                <fa-icon [icon]="faShare" size="2x" [transform]="{ size: 19 }"></fa-icon>
+            </a>
+
             <!-- <button routerLink="/article/update/{{article.uuid}}"
                     id="button-update"
                     class="hollow small neutral"

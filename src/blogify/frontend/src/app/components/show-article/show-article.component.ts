@@ -5,7 +5,8 @@ import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../shared/auth/auth.service';
 import { User } from '../../models/User';
-import { faPenFancy, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faPenFancy, faTimes, faShare } from '@fortawesome/free-solid-svg-icons';
+import {ClipboardService} from "ngx-clipboard";
 
 @Component({
     selector: 'app-show-article',
@@ -21,11 +22,13 @@ export class ShowArticleComponent implements OnInit {
         private activatedRoute: ActivatedRoute,
         private articleService: ArticleService,
         public authService: AuthService,
-        private router: Router
+        private router: Router,
+        private clipboardService: ClipboardService,
     ) {}
 
     faEdit = faPenFancy;
     faTimes = faTimes;
+    faShare = faShare;
 
     showUpdateButton = false;
     showDeleteButton = false;
@@ -53,4 +56,7 @@ export class ShowArticleComponent implements OnInit {
         this.router.navigateByUrl("/home").then(() => {})
     }
 
+    copyUrlToClipboard() {
+        this.clipboardService.copyFromContent(window.location.href)
+    }
 }
