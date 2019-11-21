@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Article } from "../../../../models/Article";
-import { ArticleService } from '../../../../services/article/article.service';
-import { faCommentAlt } from '@fortawesome/free-solid-svg-icons';
+import { faCommentAlt, faShare } from '@fortawesome/free-solid-svg-icons';
+import { ClipboardService } from "ngx-clipboard";
 
 @Component({
     selector: 'app-single-article-box',
@@ -12,9 +12,13 @@ export class SingleArticleBoxComponent implements OnInit {
 
     @Input() article: Article;
     faCommentAlt = faCommentAlt;
+    faShare = faShare;
 
-    constructor() {}
+    constructor(private clipboardService: ClipboardService) {}
 
     ngOnInit() {}
 
+    copyLinkToClipboard(article: Article) {
+        this.clipboardService.copyFromContent(`${window.location.href.split('/')[2]}/article/${article.uuid}`)
+    }
 }

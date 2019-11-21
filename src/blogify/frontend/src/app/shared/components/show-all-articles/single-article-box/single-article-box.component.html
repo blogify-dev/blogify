@@ -24,6 +24,9 @@
         <!-- Comment count -->
         <h4 class="article-comments-count"><fa-icon [icon]="faCommentAlt" size="lg"></fa-icon> {{article.numberOfComments}}</h4>
 
+        <a (click)="copyLinkToClipboard(article)">
+            <fa-icon [icon]="faShare" size="2x" [transform]="{ size: 19 }"></fa-icon>
+        </a>
         <!-- Categories -->
         <div class="article-tags" *ngIf="article.categories.length > 0">
             <span class="tags-title">Tags:&nbsp;</span>
@@ -32,8 +35,8 @@
 
         <!-- No categories -->
         <span class="article-no-tags" *ngIf="article.categories.length == 0">
-                    <em>No tags</em>
-                </span>
+            <em>No tags</em>
+        </span>
     </div>
 
 </div>
