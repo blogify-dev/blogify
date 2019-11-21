@@ -6,6 +6,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { NewArticleComponent } from './components/newarticle/new-article.component';
 import { ShowArticleComponent } from './components/show-article/show-article.component';
 import { UpdateArticleComponent } from './components/update-article/update-article.component';
+import {Error404FallbackComponent} from "./components/error404-fallback/error404-fallback.component";
 
 
 const routes: Routes = [
@@ -17,6 +18,7 @@ const routes: Routes = [
     { path: 'profile/**', component: ProfileComponent },
     { path: 'article/:uuid', component: ShowArticleComponent },
     { path: 'article/update/:uuid', component: UpdateArticleComponent },
+    { path: '**', component: Error404FallbackComponent },
 ];
 
 @NgModule({
