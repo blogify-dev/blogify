@@ -90,8 +90,9 @@ object Typesense {
 
     suspend inline fun <reified R : Resource> search(query: String): Search<R> {
         val template = R::class._searchTemplate
+        val excludedFieldsString = template.fields.joinToString(separator = ",") { it.name }
+
         return typesenseClient.get {
-            val excludedFieldsString = template.fields.joinToString(separator = ",") { it.name }
             url("http://ts:8108/collections/articles/documents/search?q=$query&query_by=content,title&exclude_fields=$excludedFieldsString")
         }
     }
