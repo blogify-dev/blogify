@@ -5,9 +5,11 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blogify.backend.annotations.check
 import blogify.backend.annotations.NoSearch
+import blogify.backend.annotations.SearchDefaultSort
 import blogify.backend.resources.models.Resource
 
 import java.util.*
+import kotlin.random.Random
 
 /**
  * Represents an Article [Resource].
@@ -40,6 +42,9 @@ data class Article (
 
     @NoSearch
     val categories: List<Category>,
+
+    @SearchDefaultSort
+    val dsf: Int = Random.nextInt(),
 
     @NoSearch
     override val uuid: UUID = UUID.randomUUID()
