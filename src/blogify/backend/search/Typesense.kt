@@ -23,7 +23,7 @@ import com.andreapivetta.kolor.green
 
 import org.slf4j.LoggerFactory
 
-private val logger = LoggerFactory.getLogger("blogify-typesense-client")
+val tscLogger = LoggerFactory.getLogger("blogify-typesense-client")
 
 /**
  * Meta object regrouping setup and utility functions for the Typesense search engine.
@@ -33,7 +33,7 @@ object Typesense {
     /**
      * Typesense REST API URL
      */
-    private const val TYPESENSE_URL = "http://ts:8108"
+    const val TYPESENSE_URL = "http://ts:8108"
 
     /**
      * Typesense API key HTTP header string
@@ -78,7 +78,7 @@ object Typesense {
             when (val status = response.status) {
                 HttpStatusCode.Created,
                 HttpStatusCode.Conflict -> { // Both of those cases mean the template either already exists or was created
-                    logger.info("uploaded Typesense template '${template.name}'".green())
+                    tscLogger.info("uploaded Typesense template '${template.name}'".green())
                 }
                 else -> {
                     val bodyMessage = response.receive<Map<String, Any?>>()["message"] as? String
@@ -117,7 +117,7 @@ object Typesense {
         val excludedFieldsString = template.fields.joinToString(separator = ",") { it.name }
 
         return typesenseClient.get {
-            url("http://ts:8108/collections/articles/documents/search?q=$query&query_by=content,title&exclude_fields=$excludedFieldsString")
+            url("$TYPESENSE_URL/collections/${template.name}/documents/search?q=$query&query_by=content,title&exclude_fields=$excludedFieldsString")
         }
     }
 

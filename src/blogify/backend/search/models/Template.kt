@@ -110,13 +110,13 @@ class Template<T : Resource> (
 
         companion object {
 
-            private val logger = LoggerFactory.getLogger("blogify-typesense-autogen")
+            val tsaLogger = LoggerFactory.getLogger("blogify-typesense-autogen")
 
             private val subClassCache by lazy {
                 Field::class.sealedSubclasses
                     .filter { it.findAnnotation<TypesenseFieldType>() != null }
                     .associateWith { it.findAnnotation<TypesenseFieldType>()!! }
-                    .also { logger.debug("mapped field subclasses".green()) }
+                    .also { tsaLogger.debug("mapped field subclasses".green()) }
             }
 
             /**
@@ -143,7 +143,7 @@ class Template<T : Resource> (
                             returnType.classifier == entry.value.type && if (!entry.value.canBeFacet) !facet else true
                     } ?: error("illegal type '$returnType { facet: $facet }' on property '${property.name}'")
 
-                logger.trace("created typesense field for property $name with type ${returnType.classifier.toString()}; assigned type ${typesenseFieldClass.key.simpleName}".green())
+                tsaLogger.trace("created typesense field for property $name with type ${returnType.classifier.toString()}; assigned type ${typesenseFieldClass.key.simpleName}".green())
 
                 return typesenseFieldClass.key.constructors.first().call(name, facet)
             }

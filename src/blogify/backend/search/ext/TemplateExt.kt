@@ -5,6 +5,10 @@ import blogify.backend.annotations.SearchDefaultSort
 import blogify.backend.annotations.NoSlice
 import blogify.backend.resources.models.Resource
 import blogify.backend.search.models.Template
+import blogify.backend.search.models.Template.Field.Companion.tsaLogger
+
+import com.andreapivetta.kolor.magenta
+import com.andreapivetta.kolor.yellow
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberProperties
@@ -29,7 +33,11 @@ private const val TEMPLATE_DEFAULT_DSF = "_dsf_jank"
 fun <R : Resource> KClass<R>._buildSearchTemplate(): Template<R> {
     val fields = this.declaredMemberProperties
         .filter { it.findAnnotation<NoSearch>() == null && it.findAnnotation<NoSlice>() == null }.toTypedArray()
-    val sortingFieldName = fields.firstOrNull { it.findAnnotation<SearchDefaultSort>() != null }?.name ?: TEMPLATE_DEFAULT_DSF
+    val sortingFieldName = fields
+        .firstOrNull { it.findAnnotation<SearchDefaultSort>() != null }?.name
+            .also { tsaLogger.trace("found DSF for template '${this.simpleName!!}': '$it'".magenta()) }
+        ?: TEMPLATE_DEFAULT_DSF
+            .also { tsaLogger.trace("generated _dsf_jank for template '${this.simpleName!!}'".yellow()) }
     return Template (
         klass  = this,
         name   = this.simpleName!!,
