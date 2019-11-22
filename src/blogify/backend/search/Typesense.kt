@@ -88,6 +88,30 @@ object Typesense {
         }
     }
 
+    suspend inline fun <reified R : Resource> uploadResource(resource: R) {
+        val template = R::class._searchTemplate
+
+        typesenseClient.post<HttpResponse> {
+            url("$TYPESENSE_URL/collections/${template.name}/documents")
+            contentType(ContentType.Application.Json)
+
+            body = resource
+        }.let { response ->
+            val bodyMessage = response.receive<Map<String, Any?>>()["message"] as? String
+            tscLogger.trace("${response.status} $bodyMessage")
+        }
+    }
+
+    /**
+     * Executes a search [query] for resources of type [R]
+     *
+     * @param R     the type of resources to search for
+     * @param query the search query to use
+     *
+     * @return a [Search] containing the results
+     *
+     * @author Benjozork
+     */
     suspend inline fun <reified R : Resource> search(query: String): Search<R> {
         val template = R::class._searchTemplate
         val excludedFieldsString = template.fields.joinToString(separator = ",") { it.name }

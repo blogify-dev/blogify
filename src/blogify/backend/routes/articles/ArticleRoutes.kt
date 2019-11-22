@@ -116,16 +116,7 @@ fun Route.articles() {
                 ArticleService::add,
                 authPredicate = { user, article -> article.createdBy eqr user },
                 doAfter = { article ->
-                   /* HttpClient().use { client ->
-                        val objectMapper = jacksonObjectMapper()
-                        val jsonAsString = objectMapper.writeValueAsString(article.asDocument())
-                        println(jsonAsString)
-                        client.post<String> {
-                            url("http://ts:8108/collections/articles/documents")
-                            body = TextContent(jsonAsString, contentType = ContentType.Application.Json)
-                            header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
-                        }.also { println(it) }
-                    }*/
+                   Typesense.uploadResource(article)
                 }
             )
         }
