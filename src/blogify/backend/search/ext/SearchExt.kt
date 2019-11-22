@@ -12,7 +12,7 @@ import java.lang.Exception
 import java.lang.IllegalStateException
 
 suspend inline fun <reified T : Resource> Search.Hit.fetchResource(): ResourceResult<T> {
-    val resourceUUID = (this.document["id"] as String).toUUID()
+    val resourceUUID = (this.document["uuid"] as String).toUUID()
     return T::class.service.get(Resource.ObjectResolver.FakeApplicationCall, resourceUUID)
 }
 
