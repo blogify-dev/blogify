@@ -1,6 +1,7 @@
 package blogify.backend.search
 
 import blogify.backend.resources.models.Resource
+import blogify.backend.resources.reflect.sanitize
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.Template
@@ -95,7 +96,7 @@ object Typesense {
             url("$TYPESENSE_URL/collections/${template.name}/documents")
             contentType(ContentType.Application.Json)
 
-            body = resource
+            body = resource.sanitize()
         }.let { response ->
             val bodyMessage = response.receive<Map<String, Any?>>()["message"] as? String
             tscLogger.trace("${response.status} $bodyMessage")
