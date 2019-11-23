@@ -43,7 +43,7 @@ export class ShowAllArticlesComponent implements OnInit {
             const isSearching = it[it.length - 1].parameters['search'] != undefined;
             if (isSearching) { // We are in a search page
                 const query = it[it.length - 1].parameters['search'];
-                const actualQuery = query.match(/"\w+"/) != null ? query.substring(1, query.length - 1): null;
+                const actualQuery = query.match(/^"[^"']+"$/) != null ? query.substring(1, query.length - 1): null;
                 if (actualQuery != null) {
                     this.searchQuery = actualQuery;
                     this.startSearch();
