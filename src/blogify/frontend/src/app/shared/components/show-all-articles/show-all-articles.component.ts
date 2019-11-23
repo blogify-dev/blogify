@@ -5,6 +5,8 @@ import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { StaticContentService } from '../../../services/static/static-content.service';
 import { faArrowLeft, faPencilAlt, faSearch, faTimes} from '@fortawesome/free-solid-svg-icons';
 import { ArticleService } from '../../../services/article/article.service';
+import {ToasterService} from '../../services/toaster/toaster.service';
+import {Toast} from '../../services/toaster/models/Toast';
 
 @Component({
     selector: 'app-show-all-articles',
@@ -35,6 +37,7 @@ export class ShowAllArticlesComponent implements OnInit {
         private articleService: ArticleService,
         private staticContentService: StaticContentService,
         private activatedRoute: ActivatedRoute,
+        private toasterService: ToasterService,
         private router: Router
     ) {}
 

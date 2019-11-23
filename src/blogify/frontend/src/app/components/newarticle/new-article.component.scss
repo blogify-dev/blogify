@@ -95,6 +95,7 @@
 
         @media (max-width: $query-desktop) {
             flex-direction:  column;
+            align-items:     stretch;
         }
     }
 

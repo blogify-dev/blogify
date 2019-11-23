@@ -1,0 +1,43 @@
+@import "../../../../styles/queries";
+
+.toast {
+    width: 300px;
+    @media (max-width: $query-desktop) {
+        width: calc(100% - 3rem);
+    }
+
+    position: fixed;
+    top:   7rem;
+    right: 2rem;
+    left:  unset;
+    @media (max-width: $query-desktop) {
+        top:   unset;
+        right: 1rem;
+        left:  1rem;
+        bottom: 1rem;
+    }
+
+    padding: 1rem 1.5rem;
+    border-radius: .75rem;
+
+    display:         flex;
+    flex-direction:  row;
+    justify-content: stretch;
+
+    .toast-body {
+
+        .toast-header {
+            padding-top: 0;
+        }
+
+    }
+
+    .toast-icon {
+        display:         flex;
+        flex-direction:  column;
+        justify-content: center;
+
+        margin-left: auto;
+    }
+
+}

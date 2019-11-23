@@ -26,6 +26,12 @@ Please try to only use these colors in all other files. This ensures consistency
     --accent-positive: hsl(158, 49%, 54%);
     --accent-gray:     hsl(240,  1%, 57%);
 
+    --toast-mild:     hsl(41,  33%, 45%);
+    --toast-negative: hsl(8,   36%, 45%);
+    --toast-neutral:  hsl(175, 41%, 45%);
+    --toast-positive: hsl(158, 49%, 45%);
+    --toast-gray:     hsl(240,  1%, 30%);
+
     --logo-filter: brightness(0);
 
     &[data-theme="dark"] {

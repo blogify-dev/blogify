@@ -1,13 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild} from '@angular/core';
 import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
 import { User } from '../../models/User';
-import { StaticFile } from "../../models/Static";
+import { StaticFile } from '../../models/Static';
 import { AuthService } from '../../shared/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Router } from "@angular/router";
+import { HttpClient} from '@angular/common/http';
+import { faExclamationCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { Router } from '@angular/router';
+import { ToasterComponent } from '../../shared/components/toaster/toaster.component';
+import { ToasterService } from '../../shared/services/toaster/toaster.service';
+import { Toast, ToastStyle } from '../../shared/services/toaster/models/Toast';
 
 type Result = 'none' | 'success' | 'error';
 
@@ -36,9 +39,13 @@ export class NewArticleComponent implements OnInit {
 
     result: { status: Result, message: string } = { status: 'none', message: null };
 
+    @ViewChild(ToasterComponent, { static: false })
+    private toaster: ToasterComponent;
+
     constructor (
         private articleService: ArticleService,
         private authService: AuthService,
+        private toasterService: ToasterService,
         private http: HttpClient,
         private router: Router,
     ) {}
@@ -46,7 +53,21 @@ export class NewArticleComponent implements OnInit {
     async ngOnInit() {
         this.user = await this.authService.userProfile;
         this.validations = await this.http.get<object>('/api/articles/_validations').toPromise();
-        console.warn(this.validations);
+
+        this.toasterService.plugInto(this.toaster);
+        this.toasterService.feed (
+            new Toast ({
+                header: 'One toast !',
+                content: 'Body of the first toast, neutral colored ! :)',
+                backgroundColor: ToastStyle.NEUTRAL
+            }),
+            new Toast ({
+                header: 'The Second Toast...',
+                content: 'Contents of the second toast. Interesting.',
+                icon: faExclamationCircle,
+                backgroundColor: ToastStyle.MILD
+            })
+        );
     }
 
     private validateOnServer(fieldName: string): ValidatorFn {

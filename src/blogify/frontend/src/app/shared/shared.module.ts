@@ -12,6 +12,7 @@ import { CompactDirective } from './directives/compact/compact.directive';
 import {FormsModule} from "@angular/forms";
 import { SingleArticleBoxComponent } from './components/show-all-articles/single-article-box/single-article-box.component';
 import { FilteringMenuComponent } from './components/show-all-articles/filtering-menu/filtering-menu.component';
+import { ToasterComponent } from './components/toaster/toaster.component';
 
 @NgModule({
     declarations: [
@@ -24,6 +25,7 @@ import { FilteringMenuComponent } from './components/show-all-articles/filtering
         UserDisplayComponent,
         SingleArticleBoxComponent,
         FilteringMenuComponent,
+        ToasterComponent,
     ],
     imports: [
         CommonModule,
@@ -38,7 +40,8 @@ import { FilteringMenuComponent } from './components/show-all-articles/filtering
         TabHeaderComponent,
         ProfilePictureComponent,
         ShowAllArticlesComponent,
-        UserDisplayComponent
+        UserDisplayComponent,
+        ToasterComponent
     ]
 })
 export class SharedModule { }
