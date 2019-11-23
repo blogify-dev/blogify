@@ -58,6 +58,10 @@ export class ShowAllArticlesComponent implements OnInit {
         await this.router.navigate([{ search: `"${this.searchQuery}"` }], { relativeTo: this.activatedRoute })
     }
 
+    async navigateToNoSearch() {
+        await this.router.navigateByUrl(this.router.url.replace(/search/, '')) // Hacky, but works !
+    }
+
     private async startSearch() {
         this.articleService.search (
             this.searchQuery,
@@ -75,7 +79,8 @@ export class ShowAllArticlesComponent implements OnInit {
         this.showingSearchResults = false;
         this.forceNoAllowCreate = false;
         this.searchQuery = undefined;
-        this.showingMobileSearchBar = false
+        this.showingMobileSearchBar = false;
+        this.navigateToNoSearch();
     }
 
     async navigateToNewArticle() {
