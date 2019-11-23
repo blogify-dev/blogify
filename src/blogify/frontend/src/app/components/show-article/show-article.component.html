@@ -27,32 +27,22 @@
             <!-- Timestamp -->
             <span class="date">{{article.createdAt | relativeTime}}</span>
 
+            <span class="separator"></span>
+
+            <!-- Share button -->
+            <a id="button-share" class="clickable" (click)="copyUrlToClipboard()">
+                <fa-icon [icon]="faShare" size="2x" [transform]="{ size: 15, y: 1 }"></fa-icon>
+            </a>
+
              <!-- Update button -->
             <a id="button-update" routerLink="/article/update/{{article.uuid}}" *ngIf="showUpdateButton">
                  <fa-icon [icon]="faEdit" size="2x" [transform]="{ size: 19 }"></fa-icon>
             </a>
 
-            <a (click)="copyUrlToClipboard()">
-                <fa-icon [icon]="faShare" size="2x" [transform]="{ size: 19 }"></fa-icon>
-            </a>
-
-            <!-- <button routerLink="/article/update/{{article.uuid}}"
-                    id="button-update"
-                    class="hollow small neutral"
-                    *ngIf="showUpdateButton">
-                Update
-            </button> -->
-
             <!-- Delete button -->
             <a id="button-delete" class="hover-negative" (click)="deleteArticle()" *ngIf="showUpdateButton">
                 <fa-icon [icon]="faTimes" size="2x" [transform]="{ size: 22 }"></fa-icon>
             </a>
-            <!-- <button (click)="deleteArticle()"
-                    id="button-delete"
-                    class="hollow small negative"
-                    *ngIf="showDeleteButton">
-                Delete
-            </button> -->
 
         </div>
 

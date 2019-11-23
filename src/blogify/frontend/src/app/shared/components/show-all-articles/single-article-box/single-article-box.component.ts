@@ -19,6 +19,6 @@ export class SingleArticleBoxComponent implements OnInit {
     ngOnInit() {}
 
     copyLinkToClipboard(article: Article) {
-        this.clipboardService.copyFromContent(`${window.location.href.split('/')[2]}/article/${article.uuid}`)
+        this.clipboardService.copyFromContent(window.location.href)
     }
 }
