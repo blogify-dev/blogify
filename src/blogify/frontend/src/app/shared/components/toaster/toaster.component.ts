@@ -11,7 +11,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 export class ToasterComponent implements OnInit {
 
     private toastQueue: Toast[] = [];
-    private currentToast: Toast | null;
+    currentToast: Toast | null;
 
     constructor(private domSanitizer: DomSanitizer) {}
 
