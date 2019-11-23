@@ -22,11 +22,19 @@
 
     <div class="article-last-line">
         <!-- Comment count -->
-        <h4 class="article-comments-count"><fa-icon [icon]="faCommentAlt" size="lg"></fa-icon> {{article.numberOfComments}}</h4>
-
-        <a (click)="copyLinkToClipboard(article)">
-            <fa-icon [icon]="faShare" size="2x" [transform]="{ size: 19 }"></fa-icon>
+        <a class="article-comments-count clickable">
+            <fa-icon [icon]="faCommentAlt" size="lg"></fa-icon>
+            Comments ({{article.numberOfComments}})
         </a>
+
+        <span class="separator"></span>
+
+        <!-- Share button -->
+        <a class="article-share clickable" (click)="copyLinkToClipboard(article)">
+            <fa-icon [icon]="faShare" size="2x" [transform]="{ size: 15, y: 1 }"></fa-icon>
+            Share
+        </a>
+
         <!-- Categories -->
         <div class="article-tags" *ngIf="article.categories.length > 0">
             <span class="tags-title">Tags:&nbsp;</span>

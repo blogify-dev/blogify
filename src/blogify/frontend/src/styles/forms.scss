@@ -157,7 +157,9 @@ button {
     }
 }
 
-a, span.clickable {
+*.clickable {
+
+    cursor: pointer;
 
     &:hover, &:hover * { color: var(--accent-neutral); }
 

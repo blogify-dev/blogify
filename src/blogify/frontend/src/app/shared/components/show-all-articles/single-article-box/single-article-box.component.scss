@@ -69,43 +69,63 @@
     .article-last-line {
         width: 100%;
 
+        margin-top: 1rem;
+
         text-align: center;
 
         display:         flex;
         flex-direction:  row;
         justify-content: space-between;
         align-items:     center;
-    }
 
-    .article-comments-count {
-        display:         flex;
-        flex-direction:  row;
-        justify-content: space-between;
-        align-items:     center;
-
-        fa-icon:first-child { margin-right: .75em; }
-
-        align-self: flex-end;
-    }
-
-    .article-no-tags,
-    .article-tags {
-        display:    flex;
-        align-self: flex-end;
-
-        margin-top: 1.2em;
-
-        & > * {
-            font-size: 1.35em;
-            margin:    0    .25em;
-            padding:  .15em .65em;
-
-            border-radius: .3em;
-
-            &:not(:nth-child(1)) { background-color: var(--card-ct); }
-            &:nth-child(1)       { margin-right: 0; padding-right: 0; }
-            &:last-child         { margin-right: 0 }
+        $element-separation: 1.25rem;
+        .separator {
+            margin-left: $element-separation !important;
         }
+        a {
+            font-size: 1.4rem;
+            font-weight: 600;
+
+            &:not(:first-child) { margin-left: $element-separation; }
+        }
+
+        .article-comments-count {
+            display:         flex;
+            flex-direction:  row;
+            justify-content: space-between;
+            align-items:     center;
+
+            fa-icon:first-child { margin-right: .75em; }
+        }
+
+        .article-share {
+            display:         flex;
+            flex-direction:  row;
+            justify-content: space-between;
+            align-items:     center;
+
+            fa-icon:first-child { margin-right: .75em; }
+
+            margin-right: auto;
+        }
+
+        .article-no-tags,
+        .article-tags {
+            display: flex;
+
+            & > * {
+                font-size: 1.35em;
+                margin:    0    .25em;
+                padding:  .15em .65em;
+
+                border-radius: .3em;
+
+                &:not(:nth-child(1)) { background-color: var(--card-ct); }
+                &:nth-child(1)       { margin-right: 0; padding-right: 0; }
+                &:last-child         { margin-right: 0 }
+            }
+        }
+
     }
 
 }
