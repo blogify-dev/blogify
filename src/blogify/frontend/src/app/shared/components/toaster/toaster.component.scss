@@ -3,7 +3,7 @@
 .toast {
     width: 300px;
     @media (max-width: $query-desktop) {
-        width: calc(100% - 3rem);
+        width: calc(100% - 2rem);
     }
 
     position: fixed;
@@ -12,7 +12,7 @@
     left:  unset;
     @media (max-width: $query-desktop) {
         top:   unset;
-        right: 1rem;
+        right: 2rem !important;
         left:  1rem;
         bottom: 1rem;
     }

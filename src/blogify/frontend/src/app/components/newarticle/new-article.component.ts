@@ -1,12 +1,12 @@
-import { Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
 import { User } from '../../models/User';
 import { StaticFile } from '../../models/Static';
 import { AuthService } from '../../shared/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { HttpClient} from '@angular/common/http';
-import { faExclamationCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { HttpClient } from '@angular/common/http';
+import { faExclamationCircle, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 import { ToasterComponent } from '../../shared/components/toaster/toaster.component';
 import { ToasterService } from '../../shared/services/toaster/toaster.service';
@@ -66,6 +66,12 @@ export class NewArticleComponent implements OnInit {
                 content: 'Contents of the second toast. Interesting.',
                 icon: faExclamationCircle,
                 backgroundColor: ToastStyle.MILD
+            }),
+            new Toast ({
+                header: 'A THIRD ONE !',
+                content: 'Danger danger danger danger danger danger danger !',
+                icon: faTimes,
+                backgroundColor: ToastStyle.NEGATIVE
             })
         );
     }
