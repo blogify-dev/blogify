@@ -19,6 +19,7 @@ import io.ktor.http.contentType
 import io.ktor.client.call.receive
 import io.ktor.client.features.defaultRequest
 import io.ktor.client.request.get
+import io.ktor.client.request.delete
 
 import com.andreapivetta.kolor.green
 
