@@ -6,7 +6,7 @@ import { SettingsComponent } from './settings/settings.component';
 
 const routes: Routes = [
     {
-        path: 'profile/:username', component: MainProfileComponent, 
+        path: 'profile/:username', component: MainProfileComponent,
         children: [
             { path: '', redirectTo: 'overview', pathMatch: 'full' },
             { path: 'overview', component: OverviewComponent, },

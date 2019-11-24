@@ -22,6 +22,8 @@ import { ProfileModule } from './components/profile/profile/profile.module';
 import { FooterComponent } from './components/footer/footer.component';
 import { ClipboardModule } from "ngx-clipboard";
 import { Error404FallbackComponent } from './components/error404-fallback/error404-fallback.component';
+import { AdminComponent } from './components/admin/admin.component';
+import { AdminModule } from './components/admin/admin/admin.module';
 
 @NgModule({
     declarations: [
@@ -38,6 +40,7 @@ import { Error404FallbackComponent } from './components/error404-fallback/error4
         UpdateArticleComponent,
         FooterComponent,
         Error404FallbackComponent,
+        AdminComponent,
     ],
     imports: [
         BrowserModule,
@@ -46,11 +49,14 @@ import { Error404FallbackComponent } from './components/error404-fallback/error4
         HttpClientModule,
         FormsModule,
         ReactiveFormsModule,
+
         FontAwesomeModule,
         MarkdownModule.forRoot(),
-        ProfileModule,
-        SharedModule,
         ClipboardModule,
+
+        SharedModule,
+        ProfileModule,
+        AdminModule,
     ],
     providers: [],
     exports: [],

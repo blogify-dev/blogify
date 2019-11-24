@@ -5,7 +5,6 @@ import { SettingsComponent } from './settings/settings.component';
 import { MainProfileComponent } from './main/main-profile.component';
 import { OverviewComponent } from './overview/overview.component';
 import { SharedModule } from '../../../shared/shared.module';
-import {AppModule} from '../../../app.module';
 
 @NgModule({
     declarations: [

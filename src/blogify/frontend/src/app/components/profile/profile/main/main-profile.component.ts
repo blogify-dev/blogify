@@ -15,7 +15,6 @@ export class MainProfileComponent implements OnInit {
 
     baseTabs: TabList = [
         new Tab('Overview', 'overview')
-
     ];
 
     loggedInTabs: TabList = [
