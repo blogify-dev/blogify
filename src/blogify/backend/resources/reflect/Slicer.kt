@@ -120,6 +120,8 @@ fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>): Map<String, Any?> 
  *
  * @receiver the [resource][Resource] to be sliced
  *
+ * @param noSearch whether or not to exclude properties with a [NoSearch] annotation
+ *
  * @author Benjozork
  */
 fun <M : Mapped> M.sanitize(noSearch: Boolean = false): Map<String, Any?> {

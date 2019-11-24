@@ -89,6 +89,14 @@ object Typesense {
         }
     }
 
+    /**
+     * Adds a [Resource] to the [Typesense] index
+     *
+     * @param R        the class of the resource to upload
+     * @param resource the resource to upload
+     *
+     * @author Benjozork
+     */
     suspend inline fun <reified R : Resource> uploadResource(resource: R) {
         val template = R::class._searchTemplate
 
