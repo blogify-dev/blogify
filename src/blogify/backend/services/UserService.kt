@@ -2,7 +2,6 @@ package blogify.backend.services
 
 import blogify.backend.database.Users
 import blogify.backend.resources.User
-import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.Service
 import blogify.backend.database.handling.query
 import blogify.backend.resources.static.models.StaticResourceHandle
