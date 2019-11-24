@@ -21,7 +21,7 @@ data class User (
     @noslice val password:       String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
              val name:           String,
              val email:          String,
-             val profilePicture: @type("image/*") StaticResourceHandle,
+             val profilePicture: @type("image/png") StaticResourceHandle,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid)
