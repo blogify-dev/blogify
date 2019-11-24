@@ -8,6 +8,7 @@ import blogify.backend.database.Users
 import blogify.backend.resources.User
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.routes.handling.respondExceptionMessage
+import blogify.backend.search.Typesense
 import blogify.backend.services.UserService
 import blogify.backend.services.models.Service
 import blogify.backend.util.*
@@ -68,19 +69,8 @@ data class RegisterCredentials (
             profilePicture = StaticResourceHandle.None(ContentType.Image.PNG)
         )
 
-        UserService.add(created).fold(
-            success = { user ->
-                /*HttpClient().use { client ->
-                    val objectMapper = jacksonObjectMapper()
-                    val jsonAsString = objectMapper.writeValueAsString(user.asDocument())
-                    println(jsonAsString)
-                    client.post<String> {
-                        url("http://ts:8108/collections/users/documents")
-                        body = TextContent(jsonAsString, contentType = ContentType.Application.Json)
-                        header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
-                    }.also { println(it) }
-                }*/
-            },
+        UserService.add(created).fold (
+            success = { user -> Typesense.uploadResource(user) },
             failure = {
                 error("$created: signup couldn't create user\nError:$it")
             }

@@ -39,12 +39,12 @@ fun Route.users() {
                 UserService::delete,
                 authPredicate = { user, manipulated -> user eqr manipulated },
                 doAfter = {id ->
-                    HttpClient().use { client ->
+                    /*HttpClient().use { client ->
                         client.delete<String> {
                             url("http://ts:8108/collections/users/documents/$id")
                             header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
                         }.also { println(it) }
-                    }
+                    }*/
                 }
             )
         }
