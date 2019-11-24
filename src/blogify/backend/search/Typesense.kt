@@ -5,6 +5,7 @@ import blogify.backend.resources.reflect.sanitize
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.Template
+import blogify.backend.util.short
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JacksonSerializer
@@ -22,6 +23,8 @@ import io.ktor.client.request.get
 import io.ktor.client.request.delete
 
 import com.andreapivetta.kolor.green
+import com.andreapivetta.kolor.red
+import io.ktor.http.isSuccess
 
 import org.slf4j.LoggerFactory
 
@@ -64,6 +67,11 @@ object Typesense {
     }
 
     /**
+     * Get a message from a Typesense error response
+     */
+    suspend fun typesenseMessage(response: HttpResponse) = response.receive<Map<String, Any?>>()["message"] as? String
+
+    /**
      * Uploads a document template to the Typesense REST API
      *
      * @param R        class associated with [template]
@@ -85,8 +93,7 @@ object Typesense {
                     tscLogger.info("uploaded Typesense template '${template.name}'".green())
                 }
                 else -> {
-                    val bodyMessage = response.receive<Map<String, Any?>>()["message"] as? String
-                    error("error while uploading Typesense template '${template.name}': '${status.value} ${status.description} / ${bodyMessage}'")
+                    error("error while uploading Typesense template: ${template.name} ${typesenseMessage(response)}")
                 }
             }
         }
@@ -109,20 +116,47 @@ object Typesense {
 
             body = resource.sanitize(noSearch = true) + ("id" to resource.uuid)
         }.let { response ->
-            val bodyMessage = response.receive<Map<String, Any?>>()["message"] as? String
-            tscLogger.trace("${response.status} $bodyMessage")
+            if (response.status.isSuccess()) {
+                tscLogger.trace("uploaded resource ${resource.uuid.short()} to Typesense index".green())
+            } else {
+                tscLogger.error("couldn't upload resource ${resource.uuid.short()} to Typesense index: ${typesenseMessage(response)}".red())
+            }
         }
     }
 
+    /**
+     * Removes a [Resource] from the [Typesense] index
+     *
+     * @param R  the class of the resource to delete
+     * @param id the id resource to delete
+     *
+     * @author Benjozork
+     */
     suspend inline fun <reified R : Resource> deleteResource(id: UUID) {
         val template = R::class._searchTemplate
 
         typesenseClient.delete<HttpResponse> {
             url("$TYPESENSE_URL/collections/${template.name}/documents/$id")
         }.let { response ->
-            val bodyMessage = response.receive<Map<String, Any?>>()["message"] as? String
-            tscLogger.trace("${response.status} $bodyMessage")
+            if (response.status.isSuccess()) {
+                tscLogger.trace("deleted resource ${id.short()} from Typesense index".green())
+            } else {
+                tscLogger.error("couldn't delete resource ${id.short()} from Typesense index: ${typesenseMessage(response)}".red())
+            }
         }
+    }
+
+    /**
+     * Updates a [Resource] in the [Typesense] index
+     *
+     * @param R        the class of the resource to update
+     * @param resource the resource to replace the previous resource of the same UUID with
+     *
+     * @author Benjozork
+     */
+    suspend inline fun <reified R : Resource> updateResource(resource: R) {
+        deleteResource<R>(resource.uuid)
+        uploadResource(resource)
     }
 
     /**

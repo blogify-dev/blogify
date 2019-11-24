@@ -88,21 +88,7 @@ fun Route.articles() {
                 fetch = ArticleService::get,
                 authPredicate = { user, article -> article.createdBy eqr user },
                 doAfter = { replacement ->
-                    HttpClient().use { client ->
-                        client.delete<String> {
-                            url("http://ts:8108/collections/articles/documents/${replacement.uuid}")
-                            header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
-                        }.also { println(it) }
-
-                        val objectMapper = jacksonObjectMapper()
-                        /*val jsonAsString = objectMapper.writeValueAsString(replacement.asDocument())
-                        println(jsonAsString)
-                        client.post<String> {
-                            url("http://ts:8108/collections/articles/documents")
-                            body = TextContent(jsonAsString, contentType = ContentType.Application.Json)
-                            header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
-                        }.also { println(it) }*/
-                    }
+                    Typesense.updateResource(replacement)
                 }
             )
         }
@@ -119,24 +105,9 @@ fun Route.articles() {
 
         get("/search") {
             val params = call.parameters
-            val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
+            val selectedPropertyNames = params["fields"]?.split(",")?.toSet() // fixme: don't ignore this
             params["q"]?.let { query ->
-                val parsed = Typesense.search<Article>(query).asSearchView()
-
-                call.respond(parsed)
-
-                /*parsed.hits?.let { hits -> // Some hits
-                    val hitResources = hits.map { it.template.article() }
-                    try {
-                        selectedPropertyNames?.let { props ->
-
-                            call.respond(hitResources.map { it.slice(props) })
-
-                        } ?: call.respond(hitResources.map { it.sanitize() })
-                    } catch (bruhMoment: Service.Exception) {
-                        call.respondExceptionMessage(bruhMoment)
-                    }
-                } ?: call.respond(HttpStatusCode.NoContent) // No hits*/
+                call.respond(Typesense.search<Article>(query).asSearchView())
             }
         }
 
