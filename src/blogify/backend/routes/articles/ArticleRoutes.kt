@@ -18,6 +18,7 @@ import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.articles.CommentService
 import blogify.backend.services.models.Service
 import blogify.backend.util.TYPESENSE_API_KEY
+import blogify.backend.util.toUUID
 
 import io.ktor.application.call
 import io.ktor.routing.*
@@ -71,17 +72,12 @@ fun Route.articles() {
         }
 
         delete("/{uuid}") {
-            deleteWithId(
+            deleteWithId (
                 fetch = ArticleService::get,
                 delete = ArticleService::delete,
                 authPredicate = { user, article -> article.createdBy == user },
                 doAfter = { id ->
-                    HttpClient().use { client ->
-                        client.delete<String> {
-                            url("http://ts:8108/collections/articles/documents/$id")
-                            header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
-                        }.also { println(it) }
-                    }
+                    Typesense.deleteResource<Article>(id.toUUID())
                 }
             )
         }

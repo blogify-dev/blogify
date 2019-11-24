@@ -24,6 +24,8 @@ import com.andreapivetta.kolor.green
 
 import org.slf4j.LoggerFactory
 
+import java.util.UUID
+
 val tscLogger = LoggerFactory.getLogger("blogify-typesense-client")
 
 /**
@@ -104,7 +106,18 @@ object Typesense {
             url("$TYPESENSE_URL/collections/${template.name}/documents")
             contentType(ContentType.Application.Json)
 
-            body = resource.sanitize(noSearch = true)
+            body = resource.sanitize(noSearch = true) + ("id" to resource.uuid)
+        }.let { response ->
+            val bodyMessage = response.receive<Map<String, Any?>>()["message"] as? String
+            tscLogger.trace("${response.status} $bodyMessage")
+        }
+    }
+
+    suspend inline fun <reified R : Resource> deleteResource(id: UUID) {
+        val template = R::class._searchTemplate
+
+        typesenseClient.delete<HttpResponse> {
+            url("$TYPESENSE_URL/collections/${template.name}/documents/$id")
         }.let { response ->
             val bodyMessage = response.receive<Map<String, Any?>>()["message"] as? String
             tscLogger.trace("${response.status} $bodyMessage")

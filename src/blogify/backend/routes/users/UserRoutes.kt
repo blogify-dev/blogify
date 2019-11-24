@@ -6,9 +6,11 @@ import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
 import blogify.backend.routes.handling.*
+import blogify.backend.search.Typesense
 import blogify.backend.services.UserService
 import blogify.backend.services.models.Service
 import blogify.backend.util.TYPESENSE_API_KEY
+import blogify.backend.util.toUUID
 
 import io.ktor.application.call
 import io.ktor.client.HttpClient
@@ -34,17 +36,12 @@ fun Route.users() {
         }
 
         delete("/{uuid}") {
-            deleteWithId(
+            deleteWithId (
                 UserService::get,
                 UserService::delete,
                 authPredicate = { user, manipulated -> user eqr manipulated },
-                doAfter = {id ->
-                    /*HttpClient().use { client ->
-                        client.delete<String> {
-                            url("http://ts:8108/collections/users/documents/$id")
-                            header("X-TYPESENSE-API-KEY", TYPESENSE_API_KEY)
-                        }.also { println(it) }
-                    }*/
+                doAfter = { id ->
+                    Typesense.deleteResource<User>(id.toUUID())
                 }
             )
         }
