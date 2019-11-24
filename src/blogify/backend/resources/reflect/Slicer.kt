@@ -131,7 +131,7 @@ fun <M : Mapped> M.sanitize(noSearch: Boolean = false): Map<String, Any?> {
             it.value is PropMap.PropertyHandle.Ok
                     && (!noSearch || (it.value as PropMap.PropertyHandle.Ok).property.findAnnotation<NoSearch>() == null)
         }
-        .map    { it.key }
+        .map { it.key }
         .toSet()
 
     return this.slice(sanitizedClassProps)
