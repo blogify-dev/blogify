@@ -1,9 +1,12 @@
 package blogify.backend.resources.reflect
 
+import blogify.backend.annotations.NoSearch
 import blogify.backend.resources.models.Resource
-import blogify.backend.annotations.noslice
+import blogify.backend.annotations.NoSlice
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
+
+import kotlin.reflect.full.findAnnotation
 
 /**
  * Represents the result of [getPropValueOnInstance].
@@ -113,17 +116,22 @@ fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>): Map<String, Any?> 
 }
 
 /**
- * Slices a resource with all of its properties except ones annotated with [@noslice][noslice]
+ * Slices a resource with all of its properties except ones annotated with [@noslice][NoSlice]
  *
  * @receiver the [resource][Resource] to be sliced
  *
+ * @param noSearch whether or not to exclude properties with a [NoSearch] annotation
+ *
  * @author Benjozork
  */
-fun <M : Mapped> M.sanitize(): Map<String, Any?> {
+fun <M : Mapped> M.sanitize(noSearch: Boolean = false): Map<String, Any?> {
     val sanitizedClassProps = this::class.cachedPropMap()
         .asSequence()
-        .filter { it.value is PropMap.PropertyHandle.Ok }
-        .map    { it.key }
+        .filter {
+            it.value is PropMap.PropertyHandle.Ok
+                    && (!noSearch || (it.value as PropMap.PropertyHandle.Ok).property.findAnnotation<NoSearch>() == null)
+        }
+        .map { it.key }
         .toSet()
 
     return this.slice(sanitizedClassProps)

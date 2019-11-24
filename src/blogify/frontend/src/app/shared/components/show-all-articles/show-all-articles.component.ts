@@ -46,7 +46,7 @@ export class ShowAllArticlesComponent implements OnInit {
             const isSearching = it[it.length - 1].parameters['search'] != undefined;
             if (isSearching) { // We are in a search page
                 const query = it[it.length - 1].parameters['search'];
-                const actualQuery = query.match(/"\w+"/) != null ? query.substring(1, query.length - 1): null;
+                const actualQuery = query.match(/^"[^"']+"$/) != null ? query.substring(1, query.length - 1): null;
                 if (actualQuery != null) {
                     this.searchQuery = actualQuery;
                     this.startSearch();
@@ -61,6 +61,10 @@ export class ShowAllArticlesComponent implements OnInit {
         await this.router.navigate([{ search: `"${this.searchQuery}"` }], { relativeTo: this.activatedRoute })
     }
 
+    async navigateToNoSearch() {
+        await this.router.navigateByUrl(this.router.url.replace(/search/, '')) // Hacky, but works !
+    }
+
     private async startSearch() {
         this.articleService.search (
             this.searchQuery,
@@ -70,7 +74,7 @@ export class ShowAllArticlesComponent implements OnInit {
             this.showingSearchResults = true;
             this.forceNoAllowCreate = true;
         }).catch((err: Error) => {
-            console.error(`[blogifySearch] Error while search: ${err.name}: ${err.message}`)
+            console.error(`[blogifySearch] Error during search: ${err.name}: ${err.message}`)
         });
     }
 
@@ -78,7 +82,8 @@ export class ShowAllArticlesComponent implements OnInit {
         this.showingSearchResults = false;
         this.forceNoAllowCreate = false;
         this.searchQuery = undefined;
-        this.showingMobileSearchBar = false
+        this.showingMobileSearchBar = false;
+        this.navigateToNoSearch();
     }
 
     async navigateToNewArticle() {

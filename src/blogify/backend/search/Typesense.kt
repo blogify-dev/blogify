@@ -1,9 +1,11 @@
 package blogify.backend.search
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.ser.std.StdSerializer
+import blogify.backend.resources.models.Resource
+import blogify.backend.resources.reflect.sanitize
+import blogify.backend.search.ext._searchTemplate
+import blogify.backend.search.models.Search
+import blogify.backend.search.models.Template
+import blogify.backend.util.short
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JacksonSerializer
@@ -11,6 +13,24 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.url
+import io.ktor.client.response.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
+import io.ktor.client.call.receive
+import io.ktor.client.features.defaultRequest
+import io.ktor.client.request.get
+import io.ktor.client.request.delete
+
+import com.andreapivetta.kolor.green
+import com.andreapivetta.kolor.red
+
+import org.slf4j.LoggerFactory
+
+import java.util.UUID
+
+val tscLogger = LoggerFactory.getLogger("blogify-typesense-client")
 
 /**
  * Meta object regrouping setup and utility functions for the Typesense search engine.
@@ -20,7 +40,7 @@ object Typesense {
     /**
      * Typesense REST API URL
      */
-    private const val TYPESENSE_URL = "http://ts:8108"
+    const val TYPESENSE_URL = "http://ts:8108"
 
     /**
      * Typesense API key HTTP header string
@@ -34,51 +54,127 @@ object Typesense {
      */
     private const val TYPESENSE_API_KEY = "Hu52dwsas2AdxdE"
 
-    sealed class Type(val facet: Boolean, val textForm: kotlin.String) {
+    val typesenseClient = HttpClient {
+        install(JsonFeature) { serializer = JacksonSerializer(); }
 
-        class String      (facet: Boolean = false): Type(facet, "string")
-        class StringArray (facet: Boolean = false): Type(facet, "string[]")
-        class Int32       (facet: Boolean = false): Type(facet, "int32")
-        class Int32Array  (facet: Boolean = false): Type(facet, "int32[]")
-        class Int64       (facet: Boolean = false): Type(facet, "int64")
-        class Int64Array  (facet: Boolean = false): Type(facet, "int64[]")
-        class Float       (facet: Boolean = false): Type(facet, "float")
-        class FloatArray  (facet: Boolean = false): Type(facet, "float[]")
-        class Bool        (facet: Boolean = false): Type(facet, "bool")
-        class BoolArray   (facet: Boolean = false): Type(facet, "bool[]")
-
-        object Serializer : StdSerializer<Type>(Type::class.java) {
-            override fun serialize(value: Type?, gen: JsonGenerator?, provider: SerializerProvider?) = gen!!.writeString(value?.textForm)
+        // Always include Typesense headers
+        defaultRequest {
+            header(TYPESENSE_API_KEY_HEADER, TYPESENSE_API_KEY)
         }
 
+        // Allows us to read response even when status < 300
+        expectSuccess = false
     }
 
-    class Template<T : Any> (
-        val name: String,
-
-        val fields: Map<String, Type>,
-
-        @JsonProperty("default_sorting_field")
-        val defaultSortingField: String
-    )
-
-    private val typesenseClient = HttpClient { install(JsonFeature) { serializer = JacksonSerializer(); } }
+    /**
+     * Get a message from a Typesense error response
+     */
+    suspend fun typesenseMessage(response: HttpResponse) = response.receive<Map<String, Any?>>()["message"] as? String
 
     /**
      * Uploads a document template to the Typesense REST API
      *
-     * @param template the document template, in JSON format.
+     * @param R        class associated with [template]
+     * @param template the document template.
      *                 See the [typesense docs](https://typesense.org/docs/0.11.0/api/#create-collection) for more info.
      *
      * @author hamza1311, Benjozork
      */
-    suspend fun <T : Any> submitResourceTemplate(template: Template<T>) {
-        typesenseClient.use { client ->
-            client.post<String> {
-                url("$TYPESENSE_URL/collections")
-                body = template
-                header(TYPESENSE_API_KEY_HEADER, TYPESENSE_API_KEY)
+    suspend fun <R : Resource> submitResourceTemplate(template: Template<R>) {
+        typesenseClient.post<HttpResponse> {
+            url("$TYPESENSE_URL/collections")
+            contentType(ContentType.Application.Json)
+
+            body = template
+        }.let { response ->
+            when (val status = response.status) {
+                HttpStatusCode.Created,
+                HttpStatusCode.Conflict -> { // Both of those cases mean the template either already exists or was created
+                    tscLogger.info("uploaded Typesense template '${template.name}'".green())
+                }
+                else -> {
+                    error("error while uploading Typesense template: ${template.name} ${typesenseMessage(response)}")
+                }
             }
+        }
+    }
+
+    /**
+     * Adds a [Resource] to the [Typesense] index
+     *
+     * @param R        the class of the resource to upload
+     * @param resource the resource to upload
+     *
+     * @author Benjozork
+     */
+    suspend inline fun <reified R : Resource> uploadResource(resource: R) {
+        val template = R::class._searchTemplate
+
+        typesenseClient.post<HttpResponse> {
+            url("$TYPESENSE_URL/collections/${template.name}/documents")
+            contentType(ContentType.Application.Json)
+
+            body = resource.sanitize(noSearch = true) + ("id" to resource.uuid)
+        }.let { response ->
+            if (response.status.isSuccess()) {
+                tscLogger.trace("uploaded resource ${resource.uuid.short()} to Typesense index".green())
+            } else {
+                tscLogger.error("couldn't upload resource ${resource.uuid.short()} to Typesense index: ${typesenseMessage(response)}".red())
+            }
+        }
+    }
+
+    /**
+     * Removes a [Resource] from the [Typesense] index
+     *
+     * @param R  the class of the resource to delete
+     * @param id the id resource to delete
+     *
+     * @author Benjozork
+     */
+    suspend inline fun <reified R : Resource> deleteResource(id: UUID) {
+        val template = R::class._searchTemplate
+
+        typesenseClient.delete<HttpResponse> {
+            url("$TYPESENSE_URL/collections/${template.name}/documents/$id")
+        }.let { response ->
+            if (response.status.isSuccess()) {
+                tscLogger.trace("deleted resource ${id.short()} from Typesense index".green())
+            } else {
+                tscLogger.error("couldn't delete resource ${id.short()} from Typesense index: ${typesenseMessage(response)}".red())
+            }
+        }
+    }
+
+    /**
+     * Updates a [Resource] in the [Typesense] index
+     *
+     * @param R        the class of the resource to update
+     * @param resource the resource to replace the previous resource of the same UUID with
+     *
+     * @author Benjozork
+     */
+    suspend inline fun <reified R : Resource> updateResource(resource: R) {
+        deleteResource<R>(resource.uuid)
+        uploadResource(resource)
+    }
+
+    /**
+     * Executes a search [query] for resources of type [R]
+     *
+     * @param R     the type of resources to search for
+     * @param query the search query to use
+     *
+     * @return a [Search] containing the results
+     *
+     * @author Benjozork
+     */
+    suspend inline fun <reified R : Resource> search(query: String): Search<R> {
+        val template = R::class._searchTemplate
+        val excludedFieldsString = template.fields.joinToString(separator = ",") { it.name }
+
+        return typesenseClient.get {
+            url("$TYPESENSE_URL/collections/${template.name}/documents/search?q=$query&query_by=content,title&exclude_fields=$excludedFieldsString")
         }
     }
 

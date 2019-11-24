@@ -8,6 +8,8 @@ import com.github.kittinunf.result.coroutines.SuspendableResult
 
 open class BException(causedBy: Exception) : Exception(causedBy)
 
+typealias Sr<V, E> = SuspendableResult<V, E>
+
 fun <V : Any, E : Exception> SuspendableResult<V, E>.getOrPipelineError (
     code:    HttpStatusCode = HttpStatusCode.InternalServerError,
     message: String = "error while fetching generic result"

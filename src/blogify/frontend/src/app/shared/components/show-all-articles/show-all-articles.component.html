@@ -15,7 +15,8 @@
                *ngIf="!showingMobileSearchBar"
                id="header-search-pad"
                type="text" placeholder="Search / Filter ... Type '?' for help"
-               (keydown.enter)="navigateToSearch()">
+               (keydown.enter)="navigateToSearch()"
+               (keydown.escape)="stopSearch()">
 
         <!-- Mobile search pad -->
         <!--suppress HtmlFormInputWithoutLabel -->

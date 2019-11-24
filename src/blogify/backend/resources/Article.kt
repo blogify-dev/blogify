@@ -1,18 +1,15 @@
 package blogify.backend.resources
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
-import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blogify.backend.annotations.check
-import blogify.backend.annotations.noslice
-import blogify.backend.database.Articles
+import blogify.backend.annotations.NoSearch
+import blogify.backend.annotations.SearchDefaultSort
 import blogify.backend.resources.models.Resource
-import blogify.backend.database.handling.query
-
-import org.jetbrains.exposed.sql.select
 
 import java.util.*
+import kotlin.random.Random
 
 /**
  * Represents an Article [Resource].
@@ -31,19 +28,25 @@ import java.util.*
     property  = "uuid"
 )
 data class Article (
+
     val title: @check("^.{0,512}") String,
 
     val createdAt: Long = Date().time,
 
-    @JsonIdentityReference(alwaysAsId = true)
+    @NoSearch
     val createdBy: User,
 
     val content: String,
 
     val summary: String,
 
+    @NoSearch
     val categories: List<Category>,
 
+    @SearchDefaultSort
+    val dsf: Int = Random.nextInt(),
+
+    @NoSearch
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid) {
 
@@ -54,10 +57,5 @@ data class Article (
      */
     data class Category(val name: String)
 
-    suspend fun category(): List<Category> = query {
-        Articles.Categories.select {
-            Articles.Categories.article eq this@Article.uuid
-        }.toList().map{ Articles.Categories.convert(it) }
-    }.get()
 
 }

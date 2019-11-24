@@ -112,11 +112,11 @@ export class ArticleService {
 
     search(query: string, fields: string[]) {
         const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}`;
-        return this.httpClient.get<Article[]>(url)
+        return this.httpClient.get<SearchView<Article>>(url)
             .toPromise()
-            .then(hits => {
+            .then((hits) => {
                 if (hits != null) {
-                    return this.prepareArticleData(hits);
+                    return this.prepareArticleData(hits.hits.map(hit => hit.document));
                 } else {
                     return Promise.all([]);
                 }

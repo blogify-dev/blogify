@@ -1,5 +1,6 @@
 package blogify.backend.util
 
+import blogify.backend.resources.models.Resource
 import io.ktor.http.ContentType
 
 fun reason(text: String) = object { val reason = text }
