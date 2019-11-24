@@ -20,6 +20,9 @@
     padding: 1rem 1.5rem;
     border-radius: .75rem;
 
+    transition: opacity 1000ms ease-in-out, background-color 150ms ease-in-out;
+    &.clearing { opacity: 0; }
+
     display:         flex;
     flex-direction:  row;
     justify-content: stretch;

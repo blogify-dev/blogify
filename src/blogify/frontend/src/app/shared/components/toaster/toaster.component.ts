@@ -12,6 +12,7 @@ export class ToasterComponent implements OnInit {
 
     private toastQueue: Toast[] = [];
     currentToast: Toast | null;
+    clearingTopState = 2;
 
     constructor(private domSanitizer: DomSanitizer) {}
 
@@ -24,9 +25,18 @@ export class ToasterComponent implements OnInit {
         });
         // Clear stale toast
         timer(0, 5000).subscribe(_ => {
-            this.currentToast = null;
-            if (this.toastQueue.length != 0) {
+            if (this.toastQueue.length >= 1) { // More than one toast are left
                 this.popQueue();
+            } else {
+                if (this.clearingTopState == 0) { // Next cycle after transition -> remove it
+                    this.popQueue();
+                    this.currentToast = null;
+                    this.clearingTopState = 3;
+                } else if (this.clearingTopState == 1 || this.clearingTopState == 2) {
+                    this.clearingTopState--;
+                } else {
+                    this.clearingTopState--; // Triggers transition
+                }
             }
         })
     }

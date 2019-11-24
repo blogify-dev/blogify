@@ -1,8 +1,8 @@
 <div class="toast"
-    [style.backgroundColor]="this.currentToast.backgroundColor"
-    [style.color]="this.currentToast.foregroundColor"
-    *ngIf="this.currentToast != null"
->
+     [style.backgroundColor]="this.currentToast.backgroundColor"
+     [style.color]="this.currentToast.foregroundColor"
+     [ngClass]="clearingTopState == 1 ? 'not-clearing' : 'clearing'"
+     *ngIf="this.currentToast != null">
 
     <div class="toast-body">
         <h4 class="toast-header">{{this.currentToast.header}}</h4>
