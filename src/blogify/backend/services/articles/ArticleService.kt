@@ -37,7 +37,7 @@ object ArticleService : Service<Article>(Articles) {
         return@query res // So that we return the resource and not an insert statement
     }.mapError { e -> Exception.Creating(e) } // Wrap possible error
 
-    override suspend fun update(res: Article): ResourceResult<*> = query {
+    override suspend fun update(res: Article) = query {
         Articles.update(where = { uuid eq res.uuid }) {
             it[title]   = res.title
             it[content] = res.content

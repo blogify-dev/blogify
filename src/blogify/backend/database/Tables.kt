@@ -74,6 +74,7 @@ object Users : ResourceTable<User>() {
     val email          = varchar ("email", 255)
     val name           = varchar ("name", 255)
     val profilePicture = varchar ("profile_picture", 32).references(Uploadables.fileId, onDelete = SET_NULL, onUpdate = RESTRICT).nullable()
+    val isAdmin = bool("is_admin")
 
     init {
         index(true, username)
@@ -86,6 +87,7 @@ object Users : ResourceTable<User>() {
             password       = source[password],
             name           = source[name],
             email          = source[email],
+            isAdmin        = source[isAdmin],
             profilePicture = source[profilePicture]?.let { transaction {
                 Uploadables.select { Uploadables.fileId eq source[profilePicture]!! }.limit(1).single()
             }.let { Uploadables.convert(callContext, it).get() } } ?: StaticResourceHandle.None(ContentType.Any)
@@ -118,7 +120,7 @@ object Uploadables : Table() {
     val fileId      = varchar ("id", 32).primaryKey()
     val contentType = varchar ("content_type", 64)
 
-    suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<StaticResourceHandle.Ok, Service.Exception> {
+    suspend fun convert(@Suppress("UNUSED_PARAMETER") callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<StaticResourceHandle.Ok, Service.Exception> {
         StaticResourceHandle.Ok (
             contentType = ContentType.parse(source[contentType]),
             fileId      = source[fileId]
