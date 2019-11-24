@@ -18,7 +18,7 @@ const routes: Routes = [
     { path: 'profile/**', component: ProfileComponent },
     { path: 'article/:uuid', component: ShowArticleComponent },
     { path: 'article/update/:uuid', component: UpdateArticleComponent },
-    { path: '**', component: Error404FallbackComponent },
+    /*{ path: '**', component: Error404FallbackComponent },*/
 ];
 
 @NgModule({
