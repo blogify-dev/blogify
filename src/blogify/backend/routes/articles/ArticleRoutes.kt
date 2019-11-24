@@ -2,7 +2,6 @@
 
 package blogify.backend.routes.articles
 
-import blogify.backend.articleTemplate
 import blogify.backend.database.Articles
 import blogify.backend.database.Comments
 import blogify.backend.database.Users
@@ -17,16 +16,11 @@ import blogify.backend.services.UserService
 import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.articles.CommentService
 import blogify.backend.services.models.Service
-import blogify.backend.util.TYPESENSE_API_KEY
 import blogify.backend.util.toUUID
 
 import io.ktor.application.call
 import io.ktor.routing.*
-import io.ktor.client.HttpClient
 import io.ktor.response.respond
-import io.ktor.client.request.*
-
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 fun Route.articles() {
 
@@ -94,8 +88,8 @@ fun Route.articles() {
         }
 
         post("/") {
-            createWithResource(
-                ArticleService::add,
+            createWithResource (
+                create = ArticleService::add,
                 authPredicate = { user, article -> article.createdBy eqr user },
                 doAfter = { article ->
                    Typesense.uploadResource(article)

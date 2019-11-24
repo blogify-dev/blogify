@@ -17,6 +17,7 @@ import io.ktor.client.response.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import io.ktor.client.call.receive
 import io.ktor.client.features.defaultRequest
 import io.ktor.client.request.get
@@ -24,7 +25,6 @@ import io.ktor.client.request.delete
 
 import com.andreapivetta.kolor.green
 import com.andreapivetta.kolor.red
-import io.ktor.http.isSuccess
 
 import org.slf4j.LoggerFactory
 
