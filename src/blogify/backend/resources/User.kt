@@ -22,6 +22,7 @@ data class User (
              val name:           String,
              val email:          String,
              val profilePicture: @type("image/png") StaticResourceHandle,
+             val isAdmin: Boolean = true,
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid)
