@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Toast } from '../../services/toaster/models/Toast';
 import { timer } from 'rxjs';
-import {DomSanitizer} from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
     selector: 'app-toaster',
