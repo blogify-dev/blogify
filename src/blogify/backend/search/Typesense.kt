@@ -96,7 +96,7 @@ object Typesense {
             url("$TYPESENSE_URL/collections/${template.name}/documents")
             contentType(ContentType.Application.Json)
 
-            body = resource.sanitize()
+            body = resource.sanitize(noSearch = true)
         }.let { response ->
             val bodyMessage = response.receive<Map<String, Any?>>()["message"] as? String
             tscLogger.trace("${response.status} $bodyMessage")
