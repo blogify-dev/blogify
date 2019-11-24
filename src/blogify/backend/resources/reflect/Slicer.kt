@@ -129,7 +129,7 @@ fun <M : Mapped> M.sanitize(noSearch: Boolean = false): Map<String, Any?> {
         .asSequence()
         .filter {
             it.value is PropMap.PropertyHandle.Ok
-                    && (noSearch && (it.value as PropMap.PropertyHandle.Ok).property.findAnnotation<NoSearch>() == null)
+                    && (!noSearch || (it.value as PropMap.PropertyHandle.Ok).property.findAnnotation<NoSearch>() == null)
         }
         .map    { it.key }
         .toSet()
