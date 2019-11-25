@@ -74,7 +74,7 @@ object Users : ResourceTable<User>() {
     val email          = varchar ("email", 255)
     val name           = varchar ("name", 255)
     val profilePicture = varchar ("profile_picture", 32).references(Uploadables.fileId, onDelete = SET_NULL, onUpdate = RESTRICT).nullable()
-    val isAdmin = bool("is_admin")
+    val isAdmin        = bool("is_admin")
 
     init {
         index(true, username)

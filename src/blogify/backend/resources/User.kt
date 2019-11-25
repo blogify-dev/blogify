@@ -30,6 +30,9 @@ data class User (
     @NoSearch
     val profilePicture: @type("image/png") StaticResourceHandle,
 
+    @NoSlice
+    val isAdmin: Boolean = false,
+
     @NoSearch
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid)
