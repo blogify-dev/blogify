@@ -61,3 +61,10 @@ import 'zone.js/dist/zone';  // Included with Angular CLI.
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
+import RelativeTimeFormat from "relative-time-format";
+// @ts-ignore
+import en from "relative-time-format/locale/en.json";
+
+RelativeTimeFormat.addLocale(en)
+// @ts-ignore
+Intl.RelativeTimeFormat = RelativeTimeFormat;
