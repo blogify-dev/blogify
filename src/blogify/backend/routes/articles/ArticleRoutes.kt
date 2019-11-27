@@ -7,9 +7,13 @@ import blogify.backend.database.Comments
 import blogify.backend.database.Users
 import blogify.backend.resources.Article
 import blogify.backend.resources.models.eqr
+import blogify.backend.resources.reflect.cachedPropMap
+import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
 import blogify.backend.routes.handling.*
+import blogify.backend.routes.pipelines.optional
+import blogify.backend.routes.pipelines.pipeline
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.services.UserService
@@ -98,10 +102,14 @@ fun Route.articles() {
         }
 
         get("/search") {
-            val params = call.parameters
-            val selectedPropertyNames = params["fields"]?.split(",")?.toSet() // fixme: don't ignore this
-            params["q"]?.let { query ->
-                call.respond(Typesense.search<Article>(query).asSearchView())
+            pipeline("q") { (query) ->
+                val user = optional("byUser")?.toUUID()
+                if (user != null) {
+                    val userHandle = Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")
+                    call.respond(Typesense.search<Article>(query, mapOf(userHandle to user)).asSearchView())
+                } else {
+                    call.respond(Typesense.search<Article>(query).asSearchView())
+                }
             }
         }
 

@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders} from '@angular/common/http';
 import { Article } from '../../models/Article';
 import { AuthService } from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
+import { User } from '../../models/User';
 
 @Injectable({
     providedIn: 'root'
@@ -110,8 +111,9 @@ export class ArticleService {
         return this.httpClient.delete(`/api/articles/${uuid}`, httpOptions).toPromise();
     }
 
-    search(query: string, fields: string[]) {
-        const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}`;
+    search(query: string, fields: string[], byUser: User | null) {
+        const byUserString = (byUser ? `&byUser=${byUser.uuid}` : "");
+        const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}${byUserString}`;
         return this.httpClient.get<SearchView<Article>>(url)
             .toPromise()
             .then((hits) => {

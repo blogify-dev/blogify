@@ -1,7 +1,9 @@
 package blogify.backend.search
 
 import blogify.backend.resources.models.Resource
+import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.sanitize
+import blogify.backend.routes.pipelines.pipelineError
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.Template
@@ -57,7 +59,17 @@ object Typesense {
     private const val TYPESENSE_API_KEY = "Hu52dwsas2AdxdE"
 
     val typesenseClient = HttpClient {
-        install(JsonFeature) { serializer = JacksonSerializer(); }
+        install(JsonFeature) {
+            serializer = JacksonSerializer() {
+                // Register a serializer for Resource.
+                // This will only affect pure Resource objects, so elements produced by the slicer are not affected,
+                // since those don't use Jackson for root serialization.
+
+                val blogifyModule = SimpleModule()
+                blogifyModule.addSerializer(Resource.ResourceIdSerializer)
+                registerModule(blogifyModule)
+            };
+        }
 
         // Always include Typesense headers
         defaultRequest {
@@ -117,6 +129,7 @@ object Typesense {
             contentType(ContentType.Application.Json)
 
             body = resource.sanitize(noSearch = true) + ("id" to resource.uuid)
+            println(body)
         }.let { response ->
             if (response.status.isSuccess()) {
                 tscLogger.trace("uploaded resource ${resource.uuid.short()} to Typesense index".green())
@@ -171,12 +184,32 @@ object Typesense {
      *
      * @author Benjozork
      */
-    suspend inline fun <reified R : Resource> search(query: String): Search<R> {
+    suspend inline fun <reified R : Resource> search (
+        query:   String,
+        filters: Map<PropMap.PropertyHandle.Ok, Any> = emptyMap()
+    ): Search<R> {
         val template = R::class._searchTemplate
-        val excludedFieldsString = template.fields.joinToString(separator = ",") { it.name }
+        val excludedFieldsString = template.fields
+            .joinToString(separator = ",") { it.name }
+        val filtersString = filters.takeIf { it.isNotEmpty() }?.entries
+            ?.joinToString(separator = "&&") { "${it.key.name}:${it.value}" }
 
-        return typesenseClient.get {
-            url("$TYPESENSE_URL/collections/${template.name}/documents/search?q=$query&query_by=content,title&exclude_fields=$excludedFieldsString")
+        return typesenseClient.get<HttpResponse> {
+            url (
+                TYPESENSE_URL +
+                "/collections/${template.name}" +
+                "/documents/search?q=$query" +
+                "&query_by=content,title" +
+                "&exclude_fields=$excludedFieldsString" +
+                if (filtersString != null) "&filter_by=$filtersString" else ""
+            )
+        }.let { response ->
+            if (response.status.isSuccess()) {
+                return@let response.receive<Search<R>>()
+            } else {
+                tscLogger.error("couldn't search in Typesense index ${template.name}: ${typesenseMessage(response)}".red())
+                pipelineError(HttpStatusCode.InternalServerError, "error during Typesense search")
+            }
         }
     }
 

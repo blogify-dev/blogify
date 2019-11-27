@@ -5,8 +5,7 @@ import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { StaticContentService } from '../../../services/static/static-content.service';
 import { faArrowLeft, faPencilAlt, faSearch, faTimes} from '@fortawesome/free-solid-svg-icons';
 import { ArticleService } from '../../../services/article/article.service';
-import {ToasterService} from '../../services/toaster/toaster.service';
-import {Toast} from '../../services/toaster/models/Toast';
+import { User } from '../../../models/User';
 
 @Component({
     selector: 'app-show-all-articles',
@@ -23,6 +22,7 @@ export class ShowAllArticlesComponent implements OnInit {
 
     @Input() title = 'Articles';
     @Input() articles: Article[];
+    @Input() forUser: User | null;
     @Input() allowCreate = true;
 
     forceNoAllowCreate = false;
@@ -37,7 +37,6 @@ export class ShowAllArticlesComponent implements OnInit {
         private articleService: ArticleService,
         private staticContentService: StaticContentService,
         private activatedRoute: ActivatedRoute,
-        private toasterService: ToasterService,
         private router: Router
     ) {}
 
@@ -68,7 +67,8 @@ export class ShowAllArticlesComponent implements OnInit {
     private async startSearch() {
         this.articleService.search (
             this.searchQuery,
-            ['title', 'summary', 'createdBy', 'categories', 'createdAt']
+            ['title', 'summary', 'createdBy', 'categories', 'createdAt'],
+            this.forUser
         ).then(it => {
             this.searchResults = it;
             this.showingSearchResults = true;
