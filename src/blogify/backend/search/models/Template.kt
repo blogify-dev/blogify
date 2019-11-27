@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import blogify.backend.annotations.search.SearchByUUID
 import blogify.backend.resources.models.Resource
 import blogify.backend.search.Typesense
-import blogify.backend.search.models.Template.Field.Companion.from
+import blogify.backend.search.autogen.AutogenClassVisitor
 
 import org.slf4j.LoggerFactory
 
@@ -29,15 +29,12 @@ class Template<T : Resource> (
 
     val name: String,
 
-    fields: Array<KProperty1<T, *>>,
-
     @get:JsonProperty("default_sorting_field")
     val defaultSortingField: String
 ) {
 
-    val fields = fields
-        .map { from(it) }
-        .toTypedArray()
+    val fields = AutogenClassVisitor.visitAndMapClass(klass)
+    val delegatedFields = fields.filter { it.delegatedTo != null }
 
     /**
      * Represents a [Typesense] field used for indexing documents. Should generally only exist once for a given resource class.
@@ -53,7 +50,9 @@ class Template<T : Resource> (
         val name: kotlin.String,
         @get:JsonProperty("type")
         val type: kotlin.String,
-        val facet: Boolean
+        val facet: Boolean,
+        @JsonIgnore
+        val delegatedTo: KProperty1<Any?, Any?>?
     ) {
 
         /**
@@ -71,43 +70,43 @@ class Template<T : Resource> (
 
         /** [Typesense] type implementation for [kotlin.String] */
         @TypesenseFieldType(kotlin.String::class, true)
-        class String(name: kotlin.String, facet: Boolean = false): Field(name, "string", facet)
+        class String(name: kotlin.String, facet: Boolean = false, delegatedTo: KProperty1<Any?, Any?>? = null): Field(name, "string", facet, delegatedTo)
 
         /** [Typesense] type implementation for an array of [kotlin.String] */
         @TypesenseFieldType(Array<kotlin.String>::class, true)
-        class StringArray (name: kotlin.String, facet: Boolean = false): Field(name, "string[]", facet)
+        class StringArray (name: kotlin.String, facet: Boolean = false, delegatedTo: KProperty1<Any?, Any?>? = null): Field(name, "string[]", facet, delegatedTo)
 
         /** [Typesense] type implementation for [kotlin.Int] */
         @TypesenseFieldType(Int::class, false)
-        class Int32 (name: kotlin.String, facet: Boolean = false): Field(name, "int32", facet)
+        class Int32 (name: kotlin.String, facet: Boolean = false, delegatedTo: KProperty1<Any?, Any>? = null): Field(name, "int32", facet, delegatedTo)
 
         /** [Typesense] type implementation for an array of [kotlin.Int] */
         @TypesenseFieldType(Array<Int>::class, false)
-        class Int32Array (name: kotlin.String, facet: Boolean = false): Field(name, "int32[]", facet)
+        class Int32Array (name: kotlin.String, facet: Boolean = false, delegatedTo: KProperty1<Any?, Any?>? = null): Field(name, "int32[]", facet, delegatedTo)
 
         /** [Typesense] type implementation for [kotlin.Long] */
         @TypesenseFieldType(Long::class, false)
-        class Int64 (name: kotlin.String, facet: Boolean = false): Field(name, "int64", facet)
+        class Int64 (name: kotlin.String, facet: Boolean = false, delegatedTo: KProperty1<Any?, Any?>? = null): Field(name, "int64", facet, delegatedTo)
 
         /** [Typesense] type implementation for an array of [kotlin.Long] */
         @TypesenseFieldType(Array<Long>::class, false)
-        class Int64Array (name: kotlin.String, facet: Boolean = false): Field(name, "int64[]", facet)
+        class Int64Array (name: kotlin.String, facet: Boolean = false, delegatedTo: KProperty1<Any?, Any?>? = null): Field(name, "int64[]", facet, delegatedTo)
 
         /** [Typesense] type implementation for [kotlin.Float] */
         @TypesenseFieldType(Float::class, false)
-        class Float (name: kotlin.String, facet: Boolean = false): Field(name, "float", facet)
+        class Float (name: kotlin.String, facet: Boolean = false, delegatedTo: KProperty1<Any?, Any?>? = null): Field(name, "float", facet, delegatedTo)
 
         /** [Typesense] type implementation for an array of [kotlin.Float] */
         @TypesenseFieldType(Array<Float>::class, false)
-        class FloatArray (name: kotlin.String, facet: Boolean = false): Field(name, "float[]", facet)
+        class FloatArray (name: kotlin.String, facet: Boolean = false, delegatedTo: KProperty1<Any?, Any?>? = null): Field(name, "float[]", facet, delegatedTo)
 
         /** [Typesense] type implementation for [kotlin.Boolean] */
         @TypesenseFieldType(Boolean::class, false)
-        class Bool (name: kotlin.String, facet: Boolean = false): Field(name, "bool", facet)
+        class Bool (name: kotlin.String, facet: Boolean = false, delegatedTo: KProperty1<Any?, Any?>? = null): Field(name, "bool", facet, delegatedTo)
 
         /** [Typesense] type implementation for an array of [kotlin.Boolean] */
         @TypesenseFieldType(Array<Boolean>::class, false)
-        class BoolArray (name: kotlin.String, facet: Boolean = false): Field(name, "bool[]", facet)
+        class BoolArray (name: kotlin.String, facet: Boolean = false, delegatedTo: KProperty1<Any?, Any?>? = null): Field(name, "bool[]", facet, delegatedTo)
 
         companion object {
 

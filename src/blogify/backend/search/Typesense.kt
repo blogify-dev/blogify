@@ -29,6 +29,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 
 import com.andreapivetta.kolor.green
 import com.andreapivetta.kolor.red
+import com.andreapivetta.kolor.yellow
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 import org.slf4j.LoggerFactory
 
@@ -128,7 +130,15 @@ object Typesense {
             url("$TYPESENSE_URL/collections/${template.name}/documents")
             contentType(ContentType.Application.Json)
 
-            body = resource.sanitize(noSearch = true) + ("id" to resource.uuid)
+            body = (resource.sanitize(noSearch = true) + ("id" to resource.uuid)).entries
+                .map {
+                    it.key to (
+                        template.delegatedFields
+                            .firstOrNull { df -> df.name == it.key } // Check if we have a delegated field
+                            ?.let { df -> df.delegatedTo!!.get(it.value) } ?: it.value
+                            // Return the delegation result if there is; the original value if there is not.
+                    )
+                }.toMap()
         }.let { response ->
             if (response.status.isSuccess()) {
                 tscLogger.trace("uploaded resource ${resource.uuid.short()} to Typesense index".green())

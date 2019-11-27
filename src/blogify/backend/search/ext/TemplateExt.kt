@@ -31,17 +31,9 @@ private const val TEMPLATE_DEFAULT_DSF = "_dsf_jank"
 
 @Suppress("FunctionName")
 fun <R : Resource> KClass<R>._buildSearchTemplate(): Template<R> {
-    val fields = this.declaredMemberProperties
-        .filter { it.findAnnotation<NoSearch>() == null && it.findAnnotation<NoSlice>() == null }.toTypedArray()
-    val sortingFieldName = fields
-        .firstOrNull { it.findAnnotation<SearchDefaultSort>() != null }?.name
-            .also { tsaLogger.trace("found DSF for template '${this.simpleName!!}': '$it'".magenta()) }
-        ?: TEMPLATE_DEFAULT_DSF
-            .also { tsaLogger.trace("generated _dsf_jank for template '${this.simpleName!!}'".yellow()) }
     return Template (
         klass  = this,
         name   = this.simpleName!!,
-        fields = fields,
-        defaultSortingField = sortingFieldName
+        defaultSortingField = "sortingFieldName"
     )
 }

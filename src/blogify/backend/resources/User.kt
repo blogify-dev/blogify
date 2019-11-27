@@ -4,6 +4,7 @@ import blogify.backend.annotations.search.NoSearch
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.annotations.NoSlice
+import blogify.backend.annotations.search.DelegatedSearchReceiver
 import blogify.backend.annotations.type
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
@@ -18,6 +19,7 @@ import java.util.*
     property  = "uuid"
 )
 data class User (
+    @DelegatedSearchReceiver
     val username: String,
 
     @NoSlice

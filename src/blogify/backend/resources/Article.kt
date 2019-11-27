@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blogify.backend.annotations.check
-import blogify.backend.annotations.NoSearch
-import blogify.backend.annotations.SearchByUUID
-import blogify.backend.annotations.SearchDefaultSort
+import blogify.backend.annotations.search.NoSearch
+import blogify.backend.annotations.search.SearchByUUID
+import blogify.backend.annotations.search.SearchDefaultSort
+import blogify.backend.annotations.search.DelegatedSearch
+import blogify.backend.annotations.search.DelegatedSearchReceiver
 import blogify.backend.resources.models.Resource
 
 import java.util.*
@@ -34,15 +36,14 @@ data class Article (
 
     val createdAt: Long = Date().time,
 
-    @SearchByUUID
-    val createdBy: User,
+    val createdBy: @DelegatedSearch User,
 
     val content: String,
 
     val summary: String,
 
     @NoSearch
-    val categories: List<Category>,
+    val categories: @DelegatedSearch List<Category>,
 
     @SearchDefaultSort
     val dsf: Int = Random.nextInt(),
@@ -56,7 +57,6 @@ data class Article (
      *
      * @property name The name content of the category.
      */
-    data class Category(val name: String)
-
+    data class Category(@DelegatedSearchReceiver val name: String)
 
 }
