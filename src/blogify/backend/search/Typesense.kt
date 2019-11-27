@@ -129,7 +129,6 @@ object Typesense {
             contentType(ContentType.Application.Json)
 
             body = resource.sanitize(noSearch = true) + ("id" to resource.uuid)
-            println(body)
         }.let { response ->
             if (response.status.isSuccess()) {
                 tscLogger.trace("uploaded resource ${resource.uuid.short()} to Typesense index".green())
