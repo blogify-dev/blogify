@@ -3,7 +3,6 @@ package blogify.backend.services.articles
 import blogify.backend.database.Articles
 import blogify.backend.database.Articles.uuid
 import blogify.backend.resources.Article
-import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.Service
 import blogify.backend.database.handling.query
 
@@ -13,7 +12,7 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
 
-object ArticleService : Service<Article>(Articles) {
+object ArticleService : Service<Article>(table = Articles) {
 
     override suspend fun add(res: Article) = query {
         Articles.insert {

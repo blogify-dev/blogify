@@ -5,14 +5,13 @@ import blogify.backend.services.models.Service
 import blogify.backend.database.handling.query
 import blogify.backend.database.Comments
 import blogify.backend.database.Comments.uuid
-import blogify.backend.services.models.ResourceResult
 
 import com.github.kittinunf.result.coroutines.mapError
 
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
 
-object CommentService : Service<Comment>(Comments) {
+object CommentService : Service<Comment>(table = Comments) {
 
     override suspend fun add(res: Comment) = query {
         Comments.insert {
