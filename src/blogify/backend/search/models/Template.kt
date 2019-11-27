@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
-import blogify.backend.annotations.SearchByUUID
+import blogify.backend.annotations.search.SearchByUUID
 import blogify.backend.resources.models.Resource
 import blogify.backend.search.Typesense
 import blogify.backend.search.models.Template.Field.Companion.from

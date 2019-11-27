@@ -1,7 +1,7 @@
 package blogify.backend.search.ext
 
-import blogify.backend.annotations.NoSearch
-import blogify.backend.annotations.SearchDefaultSort
+import blogify.backend.annotations.search.NoSearch
+import blogify.backend.annotations.search.SearchDefaultSort
 import blogify.backend.annotations.NoSlice
 import blogify.backend.resources.models.Resource
 import blogify.backend.search.models.Template

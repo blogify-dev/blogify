@@ -1,6 +1,6 @@
 package blogify.backend.resources
 
-import blogify.backend.annotations.NoSearch
+import blogify.backend.annotations.search.NoSearch
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.annotations.NoSlice
