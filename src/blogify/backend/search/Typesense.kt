@@ -60,7 +60,7 @@ object Typesense {
 
     val typesenseClient = HttpClient {
         install(JsonFeature) {
-            serializer = JacksonSerializer() {
+            serializer = JacksonSerializer {
                 // Register a serializer for Resource.
                 // This will only affect pure Resource objects, so elements produced by the slicer are not affected,
                 // since those don't use Jackson for root serialization.
@@ -68,7 +68,7 @@ object Typesense {
                 val blogifyModule = SimpleModule()
                 blogifyModule.addSerializer(Resource.ResourceIdSerializer)
                 registerModule(blogifyModule)
-            };
+            }
         }
 
         // Always include Typesense headers
@@ -101,7 +101,7 @@ object Typesense {
 
             body = template
         }.let { response ->
-            when (val status = response.status) {
+            when (response.status) {
                 HttpStatusCode.Created,
                 HttpStatusCode.Conflict -> { // Both of those cases mean the template either already exists or was created
                     tscLogger.info("uploaded Typesense template '${template.name}'".green())
