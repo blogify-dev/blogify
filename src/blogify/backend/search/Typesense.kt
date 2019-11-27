@@ -23,6 +23,8 @@ import io.ktor.client.features.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.client.request.delete
 
+import com.fasterxml.jackson.databind.module.SimpleModule
+
 import com.andreapivetta.kolor.green
 import com.andreapivetta.kolor.red
 

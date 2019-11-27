@@ -71,6 +71,11 @@ suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), bl
 }
 
 /**
+ * Returns a query parameter that may or may not exist
+ */
+fun CallPipeline.optional(name: String): String? = call.parameters[name]
+
+/**
  * A default [CallPipeline] that handles client authentication.
  *
  * @param funcName  the name of the pipeline using this pipeline. Only for logging purposes.
