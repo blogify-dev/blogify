@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blogify.backend.annotations.check
 import blogify.backend.annotations.NoSearch
+import blogify.backend.annotations.SearchByUUID
 import blogify.backend.annotations.SearchDefaultSort
 import blogify.backend.resources.models.Resource
 
@@ -33,7 +34,7 @@ data class Article (
 
     val createdAt: Long = Date().time,
 
-    @NoSearch
+    @SearchByUUID
     val createdBy: User,
 
     val content: String,

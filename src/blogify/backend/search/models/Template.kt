@@ -134,18 +134,24 @@ class Template<T : Resource> (
             fun from(property: KProperty1<*, *>, facet: Boolean = false): Field {
                 val name = property.name
                 val returnType = property.returnType
-                val typesenseFieldClass = subClassCache.entries
-                    .firstOrNull { entry ->
-                        // Make sure type class exists for given type and allows facet if it wishes to be one
-                        if (returnType.isSubtypeOf(Collection::class.createType(listOf(KTypeProjection.STAR))))
-                            returnType.arguments[0].type == entry.value.type && if (!entry.value.canBeFacet) !facet else true
-                        else
-                            returnType.classifier == entry.value.type && if (!entry.value.canBeFacet) !facet else true
-                    } ?: error("illegal type '$returnType { facet: $facet }' on property '${property.name}'")
+                val typesenseFieldClass =
+                    if (property.findAnnotation<SearchByUUID>() == null) {
+                        subClassCache.entries
+                            .firstOrNull { entry ->
+                                // Make sure type class exists for given type and allows facet if it wishes to be one
+                                if (returnType.isSubtypeOf(Collection::class.createType(listOf(KTypeProjection.STAR))))
+                                    returnType.arguments[0].type == entry.value.type && if (!entry.value.canBeFacet) !facet else true
+                                else
+                                    returnType.classifier == entry.value.type && if (!entry.value.canBeFacet) !facet else true
+                            }?.toPair() ?: error("illegal type '$returnType { facet: $facet }' on property '${property.name}'")
+                    } else {
+                        @Suppress("RemoveRedundantQualifierName")
+                        Template.Field.String::class to subClassCache[Template.Field.String::class]
+                    }
 
-                tsaLogger.trace("created typesense field for property $name with type ${returnType.classifier.toString()}; assigned type ${typesenseFieldClass.key.simpleName}".green())
+                tsaLogger.trace("created typesense field for property $name with type ${returnType.classifier.toString()}; assigned type ${typesenseFieldClass.first.simpleName}".green())
 
-                return typesenseFieldClass.key.constructors.first().call(name, facet)
+                return typesenseFieldClass.first.constructors.first().call(name, facet)
             }
 
         }
