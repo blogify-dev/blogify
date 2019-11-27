@@ -1,4 +1,5 @@
 @import "../../../../../styles/layouts";
+@import "../../../../../styles/queries";
 
 .article {
 
@@ -83,29 +84,35 @@
             margin-left: $element-separation !important;
         }
         a {
+            display:         flex;
+            flex-direction:  row;
+            justify-content: space-between;
+            align-items:     center;
+
+            fa-icon:first-child { margin-right: .75em; }
+
             font-size: 1.4rem;
             font-weight: 600;
+
+            @media (max-width: $query-desktop) {
+                & fa-icon {
+                    margin-right: 0 !important;
+                }
+                & .button-text {
+                    display: none;
+                }
+            }
 
             &:not(:first-child) { margin-left: $element-separation; }
         }
 
         .article-comments-count {
-            display:         flex;
-            flex-direction:  row;
-            justify-content: space-between;
-            align-items:     center;
-
-            fa-icon:first-child { margin-right: .75em; }
+            .comments-count-number {
+                margin-left: .75em;
+            }
         }
 
         .article-share {
-            display:         flex;
-            flex-direction:  row;
-            justify-content: space-between;
-            align-items:     center;
-
-            fa-icon:first-child { margin-right: .75em; }
-
             margin-right: auto;
         }
 

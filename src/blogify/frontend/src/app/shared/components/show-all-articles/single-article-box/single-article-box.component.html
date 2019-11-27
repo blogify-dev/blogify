@@ -24,7 +24,8 @@
         <!-- Comment count -->
         <a class="article-comments-count clickable">
             <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ y: 1 }"></fa-icon>
-            Comments ({{article.numberOfComments}})
+            <span class="button-text">Comments</span>
+            <span class="comments-count-number">({{article.numberOfComments}})</span>
         </a>
 
         <span class="separator"></span>
@@ -32,7 +33,7 @@
         <!-- Share button -->
         <a class="article-share clickable" (click)="copyLinkToClipboard(article)">
             <fa-icon [icon]="faShare" size="2x" [transform]="{ size: 15, y: 1 }"></fa-icon>
-            Share
+            <span class="button-text">Share</span>
         </a>
 
         <!-- Categories -->
