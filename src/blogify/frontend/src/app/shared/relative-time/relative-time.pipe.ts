@@ -18,12 +18,12 @@ export class RelativeTimePipe implements PipeTransform {
 
     /**
      * Transform function for `relativeTime` pipe
-     * @param timeInMills a unix timestamp
+     * @param epochTime a unix timestamp
      * If the difference is less than a minute, it returns: 'Just now'
      * @return relative difference
      */
-    transform(timeInMills: number): string {
-        const diffInMilliseconds = timeInMills - new Date().getTime();
+    transform(epochTime: number): string {
+        const diffInMilliseconds = (epochTime * 1000) - new Date().getTime();
         const formattedDays = rtf.format(Math.round(diffInMilliseconds / milliSecondsInDay), 'day');
 
         const formattedHour = formattedDays !== '0 days ago' ? formattedDays :

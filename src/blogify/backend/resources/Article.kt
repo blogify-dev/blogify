@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import blogify.backend.annotations.check
 import blogify.backend.annotations.search.NoSearch
-import blogify.backend.annotations.search.SearchByUUID
 import blogify.backend.annotations.search.SearchDefaultSort
 import blogify.backend.annotations.search.DelegatedSearch
 import blogify.backend.annotations.search.DelegatedSearchReceiver
 import blogify.backend.resources.models.Resource
+import java.time.Instant
 
 import java.util.*
 import kotlin.random.Random
@@ -34,7 +34,7 @@ data class Article (
 
     val title: @check("^.{0,512}") String,
 
-    val createdAt: Long = Date().time,
+    val createdAt: Int = Instant.now().epochSecond.toInt(),
 
     val createdBy: @DelegatedSearch User,
 
