@@ -8,5 +8,6 @@ fun Route.admin() {
         adminArticles()
         adminUsers()
         adminComments()
+        adminSearch()
     }
 }

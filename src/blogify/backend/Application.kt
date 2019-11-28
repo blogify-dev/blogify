@@ -61,9 +61,6 @@ const val asciiLogo = """
 ---- Version $version - Development build -
 """
 
-var articleTemplate: Template<Article>? = null
-var userTemplate: Template<User>? = null
-
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }

@@ -7,6 +7,7 @@ import blogify.backend.routes.pipelines.pipelineError
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.Template
+import blogify.backend.util.service
 import blogify.backend.util.short
 
 import io.ktor.client.HttpClient
@@ -25,12 +26,14 @@ import io.ktor.client.features.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.client.request.delete
 
-import com.fasterxml.jackson.databind.module.SimpleModule
-
 import com.andreapivetta.kolor.green
 import com.andreapivetta.kolor.red
 import com.andreapivetta.kolor.yellow
+
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
+
 
 import org.slf4j.LoggerFactory
 
@@ -62,7 +65,7 @@ object Typesense {
 
     val typesenseClient = HttpClient {
         install(JsonFeature) {
-            serializer = JacksonSerializer() {
+            serializer = JacksonSerializer {
                 // Register a serializer for Resource.
                 // This will only affect pure Resource objects, so elements produced by the slicer are not affected,
                 // since those don't use Jackson for root serialization.
@@ -70,7 +73,7 @@ object Typesense {
                 val blogifyModule = SimpleModule()
                 blogifyModule.addSerializer(Resource.ResourceIdSerializer)
                 registerModule(blogifyModule)
-            };
+            }
         }
 
         // Always include Typesense headers
@@ -103,7 +106,7 @@ object Typesense {
 
             body = template
         }.let { response ->
-            when (val status = response.status) {
+            when (response.status) {
                 HttpStatusCode.Created,
                 HttpStatusCode.Conflict -> { // Both of those cases mean the template either already exists or was created
                     tscLogger.info("uploaded Typesense template '${template.name}'".green())
@@ -219,6 +222,27 @@ object Typesense {
                 tscLogger.error("couldn't search in Typesense index ${template.name}: ${typesenseMessage(response)}".red())
                 pipelineError(HttpStatusCode.InternalServerError, "error during Typesense search")
             }
+        }
+    }
+
+    suspend inline fun <reified R: Resource> refreshIndex(): Boolean {
+        val resources = R::class.service.getAll().get()
+        val docs = resources.map { (it.sanitize(noSearch = true) + ("id" to it.uuid)) }
+        println(docs)
+
+        return bulkUploadResources<R>(docs).status.isSuccess()
+    }
+
+    suspend inline fun <reified R : Resource> bulkUploadResources(documents: List<Map<String, Any?>>): HttpResponse {
+        val template = R::class._searchTemplate
+
+        return typesenseClient.post {
+            url("$TYPESENSE_URL/collections/${template.name}/documents/import")
+            contentType(ContentType.Application.Json)
+            body =
+                documents.joinToString(separator = "\n") {
+                    jacksonObjectMapper().writeValueAsString(it).replace("\n", "")
+                }.also { println(it) }
         }
     }
 
