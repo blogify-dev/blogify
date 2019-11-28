@@ -28,20 +28,17 @@ import io.ktor.client.request.delete
 
 import com.andreapivetta.kolor.green
 import com.andreapivetta.kolor.red
-import com.andreapivetta.kolor.yellow
 import com.fasterxml.jackson.databind.ObjectMapper
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import io.ktor.http.content.TextContent
-
+import org.slf4j.Logger
 
 import org.slf4j.LoggerFactory
 
 import java.util.UUID
 
-val tscLogger = LoggerFactory.getLogger("blogify-typesense-client")
+val tscLogger: Logger = LoggerFactory.getLogger("blogify-typesense-client")
 
 /**
  * Meta object regrouping setup and utility functions for the Typesense search engine.
@@ -66,7 +63,7 @@ object Typesense {
     private const val TYPESENSE_API_KEY = "Hu52dwsas2AdxdE"
 
     lateinit var objectMapper: ObjectMapper
-    val typesenseSerializer = JacksonSerializer {
+    private val typesenseSerializer = JacksonSerializer {
         // Register a serializer for Resource.
         // This will only affect pure Resource objects, so elements produced by the slicer are not affected,
         // since those don't use Jackson for root serialization.
@@ -92,7 +89,7 @@ object Typesense {
         expectSuccess = false
     }
 
-    suspend inline fun <reified R : Resource> makeDocument(resource: R): Map<String, Any?> {
+    inline fun <reified R : Resource> makeDocument(resource: R): Map<String, Any?> {
         val template = R::class._searchTemplate
 
         return (resource.sanitize(noSearch = true) + ("id" to resource.uuid)).entries
