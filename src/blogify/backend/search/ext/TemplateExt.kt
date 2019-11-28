@@ -27,3 +27,16 @@ fun <R : Resource> KClass<R>._buildSearchTemplate(): Template<R> {
         defaultSortingField = TEMPLATE_DEFAULT_DSF
     )
 }
+
+@Suppress("FunctionName")
+fun <R : Resource> KClass<R>._rebuildSearchTemplate(): Template<R> {
+
+    val template =  Template (
+        klass  = this,
+        name   = this.simpleName!!,
+        defaultSortingField = TEMPLATE_DEFAULT_DSF
+    )
+
+    templateCache[this] = template
+    return template
+}

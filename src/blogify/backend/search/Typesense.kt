@@ -4,6 +4,7 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.routes.pipelines.pipelineError
+import blogify.backend.search.ext._rebuildSearchTemplate
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.Template
@@ -238,7 +239,8 @@ object Typesense {
     suspend inline fun <reified R: Resource> refreshIndex(): HttpResponse {
         val resources = R::class.service.getAll().get()
         val docs = resources.map { makeDocument(it) }
-
+        deleteCollection<R>()
+        submitResourceTemplate(R::class._rebuildSearchTemplate())
         return bulkUploadResources<R>(docs)
     }
 
@@ -254,4 +256,11 @@ object Typesense {
         }
     }
 
+    suspend inline fun <reified R : Resource> deleteCollection(): HttpResponse {
+        val template = R::class._searchTemplate
+
+        return typesenseClient.delete {
+            url("$TYPESENSE_URL/collections/${template.name}/")
+        }
+    }
 }
