@@ -63,17 +63,22 @@ object Typesense {
      */
     private const val TYPESENSE_API_KEY = "Hu52dwsas2AdxdE"
 
+    lateinit var objectMapper: ObjectMapper
+    val typesenseSerializer = JacksonSerializer {
+        // Register a serializer for Resource.
+        // This will only affect pure Resource objects, so elements produced by the slicer are not affected,
+        // since those don't use Jackson for root serialization.
+
+        val blogifyModule = SimpleModule()
+        blogifyModule.addSerializer(Resource.ResourceIdSerializer)
+        registerModule(blogifyModule)
+
+        objectMapper = this // Capture the objectMapper
+    }
+
     val typesenseClient = HttpClient {
         install(JsonFeature) {
-            serializer = JacksonSerializer {
-                // Register a serializer for Resource.
-                // This will only affect pure Resource objects, so elements produced by the slicer are not affected,
-                // since those don't use Jackson for root serialization.
-
-                val blogifyModule = SimpleModule()
-                blogifyModule.addSerializer(Resource.ResourceIdSerializer)
-                registerModule(blogifyModule)
-            }
+            serializer = typesenseSerializer
         }
 
         // Always include Typesense headers
@@ -83,6 +88,20 @@ object Typesense {
 
         // Allows us to read response even when status < 300
         expectSuccess = false
+    }
+
+    suspend inline fun <reified R : Resource> makeDocument(resource: R): Map<String, Any?> {
+        val template = R::class._searchTemplate
+
+        return (resource.sanitize(noSearch = true) + ("id" to resource.uuid)).entries
+            .map {
+                it.key to (
+                    template.delegatedFields
+                        .firstOrNull { df -> df.name == it.key } // Check if we have a delegated field
+                        ?.let { df -> df.delegatedTo!!.get(it.value) } ?: it.value
+                    // Return the delegation result if there is; the original value if there is not.
+                )
+            }.toMap()
     }
 
     /**
@@ -133,15 +152,7 @@ object Typesense {
             url("$TYPESENSE_URL/collections/${template.name}/documents")
             contentType(ContentType.Application.Json)
 
-            body = (resource.sanitize(noSearch = true) + ("id" to resource.uuid)).entries
-                .map {
-                    it.key to (
-                        template.delegatedFields
-                            .firstOrNull { df -> df.name == it.key } // Check if we have a delegated field
-                            ?.let { df -> df.delegatedTo!!.get(it.value) } ?: it.value
-                            // Return the delegation result if there is; the original value if there is not.
-                    )
-                }.toMap()
+            body = makeDocument(resource)
         }.let { response ->
             if (response.status.isSuccess()) {
                 tscLogger.trace("uploaded resource ${resource.uuid.short()} to Typesense index".green())
@@ -225,12 +236,11 @@ object Typesense {
         }
     }
 
-    suspend inline fun <reified R: Resource> refreshIndex(): Boolean {
+    suspend inline fun <reified R: Resource> refreshIndex(): HttpResponse {
         val resources = R::class.service.getAll().get()
-        val docs = resources.map { (it.sanitize(noSearch = true) + ("id" to it.uuid)) }
-        println(docs)
+        val docs = resources.map { makeDocument(it) }
 
-        return bulkUploadResources<R>(docs).status.isSuccess()
+        return bulkUploadResources<R>(docs)
     }
 
     suspend inline fun <reified R : Resource> bulkUploadResources(documents: List<Map<String, Any?>>): HttpResponse {
@@ -238,11 +248,10 @@ object Typesense {
 
         return typesenseClient.post {
             url("$TYPESENSE_URL/collections/${template.name}/documents/import")
-            contentType(ContentType.Application.Json)
-            body =
+            body = TextContent (
                 documents.joinToString(separator = "\n") {
-                    jacksonObjectMapper().writeValueAsString(it).replace("\n", "")
-                }.also { println(it) }
+                    objectMapper.writeValueAsString(it).replace("\n", " ")
+                }, ContentType.Text.Plain)
         }
     }
 
