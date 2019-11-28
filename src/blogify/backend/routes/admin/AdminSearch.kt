@@ -1,5 +1,6 @@
 package blogify.backend.routes.admin
 
+import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.resources.Article
 import blogify.backend.search.Typesense
 
@@ -13,8 +14,10 @@ import io.ktor.routing.route
 fun Route.adminSearch() {
     route("/search") {
         post("/reindex") {
-            Typesense.refreshIndex<Article>().let {
-                call.respond(mapOf("ts_response" to it.receive<Map<String, Any?>>()))
+            runAuthenticated(predicate = { it.isAdmin }) {
+                Typesense.refreshIndex<Article>().let {
+                    call.respond(mapOf("ts_response" to it.receive<Map<String, Any?>>()))
+                }
             }
         }
     }
