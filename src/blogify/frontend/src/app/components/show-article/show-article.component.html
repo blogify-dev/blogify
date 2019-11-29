@@ -31,17 +31,17 @@
 
             <!-- Share button -->
             <a id="button-share" class="clickable" (click)="copyUrlToClipboard()">
-                <fa-icon [icon]="faShare" size="2x" [transform]="{ size: 15, y: 1 }"></fa-icon>
+                <fa-icon [icon]="faShare" size="2x" [transform]="{ size: 15, y: 0 }"></fa-icon>
             </a>
 
              <!-- Update button -->
-            <a id="button-update" routerLink="/article/update/{{article.uuid}}" *ngIf="showUpdateButton">
-                 <fa-icon [icon]="faEdit" size="2x" [transform]="{ size: 19 }"></fa-icon>
+            <a id="button-update" class="clickable hover-positive" routerLink="/article/update/{{article.uuid}}" *ngIf="showUpdateButton">
+                 <fa-icon [icon]="faEdit" size="2x" [transform]="{ size: 15 }"></fa-icon>
             </a>
 
             <!-- Delete button -->
-            <a id="button-delete" class="hover-negative" (click)="deleteArticle()" *ngIf="showUpdateButton">
-                <fa-icon [icon]="faTimes" size="2x" [transform]="{ size: 22 }"></fa-icon>
+            <a id="button-delete" class="clickable hover-negative" (click)="deleteArticle()" *ngIf="showUpdateButton">
+                <fa-icon [icon]="faTimes" size="2x" [transform]="{ size: 20 }"></fa-icon>
             </a>
 
         </div>

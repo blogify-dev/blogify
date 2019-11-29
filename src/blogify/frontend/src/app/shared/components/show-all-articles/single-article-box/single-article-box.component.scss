@@ -91,7 +91,7 @@
 
             fa-icon:first-child { margin-right: .75em; }
 
-            font-size: 1.4rem;
+            span { font-size: 1.4rem; }
             font-weight: 600;
 
             @media (max-width: $query-desktop) {
@@ -107,9 +107,7 @@
         }
 
         .article-comments-count {
-            .comments-count-number {
-                margin-left: .75em;
-            }
+
         }
 
         .article-share {

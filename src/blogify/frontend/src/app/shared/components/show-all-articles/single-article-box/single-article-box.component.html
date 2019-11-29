@@ -25,14 +25,14 @@
         <a class="article-comments-count clickable">
             <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ y: 1 }"></fa-icon>
             <span class="button-text">Comments</span>
-            <span class="comments-count-number">({{article.numberOfComments}})</span>
+            <span class="comments-count-number nomargin">&ensp;({{article.numberOfComments}})</span>
         </a>
 
         <span class="separator"></span>
 
         <!-- Share button -->
         <a class="article-share clickable" (click)="copyLinkToClipboard(article)">
-            <fa-icon [icon]="faShare" size="2x" [transform]="{ size: 15, y: 1 }"></fa-icon>
+            <fa-icon [icon]="faShare" size="2x" [transform]="{ size: 13 }"></fa-icon>
             <span class="button-text">Share</span>
         </a>
 
