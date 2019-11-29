@@ -2,6 +2,7 @@ package blogify.backend.search.ext
 
 import blogify.backend.resources.models.Resource
 import blogify.backend.search.models.Template
+
 import kotlin.reflect.KClass
 
 private val templateCache: MutableMap<KClass<*>, Template<*>> = mutableMapOf()

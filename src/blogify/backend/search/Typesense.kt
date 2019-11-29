@@ -26,15 +26,15 @@ import io.ktor.client.call.receive
 import io.ktor.client.features.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.client.request.delete
+import io.ktor.http.content.TextContent
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
 
 import com.andreapivetta.kolor.green
 import com.andreapivetta.kolor.red
-import com.fasterxml.jackson.databind.ObjectMapper
 
-import com.fasterxml.jackson.databind.module.SimpleModule
-import io.ktor.http.content.TextContent
 import org.slf4j.Logger
-
 import org.slf4j.LoggerFactory
 
 import java.util.UUID
@@ -239,8 +239,10 @@ object Typesense {
     suspend inline fun <reified R: Resource> refreshIndex(): HttpResponse {
         val resources = R::class.service.getAll().get()
         val docs = resources.map { makeDocument(it) }
+
         deleteCollection<R>()
         submitResourceTemplate(R::class._rebuildSearchTemplate())
+
         return bulkUploadResources<R>(docs)
     }
 
