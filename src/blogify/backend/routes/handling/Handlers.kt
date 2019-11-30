@@ -182,7 +182,7 @@ suspend fun <R : Resource> CallPipeline.fetchWithId (
         else
             logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
 
-        val doFetch: CallPipeLineFunction = {
+        handleAuthentication("fetchWithIdAndRespond", authPredicate) {
             fetch.invoke(call, id.toUUID()).fold (
                 success = { fetched ->
                     try {
@@ -197,13 +197,6 @@ suspend fun <R : Resource> CallPipeline.fetchWithId (
                 },
                 failure = call::respondExceptionMessage
             )
-        }
-
-        if (authPredicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-            runAuthenticated(predicate = authPredicate, block = doFetch)
-        } else {
-            logUnusedAuth("fetchWithIdAndRespond")
-            doFetch(this, Unit)
         }
     } ?: call.respond(HttpStatusCode.BadRequest) // If not, send Bad Request.
 }
@@ -266,7 +259,7 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
         }
 
         if (authPredicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-            runAuthenticated(predicate = authPredicate, block = doFetch) // Run provided predicate on authenticated user and provided resource, then run doFetch if the predicate matches
+            runAuthenticated(predicate = authPredicate, block = { doFetch(this@fetchAllWithId, Unit) }) // Run provided predicate on authenticated user and provided resource, then run doFetch if the predicate matches
         } else {
             logUnusedAuth("fetchAllWithId")
             doFetch(this, Unit) // Run doFetch without checking predicate
@@ -463,7 +456,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
         }
 
         if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-            runAuthenticated(predicate = { u -> authPredicate(u, received) }, block = doCreate) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
+            runAuthenticated(predicate = { u -> authPredicate(u, received) }, block = { doCreate(this@createWithResource, Unit) }) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
         } else {
             logUnusedAuth("createWithResource")
             doCreate(this, Unit) // Run doCreate without checking predicate
@@ -508,7 +501,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
         if (authPredicate != defaultPredicateLambda) { // Optimization : fetch is only necessary if a predicate is defined
             fetch.invoke(call, id.toUUID()).fold (
                 success = {
-                    runAuthenticated(predicate = { u -> authPredicate(u, it)}, block = doDelete) // Run provided predicate on authenticated user and provided resource, then run doDelete if the predicate matches
+                    runAuthenticated(predicate = { u -> authPredicate(u, it)}, block = { doDelete(this@deleteWithId, Unit) }) // Run provided predicate on authenticated user and provided resource, then run doDelete if the predicate matches
                 }, failure = call::respondExceptionMessage
             )
         } else {
@@ -555,7 +548,7 @@ suspend inline fun <reified R : Resource> CallPipeline.updateWithId (
             if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
                 runAuthenticated (
                     predicate = { u -> authPredicate(u, replacement) },
-                    block = doUpdate
+                    block = { doUpdate(this@updateWithId, Unit) }
                 ) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
             } else {
                 logUnusedAuth("createWithResource")

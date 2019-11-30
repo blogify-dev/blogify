@@ -86,7 +86,7 @@ fun CallPipeline.optional(name: String): String? = call.parameters[name]
  */
 suspend fun CallPipeline.handleAuthentication(funcName: String = "<unspecified>", predicate: UserAuthPredicate, block: CallPipeLineFunction) {
     if (predicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-        runAuthenticated(predicate, block)
+        runAuthenticated(predicate, { block(this@handleAuthentication, Unit) })
     } else {
         logUnusedAuth(funcName)
         block(this, Unit)
