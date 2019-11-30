@@ -2,9 +2,11 @@
 
 package blogify.backend.routes.articles
 
+import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Articles
 import blogify.backend.database.Comments
 import blogify.backend.database.Users
+import blogify.backend.database.handling.query
 import blogify.backend.resources.Article
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.cachedPropMap
@@ -20,11 +22,19 @@ import blogify.backend.services.UserService
 import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.articles.CommentService
 import blogify.backend.services.models.Service
+import blogify.backend.util.getOrPipelineError
+import blogify.backend.util.reason
 import blogify.backend.util.toUUID
 
 import io.ktor.application.call
+import io.ktor.http.HttpStatusCode
 import io.ktor.routing.*
 import io.ktor.response.respond
+
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 
 fun Route.articles() {
 
@@ -36,6 +46,50 @@ fun Route.articles() {
 
         get("/{uuid}") {
             fetchWithId(ArticleService::get)
+        }
+
+        get("/{uuid}/likes") {
+            pipeline("uuid") { (id) ->
+                val numberOfLikes = query {
+                    Articles.Likes.select { Articles.Likes.article eq id.toUUID() }.count()
+                }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't get like count")
+
+                call.respond(numberOfLikes)
+            }
+        }
+
+        post("/{uuid}/like") {
+            pipeline("uuid") { (id) ->
+                runAuthenticated {
+                    val articleToLike = ArticleService.get(call, id.toUUID())
+                        .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch article")
+
+                    // Figure whether or not the article was already liked by the user
+                    val alreadyLiked = query {
+                        Articles.Likes.select {
+                            (Articles.Likes.article eq articleToLike.uuid) and (Articles.Likes.user eq subject.uuid) }.count()
+                    }.getOrPipelineError() == 1;
+
+                    if (!alreadyLiked) { // Add a like if none were present
+                        query {
+                            Articles.Likes.insert {
+                                it[article] = articleToLike.uuid
+                                it[user]    = subject.uuid
+                            }
+                        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't like article")
+
+                        call.respond(HttpStatusCode.OK, reason("article liked"))
+                    } else { // Remove an existing like if there was one
+                        query {
+                            Articles.Likes.deleteWhere {
+                                (Articles.Likes.article eq articleToLike.uuid) and (Articles.Likes.user eq subject.uuid)
+                            }
+                        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't unlike article")
+
+                        call.respond(HttpStatusCode.OK, reason("article unliked"))
+                    }
+                }
+            }
         }
 
         get("/{uuid}/commentCount") {

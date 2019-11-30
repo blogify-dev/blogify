@@ -65,6 +65,13 @@ object Articles : ResourceTable<Article>() {
 
     }
 
+    object Likes: Table() {
+
+        val user    = uuid("user").references(Users.uuid, onDelete = CASCADE).primaryKey(0)
+        val article = uuid("article").references(Articles.uuid, onDelete = CASCADE).primaryKey(1)
+
+    }
+
 }
 
 object Users : ResourceTable<User>() {
