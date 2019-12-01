@@ -21,11 +21,16 @@
     </h3>
 
     <div class="article-last-line">
+        <!-- Like count -->
+        <span class="article-like-count clickable">
+            {{article.likeCount}}
+        </span>
+
         <!-- Comment count -->
         <a class="article-comments-count clickable">
             <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ y: 1 }"></fa-icon>
             <span class="button-text">Comments</span>
-            <span class="comments-count-number nomargin">&ensp;({{article.numberOfComments}})</span>
+            <span class="comments-count-number nomargin">&ensp;({{article.commentCount}})</span>
         </a>
 
         <span class="separator"></span>

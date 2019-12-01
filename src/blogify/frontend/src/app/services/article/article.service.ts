@@ -26,15 +26,22 @@ export class ArticleService {
         });
     }
 
-    private async fetchCommentCount(articles: Article[]): Promise<Article[]> {
+    private async fetchLikeStatus(articles: Article[]): Promise<Article[]> {
         return Promise.all(articles.map(async a => {
-            a.numberOfComments = await this.httpClient.get<number>(`/api/articles/${a.uuid}/commentCount`).toPromise();
+            this.httpClient.get<boolean>(`/api/articles/${a.uuid}/like`).toPromise()
+            .then((res: boolean) => {
+                a.likedByUser = res;
+            }).catch(_ => {
+                a.likedByUser = null;
+            });
             return a
-        }));
+        }))
     }
 
     private async prepareArticleData(articles: Article[]): Promise<Article[]> {
-        return this.fetchUserObjects(articles).then(articles2 => this.fetchCommentCount(articles2))
+        return this
+            .fetchUserObjects(articles)
+            .then(a => this.fetchLikeStatus(a))
     }
 
     async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {

@@ -23,16 +23,15 @@ export class NewArticleComponent implements OnInit {
 
     faPlus = faPlus;
 
-    article: Article = {
-        uuid: '',
-        title: '',
-        categories: [],
-        content: '',
-        summary: '',
-        createdBy: new User('', '', '', '', new StaticFile('-1')),
-        createdAt: Date.now(),
-        numberOfComments: 0,
-    };
+    article: Article = new Article (
+        '',
+        '',
+        '',
+        '',
+        new User('', '', '', '', new StaticFile('-1')),
+        Date.now(),
+        []
+    );
 
     user: User;
     validations: object;
