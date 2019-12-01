@@ -6,6 +6,7 @@ import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.database.handling.query
+import blogify.backend.util.Sr
 
 import io.ktor.application.ApplicationCall
 
@@ -13,10 +14,16 @@ import com.github.kittinunf.result.coroutines.map
 import com.github.kittinunf.result.coroutines.mapError
 
 import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.leftJoin
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 
+import java.lang.Exception
 import java.util.UUID
 
 /**
@@ -55,8 +62,8 @@ suspend fun <R : Resource> fetchNumberFromTable(callContext: ApplicationCall, ta
     }
         .mapError { e -> Service.Exception.Fetching(e) } // Wrap a possible DBEx inside a Service exception
         .map { rows ->                                   // Map the set of ResultRow to converted resources
-            rows.map { table.convert(callContext, it).get() }.toSet() //     Mote : get() is fine, since any error thrown
-        }                                                //            by it is automatically wrapped into a failure result.
+            rows.map { table.convert(callContext, it).get() }.toSet() // Mote : get() is fine, since any error thrown
+        }                                                             //  by it is automatically wrapped into a failure result.
 }
 
 /**
@@ -97,19 +104,48 @@ suspend fun <R : Resource> deleteWithIdInTable(table: ResourceTable<R>, id: UUID
 }
 
 /**
- * Returns the number of items in [referenceTable] that refer to [referenceValue] in their [referenceField] column.
+ * Counts the number of references of a certain value in a provided column of a table
  *
- * @param referenceTable the table to look for references in
- * @param referenceField the column in which the reference is stored
- * @param referenceValue the value to count occurrences for
+ * @param referenceField the column in which those references to [referenceValue] are to be counted.
  *
- * @return the number of instances of [referenceValue] in [referenceTable]
+ * @return the number of rows of [referenceField]'s table in which [referenceValue] appears in [referenceField]
  *
  * @author Benjozork
  */
-suspend fun <R : Resource, A : Any> countReferringInTable(referenceTable: ResourceTable<R>, referenceField: Column<A>, referenceValue: A): ResourceResult<Int> {
+suspend fun <A : Any> countReferences (
+    referenceField: Column<A>,
+    referenceValue: A,
+    where:          SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }
+): ResourceResult<Int> {
     return query {
-        referenceTable.select { referenceField eq referenceValue }.count()
+        referenceField.table.select { referenceField eq referenceValue and where() }.count()
     }
         .mapError { e -> Service.Exception(e) }
 }
+
+/**
+ * Counts the number of references for every value of a column in another provided column.
+ *
+ * @param originField the column in which the values to count references to are stored
+ * @param secondField the column in which references to each value of [originField] are stored
+ *
+ * @return a map of all the values of [originField] to the number of references to that value in [secondField]
+ *
+ * @author Benjozork
+ */
+suspend fun <A : Any> countAllReferences (
+    originField: Column<A>,
+    secondField: Column<A>,
+    where:       SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }
+): Sr<Map<A, Int>, Exception> {
+    return query {
+        val refCountColumn = secondField.count()
+        originField.table
+            .leftJoin(secondField.table, { originField }, { secondField })
+            .slice(originField, refCountColumn)
+            .select(where)
+            .groupBy(originField)
+            .toSet().map { it[originField] to it[refCountColumn] }.toMap()
+    }
+}
+suspend infix fun <A : Any> Column<A>.referredToBy(other: Column<A>) = countAllReferences(this, other).get()
