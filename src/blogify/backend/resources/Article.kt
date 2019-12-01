@@ -1,17 +1,22 @@
 package blogify.backend.resources
 
+import blogify.backend.annotations.check
+import blogify.backend.annotations.search.DelegatedSearch
+import blogify.backend.annotations.search.DelegatedSearchReceiver
+import blogify.backend.annotations.search.NoSearch
+import blogify.backend.annotations.search.SearchDefaultSort
+import blogify.backend.database.Articles
+import blogify.backend.database.Comments
+import blogify.backend.resources.computed.compound
+import blogify.backend.resources.models.Resource
+import blogify.backend.services.handling.referredToBy
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
-import blogify.backend.annotations.check
-import blogify.backend.annotations.search.NoSearch
-import blogify.backend.annotations.search.SearchDefaultSort
-import blogify.backend.annotations.search.DelegatedSearch
-import blogify.backend.annotations.search.DelegatedSearchReceiver
-import blogify.backend.resources.models.Resource
 import java.time.Instant
+import java.util.UUID
 
-import java.util.*
 import kotlin.random.Random
 
 /**
@@ -50,6 +55,7 @@ data class Article (
 
     @NoSearch
     override val uuid: UUID = UUID.randomUUID()
+
 ) : Resource(uuid) {
 
     /**
@@ -58,5 +64,11 @@ data class Article (
      * @property name The name content of the category.
      */
     data class Category(@DelegatedSearchReceiver val name: String)
+
+    @NoSearch
+    val likeCount by compound { Articles.uuid referredToBy Articles.Likes.article }
+
+    @NoSearch
+    val commentCount by compound { Articles.uuid referredToBy Comments.article }
 
 }
