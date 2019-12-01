@@ -152,6 +152,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
         Typesense.submitResourceTemplate(Article::class._searchTemplate)
         Typesense.submitResourceTemplate(User::class._searchTemplate)
+
     }
 
     // Initialize routes

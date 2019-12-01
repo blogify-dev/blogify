@@ -34,7 +34,7 @@ abstract class ResourceTable<R : Resource> : Table() {
 object Articles : ResourceTable<Article>() {
 
     val title      = varchar ("title", 512)
-    val createdAt  = integer    ("created_at")
+    val createdAt  = integer ("created_at")
     val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = SET_NULL)
     val content    = text    ("content")
     val summary    = text    ("summary")
