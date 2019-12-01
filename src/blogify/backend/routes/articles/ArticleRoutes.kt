@@ -48,13 +48,21 @@ fun Route.articles() {
             fetchWithId(ArticleService::get)
         }
 
-        get("/{uuid}/likes") {
-            pipeline("uuid") { (id) ->
-                val numberOfLikes = query {
-                    Articles.Likes.select { Articles.Likes.article eq id.toUUID() }.count()
-                }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't get like count")
+        val likes = Articles.Likes
 
-                call.respond(numberOfLikes)
+        get("/{uuid}/like") {
+            pipeline("uuid") { (id) ->
+                runAuthenticated {
+                    val article = ArticleService.get(call, id.toUUID())
+                        .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch article")
+
+                    val liked = query {
+                        likes.select {
+                            (likes.article eq article.uuid) and (likes.user eq subject.uuid) }.count()
+                    }.getOrPipelineError() == 1;
+
+                    call.respond(liked)
+                }
             }
         }
 
@@ -66,13 +74,13 @@ fun Route.articles() {
 
                     // Figure whether or not the article was already liked by the user
                     val alreadyLiked = query {
-                        Articles.Likes.select {
-                            (Articles.Likes.article eq articleToLike.uuid) and (Articles.Likes.user eq subject.uuid) }.count()
+                        likes.select {
+                            (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid) }.count()
                     }.getOrPipelineError() == 1;
 
                     if (!alreadyLiked) { // Add a like if none were present
                         query {
-                            Articles.Likes.insert {
+                            likes.insert {
                                 it[article] = articleToLike.uuid
                                 it[user]    = subject.uuid
                             }
@@ -81,8 +89,8 @@ fun Route.articles() {
                         call.respond(HttpStatusCode.OK, reason("article liked"))
                     } else { // Remove an existing like if there was one
                         query {
-                            Articles.Likes.deleteWhere {
-                                (Articles.Likes.article eq articleToLike.uuid) and (Articles.Likes.user eq subject.uuid)
+                            likes.deleteWhere {
+                                (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid)
                             }
                         }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't unlike article")
 
@@ -90,10 +98,6 @@ fun Route.articles() {
                     }
                 }
             }
-        }
-
-        get("/{uuid}/commentCount") {
-            countReferringToResource(ArticleService::get, CommentService::getReferring, Comments.article)
         }
 
         get("/forUser/{username}") {
