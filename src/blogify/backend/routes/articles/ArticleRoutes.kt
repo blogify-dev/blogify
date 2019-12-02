@@ -4,7 +4,6 @@ package blogify.backend.routes.articles
 
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Articles
-import blogify.backend.database.Comments
 import blogify.backend.database.Users
 import blogify.backend.database.handling.query
 import blogify.backend.resources.Article
@@ -20,7 +19,6 @@ import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.services.UserService
 import blogify.backend.services.articles.ArticleService
-import blogify.backend.services.articles.CommentService
 import blogify.backend.services.models.Service
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
@@ -50,22 +48,6 @@ fun Route.articles() {
 
         val likes = Articles.Likes
 
-        get("/{uuid}/like") {
-            pipeline("uuid") { (id) ->
-                runAuthenticated {
-                    val article = ArticleService.get(call, id.toUUID())
-                        .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch article")
-
-                    val liked = query {
-                        likes.select {
-                            (likes.article eq article.uuid) and (likes.user eq subject.uuid) }.count()
-                    }.getOrPipelineError() == 1;
-
-                    call.respond(liked)
-                }
-            }
-        }
-
         post("/{uuid}/like") {
             pipeline("uuid") { (id) ->
                 runAuthenticated {
@@ -76,7 +58,7 @@ fun Route.articles() {
                     val alreadyLiked = query {
                         likes.select {
                             (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid) }.count()
-                    }.getOrPipelineError() == 1;
+                    }.getOrPipelineError() == 1
 
                     if (!alreadyLiked) { // Add a like if none were present
                         query {
