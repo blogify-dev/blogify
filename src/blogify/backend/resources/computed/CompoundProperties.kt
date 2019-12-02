@@ -47,4 +47,4 @@ class CompoundCachedComputedPropertyDelegate<A : Any> (
  * `compound` is a property delegate that allows running a costly operation only once
  */
 fun <A : Any> compound(initializer: suspend () -> Map<UUID, A>)
-        = CompoundCachedComputedPropertyDelegate { runBlocking(context = Dispatchers.IO, block = { initializer() }) };
+        = CompoundCachedComputedPropertyDelegate { runBlocking(context = Dispatchers.IO, block = { initializer() }) }
