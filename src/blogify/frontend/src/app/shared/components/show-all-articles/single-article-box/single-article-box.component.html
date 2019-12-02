@@ -24,23 +24,22 @@
         <!-- Like count -->
         <a class="article-like-count clickable negative">
             <fa-icon [icon]="faHeart" size="lg" [transform]="{ size: 19 }"></fa-icon>
-            <span>{{article.likeCount}}</span>
+            <span>&ensp;{{article.likeCount}}</span>
         </a>
 
-        <span class="separator"></span>
+        <span class="separator" style="height: 80%; margin: auto 0"></span>
 
         <!-- Comment count -->
         <a class="article-comments-count clickable">
-            <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ y: 1, size: 16 }"></fa-icon>
-            <span class="button-text">Comments</span>
-            <span class="comments-count-number">&ensp;({{article.commentCount}})</span>
+            <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ y: 1, size: 17 }"></fa-icon>
+            <span>&ensp;{{article.commentCount}}</span>
         </a>
 
-        <span class="separator"></span>
+        <span class="separator" style="height: 80%; margin: auto 0"></span>
 
         <!-- Share button -->
         <a class="article-share clickable" (click)="copyLinkToClipboard(article)">
-            <fa-icon [icon]="faCopy" size="2x" [transform]="{ size: 12 }"></fa-icon>
+            <fa-icon [icon]="faCopy" size="2x" [transform]="{ rotate: 1, size: 12 }"></fa-icon>
             <span class="button-text">Share</span>
         </a>
 
