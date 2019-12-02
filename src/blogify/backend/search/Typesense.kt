@@ -90,6 +90,14 @@ object Typesense {
         expectSuccess = false
     }
 
+    /**
+     * Builds the document to be sent to typesense.
+     * Checks if delegation exists. If it does, returns the delegated result; original value if it doesn't
+     *
+     * @return The sanitized document ready for typesense
+     *
+     * @author Benjozork
+     */
     inline fun <reified R : Resource> makeDocument(resource: R): Map<String, Any?> {
         val template = R::class._searchTemplate
 
@@ -236,6 +244,19 @@ object Typesense {
         }
     }
 
+    /**
+     * Refreshes typesense index. It sends the following requests:
+     * * [Drop collection][deleteCollection]
+     * * Rebuild the search template
+     * * Submit the aforementioned template
+     * * [Bulk uploads][bulkUploadResources] the resources
+     *
+     * @param R The [Resource] whose corresponding index is to be refreshed
+     *
+     * @return The [HttpResponse] of the request
+     *
+     * @author hamza1311
+     */
     suspend inline fun <reified R: Resource> refreshIndex(): HttpResponse {
         val resources = R::class.service.getAll().get()
         val docs = resources.map { makeDocument(it) }
@@ -246,6 +267,16 @@ object Typesense {
         return bulkUploadResources<R>(docs)
     }
 
+    /**
+     * Uploads [resources][Resource] to typesense in bulk.
+     * A document import request is sent to typesense.
+     *
+     * @param documents The documents to be imported. These are converted into a format typesense can understand before sending the request
+     *
+     * @return The [HttpResponse] of the request
+     *
+     * @author Benjozork, hamza1311
+     */
     suspend inline fun <reified R : Resource> bulkUploadResources(documents: List<Map<String, Any?>>): HttpResponse {
         val template = R::class._searchTemplate
 
@@ -258,6 +289,14 @@ object Typesense {
         }
     }
 
+    /**
+     * Drops a typesense collection
+     * @param R The resource whose collection is to be dropped
+     *
+     * @return The [HttpResponse] of the request
+     *
+     * @author hamza1311
+     */
     suspend inline fun <reified R : Resource> deleteCollection(): HttpResponse {
         val template = R::class._searchTemplate
 
