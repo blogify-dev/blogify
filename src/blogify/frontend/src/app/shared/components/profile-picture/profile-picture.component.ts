@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { StaticContentService } from '../../../services/static/static-content.service';
 import { StaticFile } from "../../../models/Static";
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faUser } from '@fortawesome/free-regular-svg-icons';
 
 @Component({
     selector: 'app-profile-picture',

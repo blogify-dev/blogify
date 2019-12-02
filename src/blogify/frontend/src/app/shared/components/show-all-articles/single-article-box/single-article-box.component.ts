@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Article } from "../../../../models/Article";
-import { faCommentAlt, faShare } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faCommentAlt, faCopy } from '@fortawesome/free-regular-svg-icons';
 import { ClipboardService } from "ngx-clipboard";
 
 @Component({
@@ -11,8 +11,9 @@ import { ClipboardService } from "ngx-clipboard";
 export class SingleArticleBoxComponent implements OnInit {
 
     @Input() article: Article;
+    faHeart = faHeart;
     faCommentAlt = faCommentAlt;
-    faShare = faShare;
+    faCopy = faCopy;
 
     constructor(private clipboardService: ClipboardService) {}
 

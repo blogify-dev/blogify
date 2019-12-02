@@ -22,22 +22,25 @@
 
     <div class="article-last-line">
         <!-- Like count -->
-        <span class="article-like-count clickable">
-            {{article.likeCount}}
-        </span>
+        <a class="article-like-count clickable negative">
+            <fa-icon [icon]="faHeart" size="lg" [transform]="{ size: 19 }"></fa-icon>
+            <span>{{article.likeCount}}</span>
+        </a>
+
+        <span class="separator"></span>
 
         <!-- Comment count -->
         <a class="article-comments-count clickable">
-            <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ y: 1 }"></fa-icon>
+            <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ y: 1, size: 16 }"></fa-icon>
             <span class="button-text">Comments</span>
-            <span class="comments-count-number nomargin">&ensp;({{article.commentCount}})</span>
+            <span class="comments-count-number">&ensp;({{article.commentCount}})</span>
         </a>
 
         <span class="separator"></span>
 
         <!-- Share button -->
         <a class="article-share clickable" (click)="copyLinkToClipboard(article)">
-            <fa-icon [icon]="faShare" size="2x" [transform]="{ size: 13 }"></fa-icon>
+            <fa-icon [icon]="faCopy" size="2x" [transform]="{ size: 12 }"></fa-icon>
             <span class="button-text">Share</span>
         </a>
 
