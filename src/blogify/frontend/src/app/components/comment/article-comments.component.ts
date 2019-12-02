@@ -40,8 +40,10 @@ export class ArticleCommentsComponent implements OnInit {
         });
     }
 
-    getNewComment(comment: Comment) {
+    getNewComment(comment) {
+        console.log(comment);
         this.rootComments.push(comment);
+        console.log(this.rootComments)
     }
 
     isLoggedIn(): boolean {

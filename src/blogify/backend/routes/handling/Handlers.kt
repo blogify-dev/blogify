@@ -448,7 +448,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
 
             res.fold (
                 success = {
-                    call.respond(HttpStatusCode.Created, it)
+                    call.respond(HttpStatusCode.Created, it.sanitize())
                     doAfter(it)
                 },
                 failure = call::respondExceptionMessage

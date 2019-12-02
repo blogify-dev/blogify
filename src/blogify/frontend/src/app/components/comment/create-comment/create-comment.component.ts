@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { Article } from '../../../models/Article';
 import { CommentsService } from '../../../services/comments/comments.service';
 import { AuthService } from '../../../shared/auth/auth.service';
@@ -15,7 +15,9 @@ export class CreateCommentComponent implements OnInit {
     commentContent = '';
     @Input() article: Article;
     @Input() comment: Comment;
-    @Input() replying: boolean = false;
+    @Input() replying = false;
+
+    @Output() newComment = new EventEmitter();
 
     replyComment: Comment;
     replyError: string;
@@ -38,11 +40,13 @@ export class CreateCommentComponent implements OnInit {
         if (this.authService.observeIsLoggedIn() && this.replyComment.commenter instanceof User) {
 
             if (this.comment === undefined) { // Reply to article
-                await this.commentsService.createComment (
+                const newComment = await this.commentsService.createComment (
                     this.replyComment.content,
                     this.article.uuid,
                     this.replyComment.commenter.uuid
                 );
+                console.log(newComment);
+                this.newComment.emit(newComment);
             } else { // Reply to comment
                 await this.commentsService.replyToComment (
                     this.replyComment.content,
@@ -53,7 +57,7 @@ export class CreateCommentComponent implements OnInit {
             }
 
         } else {
-            this.replyError = 'You must be logged in to comment.'
+            this.replyError = 'You must be logged in to comment.';
         }
     }
 

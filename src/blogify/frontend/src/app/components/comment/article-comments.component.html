@@ -4,4 +4,4 @@
     </div>
 </div>
 
-<app-create-comment *ngIf="isLoggedIn()" [article]="article"></app-create-comment>
+<app-create-comment *ngIf="isLoggedIn()"  (newComment)="getNewComment($event)" [article]="article"></app-create-comment>
