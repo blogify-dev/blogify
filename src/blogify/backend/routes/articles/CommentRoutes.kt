@@ -22,6 +22,10 @@ fun Route.articleComments() {
         }
 
         get("/{uuid}") {
+            fetchWithId(CommentService::get)
+        }
+
+        get("/article/{uuid}") {
             fetchAllWithId(fetch = { articleId ->
                 CommentService.getMatching(call) { Comments.article eq articleId and Comments.parentComment.isNull() }
             })
