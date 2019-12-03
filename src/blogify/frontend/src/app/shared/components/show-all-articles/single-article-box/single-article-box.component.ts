@@ -3,9 +3,8 @@ import { Article } from "../../../../models/Article";
 import { faHeart, faCommentAlt, faCopy } from '@fortawesome/free-regular-svg-icons';
 import { faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
 import { ClipboardService } from "ngx-clipboard";
-import {AuthService} from '../../../auth/auth.service';
-import {ArticleService} from '../../../../services/article/article.service';
-import {error} from 'util';
+import { AuthService } from '../../../auth/auth.service';
+import { ArticleService } from '../../../../services/article/article.service';
 
 @Component({
     selector: 'app-single-article-box',
