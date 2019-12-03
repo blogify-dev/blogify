@@ -21,9 +21,18 @@
     </h3>
 
     <div class="article-last-line">
-        <!-- Like count -->
-        <a class="article-like-count clickable negative">
-            <fa-icon [icon]="faHeart" size="lg" [transform]="{ size: 19 }"></fa-icon>
+        <!-- Like count - clickable -->
+        <a class="article-like-count clickable negative"
+           *ngIf="authService.observeIsLoggedIn() | async"
+           (click)="likeArticle()"
+        >
+            <fa-icon [icon]="this.liked ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 19 }"></fa-icon>
+            <span>&ensp;{{this.liked ? article.likeCount + 1 : this.article.likeCount}}</span>
+        </a>
+
+        <!-- Like count - non-clickable -->
+        <a class="article-like-count negative" *ngIf="!(authService.observeIsLoggedIn() | async)">
+            <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 19 }"></fa-icon>
             <span>&ensp;{{article.likeCount}}</span>
         </a>
 
@@ -38,7 +47,7 @@
         <span class="separator" style="height: 80%; margin: auto 0"></span>
 
         <!-- Share button -->
-        <a class="article-share clickable" (click)="copyLinkToClipboard(article)">
+        <a class="article-share clickable" (click)="copyLinkToClipboard()">
             <fa-icon [icon]="faCopy" size="2x" [transform]="{ rotate: 1, size: 12 }"></fa-icon>
             <span class="button-text">Share</span>
         </a>

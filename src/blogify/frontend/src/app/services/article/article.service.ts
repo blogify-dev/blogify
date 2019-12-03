@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders} from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Article } from '../../models/Article';
 import { AuthService } from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
@@ -85,6 +85,21 @@ export class ArticleService {
         };
 
         return this.httpClient.post<any>(`/api/articles/`, newArticle, httpOptions).toPromise();
+    }
+
+    async likeArticle(article: Article, userToken: string): Promise<HttpResponse<Object>> {
+
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${userToken}`
+            }),
+            observe: 'response',
+        };
+
+        // TypeScript bug with method overloads.
+        // @ts-ignore
+        return this.httpClient.post<HttpResponse<Object>>(`/api/articles/${article.uuid}/like`, null, httpOptions).toPromise()
     }
 
     updateArticle(article: Article, uuid: string = article.uuid, userToken: string = this.authService.userToken) {
