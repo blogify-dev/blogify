@@ -24,10 +24,10 @@
         <!-- Like count - clickable -->
         <a class="article-like-count clickable negative"
            *ngIf="authService.observeIsLoggedIn() | async"
-           (click)="likeArticle()"
+           (click)="toggleLike()"
         >
-            <fa-icon [icon]="this.liked ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 19 }"></fa-icon>
-            <span>&ensp;{{this.liked ? article.likeCount + 1 : this.article.likeCount}}</span>
+            <fa-icon [icon]="this.article.likedByUser ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 19 }"></fa-icon>
+            <span>&ensp;{{this.article.likedByUser ? article.likeCount + 1 : this.article.likeCount}}</span>
         </a>
 
         <!-- Like count - non-clickable -->

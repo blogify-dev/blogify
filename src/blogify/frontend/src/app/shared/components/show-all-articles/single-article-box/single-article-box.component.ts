@@ -15,8 +15,6 @@ export class SingleArticleBoxComponent implements OnInit {
 
     @Input() article: Article;
 
-    liked = false;
-
     faHeartOutline = faHeart;
     faHeartFilled = faHeartFilled;
 
@@ -31,11 +29,11 @@ export class SingleArticleBoxComponent implements OnInit {
 
     ngOnInit() {}
 
-    likeArticle() {
+    toggleLike() {
         this.articleService
             .likeArticle(this.article, this.authService.userToken)
             .then(_ => {
-                this.liked = !this.liked;
+                this.article.likedByUser = !this.article.likedByUser;
             }).catch(error => {
                 console.error(`[blogifyArticles] Couldn't like ${this.article.uuid}` )
             })

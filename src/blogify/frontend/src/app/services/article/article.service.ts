@@ -26,9 +26,18 @@ export class ArticleService {
         });
     }
 
-    private async fetchLikeStatus(articles: Article[]): Promise<Article[]> {
+    private async fetchLikeStatus(articles: Article[], userToken: string): Promise<Article[]> {
         return Promise.all(articles.map(async a => {
-            this.httpClient.get<boolean>(`/api/articles/${a.uuid}/like`).toPromise()
+
+            const httpOptions = {
+                headers: new HttpHeaders({
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${userToken}`
+                }),
+            };
+
+            // @ts-ignore
+            this.httpClient.get<boolean>(`/api/articles/${a.uuid}/like`, httpOptions).toPromise()
             .then((res: boolean) => {
                 a.likedByUser = res;
             }).catch(_ => {
@@ -41,7 +50,7 @@ export class ArticleService {
     private async prepareArticleData(articles: Article[]): Promise<Article[]> {
         return this
             .fetchUserObjects(articles)
-            .then(a => this.fetchLikeStatus(a))
+            .then(a => this.authService.userToken ? this.fetchLikeStatus(a, this.authService.userToken) : a)
     }
 
     async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {
@@ -61,7 +70,7 @@ export class ArticleService {
 
     async getArticleByForUser(username: string, fields: string[] = []): Promise<Article[]> {
         const articles = await this.httpClient.get<Article[]>(`/api/articles/forUser/${username}?fields=${fields.join(',')}`).toPromise();
-        return this.fetchUserObjects(articles);
+        return this.prepareArticleData(articles);
     }
 
     async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<any> {
