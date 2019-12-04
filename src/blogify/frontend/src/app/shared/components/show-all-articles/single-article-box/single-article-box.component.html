@@ -23,7 +23,7 @@
     <div class="article-last-line">
         <!-- Like count - clickable -->
         <a class="article-like-count clickable negative"
-           *ngIf="authService.observeIsLoggedIn() | async"
+           *ngIf="loggedInObs | async"
            (click)="toggleLike()"
         >
             <fa-icon [icon]="this.article.likedByUser ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 19 }"></fa-icon>
@@ -31,7 +31,7 @@
         </a>
 
         <!-- Like count - non-clickable -->
-        <a class="article-like-count negative" *ngIf="!(authService.observeIsLoggedIn() | async)">
+        <a class="article-like-count negative" *ngIf="!(loggedInObs | async)">
             <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 19 }"></fa-icon>
             <span>&ensp;{{article.likeCount}}</span>
         </a>

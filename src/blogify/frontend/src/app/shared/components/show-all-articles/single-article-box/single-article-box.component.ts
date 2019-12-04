@@ -27,6 +27,8 @@ export class SingleArticleBoxComponent implements OnInit {
         private clipboardService: ClipboardService
     ) {}
 
+    loggedInObs = this.authService.observeIsLoggedIn();
+
     ngOnInit() {}
 
     toggleLike() {
