@@ -32,10 +32,7 @@ fun isUser(mustBe: User): UserAuthPredicate = { user ->
 }
 
 /**
- * Allows to wrap a call handler into a block that takes care of authentication using a given [predicate][UserAuthPredicate].
- *
- * For example, using [isUser] as a [predicate][UserAuthPredicate] will result in the block only being
- * executed if the provided [user][User] matches the authenticating user.
+ * Allows to wrap a pipeline into a block that takes care of authentication using a given [predicate][UserAuthPredicate].
  *
  * @param predicate the predicate used as a check for authentication
  * @param block     the call handling block that is run if the check succeeds
