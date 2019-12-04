@@ -1,5 +1,6 @@
 package blogify.backend.resources.computed
 
+import blogify.backend.resources.computed.models.ComputedPropertyDelegate
 import blogify.backend.resources.models.Resource
 
 import kotlinx.coroutines.runBlocking
@@ -11,15 +12,17 @@ import kotlin.reflect.KProperty
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
+// Data cache
+
 data class CompoundCacheKey(val klass: KClass<*>, val property: KProperty<*>)
 val compoundCache = ConcurrentHashMap<CompoundCacheKey, Map<UUID, Any>>()
 
 class CompoundCachedComputedPropertyDelegate<A : Any> (
     val initializer: () -> Map<UUID, A>
-) {
+): ComputedPropertyDelegate<A>() {
 
     @Suppress("UNCHECKED_CAST")
-    operator fun getValue(thisRef: Resource, property: KProperty<*>): A {
+    override operator fun getValue(thisRef: Resource, property: KProperty<*>): A {
         val key = CompoundCacheKey(thisRef::class, property)
         var cacheValue = compoundCache[key]?.toMutableMap()
 
@@ -44,7 +47,7 @@ class CompoundCachedComputedPropertyDelegate<A : Any> (
 }
 
 /**
- * `compound` is a property delegate that allows running a costly operation only once
+ * `compound` is a property delegate that allows running a costly operation only once for a batch of resources in a same request
  */
 fun <A : Any> compound(initializer: suspend () -> Map<UUID, A>)
         = CompoundCachedComputedPropertyDelegate { runBlocking(context = Dispatchers.IO, block = { initializer() }) }
