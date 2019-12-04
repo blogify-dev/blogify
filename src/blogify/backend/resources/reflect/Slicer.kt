@@ -3,10 +3,13 @@ package blogify.backend.resources.reflect
 import blogify.backend.annotations.search.NoSearch
 import blogify.backend.resources.models.Resource
 import blogify.backend.annotations.NoSlice
+import blogify.backend.resources.computed.models.ComputedPropertyDelegate
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
+import blogify.backend.resources.reflect.models.ext.valid
 
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.jvm.isAccessible
 
 /**
  * Represents the result of [getPropValueOnInstance].
@@ -60,7 +63,7 @@ sealed class SlicedProperty(val name: String) {
  * @author hamza1311, Benjozork
  */
 @Suppress("UNCHECKED_CAST")
-private fun <M : Mapped> getPropValueOnInstance(instance: M, propertyName: String): SlicedProperty {
+private fun <M : Resource> getPropValueOnInstance(instance: M, propertyName: String): SlicedProperty {
     return instance.cachedPropMap().map
         .entries.firstOrNull { (name, _) -> name == propertyName }
         ?.value?.let { handle ->
@@ -71,6 +74,15 @@ private fun <M : Mapped> getPropValueOnInstance(instance: M, propertyName: Strin
                     } else {
                         SlicedProperty.Value(propertyName, handle.property.get(instance))
                     }
+                }
+                is PropMap.PropertyHandle.Computed -> {
+                    handle.property.isAccessible = true
+
+                    val delegate = handle.property.getDelegate(instance) as? ComputedPropertyDelegate<*>
+                        ?: error("no / illegal delegate on @Computed property '${handle.name}' of class '${instance::class.simpleName}'")
+
+                    val delegateResult = delegate.getValue(instance, handle.property)
+                    SlicedProperty.Value(propertyName, delegateResult)
                 }
                 is PropMap.PropertyHandle.AccessDenied -> SlicedProperty.AccessNotAllowed(handle.name) // Handle is denied
             }
@@ -88,7 +100,7 @@ private fun <M : Mapped> getPropValueOnInstance(instance: M, propertyName: Strin
  *
  * @author hamza1311, Benjozork
  */
-fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>): Map<String, Any?> {
+fun <M : Resource> M.slice(selectedPropertyNames: Set<String>): Map<String, Any?> {
 
     val selectedPropertiesSanitized = selectedPropertyNames.toMutableSet().apply {
         removeIf { it == "uuid" || it == "UUID" }
@@ -124,12 +136,11 @@ fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>): Map<String, Any?> 
  *
  * @author Benjozork
  */
-fun <M : Mapped> M.sanitize(noSearch: Boolean = false): Map<String, Any?> {
-    val sanitizedClassProps = this::class.cachedPropMap()
+fun <M : Resource> M.sanitize(noSearch: Boolean = false): Map<String, Any?> {
+    val sanitizedClassProps = this::class.cachedPropMap().valid()
         .asSequence()
         .filter {
-            it.value is PropMap.PropertyHandle.Ok
-                    && (!noSearch || (it.value as PropMap.PropertyHandle.Ok).property.findAnnotation<NoSearch>() == null)
+            !noSearch || it.value.property.findAnnotation<NoSearch>() == null
         }
         .map { it.key }
         .toSet()

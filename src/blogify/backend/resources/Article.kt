@@ -8,6 +8,7 @@ import blogify.backend.annotations.search.SearchDefaultSort
 import blogify.backend.database.Articles
 import blogify.backend.database.Comments
 import blogify.backend.resources.computed.compound
+import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
 import blogify.backend.services.handling.referredToBy
 
@@ -65,10 +66,10 @@ data class Article (
      */
     data class Category(@DelegatedSearchReceiver val name: String)
 
-    @NoSearch
+    @[Computed NoSearch]
     val likeCount by compound { Articles.uuid referredToBy Articles.Likes.article }
 
-    @NoSearch
+    @[Computed NoSearch]
     val commentCount by compound { Articles.uuid referredToBy Comments.article }
 
 }

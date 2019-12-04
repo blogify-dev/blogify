@@ -24,6 +24,9 @@ class PropMap(val map: Map<String, PropertyHandle>): Iterable<Map.Entry<String, 
      * @author Benjozork
      */
     sealed class PropertyHandle(val name: String) {
+
+        interface Valid { val property: KProperty1<Any, Any> }
+
         /**
          * Represents a valid handle, which points to a [KProperty1]
          *
@@ -34,7 +37,18 @@ class PropMap(val map: Map<String, PropertyHandle>): Iterable<Map.Entry<String, 
          *
          * @author Benjozork
          */
-        class Ok(name: String, val regexCheck: Regex?, val property: KProperty1<Any, Any>) : PropertyHandle(name)
+        class Ok(name: String, val regexCheck: Regex?, override val property: KProperty1<Any, Any>): PropertyHandle(name), Valid
+
+        /**
+         * Represents a valid computed handle, which points to a [KProperty1]
+         *
+         * @param name the canonical name of the property
+         *
+         * @property property the property that is pointed to
+         *
+         * @author Benjozork
+         */
+        class Computed(name: String, override val property: KProperty1<Any, Any>): PropertyHandle(name), Valid
 
         /**
          * Represents a handle that points to a property that cannot be accessed due to security policy reasons. This incident will be reported.
@@ -43,7 +57,7 @@ class PropMap(val map: Map<String, PropertyHandle>): Iterable<Map.Entry<String, 
          *
          * @author Benjozork
          */
-        class AccessDenied(name: String) : PropertyHandle(name)
+        class AccessDenied(name: String): PropertyHandle(name)
     }
 
 }

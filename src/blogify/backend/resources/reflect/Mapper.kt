@@ -2,6 +2,7 @@ package blogify.backend.resources.reflect
 
 import blogify.backend.annotations.check
 import blogify.backend.annotations.NoSlice
+import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 
@@ -11,8 +12,12 @@ import org.slf4j.LoggerFactory
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.declaredMemberExtensionProperties
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.getExtensionDelegate
+import kotlin.reflect.full.memberExtensionProperties
+import kotlin.reflect.full.memberProperties
 
 private val logger = LoggerFactory.getLogger("blogify-datamap")
 
@@ -31,15 +36,19 @@ fun <M : Mapped> KClass<M>.buildPropMap(): PropMap {
         .asSequence()
         .associateBy {
             it.name
-        }.mapValues { (name, self) ->
+        }.mapValues<String, KProperty1<*, *>, PropMap.PropertyHandle> { (name, self) ->
             if (self.findAnnotation<NoSlice>() != null) {
                 PropMap.PropertyHandle.AccessDenied(name)
             } else {
-                if (self.returnType.findAnnotation<check>() != null) {
-                    val regex = Regex(self.returnType.findAnnotation<check>()!!.pattern)
-                    PropMap.PropertyHandle.Ok(name, regex, self as KProperty1<Any, Any>)
+                if (self.findAnnotation<Computed>() != null) {
+                    PropMap.PropertyHandle.Computed(name, self as KProperty1<Any, Any>)
                 } else {
-                    PropMap.PropertyHandle.Ok(name, null, self as KProperty1<Any, Any>)
+                    if (self.returnType.findAnnotation<check>() != null) {
+                        val regex = Regex(self.returnType.findAnnotation<check>()!!.pattern)
+                        PropMap.PropertyHandle.Ok(name, regex, self as KProperty1<Any, Any>)
+                    } else {
+                        PropMap.PropertyHandle.Ok(name, null, self as KProperty1<Any, Any>)
+                    }
                 }
             }
         }.also { logger.debug("built propmap for class ${this.simpleName}".green()) })
