@@ -48,6 +48,22 @@ fun Route.articles() {
 
         val likes = Articles.Likes
 
+        get("/{uuid}/like") {
+            pipeline("uuid") { (id) ->
+                runAuthenticated {
+                    val article = ArticleService.get(call, id.toUUID())
+                        .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch article")
+
+                    val liked = query {
+                        likes.select {
+                            (likes.article eq article.uuid) and (likes.user eq subject.uuid) }.count()
+                    }.getOrPipelineError() == 1;
+
+                    call.respond(liked)
+                }
+            }
+        }
+
         post("/{uuid}/like") {
             pipeline("uuid") { (id) ->
                 runAuthenticated {
