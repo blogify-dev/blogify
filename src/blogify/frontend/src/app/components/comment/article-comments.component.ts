@@ -38,12 +38,14 @@ export class ArticleCommentsComponent implements OnInit {
 
             console.log(out);
         });
-    }
 
-    getNewComment(comment) {
-        console.log(comment);
-        this.rootComments.push(comment);
-        console.log(this.rootComments)
+        this.commentService.latestRootSubmittedComment.subscribe(comment => {
+            if (comment) {
+                this.rootComments.push(comment);
+                console.log('Comment sub');
+                console.log(comment);
+            }
+        });
     }
 
     isLoggedIn(): boolean {

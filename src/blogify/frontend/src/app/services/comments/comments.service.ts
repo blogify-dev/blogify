@@ -4,6 +4,7 @@ import { Comment } from '../../models/Comment';
 import { AuthService } from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
 import { Article } from '../../models/Article';
+import { BehaviorSubject } from 'rxjs';
 
 const commentsEndpoint = '/api/articles/comments';
 
@@ -11,6 +12,7 @@ const commentsEndpoint = '/api/articles/comments';
     providedIn: 'root'
 })
 export class CommentsService {
+    private newRootComment = new BehaviorSubject<Comment>(undefined);
 
     constructor(private httpClient: HttpClient, private authService: AuthService) {}
 
@@ -28,9 +30,10 @@ export class CommentsService {
         return comments;
     }
 
+    // tslint:disable-next-line
     async getComment(uuid: string): Promise<Comment> {
         const comment = await this.httpClient.get<Comment>(`${commentsEndpoint}/${uuid}`).toPromise();
-        comment.commenter = await this.authService.fetchUser(comment.commenter.toString())
+        comment.commenter = await this.authService.fetchUser(comment.commenter.toString());
         return comment;
     }
 
@@ -68,6 +71,10 @@ export class CommentsService {
         const res = await this.httpClient.post<Comment>(`${commentsEndpoint}`, comment, httpOptions).toPromise();
         console.log('---------Comment------');
         console.log(res);
+
+        this.newRootComment.next(res);
+        console.log('next');
+
         return res;
     }
 
@@ -103,5 +110,9 @@ export class CommentsService {
 
     async getChildrenOf(commentUUID: string, depth: number): Promise<Comment> {
         return  this.httpClient.get<Comment>(`/api/articles/comments/tree/${commentUUID}/?depth=${depth}`).toPromise();
+    }
+
+    get latestRootSubmittedComment() {
+        return this.newRootComment.asObservable();
     }
 }

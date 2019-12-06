@@ -17,8 +17,6 @@ export class CreateCommentComponent implements OnInit {
     @Input() comment: Comment;
     @Input() replying = false;
 
-    @Output() newComment = new EventEmitter();
-
     replyComment: Comment;
     replyError: string;
 
@@ -45,8 +43,6 @@ export class CreateCommentComponent implements OnInit {
                     this.article.uuid,
                     this.replyComment.commenter.uuid
                 );
-                console.log(newComment);
-                this.newComment.emit(newComment);
             } else { // Reply to comment
                 await this.commentsService.replyToComment (
                     this.replyComment.content,
