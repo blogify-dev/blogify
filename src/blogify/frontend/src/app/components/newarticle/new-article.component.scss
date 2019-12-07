@@ -26,7 +26,7 @@
             margin-top: 1em;
         }
 
-        &:not(:last-of-type) span:first-child {
+        &:not(:last-of-type) > span:first-child {
             width: 40%;
 
             font-size: 1.5em;

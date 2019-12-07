@@ -108,14 +108,17 @@ export class NewArticleComponent implements OnInit {
 
     // noinspection JSMethodCanBeStatic
     transformArticleData(input: object): object {
-        input['categories'] = input['categories'].map(cat => { return { name: cat }});
+        input['categories'] = input['categories']
+            .filter((cat: string) => cat.match(/\\s/) !== null)
+            .map(cat => { return { name: cat }});
         return input
     }
 
     createNewArticle() {
         this.articleService.createNewArticle (
             (<Article> this.transformArticleData(this.form.value))
-        ).then(async uuid => {
+        ).then(async (article: object) => {
+            const uuid = article['uuid'];
             this.result = { status: 'success', message: 'Article created successfully' };
             await this.router.navigateByUrl(`/article/${uuid}`)
         }).catch(() =>
