@@ -27,7 +27,7 @@ export class OverviewComponent implements OnInit {
 
             this.articleService.getArticleByForUser (
                 username,
-                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
+                ['title', 'summary', 'createdBy', 'categories', 'createdAt', 'likeCount', 'commentCount']
             ).then(articles => {
                 this.articles = articles
             });
