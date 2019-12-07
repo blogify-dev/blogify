@@ -79,7 +79,7 @@
         justify-content: space-between;
         align-items:     center;
 
-        $element-separation: 1.25rem;
+        $element-separation: 1.5rem;
         .separator {
             margin-left: $element-separation !important;
         }
@@ -89,15 +89,12 @@
             justify-content: space-between;
             align-items:     center;
 
-            fa-icon:first-child { margin-right: .75rem; }
+            fa-icon:first-child { margin-right: .7rem; }
 
             span { font-size: 1.4rem; }
             font-weight: 600;
 
             @media (max-width: $query-desktop) {
-                & fa-icon {
-                    margin-right: 0 !important;
-                }
                 & .button-text {
                     display: none;
                 }
