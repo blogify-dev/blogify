@@ -12,7 +12,9 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 
 fun Route.adminSearch() {
+
     route("/search") {
+
         post("/reindex") {
             runAuthenticated(predicate = { it.isAdmin }) {
                 Typesense.refreshIndex<Article>().let {
@@ -20,5 +22,7 @@ fun Route.adminSearch() {
                 }
             }
         }
+
     }
+
 }

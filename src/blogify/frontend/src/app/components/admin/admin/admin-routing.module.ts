@@ -7,6 +7,7 @@ const routes: Routes = [
     {
         path: 'admin', component: MainAdminComponent,
         children: [
+            { path: '', redirectTo: 'overview', pathMatch: 'full' },
             { path: 'overview', component: OverviewComponent }
         ]
     }
