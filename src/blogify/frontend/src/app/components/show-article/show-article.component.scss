@@ -1,4 +1,5 @@
 @import "../../../styles/mixins";
+@import "../../../styles/layouts";
 
 .container-article {
     @include pageContainer(true, 80%);
@@ -29,9 +30,9 @@
             &:not(.article-no-tags) > * {
 
                 margin:    0    .25em;
-                padding:  .15em .65em;
+                padding:  .25em .75em;
 
-                border-radius: .3em;
+                border-radius: $std-border-radius;
 
                 background-color: var(--header-bg);
                 &:first-child { margin-left: 0; }

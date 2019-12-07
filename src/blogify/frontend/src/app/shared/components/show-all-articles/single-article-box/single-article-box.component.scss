@@ -118,9 +118,9 @@
             & > * {
                 font-size: 1.35em;
                 margin:    0    .25em;
-                padding:  .15em .65em;
+                padding:  .25em .75em;
 
-                border-radius: .3em;
+                border-radius: $std-border-radius;
 
                 &:not(:nth-child(1)) { background-color: var(--card-ct); }
                 &:nth-child(1)       { margin-right: 0; padding-right: 0; }

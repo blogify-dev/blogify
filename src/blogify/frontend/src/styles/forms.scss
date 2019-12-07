@@ -126,11 +126,11 @@ button {
 
     // Color classes
 
-    &.neutral  { color: black; border-color: var(--accent-neutral) }
-    &.positive { color: black; border-color: var(--accent-positive); }
-    &.mild     { color: black; border-color: var(--accent-mild); }
-    &.negative { color: black; border-color: var(--accent-negative); }
-    &.gray     { color: black; border-color: var(--accent-gray); }
+    &.neutral  { color: black; background-color: var(--accent-neutral) }
+    &.positive { color: black; background-color: var(--accent-positive); }
+    &.mild     { color: black; background-color: var(--accent-mild); }
+    &.negative { color: black; background-color: var(--accent-negative); }
+    &.gray     { color: black; background-color: var(--accent-gray); }
 
     // Shape classes
 
