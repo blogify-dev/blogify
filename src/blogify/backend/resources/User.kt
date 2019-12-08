@@ -30,7 +30,7 @@ data class User (
     val email: String,
 
     @NoSearch
-    val profilePicture: @type("image/png") StaticResourceHandle,
+    val profilePicture: @type("image/*") StaticResourceHandle,
 
     @NoSlice
     val isAdmin: Boolean = false,
