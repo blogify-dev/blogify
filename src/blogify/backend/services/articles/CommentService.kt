@@ -25,12 +25,4 @@ object CommentService : Service<Comment>(table = Comments) {
         return@query res
     }.mapError { e -> Exception.Creating(e) }
 
-    override suspend fun update(res: Comment) = query {
-        Comments.update({ uuid eq res.uuid }) {
-            it[content] = res.content
-        }
-
-        return@query res
-    }.mapError { e -> Exception.Updating(e) }
-
 }

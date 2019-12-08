@@ -3,17 +3,20 @@ package blogify.backend.services.models
 import blogify.backend.database.ResourceTable
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
+import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.services.caching.cachedOrElse
-import blogify.backend.services.handling.countReferences
 import blogify.backend.services.handling.deleteWithIdInTable
 import blogify.backend.services.handling.fetchNumberFromTable
 import blogify.backend.services.handling.fetchWithIdFromTable
 import blogify.backend.util.BException
+import blogify.backend.util.Sr
+import blogify.backend.util.getOrPipelineError
 
 import io.ktor.application.ApplicationCall
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.mapError
+import io.ktor.http.HttpStatusCode
 
 import kotlinx.coroutines.runBlocking
 
@@ -91,7 +94,15 @@ abstract class Service<R : Resource>(val table: ResourceTable<R>) {
 
     abstract suspend fun add(res: R): ResourceResult<R>
 
-    abstract suspend fun update(res: R): SuspendableResult<R, Exception>
+    suspend fun update(res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): SuspendableResult<R, Exception> {
+        val new = blogify.backend.resources.reflect.update(res, rawData)
+            .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't update resource")
+
+        this.table.delete(res)
+        this.table.insert(new)
+
+        return Sr.of { new }
+    }
 
     /**
      * Deletes an instance of [R] from the database

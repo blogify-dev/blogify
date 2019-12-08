@@ -31,19 +31,6 @@ fun Route.adminUsers() {
             updateWithId(UserService::get, authPredicate = { _, _ -> true })
         }
 
-        patch("/makeAdmin/{uuid}") {
-            val uuid = call.parameters["uuid"] ?: error("UUID is null")
-            UserService.get(call, uuid.toUUID()).fold(
-                success = { user ->
-                    val modified = user.copy(isAdmin = true)
-                    UserService.update(modified).fold(
-                        success = { call.respond(it.sanitize()) },
-                        failure = call::respondExceptionMessage
-                    )
-                },
-                failure = call::respondExceptionMessage
-            )
-        }
     }
 }
 

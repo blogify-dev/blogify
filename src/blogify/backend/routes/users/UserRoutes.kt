@@ -79,8 +79,6 @@ fun Route.users() {
         post("/profilePicture/{uuid}") {
             uploadToResource (
                 fetch         = UserService::get,
-                modify        = { r, h -> r.copy(profilePicture = h) },
-                update        = UserService::update,
                 authPredicate = { user, manipulated -> user eqr manipulated }
             )
         }

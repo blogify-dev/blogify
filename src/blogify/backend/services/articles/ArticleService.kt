@@ -36,24 +36,4 @@ object ArticleService : Service<Article>(table = Articles) {
         return@query res // So that we return the resource and not an insert statement
     }.mapError { e -> Exception.Creating(e) } // Wrap possible error
 
-    override suspend fun update(res: Article) = query {
-        Articles.update(where = { uuid eq res.uuid }) {
-            it[title]   = res.title
-            it[content] = res.content
-            it[summary] = res.summary
-        }
-
-        val cats = res.categories
-
-        Articles.Categories.deleteWhere { Articles.Categories.article eq res.uuid }
-
-        cats.forEach { cat ->
-            Articles.Categories.insert {
-                it[name] = cat.name
-                it[article] = res.uuid
-            }
-        }
-        return@query res // So that we return the resource
-    }.mapError { e -> Exception.Updating(e) }
-
 }

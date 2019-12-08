@@ -2,6 +2,7 @@
 
 package blogify.backend.database
 
+import blogify.backend.database.handling.query
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
 import blogify.backend.resources.User
@@ -20,12 +21,23 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
+import org.jetbrains.exposed.sql.batchInsert
 
 abstract class ResourceTable<R : Resource> : Table() {
 
     abstract suspend fun convert(callContext: ApplicationCall, source: ResultRow): SuspendableResult<R, Service.Exception.Fetching>
+
+    abstract suspend fun insert(resource: R): Boolean
+
+    open suspend fun delete(resource: R): Boolean {
+        return query {
+            this.deleteWhere { uuid eq resource.uuid } == 1
+        }.get()
+    }
 
     val uuid = uuid("uuid").primaryKey()
 
@@ -38,6 +50,35 @@ object Articles : ResourceTable<Article>() {
     val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = SET_NULL)
     val content    = text    ("content")
     val summary    = text    ("summary")
+
+    override suspend fun insert(resource: Article): Boolean {
+        val articleCreated = query {
+            this.insert {
+                it[uuid]      = resource.uuid
+                it[title]     = resource.title
+                it[createdAt] = resource.createdAt
+                it[createdBy] = resource.createdBy.uuid
+                it[content]   = resource.content
+                it[summary]   = resource.summary
+            }.resultedValues?.let { it.size == 1 } ?: false
+        }.get()
+
+        val categoriesCreated = query {
+            Categories.batchInsert(resource.categories) {
+                this[Categories.article] = resource.uuid
+                this[Categories.name]    = it.name
+            }.size == 1
+        }.get()
+
+        return articleCreated && categoriesCreated
+    }
+
+    override suspend fun delete(resource: Article): Boolean {
+        val articleDeleted = super.delete(resource)
+        return query {
+            Categories.deleteWhere { Categories.article eq resource.uuid } == 1
+        }.get() && articleDeleted
+    }
 
     override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Article, Service.Exception.Fetching> {
         Article (
@@ -87,6 +128,20 @@ object Users : ResourceTable<User>() {
         index(true, username)
     }
 
+    override suspend fun insert(resource: User): Boolean {
+        return query {
+            Users.insert {
+                it[uuid]           = resource.uuid
+                it[username]       = resource.username
+                it[password]       = resource.password
+                it[email]          = resource.email
+                it[name]           = resource.name
+                it[profilePicture] = if (resource.profilePicture is StaticResourceHandle.Ok) resource.profilePicture.fileId else null
+                it[isAdmin]        = resource.isAdmin
+            }.resultedValues?.let { it.size == 1 } ?: false
+        }.get()
+    }
+
     override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<User, Service.Exception.Fetching> {
         User (
             uuid           = source[uuid],
@@ -109,6 +164,18 @@ object Comments : ResourceTable<Comment>() {
     val article       = uuid ("article").references(Articles.uuid, onDelete = CASCADE)
     val content       = text ("content")
     val parentComment = uuid ("parent_comment").references(uuid, onDelete = CASCADE).nullable()
+
+    override suspend fun insert(resource: Comment): Boolean {
+        return query {
+            this.insert {
+                it[uuid]          = resource.uuid
+                it[commenter]     = resource.commenter.uuid
+                it[article]       = resource.article.uuid
+                it[content]       = resource.content
+                it[parentComment] = resource.parentComment?.uuid
+            }.resultedValues?.let { it.size == 1 } ?: false
+        }.get()
+    }
 
     override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Comment, Service.Exception.Fetching> {
         Comment (

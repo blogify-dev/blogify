@@ -60,6 +60,7 @@ import blogify.backend.util.filterThenMapValues
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.letCatchingOrNull
 import blogify.backend.util.matches
+import blogify.backend.util.service
 import blogify.backend.util.short
 import blogify.backend.util.toUUID
 
@@ -241,9 +242,7 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
     crossinline fetch:         suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
-    crossinline modify:        suspend (R, StaticResourceHandle) -> R,
-    crossinline update:        suspend (R)                       -> ResourceResult<*>,
-    noinline authPredicate: suspend (User, R)                 -> Boolean = defaultPredicateLambda
+       noinline authPredicate: suspend (User, R)                 -> Boolean = defaultPredicateLambda
 ) = pipeline("uuid", "target") { (uuid, target) ->
 
     // Find target resource
@@ -298,10 +297,8 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
                 }
             }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing static resource to db")
 
-            // idk - temporary
-            val rep = modify(targetResource, newHandle)
 
-            update(rep)
+            R::class.service.update(targetResource, mapOf(targetPropHandle to newHandle))
                 .getOrPipelineError(HttpStatusCode.InternalServerError, "error while updating resource ${targetResource.uuid.short()} with new information")
 
             call.respond(newHandle.toString())
@@ -486,7 +483,7 @@ suspend inline fun <reified R : Resource> CallPipeline.updateWithId (
         funcName  = "createWithResource",
         predicate = { user -> authPredicate(user, current) }
     ) {
-        update(current, rawData).fold (
+        R::class.service.update(current, rawData).fold (
             success = {
                 doAfter(it)
                 call.respond(HttpStatusCode.OK)
