@@ -138,7 +138,6 @@ fun Route.articles() {
 
         patch("/{uuid}") {
             updateWithId (
-                update = ArticleService::update,
                 fetch = ArticleService::get,
                 authPredicate = { user, article -> article.createdBy eqr user },
                 doAfter = { replacement ->

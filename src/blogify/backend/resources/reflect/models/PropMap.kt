@@ -25,7 +25,21 @@ class PropMap(val map: Map<String, PropertyHandle>): Iterable<Map.Entry<String, 
      */
     sealed class PropertyHandle(val name: String) {
 
-        interface Valid { val property: KProperty1<Any, Any> }
+        override fun equals(other: Any?): Boolean {
+            return when (other) {
+                is PropertyHandle -> this.name == other.name
+                else -> false
+            }
+        }
+
+        override fun hashCode() = name.hashCode()
+
+        override fun toString() = name
+
+        interface Valid {
+            val name: String;
+            val property: KProperty1<Any, Any>
+        }
 
         /**
          * Represents a valid handle, which points to a [KProperty1]

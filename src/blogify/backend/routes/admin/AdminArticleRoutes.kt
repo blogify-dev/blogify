@@ -30,7 +30,6 @@ fun Route.adminArticles() {
 
         patch("/{uuid}") {
             updateWithId (
-                update = ArticleService::update,
                 fetch = ArticleService::get,
                 authPredicate = { user, _ -> user.isAdmin },
                 doAfter = { replacement ->

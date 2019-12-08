@@ -21,7 +21,6 @@ fun Route.adminComments() {
 
         patch("/{uuid}") {
             updateWithId (
-                update = CommentService::update,
                 fetch = CommentService::get,
                 authPredicate = { user, _ -> user.isAdmin }
             )

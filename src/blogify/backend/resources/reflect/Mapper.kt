@@ -12,12 +12,8 @@ import org.slf4j.LoggerFactory
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.declaredMemberExtensionProperties
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.getExtensionDelegate
-import kotlin.reflect.full.memberExtensionProperties
-import kotlin.reflect.full.memberProperties
 
 private val logger = LoggerFactory.getLogger("blogify-datamap")
 
@@ -31,13 +27,13 @@ private val logger = LoggerFactory.getLogger("blogify-datamap")
  * @author Benjozork
  */
 @Suppress("UNCHECKED_CAST")
-fun <M : Mapped> KClass<M>.buildPropMap(): PropMap {
+private fun <M : Mapped> KClass<M>.buildPropMap(unsafe: Boolean = false): PropMap {
     return PropMap(this.declaredMemberProperties
         .asSequence()
         .associateBy {
             it.name
         }.mapValues<String, KProperty1<*, *>, PropMap.PropertyHandle> { (name, self) ->
-            if (self.findAnnotation<NoSlice>() != null) {
+            if (self.findAnnotation<NoSlice>() != null && !unsafe) {
                 PropMap.PropertyHandle.AccessDenied(name)
             } else {
                 if (self.findAnnotation<Computed>() != null) {
@@ -62,7 +58,14 @@ fun <M : Mapped> KClass<M>.buildPropMap(): PropMap {
 private val propMapCache: MutableMap<KClass<*>, PropMap> = mutableMapOf()
 
 /**
- * Fetches (or computes if the class is not in the cache) a [property map][PropMap] for the reciever [KClass]
+ * A cache storing computed unsage [property maps][PropMap] for various [classes][KClass], using the [class][KClass] itself as a key
+ *
+ * @author Benjozork
+ */
+private val unsafePropMapCache: MutableMap<KClass<*>, PropMap> = mutableMapOf()
+
+/**
+ * Fetches (or computes if the class is not in the cache) a [property map][PropMap] for the receiver [KClass]
  *
  * @receiver the [class][KClass] for which the [PropMap] should be obtained
  *
@@ -81,7 +84,7 @@ fun <M : Mapped> M.cachedPropMap(): PropMap {
 }
 
 /**
- * Fetches (or computes if the class is not in the cache) a [property map][PropMap] for the reciever [KClass]
+ * Fetches (or computes if the class is not in the cache) a [property map][PropMap] for the receiver [KClass]
  *
  * @receiver the [class][KClass] for which the [PropMap] should be obtained
  *
@@ -94,6 +97,44 @@ fun <M : Mapped> KClass<M>.cachedPropMap(): PropMap {
     if (cached == null) {
         cached = this.buildPropMap()
         propMapCache[this] = cached
+    }
+
+    return cached
+}
+
+/**
+ * Fetches (or computes if the class is not in the cache) an unsafe [property map][PropMap] for the receiver [KClass]
+ *
+ * @receiver the [class][KClass] for which the [PropMap] should be obtained
+ *
+ * @return the obtained [PropMap]
+ *
+ * @author Benjozork
+ */
+fun <M : Mapped> M.cachedUnsafePropMap(): PropMap {
+    var cached: PropMap? = unsafePropMapCache[this::class]
+    if (cached == null) {
+        cached = this::class.buildPropMap(unsafe = true)
+        unsafePropMapCache[this::class] = cached
+    }
+
+    return cached
+}
+
+/**
+ * Fetches (or computes if the class is not in the cache) an unsafe [property map][PropMap] for the receiver [KClass]
+ *
+ * @receiver the [class][KClass] for which the [PropMap] should be obtained
+ *
+ * @return the obtained [PropMap]
+ *
+ * @author Benjozork
+ */
+fun <M : Mapped> KClass<M>.cachedUnsafePropMap(): PropMap {
+    var cached: PropMap? = unsafePropMapCache[this]
+    if (cached == null) {
+        cached = this.buildPropMap(unsafe = true)
+        unsafePropMapCache[this] = cached
     }
 
     return cached

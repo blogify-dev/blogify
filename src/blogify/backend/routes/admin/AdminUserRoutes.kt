@@ -28,7 +28,7 @@ fun Route.adminUsers() {
         }
 
         patch("/{uuid}") {
-            updateWithId(UserService::update, UserService::get, authPredicate = { _, _ -> true })
+            updateWithId(UserService::get, authPredicate = { _, _ -> true })
         }
 
         patch("/makeAdmin/{uuid}") {

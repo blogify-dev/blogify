@@ -37,7 +37,6 @@ fun Route.articleComments() {
 
         patch("/{uuid}") {
             updateWithId (
-                update = CommentService::update,
                 fetch = CommentService::get,
                 authPredicate = { user, comment -> comment.commenter eqr user }
             )

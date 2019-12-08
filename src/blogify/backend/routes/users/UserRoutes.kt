@@ -45,7 +45,6 @@ fun Route.users() {
 
         patch("/{uuid}") {
             updateWithId (
-                update = UserService::update,
                 fetch = UserService::get,
                 authPredicate = { _, _ -> true },
                 doAfter = { replacement ->
