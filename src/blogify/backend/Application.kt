@@ -51,6 +51,7 @@ import org.slf4j.event.Level
 
 const val version = "0.2.0-preRelease"
 
+@Suppress("GrazieInspection")
 const val asciiLogo = """
     __     __               _  ____      
    / /_   / /____   ____ _ (_)/ __/__  __

@@ -7,18 +7,8 @@ import blogify.backend.routes.handling.deleteWithId
 import blogify.backend.routes.handling.updateWithId
 import blogify.backend.search.Typesense
 import blogify.backend.services.articles.ArticleService
-import blogify.backend.util.TYPESENSE_API_KEY
 import blogify.backend.util.toUUID
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-
-import io.ktor.client.HttpClient
-import io.ktor.client.request.delete
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.url
-import io.ktor.http.ContentType
-import io.ktor.http.content.TextContent
 import io.ktor.routing.Route
 import io.ktor.routing.delete
 import io.ktor.routing.patch
