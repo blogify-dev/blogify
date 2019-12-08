@@ -1,11 +1,15 @@
 package blogify.backend.routes.pipelines
 
+import blogify.backend.annotations.PipelinesDsl
 import blogify.backend.auth.handling.UserAuthPredicate
 import blogify.backend.auth.handling.runAuthenticated
-import blogify.backend.resources.User
+import blogify.backend.resources.models.Resource
 import blogify.backend.routes.handling.defaultResourceLessPredicateLambda
 import blogify.backend.routes.handling.logUnusedAuth
 import blogify.backend.services.models.ResourceResult
+import blogify.backend.services.models.ResourceResultSet
+import blogify.backend.util.Sr
+import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
 
 import io.ktor.application.ApplicationCall
@@ -18,6 +22,7 @@ import io.ktor.util.pipeline.PipelineInterceptor
 import com.andreapivetta.kolor.red
 
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 private val logger = LoggerFactory.getLogger("blogify-pipeline-manager")
 
@@ -54,6 +59,7 @@ class PipelineException(val code: HttpStatusCode, override val message: String) 
  *
  * @author Benjozork
  */
+@PipelinesDsl
 suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), block: suspend CallPipeline.(Array<String>) -> Unit) {
     try {
         block(this, wantedParams.map { param -> call.parameters[param] ?: pipelineError(message = "query parameter $param is null") }.toTypedArray())
@@ -73,7 +79,8 @@ suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), bl
 /**
  * Returns a query parameter that may or may not exist
  */
-fun CallPipeline.optional(name: String): String? = call.parameters[name]
+@PipelinesDsl
+fun CallPipeline.optionalParam(name: String): String? = call.parameters[name]
 
 /**
  * A default [CallPipeline] that handles client authentication.
@@ -84,6 +91,7 @@ fun CallPipeline.optional(name: String): String? = call.parameters[name]
  *
  * @author Benjozork
  */
+@PipelinesDsl
 suspend fun CallPipeline.handleAuthentication(funcName: String = "<unspecified>", predicate: UserAuthPredicate, block: CallPipeLineFunction) {
     if (predicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
         runAuthenticated(predicate, { block(this@handleAuthentication, Unit) })
@@ -91,6 +99,24 @@ suspend fun CallPipeline.handleAuthentication(funcName: String = "<unspecified>"
         logUnusedAuth(funcName)
         block(this, Unit)
     }
+}
+
+/**
+ * Simplifies fetching a resource from a [CallPipeline]
+ */
+@PipelinesDsl
+suspend fun <R : Resource> CallPipeline.fetchResource(fetcher: suspend (ApplicationCall, UUID) -> Sr<R, *>, id: UUID): R {
+    return fetcher(call, id)
+        .getOrPipelineError(HttpStatusCode.InternalServerError,"couldn't fetch resource")
+}
+
+/**
+ * Simplifies fetching resources from a [CallPipeline]
+ */
+@PipelinesDsl
+suspend fun <R : Resource> CallPipeline.fetchResources(fetcher: suspend (ApplicationCall, Int) -> ResourceResultSet<R>, limit: Int = 25): Set<R> {
+    return fetcher(call, limit)
+        .getOrPipelineError(HttpStatusCode.InternalServerError,"couldn't fetch resource")
 }
 
 /**

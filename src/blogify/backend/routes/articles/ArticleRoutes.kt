@@ -13,7 +13,7 @@ import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
 import blogify.backend.routes.handling.*
-import blogify.backend.routes.pipelines.optional
+import blogify.backend.routes.pipelines.optionalParam
 import blogify.backend.routes.pipelines.pipeline
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
@@ -159,7 +159,7 @@ fun Route.articles() {
 
         get("/search") {
             pipeline("q") { (query) ->
-                val user = optional("byUser")?.toUUID()
+                val user = optionalParam("byUser")?.toUUID()
                 if (user != null) {
                     val userHandle = Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")
                     call.respond(Typesense.search<Article>(query, mapOf(userHandle to user)).asSearchView())
