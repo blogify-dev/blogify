@@ -283,32 +283,34 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
             .findAnnotation<type>()
             ?.contentType?.letCatchingOrNull(ContentType.Companion::parse) ?: ContentType.Any
 
-        if (!(propContentType matches fileContentType)) {
+        if (fileContentType matches propContentType) {
+
+            // Write to file
+            val newHandle = StaticFileHandler.writeStaticResource (
+                StaticData(fileContentType, fileBytes)
+            )
+
+            query {
+                Uploadables.insert {
+                    it[fileId]      = newHandle.fileId
+                    it[contentType] = newHandle.contentType.toString()
+                }
+            }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing static resource to db")
+
+            // idk - temporary
+            val rep = modify(targetResource, newHandle)
+
+            update(rep)
+                .getOrPipelineError(HttpStatusCode.InternalServerError, "error while updating resource ${targetResource.uuid.short()} with new information")
+
+            call.respond(newHandle.toString())
+
+        } else {
             pipelineError ( // Throw an error
                 HttpStatusCode.UnsupportedMediaType,
                 "property '${targetPropHandle.property.name}' of class '${targetClass.simpleName}' does not accept content type '$fileContentType'"
             )
         }
-
-        // Write to file
-        val newHandle = StaticFileHandler.writeStaticResource (
-            StaticData(fileContentType, fileBytes)
-        )
-
-        query {
-            Uploadables.insert {
-                it[fileId]      = newHandle.fileId
-                it[contentType] = newHandle.contentType.toString()
-            }
-        }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing static resource to db")
-
-        // idk - temporary
-        val rep = modify(targetResource, newHandle)
-
-        update(rep)
-            .getOrPipelineError(HttpStatusCode.InternalServerError, "error while updating resource ${targetResource.uuid.short()} with new information")
-
-        call.respond(newHandle.toString())
 
     }
 
