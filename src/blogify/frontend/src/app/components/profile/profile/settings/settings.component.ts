@@ -9,7 +9,8 @@ import {AuthService} from "../../../../shared/auth/auth.service";
 })
 export class SettingsComponent implements OnInit {
 
-    file: File = null;
+    pfpFile: File = null;
+    coverFile: File = null;
 
     constructor (
         private authService: AuthService,
@@ -17,12 +18,20 @@ export class SettingsComponent implements OnInit {
 
     ngOnInit() {}
 
-    async fileChange(event) {
-        this.file = event.target.files[0];
+    async pfpFileChange(event) {
+        this.pfpFile = event.target.files[0];
+    }
+
+    async coverFileChange(event) {
+        this.coverFile = event.target.files[0];
     }
 
     async setProfilePicture() {
-        await this.authService.addProfilePicture(this.file, (await this.authService.userUUID))
+        await this.authService.uploadFile(this.pfpFile, 'profilePicture')
+    }
+
+    async setCoverPicture() {
+        await this.authService.uploadFile(this.coverFile, 'coverPicture')
     }
 
 }

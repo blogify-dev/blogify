@@ -66,7 +66,8 @@ data class RegisterCredentials (
             password = this.password.hash(),
             email = this.email,
             name = this.name,
-            profilePicture = StaticResourceHandle.None(ContentType.Image.PNG)
+            profilePicture = StaticResourceHandle.None(ContentType.Image.PNG),
+            coverPicture = StaticResourceHandle.None(ContentType.Image.PNG)
         )
 
         UserService.add(created).fold (

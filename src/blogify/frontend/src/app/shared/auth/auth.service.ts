@@ -126,8 +126,8 @@ export class AuthService {
         return this.httpClient.get<User>(`/api/users/byUsername/${username}`).toPromise()
     }
 
-    addProfilePicture(file: File, userUUID: string, userToken: string = this.userToken) {
-        return this.staticContentService.uploadFile(file, userToken, `/api/users/profilePicture/${userUUID}/?target=profilePicture`)
+    async uploadFile(file: File, uploadableName: string) {
+        return this.staticContentService.uploadFile(file, this.userToken, `/api/users/upload/${await this.userUUID}/?target=${uploadableName}`)
     }
 
     search(query: string, fields: string[]) {

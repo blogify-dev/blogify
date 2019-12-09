@@ -98,8 +98,7 @@ abstract class Service<R : Resource>(val table: ResourceTable<R>) {
         val new = blogify.backend.resources.reflect.update(res, rawData)
             .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't update resource")
 
-        this.table.delete(res)
-        this.table.insert(new)
+        this.table.update(new)
 
         return Sr.of { new }
     }

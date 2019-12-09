@@ -76,14 +76,14 @@ fun Route.users() {
 
         }
 
-        post("/profilePicture/{uuid}") {
+        post("/upload/{uuid}") {
             uploadToResource (
                 fetch         = UserService::get,
                 authPredicate = { user, manipulated -> user eqr manipulated }
             )
         }
 
-        delete("/profilePicture/{uuid}") {
+        delete("/upload/{uuid}") {
             deleteOnResource (
                 fetch         = UserService::get,
                 authPredicate = { user, manipulated -> user eqr manipulated }

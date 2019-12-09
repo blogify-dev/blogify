@@ -24,6 +24,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.update
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
@@ -32,6 +33,8 @@ abstract class ResourceTable<R : Resource> : Table() {
     abstract suspend fun convert(callContext: ApplicationCall, source: ResultRow): SuspendableResult<R, Service.Exception.Fetching>
 
     abstract suspend fun insert(resource: R): Boolean
+
+    abstract suspend fun update(resource: R): Boolean
 
     open suspend fun delete(resource: R): Boolean {
         return query {
@@ -71,6 +74,19 @@ object Articles : ResourceTable<Article>() {
         }.get()
 
         return articleCreated && categoriesCreated
+    }
+
+    override suspend fun update(resource: Article): Boolean {
+        return query {
+            this.update(where = { uuid eq resource.uuid }) {
+                it[uuid]      = resource.uuid
+                it[title]     = resource.title
+                it[createdAt] = resource.createdAt
+                it[createdBy] = resource.createdBy.uuid
+                it[content]   = resource.content
+                it[summary]   = resource.summary
+            }
+        }.get() == 1
     }
 
     override suspend fun delete(resource: Article): Boolean {
@@ -115,6 +131,7 @@ object Articles : ResourceTable<Article>() {
 
 }
 
+@Suppress("DuplicatedCode")
 object Users : ResourceTable<User>() {
 
     val username       = varchar ("username", 255)
@@ -122,7 +139,8 @@ object Users : ResourceTable<User>() {
     val email          = varchar ("email", 255)
     val name           = varchar ("name", 255)
     val profilePicture = varchar ("profile_picture", 32).references(Uploadables.fileId, onDelete = SET_NULL, onUpdate = RESTRICT).nullable()
-    val isAdmin        = bool("is_admin")
+    val coverPicture   = varchar ("cover_picture", 32).references(Uploadables.fileId, onDelete = SET_NULL, onUpdate = RESTRICT).nullable()
+    val isAdmin        = bool    ("is_admin")
 
     init {
         index(true, username)
@@ -142,6 +160,21 @@ object Users : ResourceTable<User>() {
         }.get()
     }
 
+    override suspend fun update(resource: User): Boolean {
+        return query {
+            this.update(where = { uuid eq resource.uuid }) {
+                it[uuid]           = resource.uuid
+                it[username]       = resource.username
+                it[password]       = resource.password
+                it[email]          = resource.email
+                it[name]           = resource.name
+                it[profilePicture] = if (resource.profilePicture is StaticResourceHandle.Ok) resource.profilePicture.fileId else null
+                it[coverPicture]   = if (resource.coverPicture is StaticResourceHandle.Ok) resource.coverPicture.fileId else null
+                it[isAdmin]        = resource.isAdmin
+            }
+        }.get() == 1
+    }
+
     override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<User, Service.Exception.Fetching> {
         User (
             uuid           = source[uuid],
@@ -152,6 +185,9 @@ object Users : ResourceTable<User>() {
             isAdmin        = source[isAdmin],
             profilePicture = source[profilePicture]?.let { transaction {
                 Uploadables.select { Uploadables.fileId eq source[profilePicture]!! }.limit(1).single()
+            }.let { Uploadables.convert(callContext, it).get() } } ?: StaticResourceHandle.None(ContentType.Any),
+            coverPicture = source[coverPicture]?.let { transaction {
+                Uploadables.select { Uploadables.fileId eq source[coverPicture]!! }.limit(1).single()
             }.let { Uploadables.convert(callContext, it).get() } } ?: StaticResourceHandle.None(ContentType.Any)
         )
     }
@@ -175,6 +211,18 @@ object Comments : ResourceTable<Comment>() {
                 it[parentComment] = resource.parentComment?.uuid
             }.resultedValues?.let { it.size == 1 } ?: false
         }.get()
+    }
+
+    override suspend fun update(resource: Comment): Boolean {
+        return query {
+            this.update(where = { Users.uuid eq resource.uuid }) {
+                it[uuid]          = resource.uuid
+                it[commenter]     = resource.commenter.uuid
+                it[article]       = resource.article.uuid
+                it[content]       = resource.content
+                it[parentComment] = resource.parentComment?.uuid
+            }
+        }.get() == 1
     }
 
     override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Comment, Service.Exception.Fetching> {

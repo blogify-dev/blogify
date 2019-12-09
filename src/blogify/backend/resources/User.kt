@@ -32,6 +32,9 @@ data class User (
     @NoSearch
     val profilePicture: @type("image/*") StaticResourceHandle,
 
+    @NoSearch
+    val coverPicture: @type("image/*") StaticResourceHandle,
+
     @NoSlice
     val isAdmin: Boolean = false,
 
