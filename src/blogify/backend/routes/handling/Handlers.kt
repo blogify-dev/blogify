@@ -199,8 +199,8 @@ suspend fun <R : Resource> CallPipeline.fetchWithId (
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.fetchAllWithId (
-    fetch:         suspend (UUID) -> ResourceResultSet<R>,
-    transform:     suspend (R)    -> Resource = { it }
+    fetch:     suspend (UUID) -> ResourceResultSet<R>,
+    transform: suspend (R)    -> Resource = { it }
 ) = pipeline("uuid") { (uuid) ->
 
     val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
