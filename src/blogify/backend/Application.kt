@@ -24,6 +24,7 @@ import blogify.backend.search.Typesense
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Template
 import blogify.backend.util.SinglePageApplication
+import blogify.backend.util.matches
 
 import io.ktor.application.call
 import io.ktor.features.Compression
@@ -124,11 +125,11 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             val contentType = it.contentType?.withoutParameters() ?: return@options null
 
             when {
-                contentType.match(ContentType.Application.JavaScript) ->
+                contentType matches ContentType.Application.JavaScript ->
                     CachingOptions(CacheControl.MaxAge(30 * 60))
-                contentType.match(ContentType.Image.Any) ->
+                contentType matches ContentType.Image.Any ->
                     CachingOptions(CacheControl.MaxAge(60 * 60))
-                contentType.match(ContentType.Application.Json) ->
+                contentType matches ContentType.Application.Json ->
                     CachingOptions(CacheControl.MaxAge(60))
                 else -> null
             }
