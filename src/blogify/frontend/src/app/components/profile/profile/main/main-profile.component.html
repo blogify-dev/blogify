@@ -1,6 +1,9 @@
-<div id="main-container" *ngIf="user">
+<app-cover-picture [cvpFile]="user.coverPicture"></app-cover-picture>
+
+<div id="main-container" *ngIf="user" [style.padding-top]="user.coverPicture.fileId ? '1.75em' : '3em'">
 
     <div id="container-header">
+
         <app-profile-picture [pfpFile]="user.profilePicture"></app-profile-picture>
 
         <span id="header-user-name">{{user.name}}</span>
