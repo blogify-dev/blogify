@@ -121,12 +121,14 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
     install(CachingHeaders) {
         options {
-            when (it.contentType?.withoutParameters()) {
-                ContentType.Text.JavaScript ->
+            val contentType = it.contentType?.withoutParameters() ?: return@options null
+
+            when {
+                contentType.match(ContentType.Application.JavaScript) ->
                     CachingOptions(CacheControl.MaxAge(30 * 60))
-                ContentType.Image.Any ->
+                contentType.match(ContentType.Image.Any) ->
                     CachingOptions(CacheControl.MaxAge(60 * 60))
-                ContentType.Application.Json ->
+                contentType.match(ContentType.Application.Json) ->
                     CachingOptions(CacheControl.MaxAge(60))
                 else -> null
             }
