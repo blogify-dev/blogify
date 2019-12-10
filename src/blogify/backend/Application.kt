@@ -124,6 +124,8 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             when (it.contentType?.withoutParameters()) {
                 ContentType.Text.JavaScript ->
                     CachingOptions(CacheControl.MaxAge(30 * 60))
+                ContentType.Image.Any ->
+                    CachingOptions(CacheControl.MaxAge(60 * 60))
                 ContentType.Application.Json ->
                     CachingOptions(CacheControl.MaxAge(60))
                 else -> null
