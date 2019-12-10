@@ -1,11 +1,8 @@
 /.gradle
-/gradle/wrapper/gradle-wrapper.jar
 /.idea
 /out
 /build
 *.iml
 *.ipr
 *.iws
-/gradlew.bat
-/gradlew
 /resources/frontend/
