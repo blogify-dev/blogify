@@ -6,9 +6,9 @@ import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.resources.models.Resource
 import blogify.backend.routes.handling.defaultResourceLessPredicateLambda
 import blogify.backend.routes.handling.logUnusedAuth
-import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.util.Sr
+import blogify.backend.util.SrList
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
 
@@ -105,7 +105,7 @@ suspend fun CallPipeline.handleAuthentication(funcName: String = "<unspecified>"
  * Simplifies fetching a resource from a [CallPipeline]
  */
 @PipelinesDsl
-suspend fun <R : Resource> CallPipeline.fetchResource(fetcher: suspend (ApplicationCall, UUID) -> Sr<R, *>, id: UUID): R {
+suspend fun <R : Resource> CallPipeline.fetchResource(fetcher: suspend (ApplicationCall, UUID) -> Sr<R>, id: UUID): R {
     return fetcher(call, id)
         .getOrPipelineError(HttpStatusCode.InternalServerError,"couldn't fetch resource")
 }
@@ -114,7 +114,7 @@ suspend fun <R : Resource> CallPipeline.fetchResource(fetcher: suspend (Applicat
  * Simplifies fetching resources from a [CallPipeline]
  */
 @PipelinesDsl
-suspend fun <R : Resource> CallPipeline.fetchResources(fetcher: suspend (ApplicationCall, Int) -> ResourceResultSet<R>, limit: Int = 25): Set<R> {
+suspend fun <R : Resource> CallPipeline.fetchResources(fetcher: suspend (ApplicationCall, Int) -> SrList<R>, limit: Int = 25): List<R> {
     return fetcher(call, limit)
         .getOrPipelineError(HttpStatusCode.InternalServerError,"couldn't fetch resource")
 }

@@ -5,17 +5,16 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.services.caching.cachedOrElse
-import blogify.backend.services.handling.deleteWithIdInTable
-import blogify.backend.services.handling.fetchNumberFromTable
-import blogify.backend.services.handling.fetchWithIdFromTable
 import blogify.backend.util.BException
 import blogify.backend.util.Sr
+import blogify.backend.util.SrList
 import blogify.backend.util.getOrPipelineError
 
 import io.ktor.application.ApplicationCall
 import io.ktor.http.HttpStatusCode
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
+import com.github.kittinunf.result.coroutines.map
 import com.github.kittinunf.result.coroutines.mapError
 
 import kotlinx.coroutines.runBlocking
@@ -52,8 +51,8 @@ open class Service<R : Resource>(val table: ResourceTable<R>) {
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun getAll(callContext: ApplicationCall = FakeApplicationCall, limit: Int = 256): ResourceResultSet<R>
-            = fetchNumberFromTable(callContext, table, limit)
+    suspend fun getAll(callContext: ApplicationCall = FakeApplicationCall, limit: Int = 256): SrList<R>
+            = this.table.obtainAll(callContext, limit)
 
     /**
      * Obtains an instance of [R] with a specific [id][UUID] ]in the database
@@ -67,8 +66,8 @@ open class Service<R : Resource>(val table: ResourceTable<R>) {
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun get(callContext: ApplicationCall = FakeApplicationCall, id: UUID): ResourceResult<R>
-            = callContext.cachedOrElse(id) { fetchWithIdFromTable(callContext, table, id) }
+    suspend fun get(callContext: ApplicationCall = FakeApplicationCall, id: UUID): Sr<R>
+            = callContext.cachedOrElse(id) { table.obtain(callContext, id) }
 
     /**
      * Obtains a set of instances of [R] matching a given [predicate]
@@ -91,7 +90,7 @@ open class Service<R : Resource>(val table: ResourceTable<R>) {
         }.mapError { Exception.Fetching(it) }
     }
 
-    suspend fun add(res: R): Sr<R, *> = this.table.insert(res)
+    suspend fun add(res: R): Sr<R> = this.table.insert(res)
 
     suspend fun update(res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): SuspendableResult<R, Exception> {
         val new = blogify.backend.resources.reflect.update(res, rawData)
@@ -111,8 +110,8 @@ open class Service<R : Resource>(val table: ResourceTable<R>) {
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun delete(id: UUID): ResourceResult<UUID>
-            = deleteWithIdInTable(table, id)
+    suspend fun delete(res: R): Sr<UUID>
+            = this.table.delete(res).map { res.uuid }
 
     // Service exceptions
 

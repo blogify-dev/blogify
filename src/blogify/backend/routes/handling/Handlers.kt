@@ -46,7 +46,6 @@ import blogify.backend.annotations.type
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
-import blogify.backend.resources.reflect.update
 import blogify.backend.resources.reflect.verify
 import blogify.backend.routes.pipelines.CallPipeLineFunction
 import blogify.backend.routes.pipelines.CallPipeline
@@ -57,6 +56,7 @@ import blogify.backend.routes.pipelines.optionalParam
 import blogify.backend.routes.pipelines.pipeline
 import blogify.backend.routes.pipelines.pipelineError
 import blogify.backend.util.Sr
+import blogify.backend.util.SrList
 import blogify.backend.util.filterThenMapValues
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.letCatchingOrNull
@@ -134,7 +134,7 @@ fun logUnusedAuth(func: String) {
  */
 @BlogifyDsl
 suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAll (
-    fetch: suspend (ApplicationCall, Int) -> ResourceResultSet<R>
+    fetch: suspend (ApplicationCall, Int) -> SrList<R>
 ) = pipeline {
 
     val limit = optionalParam("amount")?.toInt() ?: 25
@@ -165,7 +165,7 @@ suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAll (
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.fetchWithId (
-    fetch:         suspend (ApplicationCall, UUID)  -> ResourceResult<R>,
+    fetch:         suspend (ApplicationCall, UUID)  -> Sr<R>,
     authPredicate: suspend (User)                   -> Boolean = defaultResourceLessPredicateLambda
 ) = pipeline("uuid") { (uuid) ->
 
@@ -242,7 +242,7 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
-    crossinline fetch:         suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
+    crossinline fetch:         suspend (ApplicationCall, UUID)   -> Sr<R>,
        noinline authPredicate: suspend (User, R)                 -> Boolean = defaultPredicateLambda
 ) = pipeline("uuid", "target") { (uuid, target) ->
 
@@ -317,8 +317,8 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
 
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
-    crossinline fetch:         suspend (ApplicationCall, UUID)   -> ResourceResult<R>,
-    noinline authPredicate: suspend (User, R)                 -> Boolean = defaultPredicateLambda
+    crossinline fetch:         suspend (ApplicationCall, UUID) -> Sr<R>,
+    noinline authPredicate: suspend (User, R)                  -> Boolean = defaultPredicateLambda
 ) = pipeline("uuid", "target") { (uuid, target) ->
 
     // Find target resource
@@ -383,7 +383,7 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
-    noinline create:        suspend (R)       -> Sr<R, *>,
+    noinline create:        suspend (R)       -> Sr<R>,
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda,
     noinline doAfter:       suspend (R)       -> Unit = {}
 ) = pipeline {
@@ -434,8 +434,8 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
  */
 @BlogifyDsl
 suspend fun <R: Resource> CallPipeline.deleteWithId (
-    fetch:         suspend (ApplicationCall, UUID) -> ResourceResult<R>,
-    delete:        suspend (UUID)                  -> ResourceResult<*>,
+    fetch:         suspend (ApplicationCall, UUID) -> Sr<R>,
+    delete:        suspend (R)                     -> Sr<*>,
     authPredicate: suspend (User, R)               -> Boolean = defaultPredicateLambda,
     doAfter:       suspend (String)                -> Unit = {}
 ) = pipeline("uuid") { (uuid) ->
@@ -446,7 +446,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
         funcName  = "deleteWithId",
         predicate = { user -> authPredicate(user, toDelete) }
     ) {
-        delete.invoke(uuid.toUUID()).fold (
+        delete.invoke(toDelete).fold (
             success = {
                 call.respond(HttpStatusCode.OK)
                 doAfter(uuid)
@@ -470,7 +470,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.updateWithId (
-    noinline fetch:         suspend (ApplicationCall, UUID) -> ResourceResult<R>,
+    noinline fetch:         suspend (ApplicationCall, UUID) -> Sr<R>,
     noinline authPredicate: suspend (User, R)               -> Boolean = defaultPredicateLambda,
     noinline doAfter:       suspend (R)                     -> Unit = {}
 ) {

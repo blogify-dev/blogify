@@ -32,7 +32,7 @@ private val logger = LoggerFactory.getLogger("blogify-datamap-updater")
  *
  * @author Benjozork
  */
-suspend fun <R : Resource> update(target: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R, *> {
+suspend fun <R : Resource> update(target: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R> {
 
     val targetPropMap = target.cachedUnsafePropMap() // Get unsafe handles too
     val targetCopyFunction = target::class.functions.first { it.name == "copy" }

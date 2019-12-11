@@ -8,7 +8,10 @@ import com.github.kittinunf.result.coroutines.SuspendableResult
 
 open class BException(causedBy: Exception) : Exception(causedBy)
 
-typealias Sr<V, E> = SuspendableResult<V, E>
+typealias Sr<V> = SuspendableResult<V, Exception>
+typealias SrList<V> = SuspendableResult<List<V>, Exception>
+
+suspend fun <T : Any> wrap(producer: suspend () -> T): Sr<T> = Sr.of(producer)
 
 fun <V : Any, E : Exception> SuspendableResult<V, E>.getOrPipelineError (
     code:    HttpStatusCode = HttpStatusCode.InternalServerError,

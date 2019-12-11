@@ -13,6 +13,8 @@ import blogify.backend.services.UserService
 import blogify.backend.services.CommentService
 import blogify.backend.services.models.Service
 import blogify.backend.util.Sr
+import blogify.backend.util.SrList
+import blogify.backend.util.wrap
 
 import io.ktor.application.ApplicationCall
 import io.ktor.http.ContentType
@@ -26,21 +28,37 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.selectAll
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
+import java.util.UUID
+
 abstract class ResourceTable<R : Resource> : Table() {
+
+    open suspend fun obtainAll(callContext: ApplicationCall, limit: Int): SrList<R> = wrap {
+        query { this.selectAll().limit(limit).toSet() }.get().map { this.convert(callContext, it).get() }
+    }
+
+    open suspend fun obtain(callContext: ApplicationCall, id: UUID): Sr<R> = wrap {
+        query { this.select { uuid eq id } }
+            .get()
+            .single()
+            .let { this.convert(callContext, it).get() }
+    }
 
     abstract suspend fun convert(callContext: ApplicationCall, source: ResultRow): SuspendableResult<R, Service.Exception.Fetching>
 
-    abstract suspend fun insert(resource: R): Sr<R, *>
+    abstract suspend fun insert(resource: R): Sr<R>
 
     abstract suspend fun update(resource: R): Boolean
 
-    open suspend fun delete(resource: R): Boolean {
-        return query {
-            this.deleteWhere { uuid eq resource.uuid } == 1
-        }.get()
+    open suspend fun delete(resource: R): Sr<Boolean> = wrap {
+        query {
+            this.deleteWhere { uuid eq resource.uuid }
+        }
+
+        true
     }
 
     val uuid = uuid("uuid").primaryKey()
@@ -55,7 +73,7 @@ object Articles : ResourceTable<Article>() {
     val content    = text    ("content")
     val summary    = text    ("summary")
 
-    override suspend fun insert(resource: Article): Sr<Article, *> {
+    override suspend fun insert(resource: Article): Sr<Article> {
         return Sr.of<Article, Exception> {
             query {
                 this.insert {
@@ -92,11 +110,13 @@ object Articles : ResourceTable<Article>() {
         }.get() == 1
     }
 
-    override suspend fun delete(resource: Article): Boolean {
+    override suspend fun delete(resource: Article) = wrap {
         val articleDeleted = super.delete(resource)
-        return query {
+        query {
             Categories.deleteWhere { Categories.article eq resource.uuid } == 1
-        }.get() && articleDeleted
+        }
+
+        true
     }
 
     override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Article, Service.Exception.Fetching> {
@@ -149,7 +169,7 @@ object Users : ResourceTable<User>() {
         index(true, username)
     }
 
-    override suspend fun insert(resource: User): Sr<User, *> {
+    override suspend fun insert(resource: User): Sr<User> {
         return Sr.of<User, Exception> {
             query {
                 Users.insert {
@@ -208,7 +228,7 @@ object Comments : ResourceTable<Comment>() {
     val content       = text ("content")
     val parentComment = uuid ("parent_comment").references(uuid, onDelete = CASCADE).nullable()
 
-    override suspend fun insert(resource: Comment): Sr<Comment, *> {
+    override suspend fun insert(resource: Comment): Sr<Comment> {
         return Sr.of<Comment, Exception> {
             query {
                 this.insert {

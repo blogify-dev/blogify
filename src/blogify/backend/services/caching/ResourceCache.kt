@@ -3,6 +3,7 @@ package blogify.backend.services.caching
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
 import blogify.backend.services.models.ResourceResult
+import blogify.backend.util.Sr
 import blogify.backend.util.short
 
 import io.ktor.application.ApplicationCall
@@ -43,7 +44,7 @@ private fun ApplicationCall.createResourceCache() {
      this.attributes.put(ResourceCacheKey, mutableMapOf())
 }
 
-suspend fun <R : Resource> ApplicationCall.cachedOrElse(id: UUID, fetcher: suspend () -> ResourceResult<R>): ResourceResult<R> {
+suspend fun <R : Resource> ApplicationCall.cachedOrElse(id: UUID, fetcher: suspend () -> Sr<R>): Sr<R> {
     if (this is FakeApplicationCall) { // Since a FakeApplicationCall does not have anything in it, do not try to access the cache
         return fetcher()
     }
