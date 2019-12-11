@@ -63,13 +63,16 @@ suspend fun <R : Resource> update(target: R, rawData: Map<PropMap.PropertyHandle
             }
         }
 
-    logger.trace("attempting with paramMap: ${(notUpdatedParameterMap + updatedParameterMap + (targetCopyFunction.parameters.first() to target)).toMap().map { "${it.key.name}: ${it.value!!::class.simpleName}" }}".yellow())
+    val completeData =
+        (notUpdatedParameterMap + updatedParameterMap + (targetCopyFunction.parameters.first() to target)).toMap()
+
+    logger.trace("attempting with paramMap: ${completeData.map { "${it.key.name}: ${it.value!!::class.simpleName}" }}".yellow())
     logger.trace("function wants paramMap: ${targetCopyFunction.parameters.map { "${it.name}: ${it.type.classifier}" } }".yellow())
 
     return Sr.of<R, Exception> {
         @Suppress("UNCHECKED_CAST")
         targetCopyFunction.callBy (
-            (notUpdatedParameterMap + updatedParameterMap + (targetCopyFunction.parameters.first() to target)).toMap()
+            completeData
         ) as R
     }
 
