@@ -12,6 +12,7 @@ import blogify.backend.services.articles.ArticleService
 import blogify.backend.services.UserService
 import blogify.backend.services.articles.CommentService
 import blogify.backend.services.models.Service
+import blogify.backend.util.Sr
 
 import io.ktor.application.ApplicationCall
 import io.ktor.http.ContentType
@@ -32,7 +33,7 @@ abstract class ResourceTable<R : Resource> : Table() {
 
     abstract suspend fun convert(callContext: ApplicationCall, source: ResultRow): SuspendableResult<R, Service.Exception.Fetching>
 
-    abstract suspend fun insert(resource: R): Boolean
+    abstract suspend fun insert(resource: R): Sr<R, *>
 
     abstract suspend fun update(resource: R): Boolean
 
@@ -54,26 +55,28 @@ object Articles : ResourceTable<Article>() {
     val content    = text    ("content")
     val summary    = text    ("summary")
 
-    override suspend fun insert(resource: Article): Boolean {
-        val articleCreated = query {
-            this.insert {
-                it[uuid]      = resource.uuid
-                it[title]     = resource.title
-                it[createdAt] = resource.createdAt
-                it[createdBy] = resource.createdBy.uuid
-                it[content]   = resource.content
-                it[summary]   = resource.summary
-            }.resultedValues?.let { it.size == 1 } ?: false
-        }.get()
+    override suspend fun insert(resource: Article): Sr<Article, *> {
+        return Sr.of<Article, Exception> {
+            query {
+                this.insert {
+                    it[uuid]      = resource.uuid
+                    it[title]     = resource.title
+                    it[createdAt] = resource.createdAt
+                    it[createdBy] = resource.createdBy.uuid
+                    it[content]   = resource.content
+                    it[summary]   = resource.summary
+                }
+            }
 
-        val categoriesCreated = query {
-            Categories.batchInsert(resource.categories) {
-                this[Categories.article] = resource.uuid
-                this[Categories.name]    = it.name
-            }.size == 1
-        }.get()
+             query {
+                Categories.batchInsert(resource.categories) {
+                    this[Categories.article] = resource.uuid
+                    this[Categories.name]    = it.name
+                }
+            }
 
-        return articleCreated && categoriesCreated
+            return@of resource
+        }
     }
 
     override suspend fun update(resource: Article): Boolean {
@@ -146,18 +149,22 @@ object Users : ResourceTable<User>() {
         index(true, username)
     }
 
-    override suspend fun insert(resource: User): Boolean {
-        return query {
-            Users.insert {
-                it[uuid]           = resource.uuid
-                it[username]       = resource.username
-                it[password]       = resource.password
-                it[email]          = resource.email
-                it[name]           = resource.name
-                it[profilePicture] = if (resource.profilePicture is StaticResourceHandle.Ok) resource.profilePicture.fileId else null
-                it[isAdmin]        = resource.isAdmin
-            }.resultedValues?.let { it.size == 1 } ?: false
-        }.get()
+    override suspend fun insert(resource: User): Sr<User, *> {
+        return Sr.of<User, Exception> {
+            query {
+                Users.insert {
+                    it[uuid]           = resource.uuid
+                    it[username]       = resource.username
+                    it[password]       = resource.password
+                    it[email]          = resource.email
+                    it[name]           = resource.name
+                    it[profilePicture] = if (resource.profilePicture is StaticResourceHandle.Ok) resource.profilePicture.fileId else null
+                    it[isAdmin]        = resource.isAdmin
+                }
+            }
+            return@of resource
+        }
+
     }
 
     override suspend fun update(resource: User): Boolean {
@@ -201,16 +208,19 @@ object Comments : ResourceTable<Comment>() {
     val content       = text ("content")
     val parentComment = uuid ("parent_comment").references(uuid, onDelete = CASCADE).nullable()
 
-    override suspend fun insert(resource: Comment): Boolean {
-        return query {
-            this.insert {
-                it[uuid]          = resource.uuid
-                it[commenter]     = resource.commenter.uuid
-                it[article]       = resource.article.uuid
-                it[content]       = resource.content
-                it[parentComment] = resource.parentComment?.uuid
-            }.resultedValues?.let { it.size == 1 } ?: false
-        }.get()
+    override suspend fun insert(resource: Comment): Sr<Comment, *> {
+        return Sr.of<Comment, Exception> {
+            query {
+                this.insert {
+                    it[uuid]          = resource.uuid
+                    it[commenter]     = resource.commenter.uuid
+                    it[article]       = resource.article.uuid
+                    it[content]       = resource.content
+                    it[parentComment] = resource.parentComment?.uuid
+                }
+            }
+            return@of resource
+        }
     }
 
     override suspend fun update(resource: Comment): Boolean {

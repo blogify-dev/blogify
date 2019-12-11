@@ -13,14 +13,13 @@ import blogify.backend.util.Sr
 import blogify.backend.util.getOrPipelineError
 
 import io.ktor.application.ApplicationCall
+import io.ktor.http.HttpStatusCode
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.mapError
-import io.ktor.http.HttpStatusCode
 
 import kotlinx.coroutines.runBlocking
 
-import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.select
@@ -37,7 +36,7 @@ typealias ResourceResultSet<T> = ResourceResult<Set<T>>
 /**
  * Service interface for fetching, creating, updating and deleting [resources][Resource].
  */
-abstract class Service<R : Resource>(val table: ResourceTable<R>) {
+open class Service<R : Resource>(val table: ResourceTable<R>) {
 
     private val logger = LoggerFactory.getLogger("blogify-service-${this::class.simpleName}")
 
@@ -92,7 +91,7 @@ abstract class Service<R : Resource>(val table: ResourceTable<R>) {
         }.mapError { Exception.Fetching(it) }
     }
 
-    abstract suspend fun add(res: R): ResourceResult<R>
+    suspend fun add(res: R): Sr<R, *> = this.table.insert(res)
 
     suspend fun update(res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): SuspendableResult<R, Exception> {
         val new = blogify.backend.resources.reflect.update(res, rawData)

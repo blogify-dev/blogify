@@ -56,6 +56,7 @@ import blogify.backend.routes.pipelines.handleAuthentication
 import blogify.backend.routes.pipelines.optionalParam
 import blogify.backend.routes.pipelines.pipeline
 import blogify.backend.routes.pipelines.pipelineError
+import blogify.backend.util.Sr
 import blogify.backend.util.filterThenMapValues
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.letCatchingOrNull
@@ -382,9 +383,9 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
-    noinline create:        suspend (R)       -> ResourceResult<R>,
+    noinline create:        suspend (R)       -> Sr<R, *>,
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda,
-    noinline doAfter: suspend (R) -> Unit = {}
+    noinline doAfter:       suspend (R)       -> Unit = {}
 ) = pipeline {
     try {
 
