@@ -107,7 +107,7 @@ suspend fun CallPipeline.handleAuthentication(funcName: String = "<unspecified>"
 @PipelinesDsl
 suspend fun <R : Resource> CallPipeline.fetchResource(fetcher: suspend (ApplicationCall, UUID) -> Sr<R>, id: UUID): R {
     return fetcher(call, id)
-        .getOrPipelineError(HttpStatusCode.InternalServerError,"couldn't fetch resource")
+        .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 
 /**
@@ -116,7 +116,7 @@ suspend fun <R : Resource> CallPipeline.fetchResource(fetcher: suspend (Applicat
 @PipelinesDsl
 suspend fun <R : Resource> CallPipeline.fetchResources(fetcher: suspend (ApplicationCall, Int) -> SrList<R>, limit: Int = 25): List<R> {
     return fetcher(call, limit)
-        .getOrPipelineError(HttpStatusCode.InternalServerError,"couldn't fetch resource")
+        .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 
 /**
@@ -133,5 +133,6 @@ suspend fun <R : Resource> CallPipeline.fetchResources(fetcher: suspend (Applica
  */
 fun pipelineError(code: HttpStatusCode = HttpStatusCode.BadRequest, message: String, rootException: Exception? = null): Nothing {
     logger.debug("pipeline error - $message".red() + rootException?.let { " - ${it::class.simpleName} - ${it.message}".red() })
+    rootException?.printStackTrace()
     throw PipelineException(code, message)
 }

@@ -19,6 +19,6 @@ fun <V : Any, E : Exception> SuspendableResult<V, E>.getOrPipelineError (
 ): V {
     when (this) {
         is SuspendableResult.Success -> return this.get()
-        is SuspendableResult.Failure -> pipelineError(code, message)
+        is SuspendableResult.Failure -> pipelineError(code, message, this.error)
     }
 }
