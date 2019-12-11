@@ -63,10 +63,6 @@ const val asciiLogo = """
 ---- Version $version - Development build -
 """
 
-fun main(args: Array<String>) {
-    io.ktor.server.netty.EngineMain.main(args)
-}
-
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {

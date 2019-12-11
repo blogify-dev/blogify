@@ -20,7 +20,7 @@ group   = "blogify"
 version = "0.1.0"
 
 application {
-    mainClassName = "io.ktor.server.netty.EngineMain"
+    mainClassName = "io.ktor.server.cio.EngineMain"
 }
 
 repositories {
@@ -38,7 +38,7 @@ dependencies {
 
     // Ktor
 
-    compile("io.ktor:ktor-server-netty:$ktor_version")
+    compile("io.ktor:ktor-server-cio:$ktor_version")
     compile("ch.qos.logback:logback-classic:$logback_version")
     compile("io.ktor:ktor-server-core:$ktor_version")
     compile("io.ktor:ktor-locations:$ktor_version")
