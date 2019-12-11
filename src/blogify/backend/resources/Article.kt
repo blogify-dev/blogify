@@ -10,7 +10,7 @@ import blogify.backend.database.Comments
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
-import blogify.backend.services.handling.referredToBy
+import blogify.backend.database.referredToBy
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators

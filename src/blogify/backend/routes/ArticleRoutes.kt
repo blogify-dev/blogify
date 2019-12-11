@@ -1,6 +1,6 @@
 @file:Suppress("DuplicatedCode")
 
-package blogify.backend.routes.articles
+package blogify.backend.routes
 
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Articles
@@ -18,7 +18,7 @@ import blogify.backend.routes.pipelines.pipeline
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.services.UserService
-import blogify.backend.services.articles.ArticleService
+import blogify.backend.services.ArticleService
 import blogify.backend.services.models.Service
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason

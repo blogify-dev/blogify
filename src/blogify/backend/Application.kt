@@ -6,7 +6,7 @@ import com.andreapivetta.kolor.cyan
 
 import com.fasterxml.jackson.databind.*
 
-import blogify.backend.routes.articles.articles
+import blogify.backend.routes.articles
 import blogify.backend.routes.users.users
 import blogify.backend.database.Database
 import blogify.backend.database.Articles

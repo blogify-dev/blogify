@@ -1,4 +1,4 @@
-package blogify.backend.services.articles
+package blogify.backend.services
 
 import blogify.backend.database.Articles
 import blogify.backend.resources.Article

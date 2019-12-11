@@ -1,4 +1,4 @@
-package blogify.backend.routes.articles
+package blogify.backend.routes
 
 import io.ktor.application.call
 import io.ktor.response.respond
@@ -7,7 +7,7 @@ import io.ktor.routing.*
 import blogify.backend.database.Comments
 import blogify.backend.resources.models.eqr
 import blogify.backend.routes.handling.*
-import blogify.backend.services.articles.CommentService
+import blogify.backend.services.CommentService
 import blogify.backend.util.expandCommentNode
 import blogify.backend.util.toUUID
 
