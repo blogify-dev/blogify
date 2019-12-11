@@ -2,9 +2,8 @@ package blogify.backend.resources.reflect
 
 import blogify.backend.annotations.search.NoSearch
 import blogify.backend.resources.models.Resource
-import blogify.backend.annotations.NoSlice
+import blogify.backend.annotations.Invisible
 import blogify.backend.resources.computed.models.ComputedPropertyDelegate
-import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.valid
 
@@ -128,7 +127,7 @@ fun <M : Resource> M.slice(selectedPropertyNames: Set<String>): Map<String, Any?
 }
 
 /**
- * Slices a resource with all of its properties except ones annotated with [@noslice][NoSlice]
+ * Slices a resource with all of its properties except ones annotated with [@noslice][Invisible]
  *
  * @receiver the [resource][Resource] to be sliced
  *

@@ -1,7 +1,7 @@
 package blogify.backend.resources.reflect
 
 import blogify.backend.annotations.check
-import blogify.backend.annotations.NoSlice
+import blogify.backend.annotations.Invisible
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
@@ -33,7 +33,7 @@ private fun <M : Mapped> KClass<M>.buildPropMap(unsafe: Boolean = false): PropMa
         .associateBy {
             it.name
         }.mapValues<String, KProperty1<*, *>, PropMap.PropertyHandle> { (name, self) ->
-            if (self.findAnnotation<NoSlice>() != null && !unsafe) {
+            if (self.findAnnotation<Invisible>() != null && !unsafe) {
                 PropMap.PropertyHandle.AccessDenied(name)
             } else {
                 if (self.findAnnotation<Computed>() != null) {

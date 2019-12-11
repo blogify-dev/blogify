@@ -3,7 +3,7 @@ package blogify.backend.resources
 import blogify.backend.annotations.search.NoSearch
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticResourceHandle
-import blogify.backend.annotations.NoSlice
+import blogify.backend.annotations.Invisible
 import blogify.backend.annotations.search.DelegatedSearchReceiver
 import blogify.backend.annotations.type
 
@@ -22,7 +22,7 @@ data class User (
     @DelegatedSearchReceiver
     val username: String,
 
-    @NoSlice
+    @Invisible
     val password: String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
 
     val name: String,
@@ -35,7 +35,7 @@ data class User (
     @NoSearch
     val coverPicture: @type("image/*") StaticResourceHandle,
 
-    @NoSlice
+    @Invisible
     val isAdmin: Boolean = false,
 
     @NoSearch
