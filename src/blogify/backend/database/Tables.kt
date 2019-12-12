@@ -41,9 +41,7 @@ abstract class ResourceTable<R : Resource> : Table() {
     }
 
     open suspend fun obtain(callContext: ApplicationCall, id: UUID): Sr<R> = wrap {
-        query { this.select { uuid eq id } }
-            .get()
-            .single()
+        query { this.select { uuid eq id }.single() }.get()
             .let { this.convert(callContext, it).get() }
     }
 
