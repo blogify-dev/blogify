@@ -1,0 +1,78 @@
+@import "../../../../styles/fonts";
+@import "../../../../styles/colours";
+@import "../../../../styles/layouts";
+@import "../../../../styles/mixins";
+
+:host {
+    &.no-padding       { .users { @include pageContainer(false) } }
+    &:not(.no-padding) { .users { @include pageContainer(true) } }
+}
+
+.users {
+
+    #users-header {
+
+        @include pageContainerHeader;
+
+        $search-icon-break: 1300px;
+
+        #header-search-back {
+            margin-right: 1.15em;
+        }
+
+        #header-title {
+            margin-right: 1em;
+        }
+
+        #header-search-pad, #header-mobile-search-pad {
+            flex-grow: 1;
+            &#header-search-pad {
+                @media (min-width: 0) and (max-width: $search-icon-break) {
+                    display: none;
+                }
+            }
+        }
+
+        #header-search-icon {
+            margin-left: auto;
+
+            @media (min-width: $search-icon-break) {
+                display: none;
+            }
+        }
+
+        #header-create-btn {
+            cursor: pointer;
+
+            margin-left: 2.7em;
+        }
+    }
+
+    #users-main {
+
+    }
+
+    #search-results {
+        display:         flex;
+        flex-direction:  column;
+        justify-content: flex-end;
+        align-items:     center;
+
+        > * { width: 100%; }
+
+        #results-empty {
+            display:         flex;
+            flex-direction:  column;
+            justify-content: flex-start;
+            align-items:     center;
+
+            margin-top: 5em;
+
+            #empty-text {
+                font-size: 1.65em;
+                font-weight: 600;
+            }
+        }
+    }
+
+}
