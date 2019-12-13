@@ -139,7 +139,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
     runBlocking {
         query {
-            SchemaUtils.create (
+            SchemaUtils.createMissingTablesAndColumns (
                 Articles,
                 Articles.Categories,
                 Users,
