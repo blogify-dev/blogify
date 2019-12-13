@@ -1,1 +1,23 @@
-<p>{{user | json}}</p>
+<div class="user">
+
+    <div class="user-first-line">
+        <!-- Title -->
+        <h1 class="header-title">{{user.name}}</h1>
+
+        <!-- Author -->
+        <app-user-display [user]="user" emSize="2.25"></app-user-display>
+    </div>
+
+    <h3 class="user-read-more">
+        <a class="user-read-more" routerLink="/profile/{{user.uuid}}">Profile</a>
+    </h3>
+
+    <div class="user-last-line">
+        <!-- Share button -->
+        <a class="user-share clickable" (click)="copyLinkToClipboard()">
+            <fa-icon [icon]="faCopy" size="2x" [transform]="{ rotate: 1, size: 12 }"></fa-icon>
+            <span class="button-text">Share</span>
+        </a>
+    </div>
+
+</div>
