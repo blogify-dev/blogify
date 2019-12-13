@@ -7,7 +7,8 @@ import { NewArticleComponent } from './components/newarticle/new-article.compone
 import { ShowArticleComponent } from './components/show-article/show-article.component';
 import { UpdateArticleComponent } from './components/update-article/update-article.component';
 import { AdminComponent } from './components/admin/admin.component';
-import { Error404FallbackComponent } from "./components/error404-fallback/error404-fallback.component";
+import { Error404FallbackComponent } from './components/error404-fallback/error404-fallback.component';
+import { ShowAllUsersComponent } from './shared/components/show-all-users/show-all-users.component';
 
 
 const routes: Routes = [
@@ -21,6 +22,7 @@ const routes: Routes = [
     { path: 'article/update/:uuid', component: UpdateArticleComponent },
     /*{ path: 'admin/**', component: AdminComponent },*/
     /*{ path: '**', component: Error404FallbackComponent },*/
+    { path: 'users', component: ShowAllUsersComponent }
 ];
 
 @NgModule({

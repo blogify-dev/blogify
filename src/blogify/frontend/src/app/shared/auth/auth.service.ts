@@ -1,3 +1,4 @@
+/* tslint:disable:variable-name */
 import {Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
@@ -135,6 +136,9 @@ export class AuthService {
         return this.httpClient.get<User[]>(url).toPromise()
     }
 
+    getAllUsers(): Promise<User[]> {
+        return this.httpClient.get<User[]>('/api/users').toPromise();
+    }
 }
 
 interface UserToken {
