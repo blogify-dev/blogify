@@ -38,7 +38,6 @@ import blogify.backend.resources.reflect.slice
 import blogify.backend.resources.static.fs.StaticFileHandler
 import blogify.backend.resources.static.models.StaticData
 import blogify.backend.resources.static.models.StaticResourceHandle
-import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
@@ -133,7 +132,7 @@ fun logUnusedAuth(func: String) {
  * @author hamza1311, Benjozork
  */
 @BlogifyDsl
-suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAll (
+suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAllResources (
     fetch: suspend (ApplicationCall, Int) -> SrList<R>
 ) = pipeline {
 
@@ -164,7 +163,7 @@ suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAll (
  * @author Benjozork, hamza1311
  */
 @BlogifyDsl
-suspend fun <R : Resource> CallPipeline.fetchWithId (
+suspend fun <R : Resource> CallPipeline.fetchResource (
     fetch:         suspend (ApplicationCall, UUID)  -> Sr<R>,
     authPredicate: suspend (User)                   -> Boolean = defaultResourceLessPredicateLambda
 ) = pipeline("uuid") { (uuid) ->
@@ -193,9 +192,7 @@ suspend fun <R : Resource> CallPipeline.fetchWithId (
  *
  * @param R             the type of [Resource] to be fetched
  * @param fetch         the [function][Function] that retrieves the resources using the [ID][UUID] of another resource
- * @param transform     a transformation [function][Function] that transforms the [resources][Resource] before sending them back to the client
- * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
- *
+ * @param transform     a transformation [function][Function] that transforms the [resources][Resource] before sending them back to the client*
  * @author Benjozork
  */
 @BlogifyDsl
@@ -316,7 +313,7 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
 }
 
 @BlogifyDsl
-suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
+suspend inline fun <reified R : Resource> CallPipeline.deleteResource (
     crossinline fetch:         suspend (ApplicationCall, UUID) -> Sr<R>,
     noinline authPredicate: suspend (User, R)                  -> Boolean = defaultPredicateLambda
 ) = pipeline("uuid", "target") { (uuid, target) ->
@@ -382,7 +379,7 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteOnResource (
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
-suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
+suspend inline fun <reified R : Resource> CallPipeline.createResource (
     noinline create:        suspend (R)       -> Sr<R>,
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda,
     noinline doAfter:       suspend (R)       -> Unit = {}
@@ -409,7 +406,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
         }
 
         if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-            runAuthenticated(predicate = { u -> authPredicate(u, received) }, block = { doCreate(this@createWithResource, Unit) }) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
+            runAuthenticated(predicate = { u -> authPredicate(u, received) }, block = { doCreate(this@createResource, Unit) }) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
         } else {
             logUnusedAuth("createWithResource")
             doCreate(this, Unit) // Run doCreate without checking predicate
@@ -433,7 +430,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createWithResource (
  * @author Benjozork, hamza1311
  */
 @BlogifyDsl
-suspend fun <R: Resource> CallPipeline.deleteWithId (
+suspend fun <R: Resource> CallPipeline.deleteResource (
     fetch:         suspend (ApplicationCall, UUID) -> Sr<R>,
     delete:        suspend (R)                     -> Sr<*>,
     authPredicate: suspend (User, R)               -> Boolean = defaultPredicateLambda,
@@ -469,7 +466,7 @@ suspend fun <R: Resource> CallPipeline.deleteWithId (
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
-suspend inline fun <reified R : Resource> CallPipeline.updateWithId (
+suspend inline fun <reified R : Resource> CallPipeline.updateResource (
     noinline fetch:         suspend (ApplicationCall, UUID) -> Sr<R>,
     noinline authPredicate: suspend (User, R)               -> Boolean = defaultPredicateLambda,
     noinline doAfter:       suspend (R)                     -> Unit = {}

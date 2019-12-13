@@ -25,15 +25,15 @@ fun Route.users() {
     route("/users") {
 
         get("/") {
-            fetchAll(UserService::getAll)
+            fetchAllResources(UserService::getAll)
         }
 
         get("/{uuid}") {
-            fetchWithId(UserService::get)
+            fetchResource(UserService::get)
         }
 
         delete("/{uuid}") {
-            deleteWithId (
+            deleteResource(
                 fetch = UserService::get,
                 delete = UserService::delete,
                 authPredicate = { user, manipulated -> user eqr manipulated },
@@ -44,7 +44,7 @@ fun Route.users() {
         }
 
         patch("/{uuid}") {
-            updateWithId (
+            updateResource (
                 fetch = UserService::get,
                 authPredicate = { _, _ -> true },
                 doAfter = { replacement ->
@@ -84,7 +84,7 @@ fun Route.users() {
         }
 
         delete("/upload/{uuid}") {
-            deleteOnResource (
+            deleteResource (
                 fetch         = UserService::get,
                 authPredicate = { user, manipulated -> user eqr manipulated }
             )
