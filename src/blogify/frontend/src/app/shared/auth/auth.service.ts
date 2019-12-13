@@ -131,7 +131,7 @@ export class AuthService {
         return this.staticContentService.uploadFile(file, this.userToken, `/api/users/upload/${await this.userUUID}/?target=${uploadableName}`)
     }
 
-    search(query: string, fields: string[]) {
+    search(query: string, fields: string[]): Promise<User[]> {
         const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}`;
         return this.httpClient.get<User[]>(url).toPromise()
     }

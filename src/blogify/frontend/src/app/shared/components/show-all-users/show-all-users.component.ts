@@ -1,6 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {faArrowLeft, faPencilAlt, faSearch, faTimes} from '@fortawesome/free-solid-svg-icons';
-import {Article} from '../../../models/Article';
 import {AuthService} from '../../auth/auth.service';
 import {StaticContentService} from '../../../services/static/static-content.service';
 import {ActivatedRoute, Router, UrlSegment} from '@angular/router';
@@ -65,17 +64,16 @@ export class ShowAllUsersComponent implements OnInit {
     }
 
     private async startSearch() {
-        /*this.articleService.search (
+        this.authService.search (
             this.searchQuery,
-            ['title', 'summary', 'createdBy', 'categories', 'createdAt'],
-            this.forUser
+            ['name', 'username', 'profilePicture'],
         ).then(it => {
             this.searchResults = it;
             this.showingSearchResults = true;
             this.forceNoAllowCreate = true;
         }).catch((err: Error) => {
-            console.error(`[blogifySearch] Error during search: ${err.name}: ${err.message}`)
-        // });*/
+            console.error(`[blogifySearch] Error during search: ${err.name}: ${err.message}`);
+        });
     }
 
     async stopSearch() {
