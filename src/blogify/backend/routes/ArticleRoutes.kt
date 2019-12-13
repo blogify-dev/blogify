@@ -39,11 +39,11 @@ fun Route.articles() {
     route("/articles") {
 
         get("/") {
-            fetchAll(ArticleService::getAll)
+            fetchAllResources(ArticleService::getAll)
         }
 
         get("/{uuid}") {
-            fetchWithId(ArticleService::get)
+            fetchResource(ArticleService::get)
         }
 
         val likes = Articles.Likes
@@ -126,7 +126,7 @@ fun Route.articles() {
         }
 
         delete("/{uuid}") {
-            deleteWithId (
+            deleteResource(
                 fetch = ArticleService::get,
                 delete = ArticleService::delete,
                 authPredicate = { user, article -> article.createdBy == user },
@@ -137,7 +137,7 @@ fun Route.articles() {
         }
 
         patch("/{uuid}") {
-            updateWithId (
+            updateResource (
                 fetch = ArticleService::get,
                 authPredicate = { user, article -> article.createdBy eqr user },
                 doAfter = { replacement ->
@@ -147,7 +147,7 @@ fun Route.articles() {
         }
 
         post("/") {
-            createWithResource (
+            createResource (
                 create = ArticleService::add,
                 authPredicate = { user, article -> article.createdBy eqr user },
                 doAfter = { article ->
