@@ -40,6 +40,7 @@ data class Article (
 
     val title: @check("^.{0,512}") String,
 
+    @SearchDefaultSort
     val createdAt: Int = Instant.now().epochSecond.toInt(),
 
     val createdBy: @DelegatedSearch User,
@@ -50,9 +51,6 @@ data class Article (
 
     @NoSearch
     val categories: @DelegatedSearch List<Category>,
-
-    @SearchDefaultSort
-    val dsf: Int = Random.nextInt(),
 
     @NoSearch
     override val uuid: UUID = UUID.randomUUID()

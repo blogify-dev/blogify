@@ -1,9 +1,14 @@
 package blogify.backend.search.ext
 
+import blogify.backend.annotations.search.SearchDefaultSort
 import blogify.backend.resources.models.Resource
+import blogify.backend.resources.reflect.cachedPropMap
+import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.search.models.Template
 
 import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.hasAnnotation
 
 private val templateCache: MutableMap<KClass<*>, Template<*>> = mutableMapOf()
 
@@ -25,7 +30,9 @@ fun <R : Resource> KClass<R>._buildSearchTemplate(): Template<R> {
     return Template (
         klass  = this,
         name   = this.simpleName!!,
-        defaultSortingField = TEMPLATE_DEFAULT_DSF,
+        defaultSortingField = this.cachedPropMap().ok().values
+            .filter { it.property.findAnnotation<SearchDefaultSort>() != null }
+            .toSet().first().name,
         queryByParams = when { // Temp.
             this.simpleName!!.toLowerCase().contains("article") -> "content,title"
             this.simpleName!!.toLowerCase().contains("user") -> "name,username"
