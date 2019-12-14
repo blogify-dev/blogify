@@ -15,10 +15,15 @@
 
         <span id="navbar-right" *ngIf="!(authService.observeIsLoggedIn() | async) || user">
 
-            <span id="profile" *ngIf="authService.observeIsLoggedIn() | async" (click)="navigateToProfile()">
-                <app-profile-picture [pfpFile]="user.profilePicture" emSize="2"></app-profile-picture>
-                {{user.name}}
-            </span>
+            <app-user-display
+                class="collapse-on-mobile"
+                id="profile"
+                [user]="user"
+                emSize="2"
+                sizeRatio="3.75"
+                *ngIf="authService.observeIsLoggedIn() | async"
+                (click)="navigateToProfile()">
+            </app-user-display>
 
             <span class="separator" *ngIf="authService.observeIsLoggedIn() | async"></span>
 

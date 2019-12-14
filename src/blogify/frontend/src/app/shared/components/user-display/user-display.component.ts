@@ -8,12 +8,11 @@ import { User } from '../../../models/User';
 })
 export class UserDisplayComponent implements OnInit {
 
-    readonly EM_SIZE_TEXT_RATIO = 2.4;
-
     @Input() user: User;
     @Input() info: 'username' | 'name' = 'username';
     @Input() showSecondaryInfo: boolean;
     @Input() emSize: number = 3;
+    @Input() sizeRatio = 2.4;
     @Input() displayedVertically: boolean = false;
 
     infoText: string;

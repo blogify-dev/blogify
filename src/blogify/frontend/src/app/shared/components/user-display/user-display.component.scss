@@ -1,8 +1,17 @@
+@import "../../../../styles/queries";
+
 :host {
     display:         inline-flex;
     flex-direction:  column;
     justify-content: center;
     align-items:     center;
+
+    &.collapse-on-mobile .user-display {
+        @media (max-width: $query-desktop) {
+            grid-column-gap: 0;
+            .display-info { display: none; }
+        }
+    }
 }
 
 .user-display {
