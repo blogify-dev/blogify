@@ -230,7 +230,7 @@ object Typesense {
                 TYPESENSE_URL +
                 "/collections/${template.name}" +
                 "/documents/search?q=$query" +
-                "&query_by=content,title" +
+                "&query_by=${template.queryByParams}" +
                 "&exclude_fields=$excludedFieldsString" +
                 if (filtersString != null) "&filter_by=$filtersString" else ""
             )

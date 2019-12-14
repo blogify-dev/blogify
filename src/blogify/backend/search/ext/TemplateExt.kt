@@ -25,18 +25,19 @@ fun <R : Resource> KClass<R>._buildSearchTemplate(): Template<R> {
     return Template (
         klass  = this,
         name   = this.simpleName!!,
-        defaultSortingField = TEMPLATE_DEFAULT_DSF
+        defaultSortingField = TEMPLATE_DEFAULT_DSF,
+        queryByParams = when { // Temp.
+            this.simpleName!!.toLowerCase().contains("article") -> "content,title"
+            this.simpleName!!.toLowerCase().contains("user") -> "name,username"
+            else -> error("Bruh")
+        }
     )
 }
 
 @Suppress("FunctionName")
 fun <R : Resource> KClass<R>._rebuildSearchTemplate(): Template<R> {
 
-    val template =  Template (
-        klass  = this,
-        name   = this.simpleName!!,
-        defaultSortingField = TEMPLATE_DEFAULT_DSF
-    )
+    val template =  this._buildSearchTemplate()
 
     templateCache[this] = template
     return template

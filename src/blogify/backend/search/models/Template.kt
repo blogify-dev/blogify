@@ -23,14 +23,16 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubtypeOf
 
 @Suppress("unused")
-class Template<T : Resource> (
+data class Template<T : Resource>(
     @JsonIgnore
     val klass: KClass<T>,
 
     val name: String,
 
     @get:JsonProperty("default_sorting_field")
-    val defaultSortingField: String
+    val defaultSortingField: String,
+
+    val queryByParams: String
 ) {
 
     val fields = AutogenClassVisitor.visitAndMapClass(klass)
