@@ -3,12 +3,11 @@
 <div id="main-container" *ngIf="user" [style.padding-top]="user.coverPicture.fileId ? '1.75em' : '3em'">
 
     <div id="container-header">
-
-        <app-profile-picture [pfpFile]="user.profilePicture"></app-profile-picture>
-
-        <span id="header-user-name">{{user.name}}</span>
-        <span class="separator" style="margin: auto 0; margin-left: 1.5em !important; height: 20px;"></span>
-        <span id="header-user-username">@{{user.username}}</span>
+        <app-user-display
+            [user]="user"
+            info="name"
+            showSecondaryInfo="true">
+        </app-user-display>
 
         <app-tab-header id="header-tabs" [tabs]="finalTabs"></app-tab-header>
     </div>
