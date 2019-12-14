@@ -18,6 +18,7 @@ import blogify.backend.database.handling.query
 import blogify.backend.resources.Article
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
+import blogify.backend.routes.admin.adminSearch
 import blogify.backend.routes.static
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext._searchTemplate
@@ -165,6 +166,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             users()
             auth()
             static()
+            adminSearch()
         }
 
         get("/") {
