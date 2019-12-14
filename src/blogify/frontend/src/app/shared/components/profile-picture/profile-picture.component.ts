@@ -12,6 +12,7 @@ export class ProfilePictureComponent implements OnInit {
 
     @Input() pfpFile: StaticFile;
     @Input() emSize: number = 3;
+    @Input() displayedVertically: boolean = false;
 
     sourceUrl: string | null = null;
 

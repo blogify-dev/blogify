@@ -49,7 +49,11 @@
     }
 
     #users-main {
+        display: grid;
+        grid-template: auto / repeat(3, 1fr);
+        grid-column-gap: 1.25em;
 
+        @media (max-width: $query-desktop) { grid-template-columns: repeat(2, 1fr) }
     }
 
     #search-results {

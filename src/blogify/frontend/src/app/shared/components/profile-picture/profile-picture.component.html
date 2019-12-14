@@ -1,8 +1,15 @@
-<img *ngIf="sourceUrl !== null"
-     class="pfp-image"
-     src="{{sourceUrl}}"
-     alt="Profile picture"
-     [style.width]="emSize + 'em'"
-     [style.height]="emSize + 'em'">
+<img
+    *ngIf="sourceUrl !== null"
+    class="pfp-image"
+    src="{{sourceUrl}}"
+    alt="Profile picture"
+    [style.width]="emSize + 'em'"
+    [style.height]="emSize + 'em'">
 
-<fa-icon *ngIf="sourceUrl === null" [icon]="faUser" size="2x"></fa-icon>
+<fa-icon
+    *ngIf="sourceUrl === null"
+    [icon]="faUser"
+    size="2x"
+    [transform]="{ y: 1 }"
+    [style.width]="displayedVertically ? emSize + 'em' : 'initial'">
+</fa-icon>
