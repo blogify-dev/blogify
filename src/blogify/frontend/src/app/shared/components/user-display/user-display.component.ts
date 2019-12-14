@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { User } from '../../../models/User';
-import {StaticContentService} from '../../../services/static/static-content.service';
 
 @Component({
     selector: 'app-user-display',

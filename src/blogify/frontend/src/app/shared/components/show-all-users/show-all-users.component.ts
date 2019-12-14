@@ -1,9 +1,9 @@
-import {Component, OnInit} from '@angular/core';
-import {faArrowLeft, faPencilAlt, faSearch, faTimes} from '@fortawesome/free-solid-svg-icons';
-import {AuthService} from '../../auth/auth.service';
-import {StaticContentService} from '../../../services/static/static-content.service';
-import {ActivatedRoute, Router, UrlSegment} from '@angular/router';
-import {User} from '../../../models/User';
+import { Component, OnInit} from '@angular/core';
+import { faArrowLeft, faPencilAlt, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { AuthService} from '../../auth/auth.service';
+import { StaticContentService } from '../../../services/static/static-content.service';
+import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
+import { User } from '../../../models/User';
 
 @Component({
     selector: 'app-show-all-users',

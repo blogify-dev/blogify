@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../shared/auth/auth.service';
 import { User } from '../../models/User';
 import { faPenFancy, faTimes, faShare } from '@fortawesome/free-solid-svg-icons';
-import {ClipboardService} from "ngx-clipboard";
+import { ClipboardService } from "ngx-clipboard";
 
 @Component({
     selector: 'app-show-article',

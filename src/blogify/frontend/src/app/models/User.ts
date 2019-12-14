@@ -1,4 +1,4 @@
-import {StaticFile} from './Static';
+import { StaticFile } from './Static';
 
 export class User {
   constructor (

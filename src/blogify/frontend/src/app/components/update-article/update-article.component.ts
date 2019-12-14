@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ArticleService } from '../../services/article/article.service';
 import { Article } from '../../models/Article';
 import { Subscription } from 'rxjs';
-import {User} from "../../models/User";
-import {AuthService} from "../../shared/auth/auth.service";
+import { User } from "../../models/User";
+import { AuthService } from "../../shared/auth/auth.service";
 
 @Component({
     selector: 'app-update-article',
