@@ -72,7 +72,7 @@ object Articles : ResourceTable<Article>() {
     val summary    = text    ("summary")
 
     override suspend fun insert(resource: Article): Sr<Article> {
-        return Sr.of<Article, Exception> {
+        return Sr.of {
             query {
                 this.insert {
                     it[uuid]      = resource.uuid
@@ -117,7 +117,7 @@ object Articles : ResourceTable<Article>() {
         true
     }
 
-    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Article, Service.Exception.Fetching> {
+    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = Sr.of<Article, Service.Exception.Fetching> {
         Article (
             uuid       = source[uuid],
             title      = source[title],
@@ -168,7 +168,7 @@ object Users : ResourceTable<User>() {
     }
 
     override suspend fun insert(resource: User): Sr<User> {
-        return Sr.of<User, Exception> {
+        return Sr.of {
             query {
                 Users.insert {
                     it[uuid]           = resource.uuid
@@ -227,7 +227,7 @@ object Comments : ResourceTable<Comment>() {
     val parentComment = uuid ("parent_comment").references(uuid, onDelete = CASCADE).nullable()
 
     override suspend fun insert(resource: Comment): Sr<Comment> {
-        return Sr.of<Comment, Exception> {
+        return Sr.of {
             query {
                 this.insert {
                     it[uuid]          = resource.uuid

@@ -61,7 +61,7 @@ data class Template<T : Resource>(
          * Marks a class as reflecting a [Typesense] type
          *
          * @property type       the equivalent Kotlin type for this type
-         * @property canBeFacet whether or not this type can be a facet when sent in a template to [Typesense].
+         * @property canBeFacet whether this type can be a facet when sent in a template to [Typesense].
          *                      See [the typesense docs](https://typesense.org/docs/0.11.0/api/#create-collection) for details.
          *
          * @author Benjozork
@@ -119,41 +119,6 @@ data class Template<T : Resource>(
                     .filter { it.findAnnotation<TypesenseFieldType>() != null }
                     .associateWith { it.findAnnotation<TypesenseFieldType>()!! }
                     .also { tsaLogger.debug("mapped field subclasses".green()) }
-            }
-
-            /**
-             * Creates an instance of [Field] from a [KProperty1].
-             *
-             * @param property the [KProperty1] to create the field from. Must be of a valid types from those listed in [Field].
-             * @param facet    whether or not this field should be a facet.
-             *                 See [the typesense docs](https://typesense.org/docs/0.11.0/api/#create-collection) for details.
-             *
-             * @return the created field. Will throw an error if the type of [property] is invalid, or if an error is present in the available
-             *         types in [Typesense.Field].
-             *
-             * @author Benjozork
-             */
-            fun from(property: KProperty1<*, *>, facet: Boolean = false): Field {
-                val name = property.name
-                val returnType = property.returnType
-                val typesenseFieldClass =
-                    if (property.findAnnotation<SearchByUUID>() == null) {
-                        subClassCache.entries
-                            .firstOrNull { entry ->
-                                // Make sure type class exists for given type and allows facet if it wishes to be one
-                                if (returnType.isSubtypeOf(Collection::class.createType(listOf(KTypeProjection.STAR))))
-                                    returnType.arguments[0].type == entry.value.type && if (!entry.value.canBeFacet) !facet else true
-                                else
-                                    returnType.classifier == entry.value.type && if (!entry.value.canBeFacet) !facet else true
-                            }?.toPair() ?: error("illegal type '$returnType { facet: $facet }' on property '${property.name}'")
-                    } else {
-                        @Suppress("RemoveRedundantQualifierName")
-                        Template.Field.String::class to subClassCache[Template.Field.String::class]
-                    }
-
-                tsaLogger.trace("created typesense field for property $name with type ${returnType.classifier.toString()}; assigned type ${typesenseFieldClass.first.simpleName}".green())
-
-                return typesenseFieldClass.first.constructors.first().call(name, facet)
             }
 
         }
