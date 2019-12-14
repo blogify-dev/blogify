@@ -1,13 +1,13 @@
 package blogify.backend.resources
 
 import blogify.backend.annotations.search.NoSearch
-import blogify.backend.resources.models.Resource
-import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.annotations.Invisible
 import blogify.backend.annotations.search.DelegatedSearchReceiver
 import blogify.backend.annotations.search.QueryByField
 import blogify.backend.annotations.search.SearchDefaultSort
 import blogify.backend.annotations.type
+import blogify.backend.resources.models.Resource
+import blogify.backend.resources.static.models.StaticResourceHandle
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
