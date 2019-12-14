@@ -1,5 +1,6 @@
 package blogify.backend.search.ext
 
+import blogify.backend.annotations.search.QueryByField
 import blogify.backend.annotations.search.SearchDefaultSort
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.cachedPropMap
@@ -33,11 +34,9 @@ fun <R : Resource> KClass<R>._buildSearchTemplate(): Template<R> {
         defaultSortingField = this.cachedPropMap().ok().values
             .filter { it.property.findAnnotation<SearchDefaultSort>() != null }
             .toSet().first().name,
-        queryByParams = when { // Temp.
-            this.simpleName!!.toLowerCase().contains("article") -> "content,title"
-            this.simpleName!!.toLowerCase().contains("user") -> "name,username"
-            else -> error("Bruh")
-        }
+        queryByParams = this.cachedPropMap().ok().values
+            .filter { it.property.findAnnotation<QueryByField>() != null }
+            .toSet().joinToString(separator = ",") { it.name }
     )
 }
 

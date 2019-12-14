@@ -5,6 +5,7 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.annotations.Invisible
 import blogify.backend.annotations.search.DelegatedSearchReceiver
+import blogify.backend.annotations.search.QueryByField
 import blogify.backend.annotations.search.SearchDefaultSort
 import blogify.backend.annotations.type
 
@@ -21,12 +22,14 @@ import kotlin.random.Random
     property  = "uuid"
 )
 data class User (
+    @QueryByField
     @DelegatedSearchReceiver
     val username: String,
 
     @Invisible
     val password: String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
 
+    @QueryByField
     val name: String,
 
     val email: String,

@@ -1,10 +1,7 @@
 package blogify.backend.resources
 
 import blogify.backend.annotations.check
-import blogify.backend.annotations.search.DelegatedSearch
-import blogify.backend.annotations.search.DelegatedSearchReceiver
-import blogify.backend.annotations.search.NoSearch
-import blogify.backend.annotations.search.SearchDefaultSort
+import blogify.backend.annotations.search.*
 import blogify.backend.database.Articles
 import blogify.backend.database.Comments
 import blogify.backend.resources.computed.compound
@@ -38,6 +35,7 @@ import kotlin.random.Random
 )
 data class Article (
 
+    @QueryByField
     val title: @check("^.{0,512}") String,
 
     @SearchDefaultSort
@@ -45,6 +43,7 @@ data class Article (
 
     val createdBy: @DelegatedSearch User,
 
+    @QueryByField
     val content: String,
 
     val summary: String,
