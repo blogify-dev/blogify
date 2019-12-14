@@ -142,9 +142,9 @@ export class AuthService {
         );
     }
 
-    search(query: string, fields: string[]): Promise<User[]> {
-        const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}`;
-        return this.httpClient.get<User[]>(url).toPromise();
+    search(query: string, fields: string[]) {
+        const url = `/api/users/search/?q=${query}&fields=${fields.join(',')}`;
+        return this.httpClient.get<SearchView<User>>(url).toPromise();
     }
 
     getAllUsers(): Promise<User[]> {

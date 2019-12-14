@@ -68,7 +68,7 @@ export class ShowAllUsersComponent implements OnInit {
             this.searchQuery,
             ['name', 'username', 'profilePicture'],
         ).then(it => {
-            this.searchResults = it;
+            this.searchResults = it.hits.map(user => user.document);
             this.showingSearchResults = true;
             this.forceNoAllowCreate = true;
         }).catch((err: Error) => {
