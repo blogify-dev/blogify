@@ -11,7 +11,6 @@ import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.services.UserService
 import blogify.backend.services.models.Service
-import blogify.backend.util.toUUID
 
 import io.ktor.application.call
 import io.ktor.response.respond
@@ -25,31 +24,22 @@ fun Route.users() {
     route("/users") {
 
         get("/") {
-            fetchAllResources(UserService::getAll)
+            fetchAllResources<User>()
         }
 
         get("/{uuid}") {
-            fetchResource(UserService::get)
+            fetchResource<User>()
         }
 
         delete("/{uuid}") {
-            deleteResource(
-                fetch = UserService::get,
-                delete = UserService::delete,
-                authPredicate = { user, manipulated -> user eqr manipulated },
-                doAfter = { id ->
-                    Typesense.deleteResource<User>(id.toUUID())
-                }
+            deleteUpload<User> (
+                authPredicate = { user, manipulated -> user eqr manipulated }
             )
         }
 
         patch("/{uuid}") {
-            updateResource (
-                fetch = UserService::get,
-                authPredicate = { _, _ -> true },
-                doAfter = { replacement ->
-                    Typesense.updateResource(replacement)
-                }
+            updateResource<User> (
+                authPredicate = { user, replaced -> user eqr replaced }
             )
         }
 
@@ -77,17 +67,13 @@ fun Route.users() {
         }
 
         post("/upload/{uuid}") {
-            uploadToResource (
-                fetch         = UserService::get,
+            uploadToResource<User> (
                 authPredicate = { user, manipulated -> user eqr manipulated }
             )
         }
 
         delete("/upload/{uuid}") {
-            deleteResource (
-                fetch         = UserService::get,
-                authPredicate = { user, manipulated -> user eqr manipulated }
-            )
+            deleteUpload<User>(authPredicate = { user, manipulated -> user eqr manipulated })
         }
 
         get("/search") {

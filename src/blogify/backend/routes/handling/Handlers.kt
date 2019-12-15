@@ -27,7 +27,6 @@
 
 package blogify.backend.routes.handling
 
-import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Uploadables
 import blogify.backend.database.handling.query
 import blogify.backend.resources.User
@@ -46,7 +45,6 @@ import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.resources.reflect.verify
-import blogify.backend.routes.pipelines.CallPipeLineFunction
 import blogify.backend.routes.pipelines.CallPipeline
 import blogify.backend.routes.pipelines.fetchResource
 import blogify.backend.routes.pipelines.fetchResources
@@ -54,13 +52,12 @@ import blogify.backend.routes.pipelines.handleAuthentication
 import blogify.backend.routes.pipelines.optionalParam
 import blogify.backend.routes.pipelines.pipeline
 import blogify.backend.routes.pipelines.pipelineError
-import blogify.backend.util.Sr
-import blogify.backend.util.SrList
+import blogify.backend.routes.pipelines.service
+import blogify.backend.search.Typesense
 import blogify.backend.util.filterThenMapValues
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.letCatchingOrNull
 import blogify.backend.util.matches
-import blogify.backend.util.service
 import blogify.backend.util.short
 import blogify.backend.util.toUUID
 
@@ -93,11 +90,13 @@ import org.slf4j.LoggerFactory
 
 import java.util.UUID
 
+import kotlinx.coroutines.launch
+
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSuperclassOf
 
-private val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
+/* temp private */ val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
 
 /**
  * The default predicate used by the wrappers in this file
@@ -126,20 +125,15 @@ fun logUnusedAuth(func: String) {
  * Requires a [Map] of specific property names to be passed in the query URL.
  *
  * **WARNING:** Those property names must *exactly* match property names present in the class of the specific resource type.
- *Users
- * @param fetch the [function][Function] that retrieves the resources
  *
  * @author hamza1311, Benjozork
  */
 @BlogifyDsl
-suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAllResources (
-    fetch: suspend (ApplicationCall, Int) -> SrList<R>
-) = pipeline {
-
+suspend inline fun <reified R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAllResources() = pipeline {
     val limit = optionalParam("amount")?.toInt() ?: 25
     val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
 
-    val resources = fetchResources(fetch, limit)
+    val resources = fetchResources(service<R>()::getAll, limit)
 
     if (selectedProperties == null) {
         logger.debug("slicer: getting all fields".magenta())
@@ -148,7 +142,6 @@ suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAllResour
         logger.debug("slicer: getting fields $selectedProperties".magenta())
         call.respond(resources.map { it.slice(selectedProperties) })
     }
-
 }
 
 /**
@@ -157,22 +150,20 @@ suspend fun <R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAllResour
  * Requires a [UUID] to be passed in the query URL.
  *
  * @param R             the type of [Resource] to be fetched
- * @param fetch         the [function][Function] that retrieves the resource
  * @param authPredicate the [function][Function] that should be run to authenticate the client
  *
  * @author Benjozork, hamza1311
  */
 @BlogifyDsl
-suspend fun <R : Resource> CallPipeline.fetchResource (
-    fetch:         suspend (ApplicationCall, UUID)  -> Sr<R>,
-    authPredicate: suspend (User)                   -> Boolean = defaultResourceLessPredicateLambda
+suspend inline fun <reified R : Resource> CallPipeline.fetchResource (
+    noinline authPredicate: suspend (User) -> Boolean = defaultResourceLessPredicateLambda
 ) = pipeline("uuid") { (uuid) ->
 
     val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
 
     handleAuthentication("fetchWithIdAndRespond", authPredicate) {
 
-        val resource = fetchResource(fetch, uuid.toUUID())
+        val resource = fetchResource(service<R>()::get, uuid.toUUID())
 
         if (selectedProperties == null) {
             logger.debug("slicer: getting all fields".magenta())
@@ -190,9 +181,9 @@ suspend fun <R : Resource> CallPipeline.fetchResource (
  *
  * Requires a [UUID] to be passed in the query URL.
  *
- * @param R             the type of [Resource] to be fetched
- * @param fetch         the [function][Function] that retrieves the resources using the [ID][UUID] of another resource
- * @param transform     a transformation [function][Function] that transforms the [resources][Resource] before sending them back to the client*
+ * @param R          the type of [Resource] to be fetched
+ * @param fetch      the [function][Function] that retrieves the resources using the [ID][UUID] of another resource
+ * @param transform  a transformation [function][Function] that transforms the [resources][Resource] before sending them back to the client*
  * @author Benjozork
  */
 @BlogifyDsl
@@ -239,13 +230,11 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
-    crossinline fetch:         suspend (ApplicationCall, UUID)   -> Sr<R>,
-       noinline authPredicate: suspend (User, R)                 -> Boolean = defaultPredicateLambda
+       noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) = pipeline("uuid", "target") { (uuid, target) ->
 
     // Find target resource
-    val targetResource = fetch(call, UUID.fromString(uuid))
-        .getOrPipelineError(message = "couldn't fetch resource") // Handle result
+    val targetResource = fetchResource(service<R>()::get, uuid.toUUID())
 
     handleAuthentication("uploadToResource", { authPredicate(it, targetResource) }) {
 
@@ -296,7 +285,7 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
             }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing static resource to db")
 
 
-            R::class.service.update(targetResource, mapOf(targetPropHandle to newHandle))
+            service<R>().update(targetResource, mapOf(targetPropHandle to newHandle))
                 .getOrPipelineError(HttpStatusCode.InternalServerError, "error while updating resource ${targetResource.uuid.short()} with new information")
 
             call.respond(newHandle.toString())
@@ -313,14 +302,12 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
 }
 
 @BlogifyDsl
-suspend inline fun <reified R : Resource> CallPipeline.deleteResource (
-    crossinline fetch:         suspend (ApplicationCall, UUID) -> Sr<R>,
-    noinline authPredicate: suspend (User, R)                  -> Boolean = defaultPredicateLambda
+suspend inline fun <reified R : Resource> CallPipeline.deleteUpload (
+    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) = pipeline("uuid", "target") { (uuid, target) ->
 
     // Find target resource
-    val targetResource = fetch(call, UUID.fromString(uuid))
-        .getOrPipelineError(message = "couldn't fetch resource") // Handle result
+    val targetResource = fetchResource(service<R>()::get, uuid.toUUID())
 
     handleAuthentication("uploadToResource", { authPredicate(it, targetResource) }) {
 
@@ -371,82 +358,64 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteResource (
  * Adds a handler to a [CallPipeline] that handles creating a new resource.
  *
  * @param R             the type of [Resource] to be created
- * @param create        the [function][Function] that retrieves that creates the resource using the call
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
- * @param doAfter       the [function][Function] that is executed after resource creation
  *
  * @author Benjozork, hamza1311
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.createResource (
-    noinline create:        suspend (R)       -> Sr<R>,
-    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda,
-    noinline doAfter:       suspend (R)       -> Unit = {}
+    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) = pipeline {
     try {
 
         val received = call.receive<R>() // Receive a resource from the request body
 
-        val verifiedReceived = received.verify() // Verify received resource
-        verifiedReceived.entries
-            .firstOrNull { !it.value } // Find any that were not valid
-            ?.run { pipelineError(HttpStatusCode.BadRequest, "invalid value for property '${key.name}'") }
+        val firstInvalidValue = received.verify().entries.firstOrNull { !it.value }
+        if (firstInvalidValue != null) { // Check for any invalid data
+            pipelineError(HttpStatusCode.BadRequest, "invalid value for property '${firstInvalidValue.key.name}'")
+        }
 
-        val doCreate: CallPipeLineFunction = {
-            val res = create(received)
-
-            res.fold (
+        handleAuthentication(predicate = { u -> authPredicate(u, received) }) {
+            service<R>().add(received).fold (
                 success = {
                     call.respond(HttpStatusCode.Created, it.sanitize())
-                    doAfter(it)
+                    launch { Typesense.uploadResource(it) }
                 },
                 failure = call::respondExceptionMessage
             )
         }
 
-        if (authPredicate != defaultPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-            runAuthenticated(predicate = { u -> authPredicate(u, received) }, block = { doCreate(this@createResource, Unit) }) // Run provided predicate on authenticated user and provided resource, then run doCreate if the predicate matches
-        } else {
-            logUnusedAuth("createWithResource")
-            doCreate(this, Unit) // Run doCreate without checking predicate
-        }
-
     } catch (e: ContentTransformationException) {
         call.respond(HttpStatusCode.BadRequest)
     }
-} // KT-33440 | Doesn't compile when lambda called with invoke() for now
+}
 
 /**
  * Adds a handler to a [CallPipeline] that handles deleting a new resource.
  *
  * Requires a [UUID] to be passed in the query URL.
  *
- * @param fetch         the [function][Function] that retrieves the specified resource. If no [authPredicate] is provided, this is skipped.
- * @param delete        the [function][Function] that deletes the specified resource
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
- * @param doAfter       the [function][Function] that is executed after resource deletion
  *
  * @author Benjozork, hamza1311
  */
+@Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
-suspend fun <R: Resource> CallPipeline.deleteResource (
-    fetch:         suspend (ApplicationCall, UUID) -> Sr<R>,
-    delete:        suspend (R)                     -> Sr<*>,
-    authPredicate: suspend (User, R)               -> Boolean = defaultPredicateLambda,
-    doAfter:       suspend (String)                -> Unit = {}
+suspend inline fun <reified R: Resource> CallPipeline.deleteResource (
+    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) = pipeline("uuid") { (uuid) ->
 
-    val toDelete = fetchResource(fetch, uuid.toUUID())
+    val toDelete = fetchResource(service<R>()::get, uuid.toUUID())
 
     handleAuthentication (
         funcName  = "deleteWithId",
         predicate = { user -> authPredicate(user, toDelete) }
     ) {
-        delete.invoke(toDelete).fold (
+        service<R>().delete(toDelete).fold (
             success = {
                 call.respond(HttpStatusCode.OK)
-                doAfter(uuid)
+                launch { Typesense.deleteResource<R>(toDelete.uuid) }
             },
             failure = call::respondExceptionMessage
         )
@@ -458,22 +427,18 @@ suspend fun <R: Resource> CallPipeline.deleteResource (
  * Adds a handler to a [CallPipeline] that handles updating a resource with the given uuid.
  *
  * @param R             the type of [Resource] to be updated
- * @param fetch         the [function][Function] that retrieves the resource to be updated
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
- * @param doAfter       the [function][Function] that is executed after resource update
  *
  * @author hamza1311
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.updateResource (
-    noinline fetch:         suspend (ApplicationCall, UUID) -> Sr<R>,
-    noinline authPredicate: suspend (User, R)               -> Boolean = defaultPredicateLambda,
-    noinline doAfter:       suspend (R)                     -> Unit = {}
+    noinline authPredicate: suspend (User, R)  -> Boolean = defaultPredicateLambda
 ) {
 
     val replacement = call.receive<Map<String, Any>>()
-    val current = fetchResource(fetch, (replacement["uuid"] as String).toUUID())
+    val current = fetchResource(service<R>()::get, (replacement["uuid"] as String).toUUID())
 
     val rawData = replacement.mapKeys { n -> R::class.cachedPropMap().ok().values.first { it.name == n.key } }
 
@@ -481,10 +446,10 @@ suspend inline fun <reified R : Resource> CallPipeline.updateResource (
         funcName  = "createWithResource",
         predicate = { user -> authPredicate(user, current) }
     ) {
-        R::class.service.update(current, rawData).fold (
+        service<R>().update(current, rawData).fold (
             success = {
-                doAfter(it)
                 call.respond(HttpStatusCode.OK)
+                launch { Typesense.updateResource(it) }
             },
             failure = { e ->
                 e.printStackTrace()

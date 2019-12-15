@@ -39,11 +39,11 @@ fun Route.articles() {
     route("/articles") {
 
         get("/") {
-            fetchAllResources(ArticleService::getAll)
+            fetchAllResources<Article>()
         }
 
         get("/{uuid}") {
-            fetchResource(ArticleService::get)
+            fetchResource<Article>()
         }
 
         val likes = Articles.Likes
@@ -70,7 +70,7 @@ fun Route.articles() {
                     val articleToLike = ArticleService.get(call, id.toUUID())
                         .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch article")
 
-                    // Figure whether or not the article was already liked by the user
+                    // Figure whether the article was already liked by the user
                     val alreadyLiked = query {
                         likes.select {
                             (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid) }.count()
@@ -126,33 +126,20 @@ fun Route.articles() {
         }
 
         delete("/{uuid}") {
-            deleteResource(
-                fetch = ArticleService::get,
-                delete = ArticleService::delete,
-                authPredicate = { user, article -> article.createdBy == user },
-                doAfter = { id ->
-                    Typesense.deleteResource<Article>(id.toUUID())
-                }
+            deleteUpload<Article> (
+                authPredicate = { user, article -> article.createdBy == user }
             )
         }
 
         patch("/{uuid}") {
-            updateResource (
-                fetch = ArticleService::get,
-                authPredicate = { user, article -> article.createdBy eqr user },
-                doAfter = { replacement ->
-                    Typesense.updateResource(replacement)
-                }
+            updateResource<Article> (
+                authPredicate = { user, article -> article.createdBy eqr user }
             )
         }
 
         post("/") {
-            createResource (
-                create = ArticleService::add,
-                authPredicate = { user, article -> article.createdBy eqr user },
-                doAfter = { article ->
-                   Typesense.uploadResource(article)
-                }
+            createResource<Article> (
+                authPredicate = { user, article -> article.createdBy eqr user }
             )
         }
 

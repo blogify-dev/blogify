@@ -4,6 +4,7 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.routes.pipelines.pipelineError
+import blogify.backend.routes.pipelines.service
 import blogify.backend.search.ext._rebuildSearchTemplate
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Search
@@ -258,8 +259,8 @@ object Typesense {
      * @author hamza1311
      */
     suspend inline fun <reified R: Resource> refreshIndex(): HttpResponse {
-        val resources = R::class.service.getAll().get()
-        val docs = resources.map { makeDocument(it) }
+        val resources = service<R>().getAll().get()
+        val docs = resources.map { this.makeDocument(it) }
 
         deleteCollection<R>()
         submitResourceTemplate(R::class._rebuildSearchTemplate())

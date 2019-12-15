@@ -11,6 +11,7 @@ import blogify.backend.util.Sr
 import blogify.backend.util.SrList
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
+import blogify.backend.util.service
 
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
@@ -118,6 +119,11 @@ suspend fun <R : Resource> CallPipeline.fetchResources(fetcher: suspend (Applica
     return fetcher(call, limit)
         .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
+
+/**
+ * Get a [blogify.backend.services.models.Service] from a reified Resource type parameter
+ */
+inline fun <reified R : Resource> service() = R::class.service
 
 /**
  * Signals that a [CallPipeline] has encountered an error, and will stop being executed.

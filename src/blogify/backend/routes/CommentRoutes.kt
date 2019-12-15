@@ -5,6 +5,7 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 
 import blogify.backend.database.Comments
+import blogify.backend.resources.Comment
 import blogify.backend.resources.models.eqr
 import blogify.backend.routes.handling.*
 import blogify.backend.services.CommentService
@@ -18,11 +19,11 @@ fun Route.articleComments() {
     route("/comments") {
 
         get("/") {
-            fetchAllResources(CommentService::getAll)
+            fetchAllResources<Comment>()
         }
 
         get("/{uuid}") {
-            fetchResource(CommentService::get)
+            fetchResource<Comment>()
         }
 
         get("/article/{uuid}") {
@@ -32,18 +33,21 @@ fun Route.articleComments() {
         }
 
         delete("/{uuid}") {
-            deleteResource(CommentService::get, CommentService::delete, authPredicate = { user, comment -> comment.commenter eqr user })
+            deleteUpload<Comment> (
+                authPredicate = { user, comment -> comment.commenter eqr user }
+            )
         }
 
         patch("/{uuid}") {
-            updateResource (
-                fetch = CommentService::get,
+            updateResource<Comment> (
                 authPredicate = { user, comment -> comment.commenter eqr user }
             )
         }
 
         post("/") {
-            createResource(CommentService::add, authPredicate = { user, comment -> comment.commenter eqr user })
+            createResource<Comment> (
+                authPredicate = { user, comment -> comment.commenter eqr user }
+            )
         }
 
         get("/tree/{uuid}") {
