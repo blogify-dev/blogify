@@ -27,14 +27,11 @@ export class UpdateArticleComponent implements OnInit {
     ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const articleUUID = map.get('uuid');
-            console.log(articleUUID);
 
             this.article = await this.articleService.getArticleByUUID(
                 articleUUID,
                 ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
             );
-
-            console.log(this.article);
         });
         this.authService.userProfile.then(it => { this.user = it })
     }

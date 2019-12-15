@@ -14,8 +14,6 @@ export class StaticContentService {
     }
 
     uploadFile(file: File, userToken: string, url: string) {
-        console.log(url);
-        console.log(file.name);
 
         const httpOptions = {
             headers: new HttpHeaders({

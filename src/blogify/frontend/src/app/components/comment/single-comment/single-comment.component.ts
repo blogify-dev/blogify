@@ -54,9 +54,6 @@ export class SingleCommentComponent implements OnInit {
     }
 
     async replyToSelf() {
-
-        console.log(this.replyComment.commenter instanceof User);
-
         // Make sure the user is authenticated
         if (this.authService.observeIsLoggedIn() && this.replyComment.commenter instanceof User) {
             await this.commentsService.replyToComment (

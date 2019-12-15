@@ -35,15 +35,11 @@ export class ArticleCommentsComponent implements OnInit {
                 out.push(comment);
             });
             this.rootComments = out;
-
-            console.log(out);
         });
 
         this.commentService.latestRootSubmittedComment.subscribe(comment => {
             if (comment) {
                 this.rootComments.push(comment);
-                console.log('Comment sub');
-                console.log(comment);
             }
         });
     }

@@ -36,7 +36,6 @@ export class ShowArticleComponent implements OnInit {
     ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const articleUUID = map.get('uuid');
-            console.log(articleUUID);
 
             this.article = await this.articleService.getArticleByUUID (
                 articleUUID,
@@ -45,8 +44,6 @@ export class ShowArticleComponent implements OnInit {
 
             this.showUpdateButton = (await this.authService.userUUID) == (<User> this.article.createdBy).uuid;
             this.showDeleteButton = (await this.authService.userUUID) == (<User> this.article.createdBy).uuid;
-
-            console.log(this.article);
         });
     }
 
