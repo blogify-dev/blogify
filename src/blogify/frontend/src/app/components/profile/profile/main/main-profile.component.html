@@ -1,17 +1,19 @@
-<app-cover-picture [cvpFile]="user.coverPicture"></app-cover-picture>
+<ng-container *ngIf="user">
+    <app-cover-picture [cvpFile]="user.coverPicture"></app-cover-picture>
 
-<div id="main-container" *ngIf="user" [style.padding-top]="user.coverPicture.fileId ? '1.75em' : '3em'">
+    <div id="main-container" *ngIf="user" [style.padding-top]="user.coverPicture.fileId ? '1.75em' : '3em'">
 
-    <div id="container-header">
-        <app-user-display
-            [user]="user"
-            info="name"
-            showSecondaryInfo="true">
-        </app-user-display>
+        <div id="container-header">
+            <app-user-display
+                [user]="user"
+                info="name"
+                showSecondaryInfo="true">
+            </app-user-display>
 
-        <app-tab-header id="header-tabs" [tabs]="finalTabs"></app-tab-header>
+            <app-tab-header id="header-tabs" [tabs]="finalTabs"></app-tab-header>
+        </div>
+
+        <router-outlet></router-outlet>
+
     </div>
-
-    <router-outlet></router-outlet>
-
-</div>
+</ng-container>
