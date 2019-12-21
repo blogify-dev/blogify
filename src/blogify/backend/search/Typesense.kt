@@ -46,10 +46,13 @@ val tscLogger: Logger = LoggerFactory.getLogger("blogify-typesense-client")
  */
 object Typesense {
 
+    val TYPESENSE_HOST = System.getenv("BLOGIFY_TS_HOST").takeIf { it?.isNotBlank() ?: false } ?: "ts"
+    val TYPESENSE_PORT = System.getenv("BLOGIFY_TS_PORT").takeIf { it?.isNotBlank() ?: false } ?: "8108"
+
     /**
      * Typesense REST API URL
      */
-    const val TYPESENSE_URL = "http://ts:8108"
+    val TYPESENSE_URL = "http://$TYPESENSE_HOST:$TYPESENSE_PORT"
 
     /**
      * Typesense API key HTTP header string
@@ -61,7 +64,7 @@ object Typesense {
      *
      * TODO use an env variable instead
      */
-    private const val TYPESENSE_API_KEY = "Hu52dwsas2AdxdE"
+    private val TYPESENSE_API_KEY = System.getenv("BLOGIFY_TS_AKEY").takeIf { it?.isNotBlank() ?: false } ?: "Hu52dwsas2AdxdE"
 
     lateinit var objectMapper: ObjectMapper
     private val typesenseSerializer = JacksonSerializer {
