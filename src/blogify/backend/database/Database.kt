@@ -26,8 +26,8 @@ object Database {
         config.leakDetectionThreshold = 60 * 1000
         config.isAutoCommit           = false
         config.transactionIsolation   = "TRANSACTION_REPEATABLE_READ"
-        config.username               = "postgres"
-        config.password               = ""
+        config.username               = envDbUser
+        config.password               = envDbPass
         config.validate()
         return HikariDataSource(config)
     }
