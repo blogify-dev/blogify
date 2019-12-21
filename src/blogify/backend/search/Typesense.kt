@@ -9,6 +9,7 @@ import blogify.backend.search.ext._rebuildSearchTemplate
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.Template
+import blogify.backend.util.env
 import blogify.backend.util.short
 
 import io.ktor.client.HttpClient
@@ -46,8 +47,8 @@ val tscLogger: Logger = LoggerFactory.getLogger("blogify-typesense-client")
  */
 object Typesense {
 
-    val TYPESENSE_HOST = System.getenv("BLOGIFY_TS_HOST").takeIf { it?.isNotBlank() ?: false } ?: "ts"
-    val TYPESENSE_PORT = System.getenv("BLOGIFY_TS_PORT").takeIf { it?.isNotBlank() ?: false } ?: "8108"
+    val TYPESENSE_HOST = env("BLOGIFY_TS_HOST") ?: "ts"
+    val TYPESENSE_PORT = env("BLOGIFY_TS_PORT") ?: "8108"
 
     /**
      * Typesense REST API URL
@@ -64,7 +65,7 @@ object Typesense {
      *
      * TODO use an env variable instead
      */
-    private val TYPESENSE_API_KEY = System.getenv("BLOGIFY_TS_AKEY").takeIf { it?.isNotBlank() ?: false } ?: "Hu52dwsas2AdxdE"
+    private val TYPESENSE_API_KEY = env("BLOGIFY_TS_AKEY") ?: "Hu52dwsas2AdxdE"
 
     lateinit var objectMapper: ObjectMapper
     private val typesenseSerializer = JacksonSerializer {

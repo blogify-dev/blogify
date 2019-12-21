@@ -1,6 +1,7 @@
 package blogify.backend.database
 
 import blogify.backend.util.BException
+import blogify.backend.util.env
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -36,10 +37,10 @@ object Database {
 
         // Temporary
 
-        val envDbHost = System.getenv("BLOGIFY_DB_HOST").takeIf { it?.isNotBlank() ?: false } ?: "db"
-        val envDbPort = System.getenv("BLOGIFY_DB_PORT").takeIf { it?.isNotBlank() ?: false } ?: "5432"
-        val envDbUser = System.getenv("BLOGIFY_DB_USER").takeIf { it?.isNotBlank() ?: false } ?: "postgres"
-        val envDbPass = System.getenv("BLOGIFY_DB_PASS").takeIf { it?.isNotBlank() ?: false } ?: ""
+        val envDbHost = env("BLOGIFY_DB_HOST") ?: "db"
+        val envDbPort = env("BLOGIFY_DB_PORT") ?: "5432"
+        val envDbUser = env("BLOGIFY_DB_USER") ?: "postgres"
+        val envDbPass = env("BLOGIFY_DB_PASS") ?: ""
 
         instance = Database.connect(configureHikariCP(envDbHost, envDbPort, envDbUser, envDbPass))
     }
