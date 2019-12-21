@@ -9,7 +9,6 @@ import blogify.backend.search.ext._rebuildSearchTemplate
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.Template
-import blogify.backend.util.service
 import blogify.backend.util.short
 
 import io.ktor.client.HttpClient
