@@ -14,7 +14,7 @@ object Database {
 
     lateinit var instance: Database
 
-    private fun configureHikariCP(envDbHost: String, envDbPort: String): HikariDataSource {
+    private fun configureHikariCP(envDbHost: String, envDbPort: String, envDbUser: String, envDbPass: String): HikariDataSource {
         val config = HikariConfig()
         config.driverClassName        = "org.postgresql.Driver"
         config.jdbcUrl                = "jdbc:postgresql://$envDbHost:$envDbPort/postgres"
@@ -38,8 +38,10 @@ object Database {
 
         val envDbHost = System.getenv("BLOGIFY_DB_HOST").takeIf { it?.isNotBlank() ?: false } ?: "db"
         val envDbPort = System.getenv("BLOGIFY_DB_PORT").takeIf { it?.isNotBlank() ?: false } ?: "5432"
+        val envDbUser = System.getenv("BLOGIFY_DB_USER").takeIf { it?.isNotBlank() ?: false } ?: "postgres"
+        val envDbPass = System.getenv("BLOGIFY_DB_PASS").takeIf { it?.isNotBlank() ?: false } ?: ""
 
-        instance = Database.connect(configureHikariCP(envDbHost, envDbPort))
+        instance = Database.connect(configureHikariCP(envDbHost, envDbPort, envDbUser, envDbPass))
     }
 
     open class Exception(causedBy: kotlin.Exception) : BException(causedBy) {
