@@ -5,6 +5,7 @@ package blogify.backend.database
 import blogify.backend.database.handling.query
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
+import blogify.backend.resources.Follow
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticResourceHandle
@@ -165,6 +166,19 @@ object Users : ResourceTable<User>() {
 
     init {
         index(true, username)
+    }
+
+    object Follows : Table() {
+        // TODO: Add primary key. I'm bad at sql
+        val following = uuid("following").references(Users.uuid, onDelete = CASCADE)
+        val follower = uuid("follower").references(Users.uuid, onDelete = CASCADE)
+
+        suspend fun convert(call: ApplicationCall, source: ResultRow) = Sr.of<Follow, Service.Exception.Fetching> {
+            Follow (
+                follower = UserService.get(call, source[following]).get(),
+                following = UserService.get(call, source[follower]).get()
+            )
+        }
     }
 
     override suspend fun insert(resource: User): Sr<User> {

@@ -11,7 +11,7 @@ services:
     volumes:
       - 'static-data:/var/static/'
   db:
-    image: 'postgres:11.5'
+    image: 'postgres'
     ports:
       - '5432:5432'
     volumes:
