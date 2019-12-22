@@ -1,7 +1,9 @@
 package blogify.backend.routes.users
 
+import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Users
 import blogify.backend.database.handling.query
+import blogify.backend.resources.Follow
 import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.sanitize
@@ -15,8 +17,11 @@ import blogify.backend.services.models.Service
 import blogify.backend.util.toUUID
 
 import io.ktor.application.call
+import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 
 /**
@@ -95,8 +100,17 @@ fun Route.users() {
             }
         }
 
-        post("/{uuid}/follow") {
+        post("/follow") {
+            val follow = call.receive<Follow>()
+            println(follow)
 
+            query {
+                Users.Follows.insert {
+                    it[follower] = follow.follower.uuid
+                    it[following] = follow.following.uuid
+                }
+            }
+            call.respond(HttpStatusCode.Created)
         }
 
     }
