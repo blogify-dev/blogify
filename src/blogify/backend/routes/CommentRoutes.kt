@@ -33,7 +33,7 @@ fun Route.articleComments() {
         }
 
         delete("/{uuid}") {
-            deleteUpload<Comment> (
+            deleteResource<Comment> (
                 authPredicate = { user, comment -> comment.commenter eqr user }
             )
         }

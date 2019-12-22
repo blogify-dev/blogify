@@ -126,7 +126,7 @@ fun Route.articles() {
         }
 
         delete("/{uuid}") {
-            deleteUpload<Article> (
+            deleteResource<Article> (
                 authPredicate = { user, article -> article.createdBy == user }
             )
         }
