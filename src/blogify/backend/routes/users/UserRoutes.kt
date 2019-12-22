@@ -21,6 +21,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 
@@ -103,14 +105,29 @@ fun Route.users() {
         post("/follow") {
             val follow = call.receive<Follow>()
             println(follow)
+            val follows = Users.Follows
+            val hasAlreadyFollowed = query {
+                follows.select {
+                    (follows.follower eq follow.follower.uuid) and (follows.following eq follow.following.uuid)
+                }.count()
+            }.get() == 1
 
-            query {
-                Users.Follows.insert {
-                    it[follower] = follow.follower.uuid
-                    it[following] = follow.following.uuid
+            if (!hasAlreadyFollowed) {
+                query {
+                    follows.insert {
+                        it[follower] = follow.follower.uuid
+                        it[following] = follow.following.uuid
+                    }
+                }
+            } else {
+                query {
+                    follows.deleteWhere {
+                        (follows.follower eq follow.follower.uuid) and (follows.following eq follow.following.uuid)
+                    }
                 }
             }
-            call.respond(HttpStatusCode.Created)
+
+            call.respond(HttpStatusCode.OK)
         }
 
     }
