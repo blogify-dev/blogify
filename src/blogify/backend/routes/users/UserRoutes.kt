@@ -128,11 +128,11 @@ fun Route.users() {
                         }
                     }
                 }
+                call.respond(HttpStatusCode.OK)
             } catch (bruhMoment: Exception) {
                 call.respondExceptionMessage(bruhMoment)
             }
 
-            call.respond(HttpStatusCode.OK)
         }
 
     }
