@@ -107,28 +107,30 @@ fun Route.users() {
 
             try {
                 val follow = call.receive<Follow>()
+                runAuthenticated(predicate = { user -> user eqr follow.follower }) {
 
-                val hasAlreadyFollowed = query {
-                    follows.select {
-                        (follows.follower eq follow.follower.uuid) and (follows.following eq follow.following.uuid)
-                    }.count()
-                }.get() == 1
-
-                if (!hasAlreadyFollowed) {
-                    query {
-                        follows.insert {
-                            it[follower] = follow.follower.uuid
-                            it[following] = follow.following.uuid
-                        }
-                    }
-                } else {
-                    query {
-                        follows.deleteWhere {
+                    val hasAlreadyFollowed = query {
+                        follows.select {
                             (follows.follower eq follow.follower.uuid) and (follows.following eq follow.following.uuid)
+                        }.count()
+                    }.get() == 1
+
+                    if (!hasAlreadyFollowed) {
+                        query {
+                            follows.insert {
+                                it[follower] = follow.follower.uuid
+                                it[following] = follow.following.uuid
+                            }
+                        }
+                    } else {
+                        query {
+                            follows.deleteWhere {
+                                (follows.follower eq follow.follower.uuid) and (follows.following eq follow.following.uuid)
+                            }
                         }
                     }
+                    call.respond(HttpStatusCode.OK)
                 }
-                call.respond(HttpStatusCode.OK)
             } catch (bruhMoment: Exception) {
                 call.respondExceptionMessage(bruhMoment)
             }
