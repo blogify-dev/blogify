@@ -9,6 +9,7 @@ import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
 import blogify.backend.routes.handling.*
+import blogify.backend.routes.pipelines.optionalParam
 import blogify.backend.routes.pipelines.pipeline
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
@@ -94,11 +95,14 @@ fun Route.users() {
 
         get("/{uuid}/follows") {
             pipeline("uuid") { (uuid) ->
-                val followings = query { Users.Follows.select {
+                val fields = optionalParam("fields")
+                val follows = query { Users.Follows.select {
                     Users.Follows.follower eq uuid.toUUID()
                 }.toList().map { Users.Follows.convert(call, it).get() } }.get()
 
-                call.respond(followings.map { it.following }.map { it.sanitize() })
+                call.respond(follows.map { it.following }.map { user ->
+                    fields?.split(",")?.toSet()?.let { user.slice(it) } ?: user.sanitize()
+                })
             }
         }
 
