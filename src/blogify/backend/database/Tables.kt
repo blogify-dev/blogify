@@ -175,8 +175,8 @@ object Users : ResourceTable<User>() {
 
         suspend fun convert(call: ApplicationCall, source: ResultRow) = Sr.of<Follow, Service.Exception.Fetching> {
             Follow (
-                follower = UserService.get(call, source[following]).get(),
-                following = UserService.get(call, source[follower]).get()
+                follower = UserService.get(call, source[follower]).get(),
+                following = UserService.get(call, source[following]).get()
             )
         }
     }
