@@ -22,6 +22,8 @@ export class ShowAllArticlesComponent implements OnInit {
 
     @Input() title = 'Articles';
     @Input() articles: Article[];
+    @Input() noContentMessage = 'Nothing to see here !';
+    @Input() noResultsMessage = 'No search results :(';
     @Input() forUser: User | null;
     @Input() allowCreate = true;
 

@@ -56,6 +56,20 @@
         @media (max-width: $query-desktop) { grid-template-columns: repeat(2, 1fr) }
     }
 
+    #content-empty {
+        display:         flex;
+        flex-direction:  column;
+        justify-content: flex-start;
+        align-items:     center;
+
+        margin-top: 5em;
+
+        #content-empty-text {
+            font-size: 1.65em;
+            font-weight: 600;
+        }
+    }
+
     #search-results {
         display:         flex;
         flex-direction:  column;

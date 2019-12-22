@@ -13,12 +13,15 @@ export class MainProfileComponent implements OnInit {
 
     user: User;
 
+    isSelf = false;
+
     baseTabs: TabList = [
-        new Tab('Overview', 'overview')
+        new Tab('Overview', 'overview'),
+        new Tab('Friends', 'friends'),
     ];
 
     loggedInTabs: TabList = [
-        new Tab('Settings', 'settings')
+        new Tab('Settings', 'settings'),
     ];
 
     finalTabs: TabList = this.baseTabs;
@@ -37,6 +40,7 @@ export class MainProfileComponent implements OnInit {
 
                 if (username === loggedInUsername) {
                     this.finalTabs = this.baseTabs.concat(this.loggedInTabs);
+                    this.isSelf = true;
                 }
             });
 

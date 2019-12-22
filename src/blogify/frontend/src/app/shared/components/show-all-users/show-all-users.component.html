@@ -35,14 +35,21 @@
 
     </div>
 
-    <div id="users-main" *ngIf="!showingSearchResults">
+    <div id="users-main" *ngIf="!showingSearchResults && users.length > 0">
         <app-single-user-box *ngFor="let user of users" [user]="user"></app-single-user-box>
+    </div>
+
+    <div id="no-content" *ngIf="users.length == 0 && !showingSearchResults">
+        <div id="content-empty">
+            <fa-icon [icon]="faTimes" size="5x"></fa-icon>
+            <span id="content-empty-text">{{noContentMessage}}</span>
+        </div>
     </div>
 
     <div id="search-results" *ngIf="showingSearchResults">
         <div id="results-empty" *ngIf="searchResults.length === 0">
             <fa-icon [icon]="faTimes" size="5x"></fa-icon>
-            <span id="empty-text">No search results :(</span>
+            <span id="empty-text">{{noResultsMessage}}</span>
         </div>
         <app-single-user-box *ngFor="let user of searchResults" [user]="user"></app-single-user-box>
     </div>
