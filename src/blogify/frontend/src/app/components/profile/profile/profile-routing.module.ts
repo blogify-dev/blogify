@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { MainProfileComponent } from './main/main-profile.component';
 import { OverviewComponent } from './overview/overview.component';
 import { SettingsComponent } from './settings/settings.component';
+import {FollowsComponent} from "./follows/follows.component";
 
 const routes: Routes = [
     {
@@ -11,6 +12,7 @@ const routes: Routes = [
             { path: '', redirectTo: 'overview', pathMatch: 'full' },
             { path: 'overview', component: OverviewComponent, },
             { path: 'settings', component: SettingsComponent, },
+            { path: 'follows', component: FollowsComponent, },
         ]
     }
 ];

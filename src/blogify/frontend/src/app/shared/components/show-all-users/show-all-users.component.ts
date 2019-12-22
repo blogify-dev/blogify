@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import { faArrowLeft, faPencilAlt, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { AuthService} from '../../auth/auth.service';
 import { StaticContentService } from '../../../services/static/static-content.service';
@@ -18,7 +18,7 @@ export class ShowAllUsersComponent implements OnInit {
     faTimes = faTimes;
 
     title = 'Users';
-    users: User[];
+    @Input() users: User[];
 
     forceNoAllowCreate = false;
 
@@ -36,10 +36,10 @@ export class ShowAllUsersComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.authService.getAllUsers().then(it => {
+        /*this.authService.getAllUsers().then(it => {
             this.users = it;
             console.log(it);
-        });
+        });*/
         this.activatedRoute.url.subscribe((it: UrlSegment[]) => {
             const isSearching = it[it.length - 1].parameters.search != undefined;
             if (isSearching) { // We are in a search page

@@ -24,6 +24,7 @@ import { ClipboardModule } from "ngx-clipboard";
 import { Error404FallbackComponent } from './components/error404-fallback/error404-fallback.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { AdminModule } from './components/admin/admin/admin.module';
+import { FollowsComponent } from './components/profile/profile/follows/follows.component';
 
 @NgModule({
     declarations: [
@@ -41,6 +42,7 @@ import { AdminModule } from './components/admin/admin/admin.module';
         FooterComponent,
         Error404FallbackComponent,
         AdminComponent,
+        FollowsComponent,
     ],
     imports: [
         BrowserModule,

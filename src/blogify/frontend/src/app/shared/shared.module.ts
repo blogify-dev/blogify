@@ -47,7 +47,8 @@ import { SingleUserBoxComponent } from './components/show-all-users/single-user-
         ProfilePictureComponent,
         ShowAllArticlesComponent,
         UserDisplayComponent,
-        ToasterComponent
+        ToasterComponent,
+        ShowAllUsersComponent
     ]
 })
 export class SharedModule { }
