@@ -98,7 +98,7 @@ fun Route.users() {
                     Users.Follows.follower eq uuid.toUUID()
                 }.toList().map { Users.Follows.convert(call, it).get() } }.get()
 
-                call.respond(followings)
+                call.respond(followings.map { it.following }.map { it.sanitize() })
             }
         }
 
