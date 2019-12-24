@@ -1,0 +1,5 @@
+# example configuration file for typesense config
+
+host: typesense host name
+port: port on which typesense is running
+apiKey: typesense api key
