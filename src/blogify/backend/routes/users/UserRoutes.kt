@@ -93,19 +93,6 @@ fun Route.users() {
             }
         }
 
-        get("/{uuid}/follows") {
-            pipeline("uuid") { (uuid) ->
-                val fields = optionalParam("fields")
-                val follows = query { Users.Follows.select {
-                    Users.Follows.follower eq uuid.toUUID()
-                }.toList().map { Users.Follows.convert(call, it).get() } }.get()
-
-                call.respond(follows.map { it.following }.map { user ->
-                    fields?.split(",")?.toSet()?.let { user.slice(it) } ?: user.sanitize()
-                })
-            }
-        }
-
         post("/follow") {
             val follows = Users.Follows
 

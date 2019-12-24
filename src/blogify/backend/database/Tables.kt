@@ -169,16 +169,10 @@ object Users : ResourceTable<User>() {
     }
 
     object Follows : Table() {
-        // TODO: Add primary key. I'm bad at sql
-        val following = uuid("following").references(Users.uuid, onDelete = CASCADE)
-        val follower = uuid("follower").references(Users.uuid, onDelete = CASCADE)
 
-        suspend fun convert(call: ApplicationCall, source: ResultRow) = Sr.of<Follow, Service.Exception.Fetching> {
-            Follow (
-                follower = UserService.get(call, source[follower]).get(),
-                following = UserService.get(call, source[following]).get()
-            )
-        }
+        val following = uuid("following").references(Users.uuid, onDelete = CASCADE).primaryKey(0)
+        val follower = uuid("follower").references(Users.uuid, onDelete = CASCADE).primaryKey(1)
+
     }
 
     override suspend fun insert(resource: User): Sr<User> {

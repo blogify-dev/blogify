@@ -29,12 +29,15 @@ export class ShowAllUsersComponent implements OnInit {
     searchResults: User[];
     showingMobileSearchBar: boolean;
 
-    constructor(
+    constructor (
         private authService: AuthService,
         private staticContentService: StaticContentService,
         private activatedRoute: ActivatedRoute,
         private router: Router
     ) {
+        this.authService.getAllUsers().then(users => {
+            if (!this.users) this.users = users;
+        })
     }
 
     ngOnInit() {

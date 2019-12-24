@@ -23,6 +23,7 @@ import blogify.backend.routes.static
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Template
+import blogify.backend.util.ContentTypeSerializer
 import blogify.backend.util.SinglePageApplication
 import blogify.backend.util.matches
 
@@ -84,6 +85,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             val blogifyModule = SimpleModule()
             blogifyModule.addSerializer(Resource.ResourceIdSerializer)
             blogifyModule.addSerializer(Template.Field.Serializer)
+            blogifyModule.addSerializer(ContentTypeSerializer)
 
             registerModule(blogifyModule)
         }

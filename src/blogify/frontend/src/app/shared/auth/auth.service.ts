@@ -40,7 +40,7 @@ export class AuthService {
         return this.getUser();
     }
 
-    private readonly dummyUser: User = new User('', '', '', '', new StaticFile('-1'), new StaticFile('-1'));
+    private readonly dummyUser: User = new User('', '', '', '', [], new StaticFile('-1'), new StaticFile('-1'));
 
     private currentUserUuid_ = new BehaviorSubject('');
     private currentUser_ = new BehaviorSubject(this.dummyUser);
@@ -83,11 +83,12 @@ export class AuthService {
 
         // Fix JS bullshit
         const fetchedUserObj: User = await this.fetchUser(uuid);
-        const fetchedUser = new User(
+        const fetchedUser = new User (
             fetchedUserObj.uuid,
             fetchedUserObj.username,
             fetchedUserObj.name,
             fetchedUserObj.email,
+            fetchedUserObj.followers,
             fetchedUserObj.profilePicture,
             fetchedUserObj.coverPicture
         );
