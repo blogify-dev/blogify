@@ -12,7 +12,7 @@ const routes: Routes = [
             { path: '', redirectTo: 'overview', pathMatch: 'full' },
             { path: 'overview', component: OverviewComponent, },
             { path: 'settings', component: SettingsComponent, },
-            { path: 'follows', component: FollowsComponent, },
+            { path: 'friends', component: FollowsComponent, },
         ]
     }
 ];

@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import { faArrowLeft, faPencilAlt, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { AuthService} from '../../auth/auth.service';
 import { StaticContentService } from '../../../services/static/static-content.service';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
@@ -11,14 +11,16 @@ import { User } from '../../../models/User';
     styleUrls: ['./show-all-users.component.scss']
 })
 export class ShowAllUsersComponent implements OnInit {
+
     faSearch = faSearch;
-    faPencil = faPencilAlt;
     faArrowLeft = faArrowLeft;
 
     faTimes = faTimes;
 
-    title = 'Users';
+    @Input() title = 'Users';
     @Input() users: User[];
+    @Input() noContentMessage = 'Nothing to see here !';
+    @Input() noResultsMessage = 'No search results :(';
 
     forceNoAllowCreate = false;
 

@@ -45,6 +45,13 @@
         <app-single-article-box *ngFor="let article of articles" [article]="article"></app-single-article-box>
     </div>
 
+    <div id="no-content" *ngIf="articles.length == 0 && !showingSearchResults">
+        <div id="content-empty">
+            <fa-icon [icon]="faTimes" size="5x"></fa-icon>
+            <span id="content-empty-text">{{noContentMessage}}</span>
+        </div>
+    </div>
+
     <div id="search-results" *ngIf="showingSearchResults">
         <div id="results-empty" *ngIf="searchResults.length === 0">
             <fa-icon [icon]="faTimes" size="5x"></fa-icon>

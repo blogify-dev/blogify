@@ -43,7 +43,7 @@ fun Route.users() {
         }
 
         delete("/{uuid}") {
-            deleteUpload<User> (
+            deleteResource<User> (
                 authPredicate = { user, manipulated -> user eqr manipulated }
             )
         }
