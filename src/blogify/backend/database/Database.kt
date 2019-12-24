@@ -1,7 +1,7 @@
 package blogify.backend.database
 
+import blogify.backend.config.getDatabaseConfig
 import blogify.backend.util.BException
-import blogify.backend.util.env
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -15,7 +15,7 @@ object Database {
 
     lateinit var instance: Database
 
-    private fun configureHikariCP(envDbHost: String, envDbPort: String, envDbUser: String, envDbPass: String): HikariDataSource {
+    private fun configureHikariCP(envDbHost: String, envDbPort: Int, envDbUser: String, envDbPass: String): HikariDataSource {
         val config = HikariConfig()
         config.driverClassName        = "org.postgresql.Driver"
         config.jdbcUrl                = "jdbc:postgresql://$envDbHost:$envDbPort/postgres"
@@ -35,14 +35,8 @@ object Database {
 
     fun init() {
 
-        // Temporary
-
-        val envDbHost = env("BLOGIFY_DB_HOST") ?: "db"
-        val envDbPort = env("BLOGIFY_DB_PORT") ?: "5432"
-        val envDbUser = env("BLOGIFY_DB_USER") ?: "postgres"
-        val envDbPass = env("BLOGIFY_DB_PASS") ?: ""
-
-        instance = Database.connect(configureHikariCP(envDbHost, envDbPort, envDbUser, envDbPass))
+        val config = getDatabaseConfig()
+        instance = Database.connect(configureHikariCP(config.host, config.port, config.username, config.password))
     }
 
     open class Exception(causedBy: kotlin.Exception) : BException(causedBy) {

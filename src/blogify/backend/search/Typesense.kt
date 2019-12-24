@@ -1,5 +1,6 @@
 package blogify.backend.search
 
+import blogify.backend.config.getTypesenseConfig
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.sanitize
@@ -9,7 +10,6 @@ import blogify.backend.search.ext._rebuildSearchTemplate
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.Template
-import blogify.backend.util.env
 import blogify.backend.util.short
 
 import io.ktor.client.HttpClient
@@ -47,25 +47,17 @@ val tscLogger: Logger = LoggerFactory.getLogger("blogify-typesense-client")
  */
 object Typesense {
 
-    val TYPESENSE_HOST = env("BLOGIFY_TS_HOST") ?: "ts"
-    val TYPESENSE_PORT = env("BLOGIFY_TS_PORT") ?: "8108"
+    val config = getTypesenseConfig()
 
     /**
      * Typesense REST API URL
      */
-    val TYPESENSE_URL = "http://$TYPESENSE_HOST:$TYPESENSE_PORT"
+    val TYPESENSE_URL = "http://${config.host}:${getTypesenseConfig().port}"
 
     /**
      * Typesense API key HTTP header string
      */
     private const val TYPESENSE_API_KEY_HEADER = "X-TYPESENSE-API-KEY"
-
-    /**
-     * Typesense API key
-     *
-     * TODO use an env variable instead
-     */
-    private val TYPESENSE_API_KEY = env("BLOGIFY_TS_AKEY") ?: "Hu52dwsas2AdxdE"
 
     lateinit var objectMapper: ObjectMapper
     private val typesenseSerializer = JacksonSerializer {
@@ -87,7 +79,7 @@ object Typesense {
 
         // Always include Typesense headers
         defaultRequest {
-            header(TYPESENSE_API_KEY_HEADER, TYPESENSE_API_KEY)
+            header(TYPESENSE_API_KEY_HEADER, config.apiKey)
         }
 
         // Allows us to read response even when status < 300

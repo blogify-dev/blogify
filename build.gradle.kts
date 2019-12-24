@@ -11,6 +11,7 @@ val spring_security_core_version: String by project
 plugins {
     application
     kotlin("jvm") version "1.3.41"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.3.60"
 
     id("com.github.johnrengelman.shadow") version "5.1.0"
     id("com.avast.gradle.docker-compose") version "0.9.4"
@@ -21,6 +22,13 @@ version = "0.1.0"
 
 application {
     mainClassName = "io.ktor.server.cio.EngineMain"
+}
+
+buildscript {
+    dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.61")
+        classpath("org.jetbrains.kotlin:kotlin-serialization:1.3.61")
+    }
 }
 
 repositories {
@@ -81,6 +89,11 @@ dependencies {
     compile("io.jsonwebtoken:jjwt-api:0.10.7")
     runtime("io.jsonwebtoken:jjwt-impl:0.10.7")
     runtime("io.jsonwebtoken:jjwt-jackson:0.10.7")
+
+    // Config
+
+    implementation("com.charleskorn.kaml:kaml:0.15.0")
+    compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0")
 
 }
 
