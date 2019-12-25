@@ -40,7 +40,7 @@ import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
-import blogify.backend.annotations.search.maxByteSize
+import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap

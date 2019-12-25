@@ -1,4 +1,4 @@
-package blogify.backend.annotations.search
+package blogify.backend.annotations
 
 /**
  * Marks a [blogify.backend.resources.static.models.StaticResourceHandle] type as only accepting a
