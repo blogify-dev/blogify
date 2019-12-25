@@ -3,8 +3,6 @@ package blogify.backend.database
 import blogify.backend.config.Configs
 import blogify.backend.util.BException
 
-import com.typesafe.config.ConfigFactory
-
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 

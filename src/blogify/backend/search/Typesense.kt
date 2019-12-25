@@ -34,11 +34,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 
 import com.andreapivetta.kolor.green
 import com.andreapivetta.kolor.red
-import com.typesafe.config.ConfigFactory
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.io.File
 
 import java.util.UUID
 
