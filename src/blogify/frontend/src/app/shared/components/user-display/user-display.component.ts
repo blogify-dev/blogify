@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { User } from '../../../models/User';
 
 @Component({
@@ -6,7 +6,7 @@ import { User } from '../../../models/User';
     templateUrl: './user-display.component.html',
     styleUrls: ['./user-display.component.scss']
 })
-export class UserDisplayComponent implements OnInit {
+export class UserDisplayComponent implements OnInit, OnChanges {
 
     @Input() user: User;
     @Input() info: 'username' | 'name' = 'username';
@@ -21,6 +21,11 @@ export class UserDisplayComponent implements OnInit {
     constructor() {}
 
     ngOnInit() {
+        this.infoText = this.info === 'username' ? this.user.username : this.user.name;
+        this.secondaryInfoText = this.info === 'username' ? this.user.name : `@${this.user.username}`;
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
         this.infoText = this.info === 'username' ? this.user.username : this.user.name;
         this.secondaryInfoText = this.info === 'username' ? this.user.name : `@${this.user.username}`;
     }

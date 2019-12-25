@@ -36,9 +36,7 @@ export class MainProfileComponent implements OnInit {
             let username = params['username'];
 
             this.authService.observeIsLoggedIn().subscribe(async value => {
-                const loggedInUsername = (await this.authService.userProfile).username;
-
-                if (username === loggedInUsername) {
+                if (username === (await this.authService.userProfile).username) {
                     this.finalTabs = this.baseTabs.concat(this.loggedInTabs);
                     this.isSelf = true;
                 }
