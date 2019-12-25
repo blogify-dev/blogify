@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import { StaticContentService } from '../../../services/static/static-content.service';
 import { StaticFile } from "../../../models/Static";
 import { faUser } from '@fortawesome/free-regular-svg-icons';
@@ -8,7 +8,7 @@ import { faUser } from '@fortawesome/free-regular-svg-icons';
     templateUrl: './profile-picture.component.html',
     styleUrls: ['./profile-picture.component.scss']
 })
-export class ProfilePictureComponent implements OnInit {
+export class ProfilePictureComponent implements OnInit, OnChanges {
 
     @Input() pfpFile: StaticFile;
     @Input() emSize: number = 3;
@@ -20,10 +20,10 @@ export class ProfilePictureComponent implements OnInit {
 
     constructor(private staticContentService: StaticContentService) {}
 
-    ngOnInit() {
-        if (this.pfpFile.fileId !== undefined) {
-            this.sourceUrl = this.staticContentService.urlFor(this.pfpFile);
-        }
+    ngOnInit() {}
+
+    ngOnChanges(changes: SimpleChanges): void {
+        this.sourceUrl = this.pfpFile.fileId ? this.staticContentService.urlFor(this.pfpFile) : null;
     }
 
 }

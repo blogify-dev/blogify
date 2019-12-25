@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { StaticContentService } from '../../../../services/static/static-content.service';
 import { StaticFile } from "../../../../models/Static";
 
@@ -7,7 +7,7 @@ import { StaticFile } from "../../../../models/Static";
     templateUrl: './cover-picture.component.html',
     styleUrls: ['./cover-picture.component.scss']
 })
-export class CoverPictureComponent implements OnInit {
+export class CoverPictureComponent implements OnInit, OnChanges {
 
     @Input() cvpFile: StaticFile;
 
@@ -15,10 +15,10 @@ export class CoverPictureComponent implements OnInit {
 
     constructor(private staticContentService: StaticContentService) {}
 
-    ngOnInit() {
-        if (this.cvpFile.fileId !== undefined) {
-            this.sourceUrl = this.staticContentService.urlFor(this.cvpFile);
-        }
+    ngOnInit() {}
+
+    ngOnChanges(changes: SimpleChanges): void {
+        this.sourceUrl = this.cvpFile.fileId ? this.staticContentService.urlFor(this.cvpFile) : null;
     }
 
 }
