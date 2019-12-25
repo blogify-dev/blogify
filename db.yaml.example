@@ -1,7 +1,0 @@
-# example configuration file for potgreSQL config
-
-host: pg host name
-port: pg port
-username: username used to access the database
-password: password for the user
-databaseName: name of the database
