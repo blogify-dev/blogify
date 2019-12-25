@@ -5,6 +5,7 @@ import blogify.backend.annotations.Invisible
 import blogify.backend.annotations.search.DelegatedSearchReceiver
 import blogify.backend.annotations.search.QueryByField
 import blogify.backend.annotations.search.SearchDefaultSort
+import blogify.backend.annotations.search.maxByteSize
 import blogify.backend.annotations.type
 import blogify.backend.database.Users
 import blogify.backend.database.handling.query
@@ -43,10 +44,16 @@ data class User (
     val email: String,
 
     @NoSearch
-    val profilePicture: @type("image/*") StaticResourceHandle,
+    val profilePicture:
+        @type("image/*")
+        @maxByteSize(500_000)
+        StaticResourceHandle,
 
     @NoSearch
-    val coverPicture: @type("image/*") StaticResourceHandle,
+    val coverPicture:
+        @type("image/*")
+        @maxByteSize(1_000_000)
+        StaticResourceHandle,
 
     @Invisible
     val isAdmin: Boolean = false,

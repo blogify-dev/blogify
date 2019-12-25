@@ -40,6 +40,7 @@ import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
+import blogify.backend.annotations.search.maxByteSize
 import blogify.backend.annotations.type
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
@@ -58,6 +59,8 @@ import blogify.backend.util.filterThenMapValues
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.letCatchingOrNull
 import blogify.backend.util.matches
+import blogify.backend.util.reason
+import blogify.backend.util.reasons
 import blogify.backend.util.short
 import blogify.backend.util.toUUID
 
@@ -250,6 +253,16 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
                 message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
             )
 
+        // Obtain property content type
+        val propContentType = targetPropHandle.property.returnType
+            .findAnnotation<type>()
+            ?.contentType?.letCatchingOrNull(ContentType.Companion::parse) ?: ContentType.Any
+
+        // Obtain property max size
+        val propMaxByteSize = targetPropHandle.property.returnType
+            .findAnnotation<maxByteSize>()
+            ?.value ?: Long.MAX_VALUE
+
         // Receive data
         val multiPartData = call.receiveMultipart()
 
@@ -259,16 +272,21 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
         multiPartData.forEachPart { part ->
             when (part) {
                 is PartData.FileItem -> {
-                    part.streamProvider().use { input -> fileBytes = input.readBytes() }
-                    fileContentType = part.contentType ?: ContentType.Application.Any
+                    if (part.headers["Content-Length"]?.toInt() ?: 0 > propMaxByteSize) { // Check data size
+                        call.respond(HttpStatusCode.PayloadTooLarge, reason("file is too large"))
+                    } else {
+                        // Receive data
+                        part.streamProvider().use { input -> fileBytes = input.readBytes() }
+
+                        if (fileBytes.size > 500_000) { // Check data size again
+                            call.respond(HttpStatusCode.BadRequest, reasons("Content-Length header incorrect", "file is too large"))
+                        } else {
+                            fileContentType = part.contentType ?: ContentType.Application.Any
+                        }
+                    }
                 }
             }
         }
-
-        // Check content type
-        val propContentType = targetPropHandle.property.returnType
-            .findAnnotation<type>()
-            ?.contentType?.letCatchingOrNull(ContentType.Companion::parse) ?: ContentType.Any
 
         if (fileContentType matches propContentType) {
 
