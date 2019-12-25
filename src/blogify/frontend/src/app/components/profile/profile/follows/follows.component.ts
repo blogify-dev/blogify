@@ -14,7 +14,7 @@ export class FollowsComponent implements OnInit {
     followed: User;
     following: User[];
 
-    constructor(
+    constructor (
         private userService: UserService,
         private route: ActivatedRoute,
         private authService: AuthService
@@ -23,7 +23,7 @@ export class FollowsComponent implements OnInit {
     ngOnInit() {
         this.route.parent.params.subscribe( async (params: Params) => {
             this.followed = await this.authService.getByUsername(params['username']);
-            this.following = this.followed.followers;
+            this.following = await this.authService.fillUsersFromUUIDs(this.followed.followers);
         });
     }
 

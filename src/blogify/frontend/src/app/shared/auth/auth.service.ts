@@ -131,7 +131,7 @@ export class AuthService {
         }
     }
 
-    getByUsername(username: string): Promise<User> {
+    async getByUsername(username: string): Promise<User> {
         return this.httpClient.get<User>(`/api/users/byUsername/${username}`).toPromise();
     }
 
@@ -148,9 +148,14 @@ export class AuthService {
         return this.httpClient.get<SearchView<User>>(url).toPromise();
     }
 
-    getAllUsers(): Promise<User[]> {
+    async getAllUsers(): Promise<User[]> {
         return this.httpClient.get<User[]>('/api/users').toPromise();
     }
+
+    async fillUsersFromUUIDs(uuids: string[]): Promise<User[]> {
+        return Promise.all(uuids.map(it => this.fetchUser(it)))
+    }
+
 }
 
 interface UserToken {

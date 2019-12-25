@@ -34,17 +34,20 @@ export class ShowAllUsersComponent implements OnInit {
         private staticContentService: StaticContentService,
         private activatedRoute: ActivatedRoute,
         private router: Router
-    ) {
-        this.authService.getAllUsers().then(users => {
-            if (!this.users) this.users = users;
-        })
-    }
+    ) {}
 
     ngOnInit() {
-        /*this.authService.getAllUsers().then(it => {
-            this.users = it;
-            console.log(it);
-        });*/
+
+        // If we don't have any data in users, show all of them
+
+        if (!this.users) {
+            this.authService.getAllUsers().then(users => {
+                this.users = users;
+            })
+        }
+
+        // Check for searches
+
         this.activatedRoute.url.subscribe((it: UrlSegment[]) => {
             const isSearching = it[it.length - 1].parameters.search != undefined;
             if (isSearching) { // We are in a search page
