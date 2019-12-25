@@ -37,7 +37,7 @@ export class AuthService {
     }
 
     get userProfile(): Promise<User> {
-        return this.getUser();
+        return this.loginObservable_.value ? this.getUser() : null;
     }
 
     private readonly dummyUser: User = new User('', '', '', '', [], new StaticFile('-1'), new StaticFile('-1'));
