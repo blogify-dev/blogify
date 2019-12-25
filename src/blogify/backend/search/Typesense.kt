@@ -1,6 +1,6 @@
 package blogify.backend.search
 
-import blogify.backend.config.getTypesenseConfig
+import blogify.backend.config.Configs
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.sanitize
@@ -34,9 +34,11 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 
 import com.andreapivetta.kolor.green
 import com.andreapivetta.kolor.red
+import com.typesafe.config.ConfigFactory
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.File
 
 import java.util.UUID
 
@@ -47,12 +49,12 @@ val tscLogger: Logger = LoggerFactory.getLogger("blogify-typesense-client")
  */
 object Typesense {
 
-    val config = getTypesenseConfig()
+    private val config = Configs.Typesense
 
     /**
      * Typesense REST API URL
      */
-    val TYPESENSE_URL = "http://${config.host}:${getTypesenseConfig().port}"
+    val TYPESENSE_URL = "http://${config.host}:${config.port}"
 
     /**
      * Typesense API key HTTP header string

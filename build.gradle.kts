@@ -92,8 +92,8 @@ dependencies {
 
     // Config
 
-    implementation("com.charleskorn.kaml:kaml:0.15.0")
     compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0")
+    compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime-configparser:0.14.0")
 
 }
 
@@ -122,7 +122,7 @@ dockerCompose {
 
     projectName = "blogify"
 
-    waitForTcpPorts = true
+    waitForTcpPorts = false
     stopContainers  = true
 }
 

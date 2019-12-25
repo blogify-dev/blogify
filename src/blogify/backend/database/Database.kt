@@ -1,7 +1,9 @@
 package blogify.backend.database
 
-import blogify.backend.config.getDatabaseConfig
+import blogify.backend.config.Configs
 import blogify.backend.util.BException
+
+import com.typesafe.config.ConfigFactory
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -14,6 +16,8 @@ import org.jetbrains.exposed.sql.Database
 object Database {
 
     lateinit var instance: Database
+
+    private val config = Configs.Database
 
     private fun configureHikariCP(envDbHost: String, envDbPort: Int, envDbUser: String, envDbPass: String): HikariDataSource {
         val config = HikariConfig()
@@ -34,8 +38,6 @@ object Database {
     }
 
     fun init() {
-
-        val config = getDatabaseConfig()
         instance = Database.connect(configureHikariCP(config.host, config.port, config.username, config.password))
     }
 
