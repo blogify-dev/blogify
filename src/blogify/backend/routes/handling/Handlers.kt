@@ -278,7 +278,7 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
                         // Receive data
                         part.streamProvider().use { input -> fileBytes = input.readBytes() }
 
-                        if (fileBytes.size > 500_000) { // Check data size again
+                        if (fileBytes.size > propMaxByteSize) { // Check data size again
                             call.respond(HttpStatusCode.BadRequest, reasons("Content-Length header incorrect", "file is too large"))
                         } else {
                             fileContentType = part.contentType ?: ContentType.Application.Any
