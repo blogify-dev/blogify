@@ -8,6 +8,7 @@ import { Article } from '../../models/Article';
     styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
+
     title = 'blogify';
 
     articles: Article[];
@@ -21,6 +22,5 @@ export class HomeComponent implements OnInit {
             this.articles = articles;
         });
     }
-
 
 }

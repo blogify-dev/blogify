@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { faArrowLeft, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { AuthService} from '../../auth/auth.service';
 import { StaticContentService } from '../../../services/static/static-content.service';
@@ -37,15 +37,6 @@ export class ShowAllUsersComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-
-        // If we don't have any data in users, show all of them
-
-        if (!this.users) {
-            this.authService.getAllUsers().then(users => {
-                this.users = users;
-            })
-        }
-
         // Check for searches
 
         this.activatedRoute.url.subscribe((it: UrlSegment[]) => {

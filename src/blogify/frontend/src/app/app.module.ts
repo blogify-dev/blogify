@@ -25,6 +25,7 @@ import { Error404FallbackComponent } from './components/error404-fallback/error4
 import { AdminComponent } from './components/admin/admin.component';
 import { AdminModule } from './components/admin/admin/admin.module';
 import { FollowsComponent } from './components/profile/profile/follows/follows.component';
+import { UsersComponent } from './components/users/users.component';
 
 @NgModule({
     declarations: [
@@ -43,6 +44,7 @@ import { FollowsComponent } from './components/profile/profile/follows/follows.c
         Error404FallbackComponent,
         AdminComponent,
         FollowsComponent,
+        UsersComponent,
     ],
     imports: [
         BrowserModule,
