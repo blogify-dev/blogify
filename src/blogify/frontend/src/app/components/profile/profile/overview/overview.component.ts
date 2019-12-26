@@ -12,7 +12,7 @@ import { User } from '../../../../models/User';
 })
 export class OverviewComponent implements OnInit {
 
-    articles: Article[] = [];
+    articles: Article[];
     forUser: User;
 
     constructor (
@@ -29,12 +29,12 @@ export class OverviewComponent implements OnInit {
                 username,
                 ['title', 'summary', 'createdBy', 'categories', 'createdAt', 'likeCount', 'commentCount']
             ).then(articles => {
-                this.articles = articles
+                this.articles = articles;
             });
 
             this.authService.getByUsername(username).then(user => {{
                 this.forUser = user;
-            }})
+            }});
         })
     }
 
