@@ -39,6 +39,8 @@ export class MainProfileComponent implements OnInit {
                 if (value && username === (await this.authService.userProfile).username) {
                     this.finalTabs = this.baseTabs.concat(this.loggedInTabs);
                     this.isSelf = true;
+                } else {
+                    this.finalTabs = this.baseTabs;
                 }
             });
 
