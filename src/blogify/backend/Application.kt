@@ -38,6 +38,7 @@ import io.ktor.features.CachingHeaders
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
+import io.ktor.features.HttpsRedirect
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.content.CachingOptions
@@ -89,6 +90,15 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
             registerModule(blogifyModule)
         }
+    }
+
+    // Initialize HTTPS refirection
+
+    install(HttpsRedirect) {
+        // The port to redirect to. By default 443, the default HTTPS port.
+        sslPort = 443
+        // 301 Moved Permanently, or 302 Found redirect.
+        permanentRedirect = true
     }
 
     // Initialize call logging
