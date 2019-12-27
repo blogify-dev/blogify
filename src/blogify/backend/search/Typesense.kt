@@ -6,6 +6,7 @@ import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.routes.pipelines.pipelineError
 import blogify.backend.routes.pipelines.service
+import blogify.backend.search.ext.TEMPLATE_DEFAULT_DSF
 import blogify.backend.search.ext._rebuildSearchTemplate
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Search
@@ -39,6 +40,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.util.UUID
+import kotlin.random.Random
 
 val tscLogger: Logger = LoggerFactory.getLogger("blogify-typesense-client")
 
@@ -97,15 +99,20 @@ object Typesense {
     inline fun <reified R : Resource> makeDocument(resource: R): Map<String, Any?> {
         val template = R::class._searchTemplate
 
-        return (resource.sanitize(noSearch = true) + ("id" to resource.uuid)).entries
+        val documentEntries = (resource.sanitize(noSearch = true) + ("id" to resource.uuid)).entries
             .map {
                 it.key to (
-                    template.delegatedFields
-                        .firstOrNull { df -> df.name == it.key } // Check if we have a delegated field
-                        ?.let { df -> df.delegatedTo!!.get(it.value) } ?: it.value
-                    // Return the delegation result if there is; the original value if there is not.
-                )
-            }.toMap()
+                        template.delegatedFields
+                            .firstOrNull { df -> df.name == it.key } // Check if we have a delegated field
+                            ?.let { df -> df.delegatedTo!!.get(it.value) } ?: it.value
+                        // Return the delegation result if there is; the original value if there is not.
+                        )
+            }.toMutableList()
+
+        if (template.defaultSortingField == TEMPLATE_DEFAULT_DSF)
+            documentEntries.add(TEMPLATE_DEFAULT_DSF to Random.nextInt())
+
+        return documentEntries.toMap()
     }
 
     /**

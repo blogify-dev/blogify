@@ -6,10 +6,10 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
-import blogify.backend.annotations.search.SearchByUUID
 import blogify.backend.resources.models.Resource
 import blogify.backend.search.Typesense
 import blogify.backend.search.autogen.AutogenClassVisitor
+import blogify.backend.search.ext.TEMPLATE_DEFAULT_DSF
 
 import org.slf4j.LoggerFactory
 
@@ -17,10 +17,7 @@ import com.andreapivetta.kolor.green
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
-import kotlin.reflect.KTypeProjection
-import kotlin.reflect.full.createType
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.isSubtypeOf
 
 @Suppress("unused")
 data class Template<T : Resource>(
@@ -36,7 +33,11 @@ data class Template<T : Resource>(
 ) {
 
     val fields = AutogenClassVisitor.visitAndMapClass(klass)
-    val delegatedFields = fields.filter { it.delegatedTo != null }
+            // Make sure we have _dsf if TEMPLATE_DEFAULT_DSF was generated
+        .let { if (this.defaultSortingField == TEMPLATE_DEFAULT_DSF) it + Field.Int32(TEMPLATE_DEFAULT_DSF) else it }
+
+    val delegatedFields = fields
+        .filter { it.delegatedTo != null }
 
     /**
      * Represents a [Typesense] field used for indexing documents. Should generally only exist once for a given resource class.

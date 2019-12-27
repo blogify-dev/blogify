@@ -15,8 +15,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import java.time.Instant
 import java.util.UUID
 
-import kotlin.random.Random
-
 /**
  * Represents an Article [Resource].
  *

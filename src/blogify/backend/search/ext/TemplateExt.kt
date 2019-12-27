@@ -9,7 +9,6 @@ import blogify.backend.search.models.Template
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
 
 private val templateCache: MutableMap<KClass<*>, Template<*>> = mutableMapOf()
 
@@ -24,7 +23,7 @@ val <R : Resource> KClass<R>._searchTemplate: Template<R> get() {
     return cached
 }
 
-private const val TEMPLATE_DEFAULT_DSF = "dsf"
+const val TEMPLATE_DEFAULT_DSF = "_dsf"
 
 @Suppress("FunctionName")
 fun <R : Resource> KClass<R>._buildSearchTemplate(): Template<R> {
@@ -33,7 +32,7 @@ fun <R : Resource> KClass<R>._buildSearchTemplate(): Template<R> {
         name   = this.simpleName!!,
         defaultSortingField = this.cachedPropMap().ok().values
             .filter { it.property.findAnnotation<SearchDefaultSort>() != null }
-            .toSet().first().name,
+            .toSet().firstOrNull()?.name ?: TEMPLATE_DEFAULT_DSF, // Generate TEMPLATE_DEFAULT_DSF if there is no annotated DSF
         queryByParams = this.cachedPropMap().ok().values
             .filter { it.property.findAnnotation<QueryByField>() != null }
             .toSet().joinToString(separator = ",") { it.name }
