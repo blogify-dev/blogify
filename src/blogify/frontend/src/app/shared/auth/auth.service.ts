@@ -102,6 +102,8 @@ export class AuthService {
 
     logout() {
         localStorage.removeItem('userToken');
+        this.currentUser_.next(this.dummyUser);
+        this.currentUserUuid_.next('');
         this.loginObservable_.next(false);
     }
 

@@ -42,10 +42,10 @@ export class ShowArticleComponent implements OnInit {
                 ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
             );
 
-            if (await this.authService.observeIsLoggedIn().toPromise()) {
-                this.showUpdateButton = (await this.authService.userUUID) == (<User> this.article.createdBy).uuid;
-                this.showDeleteButton = (await this.authService.userUUID) == (<User> this.article.createdBy).uuid;
-            }
+            this.authService.observeIsLoggedIn().subscribe(async it => {
+                this.showUpdateButton = it && (await this.authService.userUUID) == (<User> this.article.createdBy).uuid;
+                this.showDeleteButton = it && (await this.authService.userUUID) == (<User> this.article.createdBy).uuid;
+            });
         });
     }
 
