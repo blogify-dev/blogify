@@ -5,7 +5,6 @@ package blogify.backend.database
 import blogify.backend.database.handling.query
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
-import blogify.backend.resources.Follow
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticResourceHandle
@@ -60,7 +59,9 @@ abstract class ResourceTable<R : Resource> : Table() {
         true
     }
 
-    val uuid = uuid("uuid").primaryKey()
+    val uuid = uuid("uuid")
+
+    override val primaryKey = PrimaryKey(uuid)
 
 }
 
@@ -134,8 +135,10 @@ object Articles : ResourceTable<Article>() {
 
     object Categories : Table() {
 
-        val article = uuid("article").primaryKey().references(Articles.uuid, onDelete = CASCADE)
-        val name    = varchar("name", 255).primaryKey()
+        val article = uuid("article").references(Articles.uuid, onDelete = CASCADE)
+        val name    = varchar("name", 255)
+
+        override val primaryKey = PrimaryKey(article, name)
 
         @Suppress("RedundantSuspendModifier")
         suspend fun convert(source: ResultRow) = Article.Category (
@@ -146,8 +149,10 @@ object Articles : ResourceTable<Article>() {
 
     object Likes: Table() {
 
-        val user    = uuid("user").references(Users.uuid, onDelete = CASCADE).primaryKey(0)
-        val article = uuid("article").references(Articles.uuid, onDelete = CASCADE).primaryKey(1)
+        val user    = uuid("user").references(Users.uuid, onDelete = CASCADE)
+        val article = uuid("article").references(Articles.uuid, onDelete = CASCADE)
+
+        override val primaryKey = PrimaryKey(user, article)
 
     }
 
@@ -170,8 +175,10 @@ object Users : ResourceTable<User>() {
 
     object Follows : Table() {
 
-        val following = uuid("following").references(Users.uuid, onDelete = CASCADE).primaryKey(0)
-        val follower = uuid("follower").references(Users.uuid, onDelete = CASCADE).primaryKey(1)
+        val following = uuid("following").references(Users.uuid, onDelete = CASCADE)
+        val follower = uuid("follower").references(Users.uuid, onDelete = CASCADE)
+
+        override val primaryKey = PrimaryKey(following, follower)
 
     }
 
@@ -275,8 +282,10 @@ object Comments : ResourceTable<Comment>() {
 
 object Uploadables : Table() {
 
-    val fileId      = varchar ("id", 32).primaryKey()
+    val fileId      = varchar ("id", 32)
     val contentType = varchar ("content_type", 64)
+
+    override val primaryKey = PrimaryKey(fileId)
 
     suspend fun convert(@Suppress("UNUSED_PARAMETER") callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<StaticResourceHandle.Ok, Service.Exception> {
         StaticResourceHandle.Ok (
