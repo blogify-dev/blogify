@@ -1,27 +1,47 @@
 import blogify.backend.annotations.Invisible
-import blogify.backend.resources.User
+import blogify.backend.annotations.check
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.cachedPropMap
+import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.resources.reflect.models.ext.valid
-import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.full.findAnnotation
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.assertEquals
 
-data class BruhICantName(val visible: String, @Invisible val invisible: String): Resource()
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
+
+import kotlin.reflect.full.findAnnotation
 
 class PropMapTests {
+
+    data class TestClass(val visible: String, @Invisible val invisible: String): Resource()
+
     @Test
-    fun `Only valid props should be picked`() {
-        val propMap = BruhICantName::class.cachedPropMap().valid().values.toSet()
-            .map { it.name }.toSet()
-        val withInvisible =
-            BruhICantName::class.declaredMemberProperties.filter { it.findAnnotation<Invisible>() == null }
-                .map { it.name }
-                .toSet()
+    fun `valid() should not return Invisible properties`() {
+        val none = TestClass::class.cachedPropMap().valid()
+            .none { it.value.property.findAnnotation<Invisible>() !== null }
 
-        assertEquals(withInvisible, propMap, "The two should be the same")
-
+        assertTrue(none, "Should not contain @Invisible properties")
     }
+
+    @Test
+    fun `ok() should not return Invisible or Computed properties`() {
+        val none = TestClass::class.cachedPropMap().ok()
+            .none { it.value.property.findAnnotation<Invisible>() != null|| it.value.property.findAnnotation<Computed>() != null }
+
+        assertTrue(none, "Should not contain @Invisible or @Computed properties")
+    }
+
+    data class TestClassWithRegexes(val noRegex: String, val withRegex: @check("[a-zA-Z0-9]{3}") String): Resource()
+
+    @Test
+    fun `should pick up regexes`() {
+        val prop = TestClassWithRegexes::class.cachedPropMap().ok().values.first { it.name == "withRegex" }
+
+        val hasRegex = prop.regexCheck != null
+        val regexPattern = prop.regexCheck?.pattern
+
+        assertTrue(hasRegex, "Should have a non-null regex property")
+        assertEquals("[a-zA-Z0-9]{3}", regexPattern)
+    }
+
 }
