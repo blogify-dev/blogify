@@ -1,5 +1,7 @@
 @file:Suppress("SpellCheckingInspection", "PropertyName")
 
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 val ktor_version:      String by project
 val kotlin_version:    String by project
 val logback_version:   String by project
@@ -96,6 +98,8 @@ dependencies {
     compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0")
     compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime-configparser:0.14.0")
 
+    implementation("org.junit.jupiter:junit-jupiter:5.5.2")
+
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
@@ -103,6 +107,18 @@ kotlin.sourceSets["test"].kotlin.srcDirs("test")
 
 sourceSets["main"].resources.srcDirs("resources")
 sourceSets["test"].resources.srcDirs("testresources")
+
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions.jvmTarget = "1.8"
+}
 
 // Fat jar
 
