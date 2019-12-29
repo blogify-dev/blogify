@@ -154,6 +154,7 @@ button {
     &.rounded {
         border-radius: 1.15em;
         padding: .5em 1.15em;
+        &.small { padding: .4em 1em; }
     }
 }
 

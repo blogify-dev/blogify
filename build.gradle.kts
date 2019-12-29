@@ -67,7 +67,8 @@ dependencies {
     // Database stuff
 
     compile("org.postgresql:postgresql:$pg_driver_version")
-    compile("org.jetbrains.exposed:exposed:$exposed_version")
+    compile("org.jetbrains.exposed:exposed-core:$exposed_version")
+    compile("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     compile("com.zaxxer:HikariCP:$hikari_version")
 
     // Spring security for hashing

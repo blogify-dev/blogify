@@ -49,7 +49,6 @@ export class ShowArticleComponent implements OnInit {
         });
     }
 
-
     deleteArticle() {
         this.articleService.deleteArticle(this.article.uuid).then(it => console.log(it));
         this.router.navigateByUrl("/home").then(() => {})
