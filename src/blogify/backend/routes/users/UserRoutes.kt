@@ -9,6 +9,7 @@ import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
 import blogify.backend.routes.handling.*
+import blogify.backend.routes.pipelines.fetchResource
 import blogify.backend.routes.pipelines.optionalParam
 import blogify.backend.routes.pipelines.pipeline
 import blogify.backend.search.Typesense
@@ -93,37 +94,37 @@ fun Route.users() {
             }
         }
 
-        post("/follow") {
+        post("{uuid}/follow") {
             val follows = Users.Follows
 
-            try {
-                val follow = call.receive<Follow>()
-                runAuthenticated(predicate = { user -> user eqr follow.follower }) {
+            pipeline("uuid") { (uuid) ->
+
+                val following = fetchResource(UserService::get, uuid.toUUID())
+
+                runAuthenticated {
 
                     val hasAlreadyFollowed = query {
                         follows.select {
-                            (follows.follower eq follow.follower.uuid) and (follows.following eq follow.following.uuid)
+                            (follows.follower eq subject.uuid) and (follows.following eq following.uuid)
                         }.count()
                     }.get() == 1
 
                     if (!hasAlreadyFollowed) {
                         query {
                             follows.insert {
-                                it[follower] = follow.follower.uuid
-                                it[following] = follow.following.uuid
+                                it[Users.Follows.follower] = subject.uuid
+                                it[Users.Follows.following] = following.uuid
                             }
                         }
                     } else {
                         query {
                             follows.deleteWhere {
-                                (follows.follower eq follow.follower.uuid) and (follows.following eq follow.following.uuid)
+                                (follows.follower eq subject.uuid) and (follows.following eq following.uuid)
                             }
                         }
                     }
                     call.respond(HttpStatusCode.OK)
                 }
-            } catch (bruhMoment: Exception) {
-                call.respondExceptionMessage(bruhMoment)
             }
 
         }

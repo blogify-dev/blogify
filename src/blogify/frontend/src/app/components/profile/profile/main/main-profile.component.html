@@ -10,6 +10,17 @@
                 showSecondaryInfo="true">
             </app-user-display>
 
+            <ng-container *ngIf="isLoggedIn && !isSelf">
+                <span class="separator"></span>
+
+                <button id="header-follow-button"
+                        class="hollow small rounded {{alreadyFollowed ? 'negative' : 'positive'}}"
+                        type="button"
+                        (click)="toggleFollow()"
+                        [innerText]="(alreadyFollowed ? 'Unfollow @' : 'Follow @') + user.username">
+                </button>
+            </ng-container>
+
             <app-tab-header id="header-tabs" [tabs]="finalTabs"></app-tab-header>
         </div>
 
