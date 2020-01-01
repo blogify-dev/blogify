@@ -53,7 +53,7 @@
         grid-template: auto / repeat(3, 1fr);
         grid-column-gap: 1.25em;
 
-        @media (max-width: $query-desktop) { grid-template-columns: repeat(2, 1fr) }
+        @media (max-width: $query-desktop) { grid-template-columns: 1fr }
     }
 
     #content-empty {
