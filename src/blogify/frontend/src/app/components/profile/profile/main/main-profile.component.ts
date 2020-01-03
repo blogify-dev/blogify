@@ -46,8 +46,22 @@ export class MainProfileComponent implements OnInit {
         this.route.params.subscribe(async (params: Params) => {
             let username = params['username'];
 
-            this.user = await this.authService.getByUsername(username);
-            this.alreadyFollowed = this.user.followers.findIndex(async _ => (await this.authService.userProfile).uuid) != -1
+            this.authService.getByUsername(username).then(profile => {
+
+                // Set the correct profile data
+                this.user = profile;
+
+                this.authService.observeIsLoggedIn().subscribe(async value => {
+                    this.authService.userProfile.then(u => {
+                        this.alreadyFollowed
+                            = this.user.followers.findIndex(it => it === u.uuid) !== -1;
+                    }).catch(error => {
+                        alert('[blogifyProfiles] Error while fetching logged in profile: ' + error);
+                    });
+                });
+            }).catch(error => {
+                alert('[blogifyProfiles] Error while fetching profile: \': ' + error);
+            });
 
             // This second listener must always be called at least once after user variable is initialized,
             // so it needs to be created here. We update the tabs as well.
