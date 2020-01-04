@@ -253,6 +253,15 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
                 message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
             )
 
+        var shouldDelete = false
+
+        // Check if there's already an uploaded file
+        val existingValue = targetPropHandle.property.get(targetResource) as StaticResourceHandle
+        if (existingValue is StaticResourceHandle.Ok) {
+            // Delete later, if successful
+            shouldDelete = true
+        }
+
         // Obtain property content type
         val propContentType = targetPropHandle.property.returnType
             .findAnnotation<type>()
@@ -302,11 +311,19 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
                 }
             }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing static resource to db")
 
-
             service<R>().update(targetResource, mapOf(targetPropHandle to newHandle))
                 .getOrPipelineError(HttpStatusCode.InternalServerError, "error while updating resource ${targetResource.uuid.short()} with new information")
 
             call.respond(newHandle.toString())
+
+            // Since at this point it was successful, we can delete
+            if (shouldDelete) {
+                val idToDelete = (existingValue as StaticResourceHandle.Ok).fileId
+
+                query {
+                    Uploadables.deleteWhere { Uploadables.fileId eq idToDelete }
+                }.getOrPipelineError(HttpStatusCode.InternalServerError, "could not delete stale static resource $idToDelete from db")
+            }
 
         } else {
             pipelineError ( // Throw an error
