@@ -79,12 +79,12 @@ open class Service<R : Resource>(val table: ResourceTable<R>) {
      * @author hamza1311
      */
     suspend fun getMatching(callContext: ApplicationCall = FakeApplicationCall, predicate: SqlExpressionBuilder.() -> Op<Boolean>): SrList<R> {
-        return SuspendableResult.of<Set<R>, Exception> {
+        return Wrap {
             transaction {
                 val query = table.select(predicate).toSet()
-                runBlocking { query.map { table.convert(callContext, it).get() }.toSet() }
+                runBlocking { query.map { table.convert(callContext, it).get() }.toList() }
             }
-        }.mapError { Exception.Fetching(it) }.map { it.toList() }
+        }
     }
 
     suspend fun add(res: R): Sr<R> = this.table.insert(res)
