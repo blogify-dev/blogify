@@ -110,9 +110,9 @@ fun Route.articles() {
             val username = params["username"] ?: error("Username is null")
             val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
 
-            UserService.getMatching { Users.username eq username }.fold(
+            UserService.getMatching { Users.username eq username }.fold (
                 success = {
-                    ArticleService.getMatching { Articles.createdBy eq it.single().uuid }.fold(
+                    ArticleService.getMatching { Articles.createdBy eq it.single().uuid }.fold (
                         success = { articles ->
                             try {
                                 selectedPropertyNames?.let { props ->
