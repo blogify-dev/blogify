@@ -5,7 +5,8 @@ import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../shared/auth/auth.service';
 import { User } from '../../models/User';
-import { faPenFancy, faTimes, faShare } from '@fortawesome/free-solid-svg-icons';
+import { faPenFancy, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faCopy } from '@fortawesome/free-regular-svg-icons';
 import { ClipboardService } from "ngx-clipboard";
 
 @Component({
@@ -28,7 +29,7 @@ export class ShowArticleComponent implements OnInit {
 
     faEdit = faPenFancy;
     faTimes = faTimes;
-    faShare = faShare;
+    faCopy = faCopy;
 
     showUpdateButton = false;
     showDeleteButton = false;
