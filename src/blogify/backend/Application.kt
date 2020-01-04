@@ -122,8 +122,8 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     // Default headers
 
     install(DefaultHeaders) {
-        header("Server", "blogify-core $version")
-        header("X-Powered-By", "Ktor 1.2.5")
+        header("X-Blogify-Version", "blogify-core $version")
+        header("X-Blogify-Backend", "Ktor 1.2.6")
     }
 
     // Caching headers
