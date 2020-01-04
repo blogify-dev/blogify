@@ -13,8 +13,8 @@ import blogify.backend.services.UserService
 import blogify.backend.services.CommentService
 import blogify.backend.services.models.Service
 import blogify.backend.util.Sr
+import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
-import blogify.backend.util.wrap
 
 import io.ktor.application.ApplicationCall
 import io.ktor.http.ContentType
@@ -36,11 +36,11 @@ import java.util.UUID
 
 abstract class ResourceTable<R : Resource> : Table() {
 
-    open suspend fun obtainAll(callContext: ApplicationCall, limit: Int): SrList<R> = wrap {
+    open suspend fun obtainAll(callContext: ApplicationCall, limit: Int): SrList<R> = Wrap {
         query { this.selectAll().limit(limit).toSet() }.get().map { this.convert(callContext, it).get() }
     }
 
-    open suspend fun obtain(callContext: ApplicationCall, id: UUID): Sr<R> = wrap {
+    open suspend fun obtain(callContext: ApplicationCall, id: UUID): Sr<R> = Wrap {
         query { this.select { uuid eq id }.single() }.get()
             .let { this.convert(callContext, it).get() }
     }
@@ -51,7 +51,7 @@ abstract class ResourceTable<R : Resource> : Table() {
 
     abstract suspend fun update(resource: R): Boolean
 
-    open suspend fun delete(resource: R): Sr<Boolean> = wrap {
+    open suspend fun delete(resource: R): Sr<Boolean> = Wrap {
         query {
             this.deleteWhere { uuid eq resource.uuid }
         }
@@ -110,7 +110,7 @@ object Articles : ResourceTable<Article>() {
         }.get() == 1
     }
 
-    override suspend fun delete(resource: Article) = wrap {
+    override suspend fun delete(resource: Article) = Wrap {
         val articleDeleted = super.delete(resource)
         query {
             Categories.deleteWhere { Categories.article eq resource.uuid } == 1

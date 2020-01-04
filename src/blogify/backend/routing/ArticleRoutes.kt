@@ -1,6 +1,6 @@
 @file:Suppress("DuplicatedCode")
 
-package blogify.backend.routes
+package blogify.backend.routing
 
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Articles
@@ -12,9 +12,15 @@ import blogify.backend.resources.reflect.cachedPropMap
 import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
-import blogify.backend.routes.handling.*
-import blogify.backend.routes.pipelines.optionalParam
-import blogify.backend.routes.pipelines.pipeline
+import blogify.backend.routing.pipelines.optionalParam
+import blogify.backend.routing.pipelines.pipeline
+import blogify.backend.routing.handling.createResource
+import blogify.backend.routing.handling.deleteResource
+import blogify.backend.routing.handling.fetchAllResources
+import blogify.backend.routing.handling.fetchResource
+import blogify.backend.routing.handling.getValidations
+import blogify.backend.routing.handling.respondExceptionMessage
+import blogify.backend.routing.handling.updateResource
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.services.UserService

@@ -1,8 +1,9 @@
-package blogify.backend.services.caching
+package blogify.backend.routing.pipelines.caching
 
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
 import blogify.backend.util.Sr
+import blogify.backend.util.Wrap
 import blogify.backend.util.short
 
 import io.ktor.application.ApplicationCall
@@ -26,7 +27,7 @@ private val ResourceCacheKey = AttributeKey<MutableMap<UUID, Resource>>("blogify
 /**
  * Gives access to an [ApplicationCall]'s [Resource] cache.
  */
-val ApplicationCall.cache: MutableMap<UUID, Resource>
+private val ApplicationCall.cache: MutableMap<UUID, Resource>
     get() {
         return try {
             this.attributes[ResourceCacheKey]
@@ -43,6 +44,20 @@ private fun ApplicationCall.createResourceCache() {
      this.attributes.put(ResourceCacheKey, mutableMapOf())
 }
 
+/**
+ * Tries to fetched a cached version of a [Resource] of type [R] and UUID [id] from the [ApplicationCall],
+ * and caches the result of a fetcher function if it misses.
+ *
+ * @receiver the [ApplicationCall] on which to perform the lookup
+ *
+ * @param id      the [UUID] for which to perform the lookup
+ * @param fetcher the function that would fetch the resource if there is a cache miss
+ *
+ * @return an [Wrap] of the requested resource
+ *
+ * @author Benjozork
+ */
+@Suppress("UNCHECKED_CAST")
 suspend fun <R : Resource> ApplicationCall.cachedOrElse(id: UUID, fetcher: suspend () -> Sr<R>): Sr<R> {
     if (this is FakeApplicationCall) { // Since a FakeApplicationCall does not have anything in it, do not try to access the cache
         return fetcher()
@@ -51,17 +66,14 @@ suspend fun <R : Resource> ApplicationCall.cachedOrElse(id: UUID, fetcher: suspe
     val cached = this.cache[id]
 
     return if (cached == null) {
-        val fetchResult = fetcher()
-
-        if (fetchResult is SuspendableResult.Success) {
-            this.cache[id] = fetchResult.get()
-            logger.debug("added ${id.toString().takeLast(8)} to call cache".green())
-            fetchResult
-        } else {
-            fetchResult
+        fetcher().also {
+            if (it is SuspendableResult.Success) { // Add to cache if it's successfully fetched
+                this.cache[id] = it.get()
+                logger.debug("added ${id.short()} to call cache".green())
+            }
         }
     } else {
         logger.debug("used cache for ${id.short()} !".green())
-        SuspendableResult.of { cached as R }
+        Wrap { cached as R }
     }
 }

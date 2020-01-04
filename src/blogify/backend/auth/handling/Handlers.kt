@@ -14,7 +14,7 @@ import io.ktor.util.pipeline.pipelineExecutorFor
 import blogify.backend.resources.User
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.resources.models.eqr
-import blogify.backend.routes.pipelines.CallPipeline
+import blogify.backend.routing.pipelines.CallPipeline
 import blogify.backend.util.reason
 
 /**

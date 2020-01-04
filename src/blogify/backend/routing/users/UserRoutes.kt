@@ -1,17 +1,21 @@
-package blogify.backend.routes.users
+package blogify.backend.routing.users
 
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Users
 import blogify.backend.database.handling.query
-import blogify.backend.resources.Follow
 import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
-import blogify.backend.routes.handling.*
-import blogify.backend.routes.pipelines.fetchResource
-import blogify.backend.routes.pipelines.optionalParam
-import blogify.backend.routes.pipelines.pipeline
+import blogify.backend.routing.pipelines.fetchResource
+import blogify.backend.routing.pipelines.pipeline
+import blogify.backend.routing.handling.deleteResource
+import blogify.backend.routing.handling.deleteUpload
+import blogify.backend.routing.handling.fetchAllResources
+import blogify.backend.routing.handling.fetchResource
+import blogify.backend.routing.handling.respondExceptionMessage
+import blogify.backend.routing.handling.updateResource
+import blogify.backend.routing.handling.uploadToResource
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.services.UserService
@@ -20,7 +24,6 @@ import blogify.backend.util.toUUID
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
 import org.jetbrains.exposed.sql.and

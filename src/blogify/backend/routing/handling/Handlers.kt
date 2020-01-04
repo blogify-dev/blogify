@@ -25,7 +25,7 @@
  * @author Benjozork, hamza1311, Stan-Sst
  */
 
-package blogify.backend.routes.handling
+package blogify.backend.routing.handling
 
 import blogify.backend.database.Uploadables
 import blogify.backend.database.handling.query
@@ -45,14 +45,14 @@ import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.resources.reflect.verify
-import blogify.backend.routes.pipelines.CallPipeline
-import blogify.backend.routes.pipelines.fetchResource
-import blogify.backend.routes.pipelines.fetchResources
-import blogify.backend.routes.pipelines.handleAuthentication
-import blogify.backend.routes.pipelines.optionalParam
-import blogify.backend.routes.pipelines.pipeline
-import blogify.backend.routes.pipelines.pipelineError
-import blogify.backend.routes.pipelines.service
+import blogify.backend.routing.pipelines.CallPipeline
+import blogify.backend.routing.pipelines.fetchResource
+import blogify.backend.routing.pipelines.fetchResources
+import blogify.backend.routing.pipelines.handleAuthentication
+import blogify.backend.routing.pipelines.optionalParam
+import blogify.backend.routing.pipelines.pipeline
+import blogify.backend.routing.pipelines.pipelineError
+import blogify.backend.routing.pipelines.service
 import blogify.backend.search.Typesense
 import blogify.backend.util.SrList
 import blogify.backend.util.filterThenMapValues

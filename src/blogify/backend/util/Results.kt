@@ -1,6 +1,6 @@
 package blogify.backend.util
 
-import blogify.backend.routes.pipelines.pipelineError
+import blogify.backend.routing.pipelines.pipelineError
 
 import io.ktor.http.HttpStatusCode
 
@@ -11,7 +11,8 @@ open class BException(causedBy: Exception) : Exception(causedBy)
 typealias Sr<V> = SuspendableResult<V, Exception>
 typealias SrList<V> = SuspendableResult<List<V>, Exception>
 
-suspend fun <T : Any> wrap(producer: suspend () -> T): Sr<T> = Sr.of(producer)
+@Suppress("FunctionName")
+suspend fun <T : Any> Wrap(producer: suspend () -> T): Sr<T> = Sr.of(producer)
 
 fun <V : Any, E : Exception> SuspendableResult<V, E>.getOrPipelineError (
     code:    HttpStatusCode = HttpStatusCode.InternalServerError,

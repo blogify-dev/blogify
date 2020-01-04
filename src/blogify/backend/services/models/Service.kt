@@ -4,9 +4,10 @@ import blogify.backend.database.ResourceTable
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
 import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.services.caching.cachedOrElse
+import blogify.backend.routing.pipelines.caching.cachedOrElse
 import blogify.backend.util.BException
 import blogify.backend.util.Sr
+import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
 import blogify.backend.util.getOrPipelineError
 
@@ -58,7 +59,7 @@ open class Service<R : Resource>(val table: ResourceTable<R>) {
      *
      * @param id the [UUID] of the resource to fetch
      *
-     * @return a [Sr] of an [R] item with the provided [id]
+     * @return a [Wrap] of an [R] item with the provided [id]
      *
      * @author Benjozork, hamza1311
      */
@@ -102,7 +103,7 @@ open class Service<R : Resource>(val table: ResourceTable<R>) {
      *
      * @param res the resource to delete
      *
-     * @return a [Sr] of the [UUID] of the deleted resource
+     * @return a [Wrap] of the [UUID] of the deleted resource
      *
      * @author Benjozork, hamza1311
      */

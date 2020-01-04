@@ -1,11 +1,11 @@
-package blogify.backend.routes.pipelines
+package blogify.backend.routing.pipelines
 
 import blogify.backend.annotations.PipelinesDsl
 import blogify.backend.auth.handling.UserAuthPredicate
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.resources.models.Resource
-import blogify.backend.routes.handling.defaultResourceLessPredicateLambda
-import blogify.backend.routes.handling.logUnusedAuth
+import blogify.backend.routing.handling.defaultResourceLessPredicateLambda
+import blogify.backend.routing.handling.logUnusedAuth
 import blogify.backend.util.Sr
 import blogify.backend.util.SrList
 import blogify.backend.util.getOrPipelineError

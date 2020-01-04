@@ -4,8 +4,8 @@ import blogify.backend.config.Configs
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.sanitize
-import blogify.backend.routes.pipelines.pipelineError
-import blogify.backend.routes.pipelines.service
+import blogify.backend.routing.pipelines.pipelineError
+import blogify.backend.routing.pipelines.service
 import blogify.backend.search.ext.TEMPLATE_DEFAULT_DSF
 import blogify.backend.search.ext._rebuildSearchTemplate
 import blogify.backend.search.ext._searchTemplate

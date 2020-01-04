@@ -1,4 +1,4 @@
-package blogify.backend.routes
+package blogify.backend.routing
 
 import blogify.backend.annotations.check
 import blogify.backend.auth.encoder
@@ -7,19 +7,13 @@ import blogify.backend.auth.jwt.validateJwt
 import blogify.backend.database.Users
 import blogify.backend.resources.User
 import blogify.backend.resources.static.models.StaticResourceHandle
-import blogify.backend.routes.handling.respondExceptionMessage
+import blogify.backend.routing.handling.respondExceptionMessage
 import blogify.backend.search.Typesense
 import blogify.backend.services.UserService
 import blogify.backend.services.models.Service
 import blogify.backend.util.*
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 import io.ktor.application.call
-import io.ktor.client.HttpClient
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.url
-import io.ktor.content.TextContent
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive

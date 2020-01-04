@@ -1,4 +1,4 @@
-package blogify.backend.routes.admin
+package blogify.backend.routing.admin
 
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.resources.Article
@@ -10,7 +10,6 @@ import io.ktor.client.call.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
-import io.ktor.routing.post
 import io.ktor.routing.route
 
 fun Route.adminSearch() {

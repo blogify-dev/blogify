@@ -6,20 +6,20 @@ import com.andreapivetta.kolor.cyan
 
 import com.fasterxml.jackson.databind.*
 
-import blogify.backend.routes.articles
-import blogify.backend.routes.users.users
+import blogify.backend.routing.articles
+import blogify.backend.routing.users.users
 import blogify.backend.database.Database
 import blogify.backend.database.Articles
 import blogify.backend.database.Comments
 import blogify.backend.database.Uploadables
 import blogify.backend.database.Users
-import blogify.backend.routes.auth
+import blogify.backend.routing.auth
 import blogify.backend.database.handling.query
 import blogify.backend.resources.Article
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
-import blogify.backend.routes.admin.adminSearch
-import blogify.backend.routes.static
+import blogify.backend.routing.admin.adminSearch
+import blogify.backend.routing.static
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Template
