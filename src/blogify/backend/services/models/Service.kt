@@ -28,10 +28,6 @@ import org.slf4j.LoggerFactory
 
 import java.util.*
 
-typealias ResourceResult<T> = SuspendableResult<T, Service.Exception>
-
-typealias ResourceResultSet<T> = ResourceResult<Set<T>>
-
 /**
  * Service interface for fetching, creating, updating and deleting [resources][Resource].
  */
@@ -47,7 +43,7 @@ open class Service<R : Resource>(val table: ResourceTable<R>) {
      *
      * @param limit the max number of items to fetch. Defaults to 256.
      *
-     * @return a [ResourceResultSet] of [R] items
+     * @return a [SrList] of [R] items
      *
      * @author Benjozork, hamza1311
      */
@@ -62,7 +58,7 @@ open class Service<R : Resource>(val table: ResourceTable<R>) {
      *
      * @param id the [UUID] of the resource to fetch
      *
-     * @return a [ResourceResult] of an [R] item with the provided [id]
+     * @return a [Sr] of an [R] item with the provided [id]
      *
      * @author Benjozork, hamza1311
      */
@@ -77,17 +73,17 @@ open class Service<R : Resource>(val table: ResourceTable<R>) {
      *
      * @param predicate an Exposed predicate that is used to return the needed items
      *
-     * @return a [ResourceResultSet] of [R] items matching [predicate]
+     * @return a [SrList] of [R] items matching [predicate]
      *
      * @author hamza1311
      */
-    suspend fun getMatching(callContext: ApplicationCall = FakeApplicationCall, predicate: SqlExpressionBuilder.() -> Op<Boolean>): ResourceResultSet<R> {
+    suspend fun getMatching(callContext: ApplicationCall = FakeApplicationCall, predicate: SqlExpressionBuilder.() -> Op<Boolean>): SrList<R> {
         return SuspendableResult.of<Set<R>, Exception> {
             transaction {
                 val query = table.select(predicate).toSet()
                 runBlocking { query.map { table.convert(callContext, it).get() }.toSet() }
             }
-        }.mapError { Exception.Fetching(it) }
+        }.mapError { Exception.Fetching(it) }.map { it.toList() }
     }
 
     suspend fun add(res: R): Sr<R> = this.table.insert(res)
@@ -104,9 +100,9 @@ open class Service<R : Resource>(val table: ResourceTable<R>) {
     /**
      * Deletes an instance of [R] from the database
      *
-     * @param id the [UUID] of the resource to fetch
+     * @param res the resource to delete
      *
-     * @return a [ResourceResultSet] of the [UUID] of the deleted item
+     * @return a [Sr] of the [UUID] of the deleted resource
      *
      * @author Benjozork, hamza1311
      */
@@ -117,16 +113,7 @@ open class Service<R : Resource>(val table: ResourceTable<R>) {
 
     open class Exception(causedBy: BException) : BException(causedBy) {
 
-        open class Fetching(causedBy: BException) : Exception(causedBy) {
-
-            class NotFound(causedBy: BException) : Fetching(causedBy)
-
-        }
-
-        open class Creating(causedBy: BException) : Exception(causedBy)
-
-        open class Deleting(causedBy: BException) : Exception(causedBy)
-        open class Updating(causedBy: BException) : Exception(causedBy)
+        class Fetching(causedBy: BException) : Exception(causedBy)
 
     }
 

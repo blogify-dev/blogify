@@ -6,7 +6,6 @@ import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.resources.models.Resource
 import blogify.backend.routes.handling.defaultResourceLessPredicateLambda
 import blogify.backend.routes.handling.logUnusedAuth
-import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.util.Sr
 import blogify.backend.util.SrList
 import blogify.backend.util.getOrPipelineError

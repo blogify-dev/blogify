@@ -2,7 +2,6 @@ package blogify.backend.services.caching
 
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
-import blogify.backend.services.models.ResourceResult
 import blogify.backend.util.Sr
 import blogify.backend.util.short
 

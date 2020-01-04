@@ -37,7 +37,6 @@ import blogify.backend.resources.reflect.slice
 import blogify.backend.resources.static.fs.StaticFileHandler
 import blogify.backend.resources.static.models.StaticData
 import blogify.backend.resources.static.models.StaticResourceHandle
-import blogify.backend.services.models.ResourceResultSet
 import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.maxByteSize
@@ -55,6 +54,7 @@ import blogify.backend.routes.pipelines.pipeline
 import blogify.backend.routes.pipelines.pipelineError
 import blogify.backend.routes.pipelines.service
 import blogify.backend.search.Typesense
+import blogify.backend.util.SrList
 import blogify.backend.util.filterThenMapValues
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.letCatchingOrNull
@@ -191,7 +191,7 @@ suspend inline fun <reified R : Resource> CallPipeline.fetchResource (
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.fetchAllWithId (
-    fetch:     suspend (UUID) -> ResourceResultSet<R>,
+    fetch:     suspend (UUID) -> SrList<R>,
     transform: suspend (R)    -> Resource = { it }
 ) = pipeline("uuid") { (uuid) ->
 

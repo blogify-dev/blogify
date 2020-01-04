@@ -1,6 +1,5 @@
 package blogify.backend.database
 
-import blogify.backend.services.models.ResourceResult
 import blogify.backend.services.models.Service
 import blogify.backend.database.handling.query
 import blogify.backend.util.Sr
@@ -28,7 +27,7 @@ suspend fun <A : Any> countReferences (
     referenceField: Column<A>,
     referenceValue: A,
     where:          SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }
-): ResourceResult<Int> {
+): Sr<Int> {
     return query {
         referenceField.table.select { referenceField eq referenceValue and where() }.count()
     }
