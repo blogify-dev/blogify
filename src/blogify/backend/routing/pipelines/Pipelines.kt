@@ -137,7 +137,10 @@ inline fun <reified R : Resource> service() = R::class.service
  * @author Benjozork
  */
 fun pipelineError(code: HttpStatusCode = HttpStatusCode.BadRequest, message: String, rootException: Exception? = null): Nothing {
-    logger.debug("pipeline error - $message".red() + rootException?.let { " - ${it::class.simpleName} - ${it.message}".red() })
+    logger.debug (
+        "pipeline error - $message".red()
+                + (rootException?.let { " - ${it::class.simpleName} - ${it.message}".red() } ?: "")
+    )
     rootException?.printStackTrace()
     throw PipelineException(code, message)
 }
