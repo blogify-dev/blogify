@@ -320,9 +320,18 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
             if (shouldDelete) {
                 val idToDelete = (existingValue as StaticResourceHandle.Ok).fileId
 
+                // Delete in DB
+
                 query {
                     Uploadables.deleteWhere { Uploadables.fileId eq idToDelete }
                 }.getOrPipelineError(HttpStatusCode.InternalServerError, "could not delete stale static resource $idToDelete from db")
+
+                // Delete in FS
+
+                if (!StaticFileHandler.deleteStaticResource(existingValue)) {
+                    pipelineError(HttpStatusCode.InternalServerError, "couldn't delete stale static resource file")
+                }
+
             }
 
         } else {
