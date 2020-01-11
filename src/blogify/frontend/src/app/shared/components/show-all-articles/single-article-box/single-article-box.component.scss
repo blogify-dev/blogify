@@ -11,6 +11,10 @@
     color: var(--card-fg);
     background: var(--card-bg);
 
+    &:hover {
+        background: var(--header-bg);
+    }
+
     border: none;
     border-radius: $std-border-radius;
 

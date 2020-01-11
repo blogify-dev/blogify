@@ -162,7 +162,9 @@ button {
 
     cursor: pointer;
 
-    &:hover, &:hover * { color: var(--accent-neutral); }
+    &:not(.no-highlight) {
+        &:hover, &:hover * { color: var(--accent-neutral); }
+    }
 
     &:hover.hover-neutral  { &, & * {color: var(--accent-neutral);  } };
     &:hover.hover-positive { &, & * {color: var(--accent-positive); } };

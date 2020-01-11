@@ -1,4 +1,4 @@
-<div class="article">
+<div class="article clickable no-highlight" routerLink="/article/{{article.uuid}}">
 
     <div class="article-first-line">
         <!-- Title -->
@@ -15,10 +15,6 @@
         <!-- Timestamp -->
         <span class="article-posted-at">{{article.createdAt | relativeTime}}</span>
     </div>
-
-    <h3 class="article-read-more">
-        <a class="article-read-more" routerLink="/article/{{article.uuid}}">Read More</a>
-    </h3>
 
     <div class="article-last-line">
         <!-- Like count - clickable -->
