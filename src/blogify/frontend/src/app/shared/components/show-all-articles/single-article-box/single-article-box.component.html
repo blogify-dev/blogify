@@ -1,6 +1,6 @@
-<div class="article clickable no-highlight" routerLink="/article/{{article.uuid}}">
+<div class="article">
 
-    <div class="article-first-line">
+    <div class="article-first-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
         <!-- Title -->
         <h1 class="header-title">{{article.title}}</h1>
 
@@ -8,7 +8,7 @@
         <app-user-display [user]="article.createdBy" emSize="2.25"></app-user-display>
     </div>
 
-    <div class="article-second-line">
+    <div class="article-second-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
         <!-- Summary -->
         <span class="article-summary">{{article.summary}}</span>
 
