@@ -8,6 +8,7 @@ import { Article } from '../../models/Article';
     styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
+
     title = 'blogify';
 
     articles: Article[];
@@ -16,11 +17,10 @@ export class HomeComponent implements OnInit {
 
     ngOnInit() {
         this.articleService.getAllArticles (
-            ['title', 'summary', 'createdBy', 'categories', 'createdAt', 'numberOfComments']
+            ['title', 'summary', 'createdBy', 'categories', 'createdAt', 'likeCount', 'commentCount']
         ).then( articles => {
             this.articles = articles;
         });
     }
-
 
 }

@@ -1,0 +1,75 @@
+@import "../../../styles/queries";
+
+:host {
+    margin-top: auto;
+    margin-bottom: 1.75em;
+}
+#footer {
+    display:         flex;
+    flex-direction:  row;
+    justify-content: stretch;
+    align-items:     center;
+    gap: 2rem;
+
+    @media (max-width: $query-desktop) {
+        flex-direction: column;
+        gap: 1rem;
+        .separator {
+            height: 1px;
+            width: 100%;
+        }
+    }
+
+    max-width: 70%;
+    overflow: hidden;
+
+    margin: auto;
+
+    > * {
+        margin: .75em;
+    }
+
+    #footer-logo > img {
+        width: 4em;
+        filter: var(--logo-filter);
+    }
+
+    #version-container {
+
+        display:         flex;
+        flex-direction:  column;
+        justify-content: flex-start;
+        gap: 1em;
+
+        @media (max-width: $query-desktop) {
+            align-items: center;
+        }
+
+        #version-number {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        #version-dev {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: red;
+        }
+
+        #version-detailed {
+            font-size: 1.3em;
+        }
+
+    }
+
+    #links-container {
+        display:        flex;
+        flex-direction: row;
+        gap: 3rem;
+        > a {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+    }
+
+}

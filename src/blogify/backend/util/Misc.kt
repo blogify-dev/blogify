@@ -3,6 +3,7 @@ package blogify.backend.util
 import io.ktor.http.ContentType
 
 fun reason(text: String) = object { val reason = text }
+fun reasons(vararg texts: String) = object { val reasons = texts }
 
 fun <T, R> T.letCatchingOrNull(block: (T) -> R): R? {
     return try {
@@ -14,4 +15,9 @@ fun <T, R> T.letCatchingOrNull(block: (T) -> R): R? {
 
 infix fun ContentType.matches(other: ContentType) = this.match(other)
 
-const val TYPESENSE_API_KEY = "Hu52dwsas2AdxdE"
+/**
+ * Returns the content of an environment variable, or `null` if it's empty / non-existent
+ *
+ * @author Benjozork
+ */
+fun env(name: String) = System.getenv(name).takeIf { it?.isNotBlank() ?: false }

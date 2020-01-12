@@ -36,3 +36,17 @@
         margin-top: auto;
     }
 }
+
+a, a:visited, a:active, a:hover {
+    color: unset;
+}
+
+// No idea why, but this doesn't work in SA
+markdown {
+    * {
+        font-size: 1.35em;
+    }
+    p:not(:last-of-type) {
+        margin-bottom: 1.15em;
+    }
+}

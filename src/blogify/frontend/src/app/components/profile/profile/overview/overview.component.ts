@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Article } from "../../../../models/Article";
 import { ArticleService } from "../../../../services/article/article.service";
+import { AuthService } from '../../../../shared/auth/auth.service';
 import { ActivatedRoute, Params } from '@angular/router';
+import { User } from '../../../../models/User';
 
 @Component({
     selector: 'app-overview',
@@ -10,10 +12,12 @@ import { ActivatedRoute, Params } from '@angular/router';
 })
 export class OverviewComponent implements OnInit {
 
-    articles: Article[] = [];
+    articles: Article[];
+    forUser: User;
 
     constructor (
         private articleService: ArticleService,
+        private authService: AuthService,
         private route: ActivatedRoute
     ) {}
 
@@ -23,10 +27,14 @@ export class OverviewComponent implements OnInit {
 
             this.articleService.getArticleByForUser (
                 username,
-                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
+                ['title', 'summary', 'createdBy', 'categories', 'createdAt', 'likeCount', 'commentCount']
             ).then(articles => {
-                this.articles = articles
-            })
+                this.articles = articles;
+            });
+
+            this.authService.getByUsername(username).then(user => {{
+                this.forUser = user;
+            }});
         })
     }
 

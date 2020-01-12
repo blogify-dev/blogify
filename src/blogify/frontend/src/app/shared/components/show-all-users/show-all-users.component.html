@@ -1,0 +1,57 @@
+<section class="users" *ngIf="users">
+
+    <div id="users-header">
+        <!-- Back arrow, if necessary -->
+        <a id="header-search-back" (click)="stopSearch()" *ngIf="showingSearchResults">
+            <fa-icon [icon]="faArrowLeft" size="2x"></fa-icon>
+        </a>
+
+        <!-- Page title -->
+        <h1 *ngIf="!showingMobileSearchBar" id="header-title">{{showingSearchResults ? 'Search results' :  title}}</h1>
+
+        <!-- Desktop search pad -->
+        <!--suppress HtmlFormInputWithoutLabel -->
+        <input [(ngModel)]="this.searchQuery"
+               *ngIf="!showingMobileSearchBar"
+               id="header-search-pad"
+               type="text" placeholder="Search / Filter ... Type '?' for help"
+               (keydown.enter)="navigateToSearch()"
+               (keydown.escape)="stopSearch()">
+
+        <!-- Mobile search pad -->
+        <!--suppress HtmlFormInputWithoutLabel -->
+        <input [(ngModel)]="this.searchQuery"
+               *ngIf="showingMobileSearchBar"
+               id="header-mobile-search-pad"
+               type="text" placeholder="Search / Filter ... Type '?' for help"
+               (keydown.enter)="navigateToSearch()"
+               (keydown.escape)="setShowSearchBar(false)"
+               (focusout)="setShowSearchBar(false)">
+
+        <!-- Search icon -->
+        <a id="header-search-icon" *ngIf="!showingMobileSearchBar" (click)="setShowSearchBar(true)">
+            <fa-icon [icon]="faSearch" size="2x"></fa-icon>
+        </a>
+
+    </div>
+
+    <div id="users-main" *ngIf="!showingSearchResults && users.length > 0">
+        <app-single-user-box *ngFor="let user of users" [user]="user"></app-single-user-box>
+    </div>
+
+    <div id="no-content" *ngIf="users.length == 0 && !showingSearchResults">
+        <div id="content-empty">
+            <fa-icon [icon]="faTimes" size="5x"></fa-icon>
+            <span id="content-empty-text">{{noContentMessage}}</span>
+        </div>
+    </div>
+
+    <div id="search-results" *ngIf="showingSearchResults">
+        <div id="results-empty" *ngIf="searchResults.length === 0">
+            <fa-icon [icon]="faTimes" size="5x"></fa-icon>
+            <span id="empty-text">{{noResultsMessage}}</span>
+        </div>
+        <app-single-user-box *ngFor="let user of searchResults" [user]="user"></app-single-user-box>
+    </div>
+
+</section>

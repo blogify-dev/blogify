@@ -39,7 +39,7 @@
         justify-content: flex-end;
         align-items:     center;
 
-        span {
+        span, a {
             fa-icon {
                 margin-right: .5em;
                 vertical-align: middle;
@@ -55,13 +55,6 @@
             font-weight: 400;
         }
 
-    }
-
-    span.separator {
-        width: 1px;
-        margin-left: .85em !important;
-        align-self: stretch;
-        background-color: var(--header-ct);
     }
 
     #profile, #login, #logout, #notifications, #theme-switch { cursor: pointer; }
@@ -80,16 +73,12 @@
         font-weight: 600 !important;
     }
 
-    #logout {
+    /* #logout {
         &:hover { color: var(--accent-negative); }
-    }
+    } */
 
     #notifications {
         &:hover { color: var(--accent-mild); }
-    }
-
-    #theme-switch {
-        &:hover { color: var(--accent-neutral); }
     }
 
 }

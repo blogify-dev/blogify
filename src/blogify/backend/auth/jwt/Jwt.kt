@@ -61,7 +61,7 @@ suspend fun validateJwt(callContext: ApplicationCall, token: String): Suspendabl
             .parseClaimsJws(token)
     } catch(e: JwtException) {
         logger.debug("${"invalid token attempted".red()} - ${e.javaClass.simpleName.takeLastWhile { it != '.' }}")
-        e.printStackTrace()
+        println(e.message?.red())
         return SuspendableResult.error(e)
     } catch (e: Exception) {
         logger.debug("${"unknown exception during token validation -".red()} - ${e.javaClass.simpleName.takeLastWhile { it != '.' }}")

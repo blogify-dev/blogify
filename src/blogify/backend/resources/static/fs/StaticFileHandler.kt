@@ -2,13 +2,14 @@ package blogify.backend.resources.static.fs
 
 import blogify.backend.resources.static.models.StaticData
 import blogify.backend.resources.static.models.StaticResourceHandle
-import com.andreapivetta.kolor.red
 
 import io.ktor.http.ContentType
 
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
+
+import com.andreapivetta.kolor.red
 
 import org.slf4j.LoggerFactory
 

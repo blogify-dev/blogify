@@ -3,8 +3,8 @@ package blogify.backend.util
 import blogify.backend.database.Comments
 import blogify.backend.resources.Comment
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
-import blogify.backend.resources.slicing.sanitize
-import blogify.backend.services.articles.CommentService
+import blogify.backend.resources.reflect.sanitize
+import blogify.backend.services.CommentService
 
 import io.ktor.application.ApplicationCall
 

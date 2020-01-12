@@ -29,17 +29,15 @@ export class LoginComponent implements OnInit {
     async login() {
         this.authService.login(this.loginCredentials)
             .then(async token => {
-                console.log(token);
-
                 const uuid = await this.authService.userUUID;
                 this.user = await this.authService.userProfile;
 
-                console.log('LOGIN ->');
-                console.log(uuid);
-                console.log(this.user);
-                console.log(this.loginCredentials);
-                console.log(this.authService.userToken);
-                console.log(this.redirectTo);
+                // console.log('LOGIN ->');
+                // console.log(uuid);
+                // console.log(this.user);
+                // console.log(this.loginCredentials);
+                // console.log(this.authService.userToken);
+                // console.log(this.redirectTo);
 
                 if (this.redirectTo) {
                     await this.router.navigateByUrl(this.redirectTo);
@@ -58,9 +56,9 @@ export class LoginComponent implements OnInit {
             .then(async user => {
                 this.user = user;
 
-                console.log('REGISTER ->');
-                console.log(this.user);
-                console.log(this.registerCredentials);
+                // console.log('REGISTER ->');
+                // console.log(this.user);
+                // console.log(this.registerCredentials);
 
                 if (this.redirectTo) {
                     await this.router.navigateByUrl(this.redirectTo);

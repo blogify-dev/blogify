@@ -1,4 +1,4 @@
-import {StaticFile} from './Static';
+import { StaticFile } from './Static';
 
 export class User {
   constructor (
@@ -6,7 +6,9 @@ export class User {
     public username: string,
     public name: string,
     public email: string,
-    public profilePicture: StaticFile
+    public followers: string[],
+    public profilePicture: StaticFile,
+    public coverPicture: StaticFile
   ) {}
 }
 

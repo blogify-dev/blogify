@@ -1,5 +1,7 @@
 @file:Suppress("SpellCheckingInspection", "PropertyName")
 
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 val ktor_version:      String by project
 val kotlin_version:    String by project
 val logback_version:   String by project
@@ -11,6 +13,7 @@ val spring_security_core_version: String by project
 plugins {
     application
     kotlin("jvm") version "1.3.41"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.3.60"
 
     id("com.github.johnrengelman.shadow") version "5.1.0"
     id("com.avast.gradle.docker-compose") version "0.9.4"
@@ -20,7 +23,14 @@ group   = "blogify"
 version = "0.1.0"
 
 application {
-    mainClassName = "io.ktor.server.netty.EngineMain"
+    mainClassName = "io.ktor.server.tomcat.EngineMain"
+}
+
+buildscript {
+    dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.61")
+        classpath("org.jetbrains.kotlin:kotlin-serialization:1.3.61")
+    }
 }
 
 repositories {
@@ -38,9 +48,10 @@ dependencies {
 
     // Ktor
 
-    compile("io.ktor:ktor-server-netty:$ktor_version")
+    compile("io.ktor:ktor-server-tomcat:$ktor_version")
     compile("ch.qos.logback:logback-classic:$logback_version")
     compile("io.ktor:ktor-server-core:$ktor_version")
+    compile("io.ktor:ktor-network-tls:$ktor_version")
     compile("io.ktor:ktor-locations:$ktor_version")
     compile("io.ktor:ktor-auth:$ktor_version")
     compile("io.ktor:ktor-auth-jwt:$ktor_version")
@@ -56,7 +67,8 @@ dependencies {
     // Database stuff
 
     compile("org.postgresql:postgresql:$pg_driver_version")
-    compile("org.jetbrains.exposed:exposed:$exposed_version")
+    compile("org.jetbrains.exposed:exposed-core:$exposed_version")
+    compile("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     compile("com.zaxxer:HikariCP:$hikari_version")
 
     // Spring security for hashing
@@ -82,6 +94,15 @@ dependencies {
     runtime("io.jsonwebtoken:jjwt-impl:0.10.7")
     runtime("io.jsonwebtoken:jjwt-jackson:0.10.7")
 
+    // Config
+
+    compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0")
+    compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime-configparser:0.14.0")
+
+    // Testing
+
+    implementation("org.junit.jupiter:junit-jupiter:5.5.2")
+
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
@@ -89,6 +110,18 @@ kotlin.sourceSets["test"].kotlin.srcDirs("test")
 
 sourceSets["main"].resources.srcDirs("resources")
 sourceSets["test"].resources.srcDirs("testresources")
+
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions.jvmTarget = "1.8"
+}
 
 // Fat jar
 
@@ -109,7 +142,7 @@ dockerCompose {
 
     projectName = "blogify"
 
-    waitForTcpPorts = true
+    waitForTcpPorts = false
     stopContainers  = true
 }
 

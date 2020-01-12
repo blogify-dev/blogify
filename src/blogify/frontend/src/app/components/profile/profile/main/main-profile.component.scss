@@ -7,17 +7,28 @@
 
         margin-bottom: 1em;
 
-        display:         flex;
-        flex-direction:  row;
-        justify-content: space-between;
-        align-items:     center;
+        //height: 10rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.15rem;
 
-        #header-user-name {
-            margin-left: .5em;
+        .separator {
+            margin-left: 1.75rem !important;
+        }
+
+        #header-follow-button {
+            align-self: center;
+
+            margin-left: 1.75rem;
             margin-right: auto;
+        }
 
-            font-size: 2.75em;
-            font-weight: 600;
+        #flexible-space {
+            flex-grow: 10;
+        }
+
+        #header-tabs {
+            justify-self: end;
         }
 
     }

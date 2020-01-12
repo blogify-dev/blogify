@@ -38,8 +38,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
             this.user = await this.authService.getByUsername(username);
 
-            console.log(this.user.username + ' GOTTEN');
-
             this.articleService.getArticleByForUser(username,
                 ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
             ).then(it => {

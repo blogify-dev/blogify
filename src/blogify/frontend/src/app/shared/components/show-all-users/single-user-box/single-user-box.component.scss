@@ -1,0 +1,100 @@
+@import "../../../../../styles/layouts";
+@import "../../../../../styles/queries";
+
+.user {
+
+    display:         flex;
+    flex-direction:  column;
+    justify-content: center;
+    align-items:     flex-start;
+
+    color: var(--card-fg);
+    background: var(--card-bg);
+
+    border: none;
+    border-radius: $std-border-radius;
+
+    $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.20);
+    -webkit-box-shadow: $box-shadow;
+    -moz-box-shadow: $box-shadow;
+    box-shadow: $box-shadow;;
+
+    padding: 1.2em 1.5em;
+
+    margin-top: 1.25em;
+
+    .user-first-line {
+        width: 100%;
+
+        text-align: center;
+
+        display:         flex;
+        flex-direction:  row;
+        justify-content: space-between;
+        align-items:     center;
+
+        .header-title {
+            text-align: left;
+        }
+
+        .user-author {
+            display:         flex;
+            flex-direction:  row;
+            justify-content: flex-start;
+            align-items:     center;
+
+            .author-pfp {
+                margin-right: .85em;
+            }
+
+            .author-name { font-size: 1.7em; font-weight: 600; }
+
+        }
+
+    }
+
+    .user-read-more { color: var(--card-fg); }
+
+    .user-last-line {
+        width: 100%;
+
+        margin-top: 1rem;
+
+        text-align: center;
+
+        display:         flex;
+        flex-direction:  row;
+        justify-content: space-between;
+        align-items:     center;
+
+        $element-separation: 1.5rem;
+        .separator {
+            margin-left: $element-separation !important;
+        }
+        a {
+            display:         flex;
+            flex-direction:  row;
+            justify-content: space-between;
+            align-items:     center;
+
+            fa-icon:first-child { margin-right: .7rem; }
+
+            span { font-size: 1.4rem; }
+            font-weight: 600;
+
+            @media (max-width: $query-desktop) {
+                & .button-text {
+                    display: none;
+                }
+            }
+
+            &:not(:first-child) { margin-left: $element-separation; }
+        }
+
+        .user-share {
+            margin-right: auto;
+        }
+
+    }
+
+}

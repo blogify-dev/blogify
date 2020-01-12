@@ -8,7 +8,7 @@ input, button, textarea, select {
 input, textarea {
     color: var(--card-fg);
 
-    padding: .65em .9em;
+    padding: .65rem .9rem;
 
     border-radius: $std-border-radius;
     border: 1px solid var(--border-color);
@@ -126,11 +126,11 @@ button {
 
     // Color classes
 
-    &.neutral  { background: var(--accent-neutral); }
-    &.positive { background: var(--accent-positive); }
-    &.mild     { background: var(--accent-mild); }
-    &.negative { background: var(--accent-negative); }
-    &.gray     { background: var(--accent-gray); }
+    &.neutral  { color: black; background-color: var(--accent-neutral) }
+    &.positive { color: black; background-color: var(--accent-positive); }
+    &.mild     { color: black; background-color: var(--accent-mild); }
+    &.negative { color: black; background-color: var(--accent-negative); }
+    &.gray     { color: black; background-color: var(--accent-gray); }
 
     // Shape classes
 
@@ -154,5 +154,30 @@ button {
     &.rounded {
         border-radius: 1.15em;
         padding: .5em 1.15em;
+        &.small { padding: .4em 1em; }
     }
+}
+
+*.clickable {
+
+    cursor: pointer;
+
+    &:not(.no-highlight) {
+        &:hover, &:hover * { color: var(--accent-neutral); }
+    }
+
+    &:hover.hover-neutral  { &, & * {color: var(--accent-neutral);  } };
+    &:hover.hover-positive { &, & * {color: var(--accent-positive); } };
+    &:hover.hover-mild     { &, & * {color: var(--accent-mild);     } };
+    &:hover.hover-negative { &, & * {color: var(--accent-negative); } };
+    &:hover.hover-gray     { &, & * {color: var(--accent-gray);     } };
+
+}
+
+span.separator {
+    width: 1px;
+
+    margin-left: .85em !important;
+    align-self: stretch;
+    background-color: var(--header-ct);
 }

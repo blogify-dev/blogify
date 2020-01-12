@@ -1,4 +1,4 @@
-<section class="articles">
+<section class="articles" *ngIf="articles">
 
     <div id="articles-header">
         <!-- Back arrow, if necessary -->
@@ -15,7 +15,8 @@
                *ngIf="!showingMobileSearchBar"
                id="header-search-pad"
                type="text" placeholder="Search / Filter ... Type '?' for help"
-               (keydown.enter)="navigateToSearch()">
+               (keydown.enter)="navigateToSearch()"
+               (keydown.escape)="stopSearch()">
 
         <!-- Mobile search pad -->
         <!--suppress HtmlFormInputWithoutLabel -->
@@ -42,6 +43,13 @@
 
     <div id="articles-main" *ngIf="!showingSearchResults">
         <app-single-article-box *ngFor="let article of articles" [article]="article"></app-single-article-box>
+    </div>
+
+    <div id="no-content" *ngIf="articles.length == 0 && !showingSearchResults">
+        <div id="content-empty">
+            <fa-icon [icon]="faTimes" size="5x"></fa-icon>
+            <span id="content-empty-text">{{noContentMessage}}</span>
+        </div>
     </div>
 
     <div id="search-results" *ngIf="showingSearchResults">

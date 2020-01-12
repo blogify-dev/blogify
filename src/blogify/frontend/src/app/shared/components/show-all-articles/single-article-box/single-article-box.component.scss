@@ -1,4 +1,5 @@
 @import "../../../../../styles/layouts";
+@import "../../../../../styles/queries";
 
 .article {
 
@@ -9,6 +10,10 @@
 
     color: var(--card-fg);
     background: var(--card-bg);
+
+    &:hover {
+        background: var(--header-bg);
+    }
 
     border: none;
     border-radius: $std-border-radius;
@@ -69,43 +74,64 @@
     .article-last-line {
         width: 100%;
 
+        margin-top: 1rem;
+
         text-align: center;
 
         display:         flex;
         flex-direction:  row;
         justify-content: space-between;
         align-items:     center;
-    }
 
-    .article-comments-count {
-        display:         flex;
-        flex-direction:  row;
-        justify-content: space-between;
-        align-items:     center;
-
-        fa-icon:first-child { margin-right: .75em; }
-
-        align-self: flex-end;
-    }
-
-    .article-no-tags,
-    .article-tags {
-        display:    flex;
-        align-self: flex-end;
-
-        margin-top: 1.2em;
-
-        & > * {
-            font-size: 1.35em;
-            margin:    0    .25em;
-            padding:  .15em .65em;
-
-            border-radius: .3em;
-
-            &:not(:nth-child(1)) { background-color: var(--card-ct); }
-            &:nth-child(1)       { margin-right: 0; padding-right: 0; }
-            &:last-child         { margin-right: 0 }
+        $element-separation: 1.5rem;
+        .separator {
+            margin-left: $element-separation !important;
         }
+        a {
+            display:         flex;
+            flex-direction:  row;
+            justify-content: space-between;
+            align-items:     center;
+
+            fa-icon:first-child { margin-right: .7rem; }
+
+            span { font-size: 1.4rem; }
+            font-weight: 600;
+
+            @media (max-width: $query-desktop) {
+                & .button-text {
+                    display: none;
+                }
+            }
+
+            &:not(:first-child) { margin-left: $element-separation; }
+        }
+
+        .article-comments-count {
+
+        }
+
+        .article-share {
+            margin-right: auto;
+        }
+
+        .article-no-tags,
+        .article-tags {
+            display: flex;
+
+            & > * {
+                font-size: 1.35em;
+                margin:    0    .25em;
+                padding:  .25em .75em;
+
+                border-radius: $std-border-radius;
+
+                &:not(:nth-child(1)) { background-color: var(--card-ct); }
+                &:nth-child(1)       { margin-right: 0; padding-right: 0; }
+                &:last-child         { margin-right: 0 }
+            }
+        }
+
     }
 
 }

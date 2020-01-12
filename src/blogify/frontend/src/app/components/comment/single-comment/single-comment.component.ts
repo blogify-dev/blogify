@@ -12,6 +12,7 @@ import { ArticleService } from '../../../services/article/article.service';
 })
 export class SingleCommentComponent implements OnInit {
 
+    @Input() parent: Comment;
     @Input() comment: Comment;
     @Input() child: boolean;
 
@@ -21,23 +22,30 @@ export class SingleCommentComponent implements OnInit {
     replyComment: Comment;
     replyError: string;
 
-    constructor (private authService: AuthService,
-                 private commentsService: CommentsService,
-                 private articleService: ArticleService) {}
+    constructor (
+        private authService: AuthService,
+        private commentsService: CommentsService,
+        private articleService: ArticleService,
+    ) {}
 
     async ngOnInit() {
 
-        // Fetch full user instead of uuid only if it hasn't been fetched
+        // Fetch full user instead of uuid only if it hasn't been fetched, or get it from parent if available
 
-        if (typeof this.comment.commenter === 'string') {
+        if (this.parent !== undefined && this.parent.commenter === this.comment.commenter) {
+            this.comment.commenter = this.parent.commenter;
+        } else if (typeof this.comment.commenter === 'string') {
             this.comment.commenter = await this.authService.fetchUser(this.comment.commenter);
         }
 
-        // Fetch full article instead of uuid only if it hasn't been fetched
+        // Article is always the same as parent
 
-        if (typeof this.comment.article === 'string') {
+        if (this.parent !== undefined) {
+            this.comment.article = this.parent.article;
+        } else if (typeof this.comment.article === 'string') {
             this.comment.article = await this.articleService.getArticleByUUID(this.comment.article);
         }
+
 
         this.isReady = true;
 
@@ -50,13 +58,9 @@ export class SingleCommentComponent implements OnInit {
             uuid: ''
         };
 
-        // console.log(`type: ${this.replyComment.commenter instanceof User}, logged in: ${this.authService.isLoggedIn()}, istype: ${this.authService.userProfile instanceof User}`);
     }
 
     async replyToSelf() {
-
-        console.log(this.replyComment.commenter instanceof User);
-
         // Make sure the user is authenticated
         if (this.authService.observeIsLoggedIn() && this.replyComment.commenter instanceof User) {
             await this.commentsService.replyToComment (

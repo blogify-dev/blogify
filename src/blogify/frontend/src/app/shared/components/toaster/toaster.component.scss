@@ -1,0 +1,46 @@
+@import "../../../../styles/queries";
+
+.toast {
+    width: 300px;
+    @media (max-width: $query-desktop) {
+        width: calc(100% - 2rem);
+    }
+
+    position: fixed;
+    top:   7rem;
+    right: 2rem;
+    left:  unset;
+    @media (max-width: $query-desktop) {
+        top:   unset;
+        right: 2rem !important;
+        left:  1rem;
+        bottom: 1rem;
+    }
+
+    padding: 1rem 1.5rem;
+    border-radius: .75rem;
+
+    transition: opacity 1000ms ease-in-out, background-color 150ms ease-in-out;
+    &.clearing { opacity: 0; }
+
+    display:         flex;
+    flex-direction:  row;
+    justify-content: stretch;
+
+    .toast-body {
+
+        .toast-header {
+            padding-top: 0;
+        }
+
+    }
+
+    .toast-icon {
+        display:         flex;
+        flex-direction:  column;
+        justify-content: center;
+
+        margin-left: auto;
+    }
+
+}

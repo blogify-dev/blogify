@@ -1,18 +1,19 @@
 package blogify.backend.resources
 
+import blogify.backend.annotations.check
+import blogify.backend.annotations.search.*
+import blogify.backend.database.Articles
+import blogify.backend.database.Comments
+import blogify.backend.resources.computed.compound
+import blogify.backend.resources.computed.models.Computed
+import blogify.backend.resources.models.Resource
+import blogify.backend.database.referredToBy
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
-import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
-import blogify.backend.annotations.check
-import blogify.backend.annotations.noslice
-import blogify.backend.database.Articles
-import blogify.backend.resources.models.Resource
-import blogify.backend.database.handling.query
-
-import org.jetbrains.exposed.sql.select
-
-import java.util.*
+import java.time.Instant
+import java.util.UUID
 
 /**
  * Represents an Article [Resource].
@@ -31,20 +32,26 @@ import java.util.*
     property  = "uuid"
 )
 data class Article (
+
+    @QueryByField
     val title: @check("^.{0,512}") String,
 
-    val createdAt: Long = Date().time,
+    @SearchDefaultSort
+    val createdAt: Int = Instant.now().epochSecond.toInt(),
 
-    @JsonIdentityReference(alwaysAsId = true)
-    val createdBy: User,
+    val createdBy: @DelegatedSearch User,
 
+    @QueryByField
     val content: String,
 
     val summary: String,
 
-    val categories: List<Category>,
+    @NoSearch
+    val categories: @DelegatedSearch List<Category>,
 
+    @NoSearch
     override val uuid: UUID = UUID.randomUUID()
+
 ) : Resource(uuid) {
 
     /**
@@ -52,12 +59,12 @@ data class Article (
      *
      * @property name The name content of the category.
      */
-    data class Category(val name: String)
+    data class Category(@DelegatedSearchReceiver val name: String)
 
-    suspend fun category(): List<Category> = query {
-        Articles.Categories.select {
-            Articles.Categories.article eq this@Article.uuid
-        }.toList().map{ Articles.Categories.convert(it) }
-    }.get()
+    @[Computed NoSearch]
+    val likeCount by compound { Articles.uuid referredToBy Articles.Likes.article }
+
+    @[Computed NoSearch]
+    val commentCount by compound { Articles.uuid referredToBy Comments.article }
 
 }

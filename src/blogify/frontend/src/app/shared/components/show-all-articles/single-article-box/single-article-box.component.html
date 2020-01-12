@@ -1,6 +1,6 @@
 <div class="article">
 
-    <div class="article-first-line">
+    <div class="article-first-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
         <!-- Title -->
         <h1 class="header-title">{{article.title}}</h1>
 
@@ -8,7 +8,7 @@
         <app-user-display [user]="article.createdBy" emSize="2.25"></app-user-display>
     </div>
 
-    <div class="article-second-line">
+    <div class="article-second-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
         <!-- Summary -->
         <span class="article-summary">{{article.summary}}</span>
 
@@ -16,13 +16,37 @@
         <span class="article-posted-at">{{article.createdAt | relativeTime}}</span>
     </div>
 
-    <h3 class="article-read-more">
-        <a class="article-read-more" routerLink="/article/{{article.uuid}}">Read More</a>
-    </h3>
-
     <div class="article-last-line">
+        <!-- Like count - clickable -->
+        <a class="article-like-count clickable negative"
+           *ngIf="loggedInObs | async"
+           (click)="toggleLike()"
+        >
+            <fa-icon [icon]="this.article.likedByUser ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 19 }"></fa-icon>
+            <span>&ensp;{{this.article.likedByUser ? article.likeCount + 1 : this.article.likeCount}}</span>
+        </a>
+
+        <!-- Like count - non-clickable -->
+        <a class="article-like-count negative" *ngIf="!(loggedInObs | async)">
+            <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 19 }"></fa-icon>
+            <span>&ensp;{{article.likeCount}}</span>
+        </a>
+
+        <span class="separator"></span>
+
         <!-- Comment count -->
-        <h4 class="article-comments-count"><fa-icon [icon]="faCommentAlt" size="lg"></fa-icon> {{article.numberOfComments}}</h4>
+        <a class="article-comments-count clickable">
+            <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ y: 1, size: 17 }"></fa-icon>
+            <span>&ensp;{{article.commentCount}}</span>
+        </a>
+
+        <span class="separator"></span>
+
+        <!-- Share button -->
+        <a class="article-share clickable" (click)="copyLinkToClipboard()">
+            <fa-icon [icon]="faCopy" size="2x" [transform]="{ rotate: 1, size: 12 }"></fa-icon>
+            <span class="button-text">Share</span>
+        </a>
 
         <!-- Categories -->
         <div class="article-tags" *ngIf="article.categories.length > 0">
@@ -32,8 +56,8 @@
 
         <!-- No categories -->
         <span class="article-no-tags" *ngIf="article.categories.length == 0">
-                    <em>No tags</em>
-                </span>
+            <em>No tags</em>
+        </span>
     </div>
 
 </div>

@@ -10,7 +10,9 @@ export class Article {
         public createdBy: User | string,
         public createdAt: number,
         public categories: Category[],
-        public numberOfComments: number = 0,
+        public likedByUser: boolean | null = null,
+        public likeCount: number = 0,
+        public commentCount: number = 0,
     ) {}
 
 }

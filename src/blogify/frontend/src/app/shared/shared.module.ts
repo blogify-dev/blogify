@@ -9,9 +9,13 @@ import { RelativeTimePipe } from './relative-time/relative-time.pipe';
 import { UserDisplayComponent } from './components/user-display/user-display.component';
 import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
 import { CompactDirective } from './directives/compact/compact.directive';
-import {FormsModule} from "@angular/forms";
+import { FormsModule } from "@angular/forms";
 import { SingleArticleBoxComponent } from './components/show-all-articles/single-article-box/single-article-box.component';
 import { FilteringMenuComponent } from './components/show-all-articles/filtering-menu/filtering-menu.component';
+import { ToasterComponent } from './components/toaster/toaster.component';
+import { AdminRoutingModule } from '../components/admin/admin/admin-routing.module';
+import { ShowAllUsersComponent } from './components/show-all-users/show-all-users.component';
+import { SingleUserBoxComponent } from './components/show-all-users/single-user-box/single-user-box.component';
 
 @NgModule({
     declarations: [
@@ -24,10 +28,14 @@ import { FilteringMenuComponent } from './components/show-all-articles/filtering
         UserDisplayComponent,
         SingleArticleBoxComponent,
         FilteringMenuComponent,
+        ToasterComponent,
+        ShowAllUsersComponent,
+        SingleUserBoxComponent,
     ],
     imports: [
         CommonModule,
         ProfileRoutingModule,
+        AdminRoutingModule,
         FontAwesomeModule,
         FormsModule,
     ],
@@ -38,7 +46,9 @@ import { FilteringMenuComponent } from './components/show-all-articles/filtering
         TabHeaderComponent,
         ProfilePictureComponent,
         ShowAllArticlesComponent,
-        UserDisplayComponent
+        UserDisplayComponent,
+        ToasterComponent,
+        ShowAllUsersComponent
     ]
 })
 export class SharedModule { }

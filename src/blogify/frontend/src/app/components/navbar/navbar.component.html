@@ -15,18 +15,23 @@
 
         <span id="navbar-right" *ngIf="!(authService.observeIsLoggedIn() | async) || user">
 
-            <span id="profile" *ngIf="authService.observeIsLoggedIn() | async" (click)="navigateToProfile()">
-                <app-profile-picture [pfpFile]="user.profilePicture" emSize="2"></app-profile-picture>
-                {{user.name}}
-            </span>
+            <app-user-display
+                class="collapse-on-mobile"
+                id="profile"
+                [user]="user"
+                emSize="2"
+                sizeRatio="3.75"
+                *ngIf="authService.observeIsLoggedIn() | async"
+                (click)="navigateToProfile()">
+            </app-user-display>
 
             <span class="separator" *ngIf="authService.observeIsLoggedIn() | async"></span>
 
-            <span id="logout" *ngIf="authService.observeIsLoggedIn() | async" (click)="logout()">
+            <span id="logout" class="clickable hover-negative" *ngIf="authService.observeIsLoggedIn() | async" (click)="logout()">
                 <fa-icon size="lg" [icon]="faSignOutAlt" [transform]="{ y: -1, x: 2, size: 21 }"></fa-icon>
             </span>
 
-            <span id="login" *ngIf="!(authService.observeIsLoggedIn() | async)" (click)="navigateToLogin()">
+            <span id="login" class="clickable" *ngIf="!(authService.observeIsLoggedIn() | async)" (click)="navigateToLogin()">
                 Login
             </span>
 
@@ -36,7 +41,7 @@
                 <fa-icon size="lg" [icon]="faBell" [transform]="{ y: -1, size: 19 }"></fa-icon>
             </span>-->
 
-            <span id="theme-switch" (click)="toggleDarkMode()">
+            <span id="theme-switch" class="clickable" (click)="toggleDarkMode()">
                 <fa-icon size="lg" [icon]="faMoon" [transform]="{ y: -2, size: 17 }"></fa-icon>
             </span>
 

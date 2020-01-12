@@ -6,19 +6,26 @@ import com.andreapivetta.kolor.cyan
 
 import com.fasterxml.jackson.databind.*
 
-import blogify.backend.routes.articles.articles
-import blogify.backend.routes.users.users
+import blogify.backend.routing.articles
+import blogify.backend.routing.users.users
 import blogify.backend.database.Database
 import blogify.backend.database.Articles
 import blogify.backend.database.Comments
 import blogify.backend.database.Uploadables
 import blogify.backend.database.Users
-import blogify.backend.routes.auth
+import blogify.backend.routing.auth
 import blogify.backend.database.handling.query
+import blogify.backend.resources.Article
+import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
-import blogify.backend.routes.static
+import blogify.backend.routing.admin.adminSearch
+import blogify.backend.routing.static
 import blogify.backend.search.Typesense
+import blogify.backend.search.ext._searchTemplate
+import blogify.backend.search.models.Template
+import blogify.backend.util.ContentTypeSerializer
 import blogify.backend.util.SinglePageApplication
+import blogify.backend.util.matches
 
 import io.ktor.application.call
 import io.ktor.features.Compression
@@ -31,6 +38,7 @@ import io.ktor.features.CachingHeaders
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
+import io.ktor.features.HttpsRedirect
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.content.CachingOptions
@@ -44,8 +52,9 @@ import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
 
-const val version = "0.1.0"
+const val version = "0.2.0"
 
+@Suppress("GrazieInspection")
 const val asciiLogo = """
     __     __               _  ____      
    / /_   / /____   ____ _ (_)/ __/__  __
@@ -55,10 +64,6 @@ const val asciiLogo = """
                  /____/         /____/   
 ---- Version $version - Development build -
 """
-
-fun main(args: Array<String>) {
-    io.ktor.server.netty.EngineMain.main(args)
-}
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
@@ -74,15 +79,26 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         jackson {
             enable(SerializationFeature.INDENT_OUTPUT)
 
-            // Register a serializer for Resource.
+            // Register a serializer for Resource and Type.
             // This will only affect pure Resource objects, so elements produced by the slicer are not affected,
             // since those don't use Jackson for root serialization.
 
-            val resourceModule = SimpleModule()
-            resourceModule.addSerializer(Resource.ResourceIdSerializer)
+            val blogifyModule = SimpleModule()
+            blogifyModule.addSerializer(Resource.ResourceIdSerializer)
+            blogifyModule.addSerializer(Template.Field.Serializer)
+            blogifyModule.addSerializer(ContentTypeSerializer)
 
-            registerModule(resourceModule)
+            registerModule(blogifyModule)
         }
+    }
+
+    // Initialize HTTPS refirection
+
+    install(HttpsRedirect) {
+        // The port to redirect to. By default 443, the default HTTPS port.
+        sslPort = 443
+        // 301 Moved Permanently, or 302 Found redirect.
+        permanentRedirect = true
     }
 
     // Initialize call logging
@@ -106,18 +122,22 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     // Default headers
 
     install(DefaultHeaders) {
-        header("Server", "blogify-core $version")
-        header("X-Powered-By", "Ktor 1.2.3")
+        header("X-Blogify-Version", "blogify-core $version")
+        header("X-Blogify-Backend", "Ktor 1.2.6")
     }
 
     // Caching headers
 
     install(CachingHeaders) {
         options {
-            when (it.contentType?.withoutParameters()) {
-                ContentType.Text.JavaScript ->
+            val contentType = it.contentType?.withoutParameters() ?: return@options null
+
+            when {
+                contentType matches ContentType.Application.JavaScript ->
                     CachingOptions(CacheControl.MaxAge(30 * 60))
-                ContentType.Application.Json ->
+                contentType matches ContentType.Image.Any ->
+                    CachingOptions(CacheControl.MaxAge(60 * 60))
+                contentType matches ContentType.Application.Json ->
                     CachingOptions(CacheControl.MaxAge(60))
                 else -> null
             }
@@ -130,75 +150,25 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
     // Create tables if they don't exist
 
-    runBlocking { query {
-        SchemaUtils.create (
-            Articles,
-            Articles.Categories,
-            Users,
-            Comments,
-            Uploadables
-        ).also {
-            val articleJson  = """
-                {
-                  "name": "articles",
-                  "fields": [
-                    {
-                      "name": "title",
-                      "type": "string"
-                    },
-                    {
-                      "name": "createdAt",
-                      "type": "float"
-                    },
-                    {
-                      "name": "createdBy",
-                      "type": "string"
-                    },
-                    {
-                      "name": "content",
-                      "type": "string"
-                    },
-                    {
-                      "name": "summary",
-                      "type": "string"
-                    },
-                    {
-                      "name": "categories",
-                      "type": "string[]",
-                      "facet": true
-                    }
-                  ],
-                  "default_sorting_field": "createdAt"
-                }
-            """.trimIndent()
-            val userJson = """{
-                "name": "users",
-                "fields": [
-                    {
-                      "name": "username",
-                      "type": "string"
-                    },
-                    {
-                      "name": "name",
-                      "type": "string"
-                    },
-                    {
-                      "name": "email",
-                      "type": "string"
-                    },
-                    {
-                      "name": "dsf_jank",
-                      "type": "int32"
-                    }
-              ],
-              "default_sorting_field": "dsf_jank"
-            }""".trimIndent()
-
-            Typesense.submitResourceTemplate(articleJson)
-            Typesense.submitResourceTemplate(userJson)
-
+    runBlocking {
+        query {
+            SchemaUtils.createMissingTablesAndColumns (
+                Articles,
+                Articles.Categories,
+                Users,
+                Users.Follows,
+                Articles.Likes,
+                Comments,
+                Uploadables
+            )
         }
-    }}
+
+        // Submit search templates
+
+        Typesense.submitResourceTemplate(Article::class._searchTemplate)
+        Typesense.submitResourceTemplate(User::class._searchTemplate)
+
+    }
 
     // Initialize routes
 
@@ -209,6 +179,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             users()
             auth()
             static()
+            adminSearch()
         }
 
         get("/") {

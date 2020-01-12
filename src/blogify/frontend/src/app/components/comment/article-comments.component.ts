@@ -35,13 +35,13 @@ export class ArticleCommentsComponent implements OnInit {
                 out.push(comment);
             });
             this.rootComments = out;
-
-            console.log(out);
         });
-    }
 
-    getNewComment(comment: Comment) {
-        this.rootComments.push(comment);
+        this.commentService.latestRootSubmittedComment.subscribe(comment => {
+            if (comment) {
+                this.rootComments.push(comment);
+            }
+        });
     }
 
     isLoggedIn(): boolean {

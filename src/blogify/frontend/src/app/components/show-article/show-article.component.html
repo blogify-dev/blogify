@@ -22,31 +22,34 @@
             <!-- Author -->
             <app-user-display [user]="article.createdBy" emSize="2.75"></app-user-display>
 
+            <span class="separator"></span>
+
             <!-- Timestamp -->
             <span class="date">{{article.createdAt | relativeTime}}</span>
 
+            <span class="separator"></span>
+
+            <!-- Share button -->
+            <a id="button-share" class="clickable" (click)="copyUrlToClipboard()">
+                <fa-icon [icon]="faCopy" size="2x" [transform]="{ size: 14, y: 1 }"></fa-icon>
+            </a>
+
              <!-- Update button -->
-            <button routerLink="/article/update/{{article.uuid}}"
-                    id="button-update"
-                    class="hollow small neutral"
-                    *ngIf="showUpdateButton">
-                Update
-            </button>
+            <a id="button-update" class="clickable hover-positive" routerLink="/article/update/{{article.uuid}}" *ngIf="showUpdateButton">
+                 <fa-icon [icon]="faEdit" size="2x" [transform]="{ size: 15 }"></fa-icon>
+            </a>
 
             <!-- Delete button -->
-            <button (click)="deleteArticle()"
-                    id="button-delete"
-                    class="hollow small negative"
-                    *ngIf="showDeleteButton">
-                Delete
-            </button>
+            <a id="button-delete" class="clickable hover-negative" (click)="deleteArticle()" *ngIf="showUpdateButton">
+                <fa-icon [icon]="faTimes" size="2x" [transform]="{ size: 20 }"></fa-icon>
+            </a>
 
         </div>
 
     </div>
 
     <!-- Markdown-rendered content -->
-    <markdown data="{{article.content}}" [line]="'6, 10-16'" [lineOffset]="5"></markdown>
+    <markdown id="article-content" data="{{article.content}}" [line]="'6, 10-16'" [lineOffset]="5"></markdown>
 
     <!-- Comments section -->
     <div class="article-comments">

@@ -1,8 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-const milliSecondsInDay = 1000 * 3600 * 24;
-const milliSecondsInHour = 1000 * 3600;
-const milliSecondsInMinute = (1000 * 3600) / 60;
+const milliSecondsInDay = 1000 * 60 * 60 * 24;
+const milliSecondsInHour = 1000 * 60 * 60;
+const milliSecondsInMinute = 1000 * 60;
 
 // Cast as any because typescript typing haven't updated yet
 // tslint:disable-next-line:no-any
@@ -17,13 +17,15 @@ const rtf = new (Intl as any).RelativeTimeFormat('en');
 export class RelativeTimePipe implements PipeTransform {
 
     /**
-     * Transform function for `relativeTime` pipe
-     * @param timeInMills a unix timestamp
+     * Transform function for `relativeTime`
+     *
+     * @param epochTime a unix timestamp
+     *
+     * @return relative difference.
      * If the difference is less than a minute, it returns: 'Just now'
-     * @return relative difference
      */
-    transform(timeInMills: number): string {
-        const diffInMilliseconds = timeInMills - new Date().getTime();
+    transform(epochTime: number): string {
+        const diffInMilliseconds = (epochTime * 1000) - new Date().getTime();
         const formattedDays = rtf.format(Math.round(diffInMilliseconds / milliSecondsInDay), 'day');
 
         const formattedHour = formattedDays !== '0 days ago' ? formattedDays :

@@ -16,7 +16,8 @@ Currently, our own (very basic) testing shows that the server can handle upwards
 
 ## Building and deploying
 
-The default deploy configuration runs the backend and the database as `docker-compose` services. A functioning, local, test deployment can be achieved by running the `localTestDeploy` gradle task.
+The default deploy configuration runs the backend, the database and typesense search engine as `docker-compose` services. A functioning, local, test deployment can be achieved by running the `blogifyDeploy` gradle task.
+You need to provide the configuration for database and typesense using `db.yaml` and `ts.yaml` files respectively placed in the root of the project. `*.yaml.example` files have been provided for your guidance. 
 
 ## Core team
 

@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ArticleService } from '../../services/article/article.service';
 import { Article } from '../../models/Article';
 import { Subscription } from 'rxjs';
-import {User} from "../../models/User";
-import {AuthService} from "../../shared/auth/auth.service";
+import { User } from "../../models/User";
+import { AuthService } from "../../shared/auth/auth.service";
 
 @Component({
     selector: 'app-update-article',
@@ -27,14 +27,11 @@ export class UpdateArticleComponent implements OnInit {
     ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const articleUUID = map.get('uuid');
-            console.log(articleUUID);
 
             this.article = await this.articleService.getArticleByUUID(
                 articleUUID,
                 ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
             );
-
-            console.log(this.article);
         });
         this.authService.userProfile.then(it => { this.user = it })
     }

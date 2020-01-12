@@ -1,5 +1,7 @@
 <h2>Settings</h2>
 
-<input type="file" (change)="fileChange($event)">
-
+<input type="file" (change)="pfpFileChange($event)">
 <button (click)="setProfilePicture()">Set Profile Picture</button>
+
+<input type="file" (change)="coverFileChange($event)">
+<button (click)="setCoverPicture()">Set Cover Picture</button>

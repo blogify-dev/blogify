@@ -1,13 +1,32 @@
-<div id="main-container" *ngIf="user">
+<ng-container *ngIf="user">
+    <app-cover-picture [cvpFile]="user.coverPicture"></app-cover-picture>
 
-    <div id="container-header">
-        <app-profile-picture [pfpFile]="user.profilePicture"></app-profile-picture>
+    <div id="main-container" *ngIf="user" [style.padding-top]="user.coverPicture.fileId ? '1.75em' : '3em'">
 
-        <span id="header-user-name">{{user.name}}</span>
+        <div id="container-header">
+            <app-user-display
+                [user]="user"
+                info="name"
+                showSecondaryInfo="true">
+            </app-user-display>
 
-        <app-tab-header id="header-tabs" [tabs]="finalTabs"></app-tab-header>
+            <ng-container *ngIf="isLoggedIn && !isSelf">
+                <span class="separator"></span>
+
+                <button id="header-follow-button"
+                        class="hollow small rounded {{alreadyFollowed ? 'negative' : 'positive'}}"
+                        type="button"
+                        (click)="toggleFollow()"
+                        [innerText]="(alreadyFollowed ? 'Unfollow @' : 'Follow @') + user.username">
+                </button>
+            </ng-container>
+
+            <span id="flexible-space"></span>
+
+            <app-tab-header id="header-tabs" [tabs]="finalTabs"></app-tab-header>
+        </div>
+
+        <router-outlet></router-outlet>
+
     </div>
-
-    <router-outlet></router-outlet>
-
-</div>
+</ng-container>

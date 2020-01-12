@@ -1,4 +1,5 @@
 @import "../../../styles/mixins";
+@import "../../../styles/layouts";
 
 .container-article {
     @include pageContainer(true, 80%);
@@ -29,9 +30,9 @@
             &:not(.article-no-tags) > * {
 
                 margin:    0    .25em;
-                padding:  .15em .65em;
+                padding:  .25em .75em;
 
-                border-radius: .3em;
+                border-radius: $std-border-radius;
 
                 background-color: var(--header-bg);
                 &:first-child { margin-left: 0; }
@@ -54,26 +55,42 @@
             justify-content: flex-start;
             align-items:     center;
 
+            * { vertical-align: middle; }
+
             .user {
                 margin-left: .5em;
                 font-size: 1.85em;
-                font-weight: bold;
+            }
+
+            .date {
+                margin-left: 1rem;
+                font-size: 1.5em;
+                margin-top: 4px;
+            }
+
+            .separator {
+                height: 20px;
+                margin: auto 0 auto 1rem !important;
+            }
+
+            #button-share {
+                margin-left: 1rem;
             }
 
             #button-update {
                 margin-left: auto;
+                cursor: pointer;
             }
 
             #button-delete {
-                margin-left: 1em;
+                margin-left: 1.75rem;
+                cursor: pointer;
             }
         }
 
     }
 
     #article-content {
-        width: 100%;
-        font-size: 1.15em;
         text-align: justify;
         text-justify: inter-word;
     }

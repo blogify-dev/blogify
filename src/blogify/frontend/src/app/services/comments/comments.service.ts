@@ -4,6 +4,7 @@ import { Comment } from '../../models/Comment';
 import { AuthService } from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
 import { Article } from '../../models/Article';
+import { BehaviorSubject } from 'rxjs';
 
 const commentsEndpoint = '/api/articles/comments';
 
@@ -11,11 +12,12 @@ const commentsEndpoint = '/api/articles/comments';
     providedIn: 'root'
 })
 export class CommentsService {
+    private newRootComment = new BehaviorSubject<Comment>(undefined);
 
     constructor(private httpClient: HttpClient, private authService: AuthService) {}
 
     async getCommentsForArticle(article: Article): Promise<Comment[]> {
-        const comments = await this.httpClient.get<Comment[]>(`${commentsEndpoint}/${article.uuid}`).toPromise();
+        const comments = await this.httpClient.get<Comment[]>(`${commentsEndpoint}/article/${article.uuid}`).toPromise();
         const userUUIDs = new Set<string>();
         comments.forEach(it => {
             userUUIDs.add(it.commenter.toString());
@@ -26,6 +28,13 @@ export class CommentsService {
             it.commenter = users.find((user) => user.uuid === it.commenter.toString());
         });
         return comments;
+    }
+
+    // tslint:disable-next-line
+    async getComment(uuid: string): Promise<Comment> {
+        const comment = await this.httpClient.get<Comment>(`${commentsEndpoint}/${uuid}`).toPromise();
+        comment.commenter = await this.authService.fetchUser(comment.commenter.toString());
+        return comment;
     }
 
     async deleteComment(commentUUID: string, userToken: string = this.authService.userToken): Promise<object> {
@@ -44,7 +53,7 @@ export class CommentsService {
         articleUUID: string,
         userUUID: string,
         userToken: string = this.authService.userToken
-    ) {
+    ): Promise<Comment> {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
@@ -59,12 +68,14 @@ export class CommentsService {
             content: commentContent
         };
 
-        const res = await this.httpClient.post(`${commentsEndpoint}`, comment, httpOptions).toPromise();
-        if (res == null) {
-            return comment;
-        } else {
-            return undefined;
-        }
+        const res = await this.httpClient.post<Comment>(`${commentsEndpoint}`, comment, httpOptions).toPromise();
+        console.log('---------Comment------');
+        console.log(res);
+
+        this.newRootComment.next(res);
+        console.log('next');
+
+        return res;
     }
 
     async replyToComment(
@@ -99,5 +110,9 @@ export class CommentsService {
 
     async getChildrenOf(commentUUID: string, depth: number): Promise<Comment> {
         return  this.httpClient.get<Comment>(`/api/articles/comments/tree/${commentUUID}/?depth=${depth}`).toPromise();
+    }
+
+    get latestRootSubmittedComment() {
+        return this.newRootComment.asObservable();
     }
 }
