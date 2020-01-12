@@ -1,5 +1,6 @@
-package blogify.backend.resources.static.fs
+package blogify.backend.resources.static.file
 
+import blogify.backend.resources.static.image.imageHandle
 import blogify.backend.resources.static.models.StaticData
 import blogify.backend.resources.static.models.StaticResourceHandle
 

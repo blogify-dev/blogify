@@ -11,6 +11,7 @@ import blogify.backend.routing.users.users
 import blogify.backend.database.Database
 import blogify.backend.database.Articles
 import blogify.backend.database.Comments
+import blogify.backend.database.ImageUploadablesMetadata
 import blogify.backend.database.Uploadables
 import blogify.backend.database.Users
 import blogify.backend.routing.auth
@@ -52,7 +53,7 @@ import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
 
-const val version = "0.2.0"
+const val version = "0.3.0-preRelease"
 
 @Suppress("GrazieInspection")
 const val asciiLogo = """
@@ -159,7 +160,8 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
                 Users.Follows,
                 Articles.Likes,
                 Comments,
-                Uploadables
+                Uploadables,
+                ImageUploadablesMetadata
             )
         }
 

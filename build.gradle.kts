@@ -57,6 +57,10 @@ dependencies {
     compile("io.ktor:ktor-auth-jwt:$ktor_version")
     compile("io.ktor:ktor-jackson:$ktor_version")
 
+    // Metadata Extractor
+
+    implementation("com.drewnoakes:metadata-extractor:2.12.0")
+
     // Ktor client
 
     compile("io.ktor:ktor-client-cio:$ktor_version")

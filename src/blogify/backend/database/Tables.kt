@@ -7,6 +7,7 @@ import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
+import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.services.ArticleService
 import blogify.backend.services.UserService
@@ -15,6 +16,7 @@ import blogify.backend.services.models.Service
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
+import blogify.backend.util.matches
 
 import io.ktor.application.ApplicationCall
 import io.ktor.http.ContentType
@@ -288,9 +290,40 @@ object Uploadables : Table() {
     override val primaryKey = PrimaryKey(fileId)
 
     suspend fun convert(@Suppress("UNUSED_PARAMETER") callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<StaticResourceHandle.Ok, Service.Exception> {
-        StaticResourceHandle.Ok (
-            contentType = ContentType.parse(source[contentType]),
-            fileId      = source[fileId]
+        // If it's an image, read metadata
+        return@of if (ContentType.parse(source[contentType]) matches "image/*") {
+            StaticResourceHandle.Ok.Image (
+                contentType = ContentType.parse(source[contentType]),
+                fileId      = source[fileId],
+                metadata = query {
+                    ImageUploadablesMetadata.select {
+                        ImageUploadablesMetadata.handleId eq source[fileId]
+                    }
+                        .singleOrNull()
+                        ?.let { row -> ImageUploadablesMetadata.convert(Resource.ObjectResolver.FakeApplicationCall, row) }
+                        ?.get() ?: ImageMetadata(0, 0)
+                }.get()
+            )
+        } else { // If not, just return a normal handle
+            StaticResourceHandle.Ok (
+                contentType = ContentType.parse(source[contentType]),
+                fileId      = source[fileId]
+            )
+        }
+    }
+
+}
+
+object ImageUploadablesMetadata : Table() {
+
+    val handleId = varchar ("id", 32).references(Uploadables.fileId, onDelete = CASCADE, onUpdate = RESTRICT)
+    val width    = integer ("width")
+    val height   = integer ("height")
+
+    suspend fun convert(@Suppress("UNUSED_PARAMETER") callContext: ApplicationCall, source: ResultRow) = Sr.of<ImageMetadata, Exception> {
+        ImageMetadata (
+            source[width],
+            source[height]
         )
     }
 

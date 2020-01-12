@@ -34,17 +34,19 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.cachedPropMap
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
-import blogify.backend.resources.static.fs.StaticFileHandler
+import blogify.backend.resources.static.file.StaticFileHandler
 import blogify.backend.resources.static.models.StaticData
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.services.models.Service
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
+import blogify.backend.database.ImageUploadablesMetadata
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.resources.reflect.verify
+import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.routing.pipelines.CallPipeline
 import blogify.backend.routing.pipelines.fetchResource
 import blogify.backend.routing.pipelines.fetchResources
@@ -83,6 +85,11 @@ import com.github.kittinunf.result.coroutines.map
 
 import com.andreapivetta.kolor.magenta
 import com.andreapivetta.kolor.yellow
+import com.drew.imaging.ImageMetadataReader
+import com.drew.metadata.exif.ExifImageDirectory
+import com.drew.metadata.jpeg.JpegDirectory
+import com.drew.metadata.png.PngDirectory
+import kotlinx.coroutines.Dispatchers
 
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -94,6 +101,7 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -304,12 +312,53 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
                 StaticData(fileContentType, fileBytes)
             )
 
+            // Write to db
             query {
                 Uploadables.insert {
                     it[fileId]      = newHandle.fileId
                     it[contentType] = newHandle.contentType.toString()
                 }
             }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing static resource to db")
+
+            // Is it an image ? If so, create and store metadata
+            if (fileContentType matches ContentType.Image.Any) {
+                val metadata = withContext(Dispatchers.IO) { ImageMetadataReader.readMetadata(fileBytes.inputStream()) }
+
+                var imageWidth: Int = 0
+                var imageHeight: Int = 0
+
+                when {
+                    fileContentType matches ContentType.Image.PNG -> {
+                        val pngMeta = metadata.getFirstDirectoryOfType(PngDirectory::class.java)
+
+                        imageWidth = pngMeta.getInt(PngDirectory.TAG_IMAGE_WIDTH)
+                        imageHeight = pngMeta.getInt(PngDirectory.TAG_IMAGE_HEIGHT)
+                    }
+                    fileContentType matches ContentType.Image.JPEG -> {
+                        val jpegMeta = metadata.getFirstDirectoryOfType(JpegDirectory::class.java)
+
+                        imageWidth = jpegMeta.getInt(JpegDirectory.TAG_IMAGE_WIDTH)
+                        imageHeight = jpegMeta.getInt(JpegDirectory.TAG_IMAGE_HEIGHT)
+                    }
+                    else -> {
+                        val exif = metadata.getFirstDirectoryOfType(ExifImageDirectory::class.java)
+                            ?: pipelineError(HttpStatusCode.UnsupportedMediaType, "image must be png, jpeg or contain exif")
+
+                        imageWidth = exif.getInt(ExifImageDirectory.TAG_IMAGE_WIDTH)
+                        imageHeight = exif.getInt(ExifImageDirectory.TAG_IMAGE_HEIGHT)
+                    }
+                }
+
+                val imageMetadata = ImageMetadata(imageWidth, imageHeight)
+
+                query {
+                    ImageUploadablesMetadata.insert {
+                        it[handleId] = newHandle.fileId
+                        it[width] = imageMetadata.width
+                        it[height] = imageMetadata.height
+                    }
+                }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing image metadata to db")
+            }
 
             service<R>().update(targetResource, mapOf(targetPropHandle to newHandle))
                 .getOrPipelineError(HttpStatusCode.InternalServerError, "error while updating resource ${targetResource.uuid.short()} with new information")

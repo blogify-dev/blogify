@@ -14,6 +14,7 @@ fun <T, R> T.letCatchingOrNull(block: (T) -> R): R? {
 }
 
 infix fun ContentType.matches(other: ContentType) = this.match(other)
+infix fun ContentType.matches(other: String) = this.match(other)
 
 /**
  * Returns the content of an environment variable, or `null` if it's empty / non-existent

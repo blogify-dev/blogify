@@ -1,6 +1,13 @@
 package blogify.backend.resources.static.models
 
+import blogify.backend.database.ImageUploadablesMetadata
+import blogify.backend.database.handling.query
+import blogify.backend.resources.models.Resource
+import blogify.backend.resources.static.image.ImageMetadata
+import blogify.backend.util.getOrPipelineError
+import com.drew.metadata.Metadata
 import io.ktor.http.ContentType
+import org.jetbrains.exposed.sql.select
 
 /**
  * Represents a pointer to an uploaded file (or lack thereof)
@@ -9,7 +16,7 @@ import io.ktor.http.ContentType
  *
  * @author Benjozork
  */
-sealed class StaticResourceHandle(val contentType: ContentType) {
+sealed class StaticResourceHandle(open val contentType: ContentType) {
 
     /**
      * Represents a pointer to a file that hasn't been uploaded yet
@@ -25,8 +32,10 @@ sealed class StaticResourceHandle(val contentType: ContentType) {
      *
      * @param fileId the file ID to make it point to
      */
-    class Ok(contentType: ContentType, val fileId: String): StaticResourceHandle(contentType) {
+    open class Ok(contentType: ContentType, val fileId: String): StaticResourceHandle(contentType) {
         override fun toString(): String = "Ok(contentType=$contentType, fileId=$fileId)"
+
+        class Image(val metadata: ImageMetadata, contentType: ContentType, fileId: String): Ok(contentType, fileId)
     }
 
 }

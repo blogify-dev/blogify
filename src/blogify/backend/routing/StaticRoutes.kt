@@ -1,6 +1,6 @@
 package blogify.backend.routing
 
-import blogify.backend.resources.static.fs.StaticFileHandler
+import blogify.backend.resources.static.file.StaticFileHandler
 import blogify.backend.routing.pipelines.pipeline
 
 import io.ktor.application.call
