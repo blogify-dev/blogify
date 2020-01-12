@@ -148,7 +148,7 @@ suspend inline fun <reified R : Resource> PipelineContext<Unit, ApplicationCall>
 
     if (selectedProperties == null) {
         logger.debug("slicer: getting all fields".magenta())
-        call.respond(resources.map { it.sanitize() })
+        call.respond(resources.map { it.sanitize(excludeUndisplayed = true) })
     } else {
         logger.debug("slicer: getting fields $selectedProperties".magenta())
         call.respond(resources.map { it.slice(selectedProperties) })
@@ -178,7 +178,7 @@ suspend inline fun <reified R : Resource> CallPipeline.fetchResource (
 
         if (selectedProperties == null) {
             logger.debug("slicer: getting all fields".magenta())
-            call.respond(resource.sanitize())
+            call.respond(resource.sanitize(excludeUndisplayed = true))
         } else {
             logger.debug("slicer: getting fields $selectedProperties".magenta())
             call.respond(resource.slice(selectedProperties))
@@ -222,7 +222,7 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 
                                 call.respond(fetched.map { it.slice(props) })
 
-                            } ?: call.respond(fetched.map { it.sanitize() })
+                            } ?: call.respond(fetched.map { it.sanitize(excludeUndisplayed = true) })
                         } catch (bruhMoment: Service.Exception) {
                             call.respondExceptionMessage(bruhMoment)
                         }
@@ -324,8 +324,8 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
             if (fileContentType matches ContentType.Image.Any) {
                 val metadata = withContext(Dispatchers.IO) { ImageMetadataReader.readMetadata(fileBytes.inputStream()) }
 
-                var imageWidth: Int = 0
-                var imageHeight: Int = 0
+                val imageWidth: Int
+                val imageHeight: Int
 
                 when {
                     fileContentType matches ContentType.Image.PNG -> {
@@ -354,8 +354,8 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
                 query {
                     ImageUploadablesMetadata.insert {
                         it[handleId] = newHandle.fileId
-                        it[width] = imageMetadata.width
-                        it[height] = imageMetadata.height
+                        it[width]    = imageMetadata.width
+                        it[height]   = imageMetadata.height
                     }
                 }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing image metadata to db")
             }
@@ -472,7 +472,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createResource (
         handleAuthentication(predicate = { u -> authPredicate(u, received) }) {
             service<R>().add(received).fold (
                 success = {
-                    call.respond(HttpStatusCode.Created, it.sanitize())
+                    call.respond(HttpStatusCode.Created, it.sanitize(excludeUndisplayed = true))
                     launch { Typesense.uploadResource(it) }
                 },
                 failure = call::respondExceptionMessage

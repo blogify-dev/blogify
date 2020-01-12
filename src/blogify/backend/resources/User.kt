@@ -2,6 +2,7 @@ package blogify.backend.resources
 
 import blogify.backend.annotations.search.NoSearch
 import blogify.backend.annotations.Invisible
+import blogify.backend.annotations.Undisplayed
 import blogify.backend.annotations.search.DelegatedSearchReceiver
 import blogify.backend.annotations.search.QueryByField
 import blogify.backend.annotations.search.SearchDefaultSort
@@ -58,6 +59,7 @@ data class User (
     @Invisible
     val isAdmin: Boolean = false,
 
+    @Undisplayed
     @SearchDefaultSort
     val dsf: Int = Random.nextInt(),
 

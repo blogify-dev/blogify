@@ -99,7 +99,7 @@ object Typesense {
     inline fun <reified R : Resource> makeDocument(resource: R): Map<String, Any?> {
         val template = R::class._searchTemplate
 
-        val documentEntries = (resource.sanitize(noSearch = true) + ("id" to resource.uuid)).entries
+        val documentEntries = (resource.sanitize(excludeNoSearch = true) + ("id" to resource.uuid)).entries
             .map {
                 it.key to (
                         template.delegatedFields

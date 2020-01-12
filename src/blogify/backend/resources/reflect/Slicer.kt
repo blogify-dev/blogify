@@ -3,6 +3,7 @@ package blogify.backend.resources.reflect
 import blogify.backend.annotations.search.NoSearch
 import blogify.backend.resources.models.Resource
 import blogify.backend.annotations.Invisible
+import blogify.backend.annotations.Undisplayed
 import blogify.backend.resources.computed.models.ComputedPropertyDelegate
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.valid
@@ -131,15 +132,17 @@ fun <M : Resource> M.slice(selectedPropertyNames: Set<String>): Map<String, Any?
  *
  * @receiver the [resource][Resource] to be sliced
  *
- * @param noSearch whether or not to exclude properties with a [NoSearch] annotation
+ * @param excludeNoSearch    whether or not to exclude properties with a [NoSearch] annotation
+ * @param excludeUndisplayed whether or not to exclude properties with an [Undisplayed] annotation
  *
  * @author Benjozork
  */
-fun <M : Resource> M.sanitize(noSearch: Boolean = false): Map<String, Any?> {
+fun <M : Resource> M.sanitize(excludeNoSearch: Boolean = false, excludeUndisplayed: Boolean = false): Map<String, Any?> {
     val sanitizedClassProps = this::class.cachedPropMap().valid()
         .asSequence()
         .filter {
-            !noSearch || it.value.property.findAnnotation<NoSearch>() == null
+            (!excludeNoSearch || it.value.property.findAnnotation<NoSearch>() == null)
+                    && (!excludeUndisplayed || it.value.property.findAnnotation<Undisplayed>() == null)
         }
         .map { it.key }
         .toSet()
