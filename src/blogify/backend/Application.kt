@@ -52,7 +52,7 @@ import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
 
-const val version = "0.2.0-preRelease"
+const val version = "0.2.0"
 
 @Suppress("GrazieInspection")
 const val asciiLogo = """
