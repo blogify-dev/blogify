@@ -89,13 +89,13 @@ open class Service<R : Resource>(val table: ResourceTable<R>) {
 
     suspend fun add(res: R): Sr<R> = this.table.insert(res)
 
-    suspend fun update(res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): SuspendableResult<R, Exception> {
+    suspend fun update(res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R> {
         val new = blogify.backend.resources.reflect.update(res, rawData)
             .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't update resource")
 
         this.table.update(new)
 
-        return Sr.of { new }
+        return Wrap { new }
     }
 
     /**

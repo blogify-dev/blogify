@@ -33,6 +33,7 @@ import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.selectAll
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
+import com.github.kittinunf.result.coroutines.getOrElse
 
 import java.util.UUID
 
@@ -47,7 +48,7 @@ abstract class ResourceTable<R : Resource> : Table() {
             .let { this.convert(callContext, it).get() }
     }
 
-    abstract suspend fun convert(callContext: ApplicationCall, source: ResultRow): SuspendableResult<R, Service.Exception.Fetching>
+    abstract suspend fun convert(callContext: ApplicationCall, source: ResultRow): Sr<R>
 
     abstract suspend fun insert(resource: R): Sr<R>
 
@@ -76,7 +77,7 @@ object Articles : ResourceTable<Article>() {
     val summary    = text    ("summary")
 
     override suspend fun insert(resource: Article): Sr<Article> {
-        return Sr.of {
+        return Wrap {
             query {
                 this.insert {
                     it[uuid]      = resource.uuid
@@ -95,7 +96,7 @@ object Articles : ResourceTable<Article>() {
                 }
             }
 
-            return@of resource
+            return@Wrap resource
         }
     }
 
@@ -185,7 +186,7 @@ object Users : ResourceTable<User>() {
     }
 
     override suspend fun insert(resource: User): Sr<User> {
-        return Sr.of {
+        return Wrap {
             query {
                 Users.insert {
                     it[uuid]           = resource.uuid
@@ -197,7 +198,7 @@ object Users : ResourceTable<User>() {
                     it[isAdmin]        = resource.isAdmin
                 }
             }
-            return@of resource
+            return@Wrap resource
         }
 
     }
@@ -244,7 +245,7 @@ object Comments : ResourceTable<Comment>() {
     val parentComment = uuid ("parent_comment").references(uuid, onDelete = CASCADE).nullable()
 
     override suspend fun insert(resource: Comment): Sr<Comment> {
-        return Sr.of {
+        return Wrap {
             query {
                 this.insert {
                     it[uuid]          = resource.uuid
@@ -254,7 +255,7 @@ object Comments : ResourceTable<Comment>() {
                     it[parentComment] = resource.parentComment?.uuid
                 }
             }
-            return@of resource
+            return@Wrap resource
         }
     }
 
@@ -289,38 +290,40 @@ object Uploadables : Table() {
 
     override val primaryKey = PrimaryKey(fileId)
 
-    suspend fun convert(@Suppress("UNUSED_PARAMETER") callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<StaticResourceHandle.Ok, Service.Exception> {
-        // If it's an image, read metadata
-        return@of if (ContentType.parse(source[contentType]) matches "image/*") {
+    suspend fun convert(@Suppress("UNUSED_PARAMETER") callContext: ApplicationCall, source: ResultRow) = Wrap {
+
+        // Parse the content type
+        val contentType = ContentType.parse(source[contentType])
+
+        return@Wrap if (contentType matches ContentType.Image.Any) { // If it's an image, read metadata
             StaticResourceHandle.Ok.Image (
-                contentType = ContentType.parse(source[contentType]),
-                fileId      = source[fileId],
-                metadata = query {
-                    ImageUploadablesMetadata.select {
-                        ImageUploadablesMetadata.handleId eq source[fileId]
-                    }
-                        .singleOrNull()
-                        ?.let { row -> ImageUploadablesMetadata.convert(Resource.ObjectResolver.FakeApplicationCall, row) }
-                        ?.get() ?: ImageMetadata(0, 0)
-                }.get()
+                contentType = contentType,
+                fileId  = source[fileId],
+                metadata = ImageUploadablesMetadata.obtain(callContext, source[fileId])
+                    .getOrElse(ImageMetadata(0, 0))
             )
         } else { // If not, just return a normal handle
             StaticResourceHandle.Ok (
-                contentType = ContentType.parse(source[contentType]),
-                fileId      = source[fileId]
+                contentType = contentType,
+                fileId  = source[fileId]
             )
         }
     }
 
 }
 
-object ImageUploadablesMetadata : Table() {
+object ImageUploadablesMetadata : Table("image_metadata") {
 
     val handleId = varchar ("id", 32).references(Uploadables.fileId, onDelete = CASCADE, onUpdate = RESTRICT)
-    val width    = integer ("width")
-    val height   = integer ("height")
+    val width    = integer ("width").default(0)
+    val height   = integer ("height").default(0)
 
-    suspend fun convert(@Suppress("UNUSED_PARAMETER") callContext: ApplicationCall, source: ResultRow) = Sr.of<ImageMetadata, Exception> {
+    suspend fun obtain(callContext: ApplicationCall, id: String): Sr<ImageMetadata> = Wrap {
+        query { this.select { handleId eq id }.single() }.get()
+            .let { this.convert(callContext, it).get() }
+    }
+
+    private suspend fun convert(@Suppress("UNUSED_PARAMETER") callContext: ApplicationCall, source: ResultRow) = Wrap {
         ImageMetadata (
             source[width],
             source[height]

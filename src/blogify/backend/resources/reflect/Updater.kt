@@ -4,6 +4,7 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.util.Sr
+import blogify.backend.util.Wrap
 import blogify.backend.util.service
 import blogify.backend.util.toUUID
 
@@ -69,7 +70,7 @@ suspend fun <R : Resource> update(target: R, rawData: Map<PropMap.PropertyHandle
     logger.trace("attempting with paramMap: ${completeData.map { "${it.key.name}: ${it.value!!::class.simpleName}" }}".yellow())
     logger.trace("function wants paramMap: ${targetCopyFunction.parameters.map { "${it.name}: ${it.type.classifier}" } }".yellow())
 
-    return Sr.of<R, Exception> {
+    return Wrap {
         @Suppress("UNCHECKED_CAST")
         targetCopyFunction.callBy (
             completeData
