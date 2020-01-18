@@ -46,9 +46,11 @@ export class ShowAllUsersComponent implements OnInit {
                 const actualQuery = query.match(/^"[^"']+"$/) != null ? query.substring(1, query.length - 1) : null;
                 if (actualQuery != null) {
                     this.searchQuery = actualQuery;
+                    // noinspection JSIgnoredPromiseFromCall
                     this.startSearch();
                 }
             } else { // We are in a regular listing
+                // noinspection JSIgnoredPromiseFromCall
                 this.stopSearch();
             }
         });

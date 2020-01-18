@@ -34,9 +34,9 @@ export class SingleArticleBoxComponent implements OnInit {
     toggleLike() {
         this.articleService
             .likeArticle(this.article, this.authService.userToken)
-            .then(_ => {
+            .then(() => {
                 this.article.likedByUser = !this.article.likedByUser;
-            }).catch(error => {
+            }).catch(() => {
                 console.error(`[blogifyArticles] Couldn't like ${this.article.uuid}` )
             })
     }

@@ -138,7 +138,6 @@ export class ArticleService {
                 Authorization: `Bearer ${userToken}`
             })
         };
-        console.log('delete2');
         return this.httpClient.delete(`/api/articles/${uuid}`, httpOptions).toPromise();
     }
 

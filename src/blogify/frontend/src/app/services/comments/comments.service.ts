@@ -68,14 +68,7 @@ export class CommentsService {
             content: commentContent
         };
 
-        const res = await this.httpClient.post<Comment>(`${commentsEndpoint}`, comment, httpOptions).toPromise();
-        console.log('---------Comment------');
-        console.log(res);
-
-        this.newRootComment.next(res);
-        console.log('next');
-
-        return res;
+        return await this.httpClient.post<Comment>(`${commentsEndpoint}`, comment, httpOptions).toPromise();
     }
 
     async replyToComment(

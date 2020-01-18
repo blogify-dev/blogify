@@ -37,7 +37,6 @@ export class UpdateArticleComponent implements OnInit {
     }
 
     async updateArticle() {
-        console.log(this.article);
         await this.articleService.updateArticle(this.article);
         await this.router.navigateByUrl(`/article/${this.article.uuid}`);
     }

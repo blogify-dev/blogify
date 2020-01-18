@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { AuthService } from '../../shared/auth/auth.service';
 import { Router } from '@angular/router';
 import { DarkModeService } from '../../services/darkmode/dark-mode.service';
