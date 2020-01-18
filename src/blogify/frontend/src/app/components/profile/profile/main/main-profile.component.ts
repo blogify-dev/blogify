@@ -46,21 +46,16 @@ export class MainProfileComponent implements OnInit {
         this.route.params.subscribe(async (params: Params) => {
             let username = params['username'];
 
-            this.authService.getByUsername(username).then(profile => {
+            // Set the correct profile data
+            this.user = await this.authService.getByUsername(username);
 
-                // Set the correct profile data
-                this.user = profile;
-
-                this.authService.observeIsLoggedIn().subscribe(async value => {
-                    this.authService.userProfile.then(u => {
-                        this.alreadyFollowed
-                            = this.user.followers.findIndex(it => it === u.uuid) !== -1;
-                    }).catch(error => {
-                        alert('[blogifyProfiles] Error while fetching logged in profile: ' + error);
-                    });
+            this.authService.observeIsLoggedIn().subscribe(async () => {
+                this.authService.userProfile.then(u => {
+                    this.alreadyFollowed
+                        = this.user.followers.findIndex(it => it === u.uuid) !== -1;
+                }).catch(error => {
+                    alert('[blogifyProfiles] Error while fetching logged in profile: ' + error);
                 });
-            }).catch(error => {
-                alert('[blogifyProfiles] Error while fetching profile: \': ' + error);
             });
 
             // This second listener must always be called at least once after user variable is initialized,
@@ -91,7 +86,7 @@ export class MainProfileComponent implements OnInit {
             .then((r: HttpResponse<Object>) => {
                 if (r.status == 200) this.alreadyFollowed = !this.alreadyFollowed;
             }).catch(e => {
-                console.error(`[blogifyUsers] Couldn't like ${this.user.uuid}` )
+                console.error(`[blogifyUsers] Couldn't like ${this.user.uuid}`, e)
             });
     }
 
