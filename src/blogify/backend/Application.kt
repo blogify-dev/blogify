@@ -160,6 +160,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
                 Users.Follows,
                 Articles.Likes,
                 Comments,
+                Comments.Likes,
                 Uploadables,
                 ImageUploadablesMetadata
             )

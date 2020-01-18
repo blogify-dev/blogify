@@ -150,7 +150,7 @@ object Articles : ResourceTable<Article>() {
 
     }
 
-    object Likes: Table() {
+    object Likes: Table("article_likes") {
 
         val user    = uuid("user").references(Users.uuid, onDelete = CASCADE)
         val article = uuid("article").references(Articles.uuid, onDelete = CASCADE)
@@ -243,6 +243,14 @@ object Comments : ResourceTable<Comment>() {
     val article       = uuid ("article").references(Articles.uuid, onDelete = CASCADE)
     val content       = text ("content")
     val parentComment = uuid ("parent_comment").references(uuid, onDelete = CASCADE).nullable()
+
+    object Likes: Table("comment_likes") {
+
+        val user    = Comments.Likes.uuid("user").references(Users.uuid, onDelete = CASCADE)
+        val comment = Comments.Likes.uuid("comment").references(Comments.uuid, onDelete = CASCADE)
+
+        override val primaryKey = PrimaryKey(user, comment)
+    }
 
     override suspend fun insert(resource: Comment): Sr<Comment> {
         return Wrap {
