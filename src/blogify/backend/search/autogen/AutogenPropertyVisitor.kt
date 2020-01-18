@@ -27,7 +27,6 @@ object AutogenPropertyVisitor {
     fun <R : Resource> visitAndMapProperty(handle: PropMap.PropertyHandle.Ok): Template.Field {
         val property = handle.property
         val propertyClass = property.returnType.classifier as KClass<*>
-        val propertyAnnotations = property.annotations
         val typeAnnotations = property.returnType.annotations
 
         // Is it delegated ?

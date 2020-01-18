@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package blogify.backend.util
 
 import blogify.backend.resources.Article
@@ -20,6 +22,7 @@ val KClass<User>.service: UserService
 val KClass<Comment>.service: CommentService
     get() = CommentService
 
+@Suppress("UNCHECKED_CAST")
 val <R : Resource> KClass<R>.service: Service<R>
     get() {
         return when {

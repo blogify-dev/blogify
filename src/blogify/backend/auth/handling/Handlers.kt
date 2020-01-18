@@ -37,6 +37,7 @@ fun isUser(mustBe: User): UserAuthPredicate = { user ->
  * @param predicate the predicate used as a check for authentication
  * @param block     the call handling block that is run if the check succeeds
  */
+@Suppress("EXPERIMENTAL_API_USAGE")
 @BlogifyDsl
 suspend fun CallPipeline.runAuthenticated (
     predicate: UserAuthPredicate = { true },

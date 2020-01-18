@@ -114,7 +114,7 @@ object Articles : ResourceTable<Article>() {
     }
 
     override suspend fun delete(resource: Article) = Wrap {
-        val articleDeleted = super.delete(resource)
+        super.delete(resource)
         query {
             Categories.deleteWhere { Categories.article eq resource.uuid } == 1
         }
