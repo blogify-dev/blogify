@@ -21,8 +21,19 @@
         * { font-size: 1.15em; }
     }
 
-    .comment-buttons {
+    .comment-last-line {
         margin-top: .5em;
+
+        &, & * { font-size: 1.15rem; }
+
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+
+        .like-count {
+            margin-left: .85em;
+        }
     }
 
 }

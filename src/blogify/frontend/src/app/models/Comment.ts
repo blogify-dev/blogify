@@ -7,6 +7,7 @@ export class Comment {
         public commenter: User | string,
         public article: Article,
         public content: string,
+        public likesCount: number,
         public uuid: string,
         public parentComment?: Comment,
         public children?: Comment[]

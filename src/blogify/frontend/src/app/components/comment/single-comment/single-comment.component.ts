@@ -4,6 +4,7 @@ import { AuthService } from '../../../shared/auth/auth.service';
 import { CommentsService } from '../../../services/comments/comments.service';
 import { User } from '../../../models/User';
 import { ArticleService } from '../../../services/article/article.service';
+import {faHeart} from '@fortawesome/free-regular-svg-icons';
 
 @Component({
   selector: 'app-single-comment',
@@ -21,6 +22,8 @@ export class SingleCommentComponent implements OnInit {
     replyingEnabled: boolean = false;
     replyComment: Comment;
     replyError: string;
+
+    faHeartOutline = faHeart;
 
     constructor (
         private authService: AuthService,
@@ -54,6 +57,7 @@ export class SingleCommentComponent implements OnInit {
         this.replyComment = {
             commenter: await this.authService.observeIsLoggedIn() ? await this.authService.userProfile : '',
             article: this.comment.article,
+            likesCount: 0,
             content: '',
             uuid: ''
         };

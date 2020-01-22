@@ -8,8 +8,16 @@
         <markdown class="content-text">{{comment.content}}</markdown>
     </div>
 
-    <div class="comment-buttons">
+    <div class="comment-last-line">
         <span class="button-reply" (click)="replyingEnabled = !replyingEnabled">Reply</span>
+
+        <span class="separator"></span>
+
+        <!-- Like count - non-clickable -->
+        <span class="like-count negative">
+            <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 14 }"></fa-icon>
+            <span>&ensp;{{comment.likesCount}}</span>
+        </span>
     </div>
 
     <app-create-comment [replying]="replyingEnabled" [comment]="comment"></app-create-comment>
