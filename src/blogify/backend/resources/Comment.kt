@@ -33,6 +33,8 @@ data class Comment(
 
     override val uuid: UUID = UUID.randomUUID()
 ) : Resource(uuid) {
+
     @[Computed NoSearch]
     val likesCount by compound { Comments.uuid referredToBy Comments.Likes.comment }
+
 }
