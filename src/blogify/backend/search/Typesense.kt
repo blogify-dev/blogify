@@ -19,16 +19,16 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.url
-import io.ktor.client.response.HttpResponse
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.http.isSuccess
-import io.ktor.client.call.receive
-import io.ktor.client.features.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.client.request.delete
+import io.ktor.client.statement.HttpStatement
+import io.ktor.client.call.receive
+import io.ktor.client.features.defaultRequest
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
@@ -40,6 +40,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.util.UUID
+
 import kotlin.random.Random
 
 val tscLogger: Logger = LoggerFactory.getLogger("blogify-typesense-client")
@@ -118,7 +119,7 @@ object Typesense {
     /**
      * Get a message from a Typesense error response
      */
-    suspend fun typesenseMessage(response: HttpResponse) = response.receive<Map<String, Any?>>()["message"] as? String
+    fun typesenseMessage(response: Map<String, Any?>) = response["message"] as? String
 
     /**
      * Uploads a document template to the Typesense REST API
@@ -130,19 +131,19 @@ object Typesense {
      * @author hamza1311, Benjozork
      */
     suspend fun <R : Resource> submitResourceTemplate(template: Template<R>) {
-        typesenseClient.post<HttpResponse> {
+        typesenseClient.post<HttpStatement> {
             url("$TYPESENSE_URL/collections")
             contentType(ContentType.Application.Json)
 
             body = template
-        }.let { response ->
+        }.execute { response ->
             when (response.status) {
                 HttpStatusCode.Created,
                 HttpStatusCode.Conflict -> { // Both of those cases mean the template either already exists or was created
                     tscLogger.info("uploaded Typesense template '${template.name}'".green())
                 }
                 else -> {
-                    error("error while uploading Typesense template: ${template.name} ${typesenseMessage(response)}")
+                    error("error while uploading Typesense template: ${template.name} ${typesenseMessage(response.receive())}")
                 }
             }
         }
@@ -159,16 +160,16 @@ object Typesense {
     suspend inline fun <reified R : Resource> uploadResource(resource: R) {
         val template = R::class._searchTemplate
 
-        typesenseClient.post<HttpResponse> {
+        typesenseClient.post<HttpStatement> {
             url("$TYPESENSE_URL/collections/${template.name}/documents")
             contentType(ContentType.Application.Json)
 
             body = makeDocument(resource)
-        }.let { response ->
+        }.execute { response ->
             if (response.status.isSuccess()) {
                 tscLogger.trace("uploaded resource ${resource.uuid.short()} to Typesense index".green())
             } else {
-                tscLogger.error("couldn't upload resource ${resource.uuid.short()} to Typesense index: ${typesenseMessage(response)}".red())
+                tscLogger.error("couldn't upload resource ${resource.uuid.short()} to Typesense index: ${typesenseMessage(response.receive())}".red())
             }
         }
     }
@@ -184,13 +185,13 @@ object Typesense {
     suspend inline fun <reified R : Resource> deleteResource(id: UUID) {
         val template = R::class._searchTemplate
 
-        typesenseClient.delete<HttpResponse> {
+        typesenseClient.delete<HttpStatement> {
             url("$TYPESENSE_URL/collections/${template.name}/documents/$id")
-        }.let { response ->
+        }.execute { response ->
             if (response.status.isSuccess()) {
                 tscLogger.trace("deleted resource ${id.short()} from Typesense index".green())
             } else {
-                tscLogger.error("couldn't delete resource ${id.short()} from Typesense index: ${typesenseMessage(response)}".red())
+                tscLogger.error("couldn't delete resource ${id.short()} from Typesense index: ${typesenseMessage(response.receive())}".red())
             }
         }
     }
@@ -228,7 +229,7 @@ object Typesense {
         val filtersString = filters.takeIf { it.isNotEmpty() }?.entries
             ?.joinToString(separator = "&&") { "${it.key.name}:${it.value}" }
 
-        return typesenseClient.get<HttpResponse> {
+        return typesenseClient.get<HttpStatement> {
             url (
                 TYPESENSE_URL +
                 "/collections/${template.name}" +
@@ -237,11 +238,11 @@ object Typesense {
                 "&exclude_fields=$excludedFieldsString" +
                 if (filtersString != null) "&filter_by=$filtersString" else ""
             )
-        }.let { response ->
+        }.execute() { response ->
             if (response.status.isSuccess()) {
-                return@let response.receive<Search<R>>()
+                return@execute response.receive<Search<R>>()
             } else {
-                tscLogger.error("couldn't search in Typesense index ${template.name}: ${typesenseMessage(response)}".red())
+                tscLogger.error("couldn't search in Typesense index ${template.name}: ${typesenseMessage(response.receive())}".red())
                 pipelineError(HttpStatusCode.InternalServerError, "error during Typesense search")
             }
         }
@@ -256,11 +257,11 @@ object Typesense {
      *
      * @param R The [Resource] whose corresponding index is to be refreshed
      *
-     * @return The [HttpResponse] of the request
+     * @return The [HttpStatement] of the request
      *
      * @author hamza1311
      */
-    suspend inline fun <reified R: Resource> refreshIndex(): HttpResponse {
+    suspend inline fun <reified R: Resource> refreshIndex(): HttpStatement {
         val resources = service<R>().getAll().get()
         val docs = resources.map { this.makeDocument(it) }
 
@@ -276,11 +277,11 @@ object Typesense {
      *
      * @param documents The documents to be imported. These are converted into a format typesense can understand before sending the request
      *
-     * @return The [HttpResponse] of the request
+     * @return The [HttpStatement] of the request
      *
      * @author Benjozork, hamza1311
      */
-    suspend inline fun <reified R : Resource> bulkUploadResources(documents: List<Map<String, Any?>>): HttpResponse {
+    suspend inline fun <reified R : Resource> bulkUploadResources(documents: List<Map<String, Any?>>): HttpStatement {
         val template = R::class._searchTemplate
 
         return typesenseClient.post {
@@ -296,11 +297,11 @@ object Typesense {
      * Drops a typesense collection
      * @param R The resource whose collection is to be dropped
      *
-     * @return The [HttpResponse] of the request
+     * @return The [HttpStatement] of the request
      *
      * @author hamza1311
      */
-    suspend inline fun <reified R : Resource> deleteCollection(): HttpResponse {
+    suspend inline fun <reified R : Resource> deleteCollection(): HttpStatement {
         val template = R::class._searchTemplate
 
         return typesenseClient.delete {
