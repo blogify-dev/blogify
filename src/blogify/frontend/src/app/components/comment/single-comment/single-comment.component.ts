@@ -4,7 +4,8 @@ import { AuthService } from '../../../shared/auth/auth.service';
 import { CommentsService } from '../../../services/comments/comments.service';
 import { User } from '../../../models/User';
 import { ArticleService } from '../../../services/article/article.service';
-import {faHeart} from '@fortawesome/free-regular-svg-icons';
+import { faHeart } from '@fortawesome/free-regular-svg-icons';
+import { faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-single-comment',
@@ -24,12 +25,15 @@ export class SingleCommentComponent implements OnInit {
     replyError: string;
 
     faHeartOutline = faHeart;
+    faHeartFilled = faHeartFilled;
 
     constructor (
         private authService: AuthService,
         private commentsService: CommentsService,
         private articleService: ArticleService,
     ) {}
+
+    loggedInObs = this.authService.observeIsLoggedIn();
 
     async ngOnInit() {
 
@@ -49,7 +53,6 @@ export class SingleCommentComponent implements OnInit {
             this.comment.article = await this.articleService.getArticleByUUID(this.comment.article);
         }
 
-
         this.isReady = true;
 
         // We're ready, so we can populate the dummy reply comment
@@ -58,6 +61,8 @@ export class SingleCommentComponent implements OnInit {
             commenter: await this.authService.observeIsLoggedIn() ? await this.authService.userProfile : '',
             article: this.comment.article,
             likesCount: 0,
+            likedByUser: false,
+            likedImmediate: false,
             content: '',
             uuid: ''
         };
@@ -78,12 +83,17 @@ export class SingleCommentComponent implements OnInit {
         }
     }
 
-    /**
-     * @returns either the username of the comment, or it's UUID if it hasn't been fetched yet
-     */
-    usernameText(): string {
-        if (typeof this.comment.commenter === 'string') return this.comment.commenter;
-        else return this.comment.commenter.username
+    toggleLike() {
+        this.commentsService
+            .likeComment(this.comment, this.authService.userToken)
+            .then(() => {
+                this.comment.likedByUser = !this.comment.likedByUser;
+                if (this.comment.likedByUser) {
+                    this.comment.likesCount++;
+                } else this.comment.likesCount--;
+            }).catch(() => {
+            console.error(`[blogifyComments] Couldn't like ${this.comment.uuid}` )
+        })
     }
 
 }

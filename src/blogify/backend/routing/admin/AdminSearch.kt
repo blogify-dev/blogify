@@ -6,7 +6,6 @@ import blogify.backend.resources.User
 import blogify.backend.search.Typesense
 
 import io.ktor.application.call
-import io.ktor.client.call.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
