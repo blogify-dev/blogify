@@ -7,7 +7,7 @@ import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
-import blogify.backend.routing.pipelines.fetchResource
+import blogify.backend.routing.pipelines.obtainResource
 import blogify.backend.routing.pipelines.pipeline
 import blogify.backend.routing.handling.deleteResource
 import blogify.backend.routing.handling.deleteUpload
@@ -26,6 +26,7 @@ import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
+
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -102,7 +103,7 @@ fun Route.users() {
 
             pipeline("uuid") { (uuid) ->
 
-                val following = fetchResource(UserService::get, uuid.toUUID())
+                val following = obtainResource<User>(uuid.toUUID())
 
                 runAuthenticated {
 

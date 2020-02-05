@@ -34,6 +34,13 @@ private val logger = LoggerFactory.getLogger("blogify-pipeline-manager")
 typealias CallPipeline = PipelineContext<Unit, ApplicationCall>
 
 /**
+ * Represents a server call pipeline
+ *
+ * @author Benjozork
+ */
+typealias GenericCallPipeline = PipelineContext<*, ApplicationCall>
+
+/**
  * Represents a server call handler function
  *
  * @author Benjozork
@@ -105,8 +112,8 @@ suspend fun CallPipeline.handleAuthentication(funcName: String = "<unspecified>"
  * Simplifies fetching a resource from a [CallPipeline]
  */
 @PipelinesDsl
-suspend fun <R : Resource> CallPipeline.fetchResource(fetcher: suspend (ApplicationCall, UUID) -> Sr<R>, id: UUID): R {
-    return fetcher(call, id)
+suspend inline fun <reified R : Resource> GenericCallPipeline.obtainResource(id: UUID): R {
+    return (service<R>()::get)(call, id)
         .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 
@@ -114,8 +121,8 @@ suspend fun <R : Resource> CallPipeline.fetchResource(fetcher: suspend (Applicat
  * Simplifies fetching resources from a [CallPipeline]
  */
 @PipelinesDsl
-suspend fun <R : Resource> CallPipeline.fetchResources(fetcher: suspend (ApplicationCall, Int) -> SrList<R>, limit: Int = 25): List<R> {
-    return fetcher(call, limit)
+suspend inline fun <reified R : Resource> GenericCallPipeline.obtainResources(limit: Int = 25): List<R> {
+    return (service<R>()::getAll)(call, limit)
         .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 

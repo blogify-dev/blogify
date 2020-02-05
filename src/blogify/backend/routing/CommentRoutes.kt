@@ -15,15 +15,14 @@ import blogify.backend.routing.handling.fetchAllResources
 import blogify.backend.routing.handling.fetchAllWithId
 import blogify.backend.routing.handling.fetchResource
 import blogify.backend.routing.handling.updateResource
+import blogify.backend.routing.pipelines.obtainResource
 import blogify.backend.routing.pipelines.pipeline
-import blogify.backend.services.ArticleService
 import blogify.backend.services.CommentService
 import blogify.backend.util.expandCommentNode
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
 import blogify.backend.util.toUUID
 import io.ktor.http.HttpStatusCode
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
@@ -79,8 +78,7 @@ fun Route.articleComments() {
         get("/{uuid}/like") {
             pipeline("uuid") { (id) ->
                 runAuthenticated {
-                    val comment = CommentService.get(call, id.toUUID())
-                        .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch comment")
+                    val comment = this.obtainResource<Comment>(id.toUUID())
 
                     val liked = query {
                         likes.select {

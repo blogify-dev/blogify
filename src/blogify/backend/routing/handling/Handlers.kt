@@ -48,8 +48,8 @@ import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.resources.reflect.verify
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.routing.pipelines.CallPipeline
-import blogify.backend.routing.pipelines.fetchResource
-import blogify.backend.routing.pipelines.fetchResources
+import blogify.backend.routing.pipelines.obtainResource
+import blogify.backend.routing.pipelines.obtainResources
 import blogify.backend.routing.pipelines.handleAuthentication
 import blogify.backend.routing.pipelines.optionalParam
 import blogify.backend.routing.pipelines.pipeline
@@ -89,7 +89,6 @@ import com.drew.imaging.ImageMetadataReader
 import com.drew.metadata.exif.ExifImageDirectory
 import com.drew.metadata.jpeg.JpegDirectory
 import com.drew.metadata.png.PngDirectory
-import kotlinx.coroutines.Dispatchers
 
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -102,6 +101,7 @@ import java.util.UUID
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -144,7 +144,7 @@ suspend inline fun <reified R : Resource> PipelineContext<Unit, ApplicationCall>
     val limit = optionalParam("amount")?.toInt() ?: 25
     val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
 
-    val resources = fetchResources(service<R>()::getAll, limit)
+    val resources = obtainResources<R>(limit)
 
     if (selectedProperties == null) {
         logger.debug("slicer: getting all fields".magenta())
@@ -174,7 +174,7 @@ suspend inline fun <reified R : Resource> CallPipeline.fetchResource (
 
     handleAuthentication("fetchWithIdAndRespond", authPredicate) {
 
-        val resource = fetchResource(service<R>()::get, uuid.toUUID())
+        val resource = obtainResource<R>(uuid.toUUID())
 
         if (selectedProperties == null) {
             logger.debug("slicer: getting all fields".magenta())
@@ -245,7 +245,7 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
 ) = pipeline("uuid", "target") { (uuid, target) ->
 
     // Find target resource
-    val targetResource = fetchResource(service<R>()::get, uuid.toUUID())
+    val targetResource = obtainResource<R>(uuid.toUUID())
 
     handleAuthentication("uploadToResource", { authPredicate(it, targetResource) }) {
 
@@ -400,7 +400,7 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteUpload (
 ) = pipeline("uuid", "target") { (uuid, target) ->
 
     // Find target resource
-    val targetResource = fetchResource(service<R>()::get, uuid.toUUID())
+    val targetResource = obtainResource<R>(uuid.toUUID())
 
     handleAuthentication("uploadToResource", { authPredicate(it, targetResource) }) {
 
@@ -499,7 +499,7 @@ suspend inline fun <reified R: Resource> CallPipeline.deleteResource (
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) = pipeline("uuid") { (uuid) ->
 
-    val toDelete = fetchResource(service<R>()::get, uuid.toUUID())
+    val toDelete = obtainResource<R>(uuid.toUUID())
 
     handleAuthentication (
         funcName  = "deleteWithId",
@@ -531,7 +531,7 @@ suspend inline fun <reified R : Resource> CallPipeline.updateResource (
 ) {
 
     val replacement = call.receive<Map<String, Any>>()
-    val current = fetchResource(service<R>()::get, (replacement["uuid"] as String).toUUID())
+    val current = obtainResource<R>((replacement["uuid"] as String).toUUID())
 
     val rawData = replacement.mapKeys { n -> R::class.cachedPropMap().ok().values.first { it.name == n.key } }
 

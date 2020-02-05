@@ -21,6 +21,7 @@ import blogify.backend.routing.handling.fetchResource
 import blogify.backend.routing.handling.getValidations
 import blogify.backend.routing.handling.respondExceptionMessage
 import blogify.backend.routing.handling.updateResource
+import blogify.backend.routing.pipelines.obtainResource
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.services.UserService
@@ -57,8 +58,7 @@ fun Route.articles() {
         get("/{uuid}/like") {
             pipeline("uuid") { (id) ->
                 runAuthenticated {
-                    val article = ArticleService.get(call, id.toUUID())
-                        .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch article")
+                    val article = obtainResource<Article>(id.toUUID())
 
                     val liked = query {
                         likes.select {
@@ -73,8 +73,7 @@ fun Route.articles() {
         post("/{uuid}/like") {
             pipeline("uuid") { (id) ->
                 runAuthenticated {
-                    val articleToLike = ArticleService.get(call, id.toUUID())
-                        .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch article")
+                    val articleToLike = obtainResource<Article>(id.toUUID())
 
                     // Figure whether the article was already liked by the user
                     val alreadyLiked = query {
