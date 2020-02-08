@@ -1,8 +1,9 @@
+package blogify.backend.resources.reflect
+
 import blogify.backend.annotations.Invisible
 import blogify.backend.annotations.check
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.cachedPropMap
 import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.resources.reflect.models.ext.valid
 
