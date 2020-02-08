@@ -38,7 +38,7 @@ export class NewArticleComponent implements OnInit {
 
     result: { status: Result, message: string } = { status: 'none', message: null };
 
-    @ViewChild(ToasterComponent, { static: false })
+    @ViewChild(ToasterComponent)
     private toaster: ToasterComponent;
 
     constructor (

@@ -4,6 +4,7 @@ import { Article } from '../../models/Article';
 import { AuthService } from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
 import { User } from '../../models/User';
+import { SearchView } from  '../../models/SearchView';
 
 @Injectable({
     providedIn: 'root'

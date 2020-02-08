@@ -5,6 +5,7 @@ import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StaticFile } from '../../models/Static';
 import { StaticContentService } from '../../services/static/static-content.service';
+import {SearchView} from "../../models/SearchView";
 
 @Injectable({
     providedIn: 'root'
