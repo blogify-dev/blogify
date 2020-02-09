@@ -10,9 +10,9 @@ import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
 import blogify.backend.resources.User
 import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.services.UserService
-import blogify.backend.services.ArticleService
-import blogify.backend.services.CommentService
+import blogify.backend.services.UserRepository
+import blogify.backend.services.ArticleRepository
+import blogify.backend.services.CommentRepository
 
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
@@ -58,7 +58,7 @@ open class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped() {
 
                     Article::class.java -> {
                         try {
-                            return@runBlocking ArticleService.get(id = uuid).get()
+                            return@runBlocking ArticleRepository.get(id = uuid).get()
                         } catch (e: Exception) {
                             throw genException(id.scope, e)
                         }
@@ -66,7 +66,7 @@ open class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped() {
 
                     User::class.java -> {
                         try {
-                            return@runBlocking UserService.get(id = uuid).get()
+                            return@runBlocking UserRepository.get(id = uuid).get()
                         } catch (e: Exception) {
                             throw genException(id.scope, e)
                         }
@@ -74,7 +74,7 @@ open class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped() {
 
                     Comment::class.java -> {
                         try {
-                            return@runBlocking CommentService.get(id = uuid).get()
+                            return@runBlocking CommentRepository.get(id = uuid).get()
                         } catch (e: Exception) {
                             throw genException(id.scope, e)
                         }

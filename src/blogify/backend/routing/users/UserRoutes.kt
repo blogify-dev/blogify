@@ -18,8 +18,8 @@ import blogify.backend.routing.handling.updateResource
 import blogify.backend.routing.handling.uploadToResource
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
-import blogify.backend.services.UserService
-import blogify.backend.services.models.Service
+import blogify.backend.services.UserRepository
+import blogify.backend.services.models.Repository
 import blogify.backend.util.toUUID
 
 import io.ktor.application.call

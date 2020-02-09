@@ -1,6 +1,6 @@
 package blogify.backend.database
 
-import blogify.backend.services.models.Service
+import blogify.backend.services.models.Repository
 import blogify.backend.database.handling.query
 import blogify.backend.util.Sr
 
@@ -31,7 +31,7 @@ suspend fun <A : Any> countReferences (
     return query {
         referenceField.table.select { referenceField eq referenceValue and where() }.count()
     }
-        .mapError { e -> Service.Exception(e) }
+        .mapError { e -> Repository.Exception(e) }
 }
 
 /**

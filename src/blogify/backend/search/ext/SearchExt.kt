@@ -5,7 +5,7 @@ import blogify.backend.resources.reflect.sanitize
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.SearchView
 import blogify.backend.util.Sr
-import blogify.backend.util.service
+import blogify.backend.util.repository
 import blogify.backend.util.toUUID
 
 import java.lang.Exception
@@ -13,7 +13,7 @@ import java.lang.IllegalStateException
 
 suspend inline fun <reified T : Resource> Search.Hit.fetchResource(): Sr<T> {
     val resourceUUID = (this.document["uuid"] as String).toUUID()
-    return T::class.service.get(Resource.ObjectResolver.FakeApplicationCall, resourceUUID)
+    return T::class.repository.get(Resource.ObjectResolver.FakeApplicationCall, resourceUUID)
 }
 
 suspend inline fun <reified R: Resource> Search<R>.asSearchView(): SearchView {

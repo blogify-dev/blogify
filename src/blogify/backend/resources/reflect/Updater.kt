@@ -5,10 +5,9 @@ import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
-import blogify.backend.util.service
+import blogify.backend.util.repository
 import blogify.backend.util.toUUID
 
-import java.lang.Exception
 import java.util.UUID
 
 import com.andreapivetta.kolor.yellow
@@ -55,7 +54,7 @@ suspend fun <R : Resource> update(target: R, rawData: Map<PropMap.PropertyHandle
                     @Suppress("UNCHECKED_CAST")
                     val keyResourceType = k.type.classifier as KClass<Resource>
                     val valueUUID = (v as String).toUUID()
-                    k to keyResourceType.service.get(id = valueUUID).get()
+                    k to keyResourceType.repository.get(id = valueUUID).get()
                 }
                 k.type.isSubtypeOf(UUID::class.createType()) -> { // KType of property is subtype of UUID
                     k to (v as String).toUUID()

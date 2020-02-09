@@ -24,9 +24,9 @@ import blogify.backend.routing.handling.updateResource
 import blogify.backend.routing.pipelines.obtainResource
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
-import blogify.backend.services.UserService
-import blogify.backend.services.ArticleService
-import blogify.backend.services.models.Service
+import blogify.backend.services.UserRepository
+import blogify.backend.services.ArticleRepository
+import blogify.backend.services.models.Repository
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
 import blogify.backend.util.toUUID
@@ -109,9 +109,9 @@ fun Route.articles() {
             val username = params["username"] ?: error("Username is null")
             val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
 
-            UserService.getMatching { Users.username eq username }.fold (
+            UserRepository.getMatching { Users.username eq username }.fold (
                 success = {
-                    ArticleService.getMatching { Articles.createdBy eq it.single().uuid }.fold (
+                    ArticleRepository.getMatching { Articles.createdBy eq it.single().uuid }.fold (
                         success = { articles ->
                             try {
                                 selectedPropertyNames?.let { props ->
@@ -119,7 +119,7 @@ fun Route.articles() {
                                     call.respond(articles.map { it.slice(props) })
 
                                 } ?: call.respond(articles.map { it.sanitize() })
-                            } catch (bruhMoment: Service.Exception) {
+                            } catch (bruhMoment: Repository.Exception) {
                                 call.respondExceptionMessage(bruhMoment)
                             }
                         },

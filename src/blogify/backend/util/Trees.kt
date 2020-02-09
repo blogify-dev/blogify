@@ -4,7 +4,7 @@ import blogify.backend.database.Comments
 import blogify.backend.resources.Comment
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
 import blogify.backend.resources.reflect.sanitize
-import blogify.backend.services.CommentService
+import blogify.backend.services.CommentRepository
 
 import io.ktor.application.ApplicationCall
 
@@ -39,7 +39,7 @@ suspend fun expandCommentNode(callContext: ApplicationCall = FakeApplicationCall
     if (depth == 0) {
         return sanitizedNode
     } else {
-        val nodeDirectChildren = CommentService.getMatching(callContext) { Comments.parentComment eq currentNode.uuid }
+        val nodeDirectChildren = CommentRepository.getMatching(callContext) { Comments.parentComment eq currentNode.uuid }
             .fold (
                 success = { it },
                 failure = { error("error during node expand") }

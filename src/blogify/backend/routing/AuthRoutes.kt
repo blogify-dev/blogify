@@ -9,8 +9,8 @@ import blogify.backend.resources.User
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.routing.handling.respondExceptionMessage
 import blogify.backend.search.Typesense
-import blogify.backend.services.UserService
-import blogify.backend.services.models.Service
+import blogify.backend.services.UserRepository
+import blogify.backend.services.models.Repository
 import blogify.backend.util.*
 
 import io.ktor.application.call
@@ -64,7 +64,7 @@ data class RegisterCredentials (
             coverPicture = StaticResourceHandle.None(ContentType.Image.PNG)
         )
 
-        UserService.add(created).fold (
+        UserRepository.add(created).fold (
             success = { user -> Typesense.uploadResource(user) },
             failure = {
                 error("$created: signup couldn't create user\nError:$it")
@@ -83,7 +83,7 @@ fun Route.auth() {
         post("/signin") {
 
             val credentials = call.receive<LoginCredentials>()
-            val matchingCredentials = UserService.getMatching(call) { Users.username eq credentials.username }
+            val matchingCredentials = UserRepository.getMatching(call) { Users.username eq credentials.username }
 
             matchingCredentials.fold (
                 success = { set ->
@@ -114,7 +114,7 @@ fun Route.auth() {
 
                 validateJwt(call, token).fold(
                     success = { call.respond( object { @Suppress("unused") val uuid = it.uuid }) },
-                    failure = { call.respondExceptionMessage(Service.Exception(BException(it))) }
+                    failure = { call.respondExceptionMessage(Repository.Exception(BException(it))) }
                 )
 
             } ?: call.respond(HttpStatusCode.BadRequest)

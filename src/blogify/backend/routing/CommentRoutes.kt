@@ -17,7 +17,7 @@ import blogify.backend.routing.handling.fetchResource
 import blogify.backend.routing.handling.updateResource
 import blogify.backend.routing.pipelines.obtainResource
 import blogify.backend.routing.pipelines.pipeline
-import blogify.backend.services.CommentService
+import blogify.backend.services.CommentRepository
 import blogify.backend.util.expandCommentNode
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
@@ -66,7 +66,7 @@ fun Route.articleComments() {
         }
 
         get("/tree/{uuid}") {
-            val fetched = CommentService.get(call, call.parameters["uuid"]!!.toUUID())
+            val fetched = CommentRepository.get(call, call.parameters["uuid"]!!.toUUID())
 
             val depth = call.parameters["depth"]?.toInt() ?: 5
 
@@ -95,7 +95,7 @@ fun Route.articleComments() {
             pipeline("uuid") { (id) ->
                 println("Got here $id")
                 runAuthenticated {
-                    val commentToLike = CommentService.get(call, id.toUUID())
+                    val commentToLike = CommentRepository.get(call, id.toUUID())
                         .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch comment")
 
                     // Figure whether the article was already liked by the user
