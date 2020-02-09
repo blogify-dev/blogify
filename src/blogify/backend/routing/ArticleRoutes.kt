@@ -6,6 +6,8 @@ import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Articles
 import blogify.backend.database.Users
 import blogify.backend.database.handling.query
+import blogify.backend.pipelines.ApplicationContext
+import blogify.backend.pipelines.RequestContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.cachedPropMap
@@ -41,16 +43,16 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 
-fun Route.articles() {
+fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
     route("/articles") {
 
         get("/") {
-            fetchAllResources<Article>()
+            fetchAllResources<Article>(applicationContext)
         }
 
         get("/{uuid}") {
-            fetchResource<Article>()
+            fetchResource<Article>(applicationContext)
         }
 
         val likes = Articles.Likes
@@ -149,14 +151,23 @@ fun Route.articles() {
         }
 
         get("/search") {
+
             pipeline("q") { (query) ->
-                val user = optionalParam("byUser")?.toUUID()
-                if (user != null) {
-                    val userHandle = Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")
-                    call.respond(Typesense.search<Article>(query, mapOf(userHandle to user)).asSearchView())
-                } else {
-                    call.respond(Typesense.search<Article>(query).asSearchView())
-                }
+
+                val requestContext = RequestContext(applicationContext, call)
+
+                requestContext.execute({ _ ->
+
+                    val user = optionalParam("byUser")?.toUUID()
+                    if (user != null) {
+                        val userHandle = Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")
+                        call.respond(Typesense.search<Article>(query, mapOf(userHandle to user)).asSearchView())
+                    } else {
+                        call.respond(Typesense.search<Article>(query).asSearchView())
+                    }
+
+                }, null)
+
             }
         }
 
@@ -164,7 +175,7 @@ fun Route.articles() {
             getValidations<Article>()
         }
 
-        articleComments()
+        articleComments(applicationContext)
 
     }
 

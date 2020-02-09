@@ -7,6 +7,7 @@ import io.ktor.routing.*
 
 import blogify.backend.database.Comments
 import blogify.backend.database.handling.query
+import blogify.backend.pipelines.ApplicationContext
 import blogify.backend.resources.Comment
 import blogify.backend.resources.models.eqr
 import blogify.backend.routing.handling.createResource
@@ -29,21 +30,21 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 
-fun Route.articleComments() {
+fun Route.articleComments(applicationContext: ApplicationContext) {
 
     route("/comments") {
 
         get("/") {
-            fetchAllResources<Comment>()
+            fetchAllResources<Comment>(applicationContext)
         }
 
         get("/{uuid}") {
-            fetchResource<Comment>()
+            fetchResource<Comment>(applicationContext)
         }
 
         get("/article/{uuid}") {
-            fetchAllWithId(fetch = { articleId ->
-                CommentService.getMatching(call) { Comments.article eq articleId and Comments.parentComment.isNull() }
+            fetchAllWithId(applicationContext, fetch = { articleId ->
+                CommentRepository.getMatching(call) { Comments.article eq articleId and Comments.parentComment.isNull() }
             })
         }
 

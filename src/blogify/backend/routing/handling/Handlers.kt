@@ -42,6 +42,8 @@ import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
 import blogify.backend.database.ImageUploadablesMetadata
+import blogify.backend.pipelines.ApplicationContext
+import blogify.backend.pipelines.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
@@ -140,19 +142,27 @@ fun logUnusedAuth(func: String) {
  * @author hamza1311, Benjozork
  */
 @BlogifyDsl
-suspend inline fun <reified R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAllResources() = pipeline {
-    val limit = optionalParam("amount")?.toInt() ?: 25
-    val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
+suspend inline fun <reified R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAllResources (
+    applicationContext: ApplicationContext
+) = pipeline {
 
-    val resources = obtainResources<R>(limit)
+    val requestContext = RequestContext(applicationContext, call)
 
-    if (selectedProperties == null) {
-        logger.debug("slicer: getting all fields".magenta())
-        call.respond(resources.map { it.sanitize(excludeUndisplayed = true) })
-    } else {
-        logger.debug("slicer: getting fields $selectedProperties".magenta())
-        call.respond(resources.map { it.slice(selectedProperties) })
-    }
+    requestContext.execute({ _ ->
+        val limit = optionalParam("amount")?.toInt() ?: 25
+        val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
+
+        val resources = obtainResources<R>(limit)
+
+        if (selectedProperties == null) {
+            logger.debug("slicer: getting all fields".magenta())
+            call.respond(resources.map { it.sanitize(excludeUndisplayed = true) })
+        } else {
+            logger.debug("slicer: getting fields $selectedProperties".magenta())
+            call.respond(resources.map { it.slice(selectedProperties) })
+        }
+    }, null)
+
 }
 
 /**
@@ -167,24 +177,32 @@ suspend inline fun <reified R : Resource> PipelineContext<Unit, ApplicationCall>
  */
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.fetchResource (
+             applicationContext: ApplicationContext,
     noinline authPredicate: suspend (User) -> Boolean = defaultResourceLessPredicateLambda
 ) = pipeline("uuid") { (uuid) ->
 
-    val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
+    val requestContext = RequestContext(applicationContext, call)
 
-    handleAuthentication("fetchWithIdAndRespond", authPredicate) {
+    requestContext.execute({ _ ->
 
-        val resource = obtainResource<R>(uuid.toUUID())
+        val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
 
-        if (selectedProperties == null) {
-            logger.debug("slicer: getting all fields".magenta())
-            call.respond(resource.sanitize(excludeUndisplayed = true))
-        } else {
-            logger.debug("slicer: getting fields $selectedProperties".magenta())
-            call.respond(resource.slice(selectedProperties))
+        handleAuthentication("fetchWithIdAndRespond", authPredicate) {
+
+            val resource = obtainResource<R>(uuid.toUUID())
+
+            if (selectedProperties == null) {
+                logger.debug("slicer: getting all fields".magenta())
+                call.respond(resource.sanitize(excludeUndisplayed = true))
+            } else {
+                logger.debug("slicer: getting fields $selectedProperties".magenta())
+                call.respond(resource.slice(selectedProperties))
+            }
+
         }
 
-    }
+    }, null)
+
 }
 
 /**
@@ -199,42 +217,49 @@ suspend inline fun <reified R : Resource> CallPipeline.fetchResource (
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.fetchAllWithId (
-    fetch:     suspend (UUID) -> SrList<R>,
-    transform: suspend (R)    -> Resource = { it }
+    applicationContext: ApplicationContext,
+    fetch:              suspend (UUID) -> SrList<R>,
+    transform:          suspend (R)    -> Resource = { it }
 ) = pipeline("uuid") { (uuid) ->
 
-    val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
+    val requestContext = RequestContext(applicationContext, call)
 
-    if (selectedPropertyNames == null)
-        logger.debug("slicer: getting all fields".magenta())
-    else
-        logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
+    requestContext.execute({ _ ->
 
-    fetch.invoke(uuid.toUUID()).fold (
-        success = { fetchedSet ->
-            if (fetchedSet.isNotEmpty()) {
-                SuspendableResult.of<Set<Resource>, Service.Exception> {
-                    fetchedSet.map { transform.invoke(it) }.toSet() // Cover for any errors in transform()
-                }.fold (
-                    success = { fetched ->
-                        try {
-                            selectedPropertyNames?.let { props ->
+        val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
-                                call.respond(fetched.map { it.slice(props) })
+        if (selectedPropertyNames == null)
+            logger.debug("slicer: getting all fields".magenta())
+        else
+            logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
 
-                            } ?: call.respond(fetched.map { it.sanitize(excludeUndisplayed = true) })
-                        } catch (bruhMoment: Service.Exception) {
-                            call.respondExceptionMessage(bruhMoment)
-                        }
-                    },
-                    failure = call::respondExceptionMessage
-                )
-            } else {
-                call.respond(HttpStatusCode.NoContent)
-            }
-        },
-        failure = call::respondExceptionMessage
-    )
+        fetch.invoke(uuid.toUUID()).fold (
+            success = { fetchedSet ->
+                if (fetchedSet.isNotEmpty()) {
+                    SuspendableResult.of<Set<Resource>, Repository.Exception> {
+                        fetchedSet.map { transform.invoke(it) }.toSet() // Cover for any errors in transform()
+                    }.fold (
+                        success = { fetched ->
+                            try {
+                                selectedPropertyNames?.let { props ->
+
+                                    call.respond(fetched.map { it.slice(props) })
+
+                                } ?: call.respond(fetched.map { it.sanitize(excludeUndisplayed = true) })
+                            } catch (bruhMoment: Repository.Exception) {
+                                call.respondExceptionMessage(bruhMoment)
+                            }
+                        },
+                        failure = call::respondExceptionMessage
+                    )
+                } else {
+                    call.respond(HttpStatusCode.NoContent)
+                }
+            },
+            failure = call::respondExceptionMessage
+        )
+
+    }, null)
 
 }
 

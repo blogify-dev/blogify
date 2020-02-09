@@ -6,7 +6,8 @@ import com.andreapivetta.kolor.cyan
 
 import com.fasterxml.jackson.databind.*
 
-import blogify.backend.routing.articles
+import blogify.backend.config.Configs
+import blogify.backend.routing.makeArticleRoutes
 import blogify.backend.routing.users.users
 import blogify.backend.database.Database
 import blogify.backend.database.Articles
@@ -16,6 +17,8 @@ import blogify.backend.database.Uploadables
 import blogify.backend.database.Users
 import blogify.backend.routing.auth
 import blogify.backend.database.handling.query
+import blogify.backend.persistence.PostgresDataStore
+import blogify.backend.pipelines.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
@@ -173,13 +176,31 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
     }
 
+    // Create an application context
+
+    val dataStore = PostgresDataStore {
+
+        val config = Configs.Database
+
+        host = config.host
+        port = config.port
+
+        username = config.username
+        password = config.password
+
+        database = config.databaseName
+
+    }
+
+    val appContext = ApplicationContext(dataStore)
+
     // Initialize routes
 
     routing {
 
         route("/api") {
-            articles()
-            users()
+            makeArticleRoutes(appContext)
+            users(appContext)
             auth()
             static()
             adminSearch()

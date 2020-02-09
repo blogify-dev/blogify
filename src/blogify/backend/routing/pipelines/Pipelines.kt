@@ -3,14 +3,14 @@ package blogify.backend.routing.pipelines
 import blogify.backend.annotations.PipelinesDsl
 import blogify.backend.auth.handling.UserAuthPredicate
 import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.pipelines.RequestContext
+import blogify.backend.pipelines.RequestContextFunction
 import blogify.backend.resources.models.Resource
 import blogify.backend.routing.handling.defaultResourceLessPredicateLambda
 import blogify.backend.routing.handling.logUnusedAuth
-import blogify.backend.util.Sr
-import blogify.backend.util.SrList
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
-import blogify.backend.util.service
+import blogify.backend.util.repository
 
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
@@ -41,11 +41,25 @@ typealias CallPipeline = PipelineContext<Unit, ApplicationCall>
 typealias GenericCallPipeline = PipelineContext<*, ApplicationCall>
 
 /**
+ * Represents a server call pipeline
+ *
+ * @author Benjozork
+ */
+typealias TypedCallPipeline<TSubject> = PipelineContext<TSubject, ApplicationCall>
+
+/**
  * Represents a server call handler function
  *
  * @author Benjozork
  */
 typealias CallPipeLineFunction = PipelineInterceptor<Unit, ApplicationCall>
+
+/**
+ * Represents a server call handler function
+ *
+ * @author Benjozork
+ */
+typealias GenericCallPipeLineFunction = PipelineInterceptor<Any, ApplicationCall>
 
 /**
  * Represents an error that occurs while a [CallPipeline] is running. Interrupts the pipeline and responds with the given [status code][code] and
@@ -87,7 +101,7 @@ suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), bl
  * Returns a query parameter that may or may not exist
  */
 @PipelinesDsl
-fun CallPipeline.optionalParam(name: String): String? = call.parameters[name]
+fun RequestContext.optionalParam(name: String): String? = call.parameters[name]
 
 /**
  * A default [CallPipeline] that handles client authentication.
@@ -127,9 +141,9 @@ suspend inline fun <reified R : Resource> GenericCallPipeline.obtainResources(li
 }
 
 /**
- * Get a [blogify.backend.services.models.Service] from a reified Resource type parameter
+ * Get a [blogify.backend.services.models.Repository] from a reified Resource type parameter
  */
-inline fun <reified R : Resource> service() = R::class.service
+inline fun <reified R : Resource> service() = R::class.repository
 
 /**
  * Signals that a [CallPipeline] has encountered an error, and will stop being executed.

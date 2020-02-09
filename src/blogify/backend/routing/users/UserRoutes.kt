@@ -3,6 +3,7 @@ package blogify.backend.routing.users
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Users
 import blogify.backend.database.handling.query
+import blogify.backend.pipelines.ApplicationContext
 import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.sanitize
@@ -35,16 +36,16 @@ import org.jetbrains.exposed.sql.select
 /**
  * Defines the API routes for interacting with [users][User].
  */
-fun Route.users() {
+fun Route.users(applicationContext: ApplicationContext) {
 
     route("/users") {
 
         get("/") {
-            fetchAllResources<User>()
+            fetchAllResources<User>(applicationContext)
         }
 
         get("/{uuid}") {
-            fetchResource<User>()
+            fetchResource<User>(applicationContext)
         }
 
         delete("/{uuid}") {
@@ -64,7 +65,7 @@ fun Route.users() {
             val username = params["username"] ?: error("Username is null")
             val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
 
-            UserService.getMatching { Users.username eq username }.fold(
+            UserRepository.getMatching { Users.username eq username }.fold(
                 success = {
                     val user = it.single()
                     try {
@@ -73,7 +74,7 @@ fun Route.users() {
                             call.respond(user.slice(props))
 
                         } ?: call.respond(user.sanitize())
-                    } catch (bruhMoment: Service.Exception) {
+                    } catch (bruhMoment: Repository.Exception) {
                         call.respondExceptionMessage(bruhMoment)
                     }
                 },
