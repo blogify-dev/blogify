@@ -23,7 +23,6 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 
-
 /**
  * Model for login credentials
  */

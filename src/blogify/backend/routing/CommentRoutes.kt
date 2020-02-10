@@ -1,10 +1,6 @@
 package blogify.backend.routing
 
 import blogify.backend.auth.handling.runAuthenticated
-import io.ktor.application.call
-import io.ktor.response.respond
-import io.ktor.routing.*
-
 import blogify.backend.database.Comments
 import blogify.backend.database.handling.query
 import blogify.backend.pipelines.ApplicationContext
@@ -25,7 +21,11 @@ import blogify.backend.util.expandCommentNode
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
 import blogify.backend.util.toUUID
+
 import io.ktor.http.HttpStatusCode
+import io.ktor.application.call
+import io.ktor.response.respond
+import io.ktor.routing.*
 
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
