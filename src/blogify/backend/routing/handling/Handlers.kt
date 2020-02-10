@@ -42,8 +42,6 @@ import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
 import blogify.backend.database.ImageUploadablesMetadata
-import blogify.backend.pipelines.ApplicationContext
-import blogify.backend.pipelines.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
@@ -54,8 +52,9 @@ import blogify.backend.routing.pipelines.obtainResource
 import blogify.backend.routing.pipelines.obtainResources
 import blogify.backend.routing.pipelines.handleAuthentication
 import blogify.backend.routing.pipelines.optionalParam
-import blogify.backend.routing.pipelines.pipeline
+import blogify.backend.routing.pipelines.param
 import blogify.backend.routing.pipelines.pipelineError
+import blogify.backend.routing.pipelines.request
 import blogify.backend.routing.pipelines.service
 import blogify.backend.search.Typesense
 import blogify.backend.util.SrList
@@ -72,7 +71,6 @@ import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
-import io.ktor.util.pipeline.PipelineContext
 import io.ktor.request.ContentTransformationException
 import io.ktor.request.receive
 import io.ktor.http.ContentType
@@ -142,26 +140,20 @@ fun logUnusedAuth(func: String) {
  * @author hamza1311, Benjozork
  */
 @BlogifyDsl
-suspend inline fun <reified R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAllResources (
-    applicationContext: ApplicationContext
-) = pipeline {
+suspend inline fun <reified R : Resource> CallPipeline.fetchAllResources() = request {
 
-    val requestContext = RequestContext(applicationContext, call)
+    val limit = optionalParam("amount")?.toInt() ?: 25
+    val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
 
-    requestContext.execute({ _ ->
-        val limit = optionalParam("amount")?.toInt() ?: 25
-        val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
+    val resources = obtainResources<R>(limit)
 
-        val resources = obtainResources<R>(limit)
-
-        if (selectedProperties == null) {
-            logger.debug("slicer: getting all fields".magenta())
-            call.respond(resources.map { it.sanitize(excludeUndisplayed = true) })
-        } else {
-            logger.debug("slicer: getting fields $selectedProperties".magenta())
-            call.respond(resources.map { it.slice(selectedProperties) })
-        }
-    }, null)
+    if (selectedProperties == null) {
+        logger.debug("slicer: getting all fields".magenta())
+        call.respond(resources.map { it.sanitize(excludeUndisplayed = true) })
+    } else {
+        logger.debug("slicer: getting fields $selectedProperties".magenta())
+        call.respond(resources.map { it.slice(selectedProperties) })
+    }
 
 }
 
@@ -177,31 +169,25 @@ suspend inline fun <reified R : Resource> PipelineContext<Unit, ApplicationCall>
  */
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.fetchResource (
-             applicationContext: ApplicationContext,
     noinline authPredicate: suspend (User) -> Boolean = defaultResourceLessPredicateLambda
-) = pipeline("uuid") { (uuid) ->
+) = request {
 
-    val requestContext = RequestContext(applicationContext, call)
+    val uuid = param("uuid")
+    val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
 
-    requestContext.execute({ _ ->
+    handleAuthentication("fetchWithIdAndRespond", authPredicate) {
 
-        val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
+        val resource = obtainResource<R>(uuid.toUUID())
 
-        handleAuthentication("fetchWithIdAndRespond", authPredicate) {
-
-            val resource = obtainResource<R>(uuid.toUUID())
-
-            if (selectedProperties == null) {
-                logger.debug("slicer: getting all fields".magenta())
-                call.respond(resource.sanitize(excludeUndisplayed = true))
-            } else {
-                logger.debug("slicer: getting fields $selectedProperties".magenta())
-                call.respond(resource.slice(selectedProperties))
-            }
-
+        if (selectedProperties == null) {
+            logger.debug("slicer: getting all fields".magenta())
+            call.respond(resource.sanitize(excludeUndisplayed = true))
+        } else {
+            logger.debug("slicer: getting fields $selectedProperties".magenta())
+            call.respond(resource.slice(selectedProperties))
         }
 
-    }, null)
+    }
 
 }
 
@@ -217,49 +203,43 @@ suspend inline fun <reified R : Resource> CallPipeline.fetchResource (
  */
 @BlogifyDsl
 suspend fun <R : Resource> CallPipeline.fetchAllWithId (
-    applicationContext: ApplicationContext,
-    fetch:              suspend (UUID) -> SrList<R>,
-    transform:          suspend (R)    -> Resource = { it }
-) = pipeline("uuid") { (uuid) ->
+    fetch:     suspend (UUID) -> SrList<R>,
+    transform: suspend (R) -> Resource = { it }
+) = request {
 
-    val requestContext = RequestContext(applicationContext, call)
+    val uuid = param("uuid")
+    val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
-    requestContext.execute({ _ ->
+    if (selectedPropertyNames == null)
+        logger.debug("slicer: getting all fields".magenta())
+    else
+        logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
 
-        val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
+    fetch.invoke(uuid.toUUID()).fold (
+        success = { fetchedSet ->
+            if (fetchedSet.isNotEmpty()) {
+                SuspendableResult.of<Set<Resource>, Repository.Exception> {
+                    fetchedSet.map { transform.invoke(it) }.toSet() // Cover for any errors in transform()
+                }.fold (
+                    success = { fetched ->
+                        try {
+                            selectedPropertyNames?.let { props ->
 
-        if (selectedPropertyNames == null)
-            logger.debug("slicer: getting all fields".magenta())
-        else
-            logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
+                                call.respond(fetched.map { it.slice(props) })
 
-        fetch.invoke(uuid.toUUID()).fold (
-            success = { fetchedSet ->
-                if (fetchedSet.isNotEmpty()) {
-                    SuspendableResult.of<Set<Resource>, Repository.Exception> {
-                        fetchedSet.map { transform.invoke(it) }.toSet() // Cover for any errors in transform()
-                    }.fold (
-                        success = { fetched ->
-                            try {
-                                selectedPropertyNames?.let { props ->
-
-                                    call.respond(fetched.map { it.slice(props) })
-
-                                } ?: call.respond(fetched.map { it.sanitize(excludeUndisplayed = true) })
-                            } catch (bruhMoment: Repository.Exception) {
-                                call.respondExceptionMessage(bruhMoment)
-                            }
-                        },
-                        failure = call::respondExceptionMessage
-                    )
-                } else {
-                    call.respond(HttpStatusCode.NoContent)
-                }
-            },
-            failure = call::respondExceptionMessage
-        )
-
-    }, null)
+                            } ?: call.respond(fetched.map { it.sanitize(excludeUndisplayed = true) })
+                        } catch (bruhMoment: Repository.Exception) {
+                            call.respondExceptionMessage(bruhMoment)
+                        }
+                    },
+                    failure = call::respondExceptionMessage
+                )
+            } else {
+                call.respond(HttpStatusCode.NoContent)
+            }
+        },
+        failure = call::respondExceptionMessage
+    )
 
 }
 
@@ -267,7 +247,10 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
        noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
-) = pipeline("uuid", "target") { (uuid, target) ->
+) = request {
+
+    val uuid = param("uuid")
+    val target = param("target")
 
     // Find target resource
     val targetResource = obtainResource<R>(uuid.toUUID())
@@ -349,30 +332,35 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
             if (fileContentType matches ContentType.Image.Any) {
                 val metadata = withContext(Dispatchers.IO) { ImageMetadataReader.readMetadata(fileBytes.inputStream()) }
 
-                val imageWidth: Int
-                val imageHeight: Int
+                var imageWidth = 0
+                var imageHeight = 0
 
-                when {
-                    fileContentType matches ContentType.Image.PNG -> {
-                        val pngMeta = metadata.getFirstDirectoryOfType(PngDirectory::class.java)
+                letCatchingOrNull {
 
-                        imageWidth = pngMeta.getInt(PngDirectory.TAG_IMAGE_WIDTH)
-                        imageHeight = pngMeta.getInt(PngDirectory.TAG_IMAGE_HEIGHT)
+                    when {
+                        fileContentType matches ContentType.Image.PNG -> {
+                            val pngMeta = metadata.getFirstDirectoryOfType(PngDirectory::class.java)
+
+                            imageWidth = pngMeta.getInt(PngDirectory.TAG_IMAGE_WIDTH)
+                            imageHeight = pngMeta.getInt(PngDirectory.TAG_IMAGE_HEIGHT)
+                        }
+                        fileContentType matches ContentType.Image.JPEG -> {
+                            val jpegMeta = metadata.getFirstDirectoryOfType(JpegDirectory::class.java)
+
+                            imageWidth = jpegMeta.getInt(JpegDirectory.TAG_IMAGE_WIDTH)
+                            imageHeight = jpegMeta.getInt(JpegDirectory.TAG_IMAGE_HEIGHT)
+                        }
+                        else -> {
+                            val exif = metadata.getFirstDirectoryOfType(ExifImageDirectory::class.java)
+                                       ?: pipelineError(HttpStatusCode.UnsupportedMediaType, "image must be png, jpeg or contain exif")
+
+                            imageWidth = exif.getInt(ExifImageDirectory.TAG_IMAGE_WIDTH)
+                            imageHeight = exif.getInt(ExifImageDirectory.TAG_IMAGE_HEIGHT)
+                        }
                     }
-                    fileContentType matches ContentType.Image.JPEG -> {
-                        val jpegMeta = metadata.getFirstDirectoryOfType(JpegDirectory::class.java)
 
-                        imageWidth = jpegMeta.getInt(JpegDirectory.TAG_IMAGE_WIDTH)
-                        imageHeight = jpegMeta.getInt(JpegDirectory.TAG_IMAGE_HEIGHT)
-                    }
-                    else -> {
-                        val exif = metadata.getFirstDirectoryOfType(ExifImageDirectory::class.java)
-                            ?: pipelineError(HttpStatusCode.UnsupportedMediaType, "image must be png, jpeg or contain exif")
+                } ?: pipelineError(HttpStatusCode.BadRequest, "invalid metadata in image")
 
-                        imageWidth = exif.getInt(ExifImageDirectory.TAG_IMAGE_WIDTH)
-                        imageHeight = exif.getInt(ExifImageDirectory.TAG_IMAGE_HEIGHT)
-                    }
-                }
 
                 val imageMetadata = ImageMetadata(imageWidth, imageHeight)
 
@@ -422,7 +410,10 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.deleteUpload (
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
-) = pipeline("uuid", "target") { (uuid, target) ->
+) = request {
+
+    val uuid = param("uuid")
+    val target = param("target")
 
     // Find target resource
     val targetResource = obtainResource<R>(uuid.toUUID())
@@ -484,7 +475,7 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteUpload (
 @BlogifyDsl
 suspend inline fun <reified R : Resource> CallPipeline.createResource (
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
-) = pipeline {
+) = request {
     try {
 
         val received = call.receive<R>() // Receive a resource from the request body
@@ -522,7 +513,9 @@ suspend inline fun <reified R : Resource> CallPipeline.createResource (
 @BlogifyDsl
 suspend inline fun <reified R: Resource> CallPipeline.deleteResource (
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
-) = pipeline("uuid") { (uuid) ->
+) = request {
+
+    val uuid = param("uuid")
 
     val toDelete = obtainResource<R>(uuid.toUUID())
 

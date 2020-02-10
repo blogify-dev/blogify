@@ -1,8 +1,10 @@
 package blogify.backend.routing.admin
 
 import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.pipelines.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.User
+import blogify.backend.routing.pipelines.wrapRequest
 import blogify.backend.search.Typesense
 
 import io.ktor.application.call
@@ -11,21 +13,25 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 
-fun Route.adminSearch() {
+fun Route.adminSearch(applicationContext: ApplicationContext) {
 
     route("/admin/search") {
 
         get("/reindex") {
-            val what = call.parameters["what"] ?: error("bruh")
-            runAuthenticated(predicate = { it.isAdmin }) {
-                when(what) {
-                    "article" -> Typesense.refreshIndex<Article>()
-                    "user" -> Typesense.refreshIndex<User>()
-                    else -> error("Wrong param provided")
-                }.let {
-                    call.respond(mapOf("ts_response" to it.receive<Map<String, Any?>>()))
+
+            wrapRequest(applicationContext) {
+                val what = call.parameters["what"] ?: error("bruh")
+                runAuthenticated(predicate = { it.isAdmin }) {
+                    when(what) {
+                        "article" -> Typesense.refreshIndex<Article>()
+                        "user" -> Typesense.refreshIndex<User>()
+                        else -> error("Wrong param provided")
+                    }.let {
+                        call.respond(mapOf("ts_response" to it.receive<Map<String, Any?>>()))
+                    }
                 }
             }
+
         }
 
     }

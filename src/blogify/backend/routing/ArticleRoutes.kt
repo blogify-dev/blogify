@@ -15,7 +15,6 @@ import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
 import blogify.backend.routing.pipelines.optionalParam
-import blogify.backend.routing.pipelines.pipeline
 import blogify.backend.routing.handling.createResource
 import blogify.backend.routing.handling.deleteResource
 import blogify.backend.routing.handling.fetchAllResources
@@ -24,6 +23,9 @@ import blogify.backend.routing.handling.getValidations
 import blogify.backend.routing.handling.respondExceptionMessage
 import blogify.backend.routing.handling.updateResource
 import blogify.backend.routing.pipelines.obtainResource
+import blogify.backend.routing.pipelines.param
+import blogify.backend.routing.pipelines.request
+import blogify.backend.routing.pipelines.wrapRequest
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.services.UserRepository
@@ -48,58 +50,73 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
     route("/articles") {
 
         get("/") {
-            fetchAllResources<Article>(applicationContext)
+            wrapRequest(applicationContext) {
+                fetchAllResources<Article>()
+            }
+            
         }
 
         get("/{uuid}") {
-            fetchResource<Article>(applicationContext)
+            wrapRequest(applicationContext) {
+                fetchResource<Article>()
+            }
         }
 
         val likes = Articles.Likes
 
         get("/{uuid}/like") {
-            pipeline("uuid") { (id) ->
-                runAuthenticated {
-                    val article = obtainResource<Article>(id.toUUID())
+            wrapRequest(applicationContext) {
+                request {
+                    
+                    val id = param("uuid")
+                    
+                    runAuthenticated {
+                        val article = obtainResource<Article>(id.toUUID())
 
-                    val liked = query {
-                        likes.select {
-                            (likes.article eq article.uuid) and (likes.user eq subject.uuid) }.count()
-                    }.getOrPipelineError() == 1;
+                        val liked = query {
+                            likes.select {
+                                (likes.article eq article.uuid) and (likes.user eq subject.uuid) }.count()
+                        }.getOrPipelineError() == 1;
 
-                    call.respond(liked)
+                        call.respond(liked)
+                    }
                 }
             }
         }
 
         post("/{uuid}/like") {
-            pipeline("uuid") { (id) ->
-                runAuthenticated {
-                    val articleToLike = obtainResource<Article>(id.toUUID())
+            wrapRequest(applicationContext) {
+                request {
 
-                    // Figure whether the article was already liked by the user
-                    val alreadyLiked = query {
-                        likes.select {
-                            (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid) }.count()
-                    }.getOrPipelineError() == 1
+                    val id = param("uuid")
 
-                    if (!alreadyLiked) { // Add a like if none were present
-                        query {
-                            likes.insert {
-                                it[article] = articleToLike.uuid
-                                it[user]    = subject.uuid
-                            }
-                        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't like article")
+                    runAuthenticated {
+                        val articleToLike = obtainResource<Article>(id.toUUID())
 
-                        call.respond(HttpStatusCode.OK, reason("article liked"))
-                    } else { // Remove an existing like if there was one
-                        query {
-                            likes.deleteWhere {
-                                (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid)
-                            }
-                        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't unlike article")
+                        // Figure whether the article was already liked by the user
+                        val alreadyLiked = query {
+                            likes.select {
+                                (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid) }.count()
+                        }.getOrPipelineError() == 1
 
-                        call.respond(HttpStatusCode.OK, reason("article unliked"))
+                        if (!alreadyLiked) { // Add a like if none were present
+                            query {
+                                likes.insert {
+                                    it[article] = articleToLike.uuid
+                                    it[user]    = subject.uuid
+                                }
+                            }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't like article")
+
+                            call.respond(HttpStatusCode.OK, reason("article liked"))
+                        } else { // Remove an existing like if there was one
+                            query {
+                                likes.deleteWhere {
+                                    (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid)
+                                }
+                            }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't unlike article")
+
+                            call.respond(HttpStatusCode.OK, reason("article unliked"))
+                        }
                     }
                 }
             }
@@ -133,46 +150,59 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         delete("/{uuid}") {
-            deleteResource<Article> (
-                authPredicate = { user, article -> article.createdBy == user }
-            )
+            wrapRequest(applicationContext) {
+                deleteResource<Article> (
+                    authPredicate = { user, article -> article.createdBy == user }
+                )
+            }
         }
 
         patch("/{uuid}") {
-            updateResource<Article> (
-                authPredicate = { user, article -> article.createdBy eqr user }
-            )
+            wrapRequest(applicationContext) {
+                updateResource<Article> (
+                    authPredicate = { user, article -> article.createdBy eqr user }
+                )
+            }
         }
 
         post("/") {
-            createResource<Article> (
-                authPredicate = { user, article -> article.createdBy eqr user }
-            )
+            wrapRequest(applicationContext) {
+                createResource<Article> (
+                    authPredicate = { user, article -> article.createdBy eqr user }
+                )
+            }
         }
 
         get("/search") {
 
-            pipeline("q") { (query) ->
+            wrapRequest(applicationContext) {
+                request {
 
-                val requestContext = RequestContext(applicationContext, call)
+                    val query = param("q")
 
-                requestContext.execute({ _ ->
+                    val requestContext = RequestContext(applicationContext, call)
 
-                    val user = optionalParam("byUser")?.toUUID()
-                    if (user != null) {
-                        val userHandle = Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")
-                        call.respond(Typesense.search<Article>(query, mapOf(userHandle to user)).asSearchView())
-                    } else {
-                        call.respond(Typesense.search<Article>(query).asSearchView())
-                    }
+                    requestContext.execute({ _ ->
 
-                }, null)
+                        val user = optionalParam("byUser")?.toUUID()
+                        if (user != null) {
+                            val userHandle = Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")
+                            call.respond(Typesense.search<Article>(query, mapOf(userHandle to user)).asSearchView())
+                        } else {
+                            call.respond(Typesense.search<Article>(query).asSearchView())
+                        }
 
+                    }, null)
+
+                }
             }
+            
         }
 
         get("_validations") {
-            getValidations<Article>()
+            wrapRequest(applicationContext) {
+                getValidations<Article>()
+            }
         }
 
         articleComments(applicationContext)

@@ -202,8 +202,8 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             makeArticleRoutes(appContext)
             users(appContext)
             auth()
-            static()
-            adminSearch()
+            static(appContext)
+            adminSearch(appContext)
         }
 
         get("/") {

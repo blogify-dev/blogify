@@ -17,7 +17,9 @@ import blogify.backend.routing.handling.fetchAllWithId
 import blogify.backend.routing.handling.fetchResource
 import blogify.backend.routing.handling.updateResource
 import blogify.backend.routing.pipelines.obtainResource
-import blogify.backend.routing.pipelines.pipeline
+import blogify.backend.routing.pipelines.param
+import blogify.backend.routing.pipelines.request
+import blogify.backend.routing.pipelines.wrapRequest
 import blogify.backend.services.CommentRepository
 import blogify.backend.util.expandCommentNode
 import blogify.backend.util.getOrPipelineError
@@ -35,35 +37,47 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
     route("/comments") {
 
         get("/") {
-            fetchAllResources<Comment>(applicationContext)
+            wrapRequest(applicationContext) {
+                fetchAllResources<Comment>()
+            }
         }
 
         get("/{uuid}") {
-            fetchResource<Comment>(applicationContext)
+            wrapRequest(applicationContext) {
+                fetchResource<Comment>()
+            }
         }
 
         get("/article/{uuid}") {
-            fetchAllWithId(applicationContext, fetch = { articleId ->
-                CommentRepository.getMatching(call) { Comments.article eq articleId and Comments.parentComment.isNull() }
-            })
+            wrapRequest(applicationContext) {
+                fetchAllWithId(fetch = { articleId ->
+                    CommentRepository.getMatching(call) { Comments.article eq articleId and Comments.parentComment.isNull() }
+                })
+            }
         }
 
         delete("/{uuid}") {
-            deleteResource<Comment> (
-                authPredicate = { user, comment -> comment.commenter eqr user }
-            )
+            wrapRequest(applicationContext) {
+                deleteResource<Comment> (
+                    authPredicate = { user, comment -> comment.commenter eqr user }
+                )
+            }
         }
 
         patch("/{uuid}") {
-            updateResource<Comment> (
-                authPredicate = { user, comment -> comment.commenter eqr user }
-            )
+            wrapRequest(applicationContext) {
+                updateResource<Comment> (
+                    authPredicate = { user, comment -> comment.commenter eqr user }
+                )
+            }
         }
 
         post("/") {
-            createResource<Comment> (
-                authPredicate = { user, comment -> comment.commenter eqr user }
-            )
+            wrapRequest(applicationContext) {
+                createResource<Comment> (
+                    authPredicate = { user, comment -> comment.commenter eqr user }
+                )
+            }
         }
 
         get("/tree/{uuid}") {
@@ -77,54 +91,64 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         val likes = Comments.Likes
 
         get("/{uuid}/like") {
-            pipeline("uuid") { (id) ->
-                runAuthenticated {
-                    val comment = this.obtainResource<Comment>(id.toUUID())
+            wrapRequest(applicationContext) {
+                request {
 
-                    val liked = query {
-                        likes.select {
-                            (likes.comment eq comment.uuid) and (likes.user eq subject.uuid) }.count()
-                    }.getOrPipelineError() == 1;
+                    val id = param("uuid")
 
-                    call.respond(liked)
+                    runAuthenticated {
+                        val comment = this.obtainResource<Comment>(id.toUUID())
+
+                        val liked = query {
+                            likes.select {
+                                (likes.comment eq comment.uuid) and (likes.user eq subject.uuid) }.count()
+                        }.getOrPipelineError() == 1;
+
+                        call.respond(liked)
+                    }
                 }
             }
         }
 
         post("/{uuid}/like") {
-            println("Got here")
-            pipeline("uuid") { (id) ->
-                println("Got here $id")
-                runAuthenticated {
-                    val commentToLike = CommentRepository.get(call, id.toUUID())
-                        .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch comment")
 
-                    // Figure whether the article was already liked by the user
-                    val alreadyLiked = query {
-                        likes.select {
-                            (likes.comment eq commentToLike.uuid) and (likes.user eq subject.uuid) }.count()
-                    }.getOrPipelineError() == 1
+            wrapRequest(applicationContext) {
+                request {
 
-                    if (!alreadyLiked) { // Add a like if none were present
-                        query {
-                            likes.insert {
-                                it[likes.comment] = commentToLike.uuid
-                                it[likes.user]    = subject.uuid
-                            }
-                        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't like comment")
+                    val id = param("uuid")
 
-                        call.respond(HttpStatusCode.OK, reason("comment liked"))
-                    } else { // Remove an existing like if there was one
-                        query {
-                            likes.deleteWhere {
-                                (likes.comment eq commentToLike.uuid) and (likes.user eq subject.uuid)
-                            }
-                        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't unlike comment")
+                    runAuthenticated {
+                        val commentToLike = CommentRepository.get(call, id.toUUID())
+                            .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch comment")
 
-                        call.respond(HttpStatusCode.OK, reason("comment unliked"))
+                        // Figure whether the article was already liked by the user
+                        val alreadyLiked = query {
+                            likes.select {
+                                (likes.comment eq commentToLike.uuid) and (likes.user eq subject.uuid) }.count()
+                        }.getOrPipelineError() == 1
+
+                        if (!alreadyLiked) { // Add a like if none were present
+                            query {
+                                likes.insert {
+                                    it[likes.comment] = commentToLike.uuid
+                                    it[likes.user]    = subject.uuid
+                                }
+                            }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't like comment")
+
+                            call.respond(HttpStatusCode.OK, reason("comment liked"))
+                        } else { // Remove an existing like if there was one
+                            query {
+                                likes.deleteWhere {
+                                    (likes.comment eq commentToLike.uuid) and (likes.user eq subject.uuid)
+                                }
+                            }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't unlike comment")
+
+                            call.respond(HttpStatusCode.OK, reason("comment unliked"))
+                        }
                     }
                 }
             }
+
         }
 
     }

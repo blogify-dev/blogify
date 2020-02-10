@@ -9,7 +9,6 @@ import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
 import blogify.backend.routing.pipelines.obtainResource
-import blogify.backend.routing.pipelines.pipeline
 import blogify.backend.routing.handling.deleteResource
 import blogify.backend.routing.handling.deleteUpload
 import blogify.backend.routing.handling.fetchAllResources
@@ -17,6 +16,9 @@ import blogify.backend.routing.handling.fetchResource
 import blogify.backend.routing.handling.respondExceptionMessage
 import blogify.backend.routing.handling.updateResource
 import blogify.backend.routing.handling.uploadToResource
+import blogify.backend.routing.pipelines.param
+import blogify.backend.routing.pipelines.request
+import blogify.backend.routing.pipelines.wrapRequest
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.services.UserRepository
@@ -41,23 +43,31 @@ fun Route.users(applicationContext: ApplicationContext) {
     route("/users") {
 
         get("/") {
-            fetchAllResources<User>(applicationContext)
+            wrapRequest(applicationContext) {
+                fetchAllResources<User>()
+            }
         }
 
         get("/{uuid}") {
-            fetchResource<User>(applicationContext)
+            wrapRequest(applicationContext) {
+                fetchResource<User>()
+            }
         }
 
         delete("/{uuid}") {
-            deleteResource<User> (
-                authPredicate = { user, manipulated -> user eqr manipulated }
-            )
+            wrapRequest(applicationContext) {
+                deleteResource<User> (
+                    authPredicate = { user, manipulated -> user eqr manipulated }
+                )
+            }
         }
 
         patch("/{uuid}") {
-            updateResource<User> (
-                authPredicate = { user, replaced -> user eqr replaced }
-            )
+            wrapRequest(applicationContext) {
+                updateResource<User> (
+                    authPredicate = { user, replaced -> user eqr replaced }
+                )
+            }
         }
 
         get("/byUsername/{username}") {
@@ -84,53 +94,66 @@ fun Route.users(applicationContext: ApplicationContext) {
         }
 
         post("/upload/{uuid}") {
-            uploadToResource<User> (
-                authPredicate = { user, manipulated -> user eqr manipulated }
-            )
+            wrapRequest(applicationContext) {
+                uploadToResource<User> (
+                    authPredicate = { user, manipulated -> user eqr manipulated }
+                )
+            }
         }
 
         delete("/upload/{uuid}") {
-            deleteUpload<User>(authPredicate = { user, manipulated -> user eqr manipulated })
+            wrapRequest(applicationContext) {
+                deleteUpload<User>(authPredicate = { user, manipulated -> user eqr manipulated })
+            }
         }
 
         get("/search") {
-            pipeline("q") { (query) ->
-                call.respond(Typesense.search<User>(query).asSearchView())
+            wrapRequest(applicationContext) {
+                request {
+                    val query = param("q")
+
+                    call.respond(Typesense.search<User>(query).asSearchView())
+                }
             }
         }
 
         post("{uuid}/follow") {
             val follows = Users.Follows
 
-            pipeline("uuid") { (uuid) ->
+            wrapRequest(applicationContext) {
+                request {
 
-                val following = obtainResource<User>(uuid.toUUID())
+                    val id = param("uuid")
 
-                runAuthenticated {
+                    val following = obtainResource<User>(id.toUUID())
 
-                    val hasAlreadyFollowed = query {
-                        follows.select {
-                            (follows.follower eq subject.uuid) and (follows.following eq following.uuid)
-                        }.count()
-                    }.get() == 1
+                    runAuthenticated {
 
-                    if (!hasAlreadyFollowed) {
-                        query {
-                            follows.insert {
-                                it[Users.Follows.follower] = subject.uuid
-                                it[Users.Follows.following] = following.uuid
-                            }
-                        }
-                    } else {
-                        query {
-                            follows.deleteWhere {
+                        val hasAlreadyFollowed = query {
+                            follows.select {
                                 (follows.follower eq subject.uuid) and (follows.following eq following.uuid)
+                            }.count()
+                        }.get() == 1
+
+                        if (!hasAlreadyFollowed) {
+                            query {
+                                follows.insert {
+                                    it[Users.Follows.follower] = subject.uuid
+                                    it[Users.Follows.following] = following.uuid
+                                }
+                            }
+                        } else {
+                            query {
+                                follows.deleteWhere {
+                                    (follows.follower eq subject.uuid) and (follows.following eq following.uuid)
+                                }
                             }
                         }
+                        call.respond(HttpStatusCode.OK)
                     }
-                    call.respond(HttpStatusCode.OK)
                 }
             }
+
 
         }
 
