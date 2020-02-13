@@ -4,8 +4,8 @@ import blogify.backend.config.Configs
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.sanitize
-import blogify.backend.routing.pipelines.pipelineError
-import blogify.backend.routing.pipelines.service
+import blogify.backend.pipelines.pipelineError
+import blogify.backend.pipelines.service
 import blogify.backend.search.ext.TEMPLATE_DEFAULT_DSF
 import blogify.backend.search.ext._rebuildSearchTemplate
 import blogify.backend.search.ext._searchTemplate
@@ -35,6 +35,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 
 import com.andreapivetta.kolor.green
 import com.andreapivetta.kolor.red
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -224,8 +226,10 @@ object Typesense {
         filters: Map<PropMap.PropertyHandle.Ok, Any> = emptyMap()
     ): Search<R> {
         val template = R::class._searchTemplate
+
         val excludedFieldsString = template.fields
             .joinToString(separator = ",") { it.name }
+
         val filtersString = filters.takeIf { it.isNotEmpty() }?.entries
             ?.joinToString(separator = "&&") { "${it.key.name}:${it.value}" }
 
@@ -238,15 +242,19 @@ object Typesense {
                 "&exclude_fields=$excludedFieldsString" +
                 if (filtersString != null) "&filter_by=$filtersString" else ""
             )
-        }.execute() { response ->
+        }.let { response ->
+            val response = response.execute()
+
             if (response.status.isSuccess()) {
-                return@execute response.receive<Search<R>>()
+                return@let response.receive<Search<R>>()
             } else {
                 tscLogger.error("couldn't search in Typesense index ${template.name}: ${typesenseMessage(response.receive())}".red())
                 pipelineError(HttpStatusCode.InternalServerError, "error during Typesense search")
             }
         }
+
     }
+
 
     /**
      * Refreshes typesense index. It sends the following requests:

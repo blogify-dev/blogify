@@ -3,22 +3,21 @@ package blogify.backend.routing.users
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Users
 import blogify.backend.database.handling.query
-import blogify.backend.pipelines.ApplicationContext
+import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
-import blogify.backend.routing.pipelines.obtainResource
 import blogify.backend.routing.handling.deleteResource
 import blogify.backend.routing.handling.deleteUpload
 import blogify.backend.routing.handling.fetchAllResources
 import blogify.backend.routing.handling.fetchResource
+import blogify.backend.pipelines.obtainResource
 import blogify.backend.routing.handling.respondExceptionMessage
 import blogify.backend.routing.handling.updateResource
 import blogify.backend.routing.handling.uploadToResource
-import blogify.backend.routing.pipelines.param
-import blogify.backend.routing.pipelines.request
-import blogify.backend.routing.pipelines.wrapRequest
+import blogify.backend.pipelines.param
+import blogify.backend.pipelines.requestContext
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.services.UserRepository
@@ -29,8 +28,8 @@ import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
-
 import org.jetbrains.exposed.sql.and
+
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
@@ -43,19 +42,19 @@ fun Route.users(applicationContext: ApplicationContext) {
     route("/users") {
 
         get("/") {
-            wrapRequest(applicationContext) {
+            requestContext(applicationContext) {
                 fetchAllResources<User>()
             }
         }
 
         get("/{uuid}") {
-            wrapRequest(applicationContext) {
+            requestContext(applicationContext) {
                 fetchResource<User>()
             }
         }
 
         delete("/{uuid}") {
-            wrapRequest(applicationContext) {
+            requestContext(applicationContext) {
                 deleteResource<User> (
                     authPredicate = { user, manipulated -> user eqr manipulated }
                 )
@@ -63,7 +62,7 @@ fun Route.users(applicationContext: ApplicationContext) {
         }
 
         patch("/{uuid}") {
-            wrapRequest(applicationContext) {
+            requestContext(applicationContext) {
                 updateResource<User> (
                     authPredicate = { user, replaced -> user eqr replaced }
                 )
@@ -94,7 +93,7 @@ fun Route.users(applicationContext: ApplicationContext) {
         }
 
         post("/upload/{uuid}") {
-            wrapRequest(applicationContext) {
+            requestContext(applicationContext) {
                 uploadToResource<User> (
                     authPredicate = { user, manipulated -> user eqr manipulated }
                 )
@@ -102,55 +101,50 @@ fun Route.users(applicationContext: ApplicationContext) {
         }
 
         delete("/upload/{uuid}") {
-            wrapRequest(applicationContext) {
+            requestContext(applicationContext) {
                 deleteUpload<User>(authPredicate = { user, manipulated -> user eqr manipulated })
             }
         }
 
         get("/search") {
-            wrapRequest(applicationContext) {
-                request {
-                    val query = param("q")
+            requestContext(applicationContext) {
+                val query = param("q")
 
-                    call.respond(Typesense.search<User>(query).asSearchView())
-                }
+                call.respond(Typesense.search<User>(query).asSearchView())
             }
         }
 
         post("{uuid}/follow") {
             val follows = Users.Follows
 
-            wrapRequest(applicationContext) {
-                request {
+            requestContext(applicationContext) {
+                val id = param("uuid")
 
-                    val id = param("uuid")
+                val following = obtainResource<User>(id.toUUID())
 
-                    val following = obtainResource<User>(id.toUUID())
+                runAuthenticated { subject ->
 
-                    runAuthenticated {
+                    val hasAlreadyFollowed = query {
+                        follows.select {
+                            (follows.follower eq subject.uuid) and (follows.following eq following.uuid)
+                        }.count()
+                    }.get() == 1
 
-                        val hasAlreadyFollowed = query {
-                            follows.select {
-                                (follows.follower eq subject.uuid) and (follows.following eq following.uuid)
-                            }.count()
-                        }.get() == 1
-
-                        if (!hasAlreadyFollowed) {
-                            query {
-                                follows.insert {
-                                    it[Users.Follows.follower] = subject.uuid
-                                    it[Users.Follows.following] = following.uuid
-                                }
-                            }
-                        } else {
-                            query {
-                                follows.deleteWhere {
-                                    (follows.follower eq subject.uuid) and (follows.following eq following.uuid)
-                                }
+                    if (!hasAlreadyFollowed) {
+                        query {
+                            follows.insert {
+                                it[Users.Follows.follower] = subject.uuid
+                                it[Users.Follows.following] = following.uuid
                             }
                         }
-                        call.respond(HttpStatusCode.OK)
+                    } else {
+                        query {
+                            follows.deleteWhere {
+                                (follows.follower eq subject.uuid) and (follows.following eq following.uuid)
+                            }
+                        }
                     }
+                    call.respond(HttpStatusCode.OK)
                 }
             }
 

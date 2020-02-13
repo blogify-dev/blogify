@@ -3,7 +3,7 @@ package blogify.backend.persistence.sql
 import blogify.backend.database.ResourceTable
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.routing.pipelines.caching.cachedOrElse
+import blogify.backend.pipelines.caching.cachedOrElse
 import blogify.backend.services.models.Repository
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap

@@ -1,4 +1,4 @@
-package blogify.backend.pipelines
+package blogify.backend.pipelines.wrapping
 
 import blogify.backend.persistence.models.DataStore
 

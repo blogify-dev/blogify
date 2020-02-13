@@ -18,7 +18,7 @@ import blogify.backend.database.Users
 import blogify.backend.routing.auth
 import blogify.backend.database.handling.query
 import blogify.backend.persistence.PostgresDataStore
-import blogify.backend.pipelines.ApplicationContext
+import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
