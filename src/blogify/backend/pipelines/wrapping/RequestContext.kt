@@ -1,9 +1,16 @@
 package blogify.backend.pipelines.wrapping
 
+import blogify.backend.resources.models.Resource
+import blogify.backend.services.models.Repository
+import blogify.backend.util.MapCache
+import blogify.backend.util.Sr
+
 import io.ktor.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 
 import kotlinx.coroutines.CoroutineScope
+
+import java.util.UUID
 
 /**
  * Context object that wraps an [ApplicationCall] and server execution context information,
@@ -20,7 +27,8 @@ import kotlinx.coroutines.CoroutineScope
 class RequestContext (
     val applicationContext: ApplicationContext,
     val coroutineScope: CoroutineScope,
-    val call: ApplicationCall
+    val call: ApplicationCall,
+    val resourceCache: MapCache<UUID, Sr<Resource>>
 ) : CoroutineScope by coroutineScope {
 
     /**
