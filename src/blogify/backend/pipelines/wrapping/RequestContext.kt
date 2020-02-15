@@ -37,6 +37,17 @@ class RequestContext (
         function(this, subject)
     }
 
+    /**
+     * Provides a [Repository] object for [TResource] using the data store in context
+     *
+     * @param TResource the type of [Resource] to return a repository for
+     *
+     * @author Benjozork
+     */
+    inline fun <reified TResource : Resource> repository(): Repository<TResource> {
+        return this.applicationContext.dataStore.getRepository(TResource::class)
+    }
+
 }
 
 /**
