@@ -11,5 +11,5 @@ annotation class SqlTable (
 )
 
 val <R : Resource> KClass<R>.table: ResourceTable<R>
-    get() = (this.findAnnotation<SqlTable>()?.table?.objectInstance ?: error("no @SqlTable annotation on class"))
+    get() = (this.findAnnotation<SqlTable>()?.table?.objectInstance ?: error("no @SqlTable annotation on class ${this.simpleName}"))
             as ResourceTable<R>
