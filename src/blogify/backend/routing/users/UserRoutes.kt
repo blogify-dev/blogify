@@ -110,7 +110,7 @@ fun Route.users(applicationContext: ApplicationContext) {
             requestContext(applicationContext) {
                 val query = param("q")
 
-                call.respond(Typesense.search<User>(query).asSearchView())
+                call.respond(Typesense.search<User>(query).asSearchView(this))
             }
         }
 

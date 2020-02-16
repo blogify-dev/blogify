@@ -72,7 +72,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
                     val liked = query {
                         likes.select {
                             (likes.article eq article.uuid) and (likes.user eq subject.uuid) }.count()
-                    }.getOrPipelineError() == 1;
+                    }.getOrPipelineError() == 1
 
                     call.respond(liked)
                 }
@@ -166,17 +166,17 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         get("/search") {
+            requestContext(applicationContext) {
+                val query = call.parameters["q"]!!
+                val user = call.parameters["byUser"]?.toUUID()
 
-            val query = call.parameters["q"]!!
-            val user = call.parameters["byUser"]?.toUUID()
-
-            if (user != null) {
-                val userHandle = Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")
-                call.respond(Typesense.search<Article>(query, mapOf(userHandle to user)).asSearchView())
-            } else {
-                call.respond(Typesense.search<Article>(query).asSearchView())
+                if (user != null) {
+                    val userHandle = Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")
+                    call.respond(Typesense.search<Article>(query, mapOf(userHandle to user)).asSearchView(this))
+                } else {
+                    call.respond(Typesense.search<Article>(query).asSearchView(this))
+                }
             }
-
         }
 
         get("_validations") {
