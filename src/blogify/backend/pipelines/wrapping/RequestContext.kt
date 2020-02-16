@@ -1,7 +1,7 @@
 package blogify.backend.pipelines.wrapping
 
 import blogify.backend.resources.models.Resource
-import blogify.backend.services.models.Repository
+import blogify.backend.persistence.models.Repository
 import blogify.backend.util.MapCache
 import blogify.backend.util.Sr
 
@@ -11,6 +11,7 @@ import io.ktor.util.pipeline.PipelineContext
 import kotlinx.coroutines.CoroutineScope
 
 import java.util.UUID
+import kotlin.reflect.KClass
 
 /**
  * Context object that wraps an [ApplicationCall] and server execution context information,
@@ -54,6 +55,17 @@ class RequestContext (
      */
     inline fun <reified TResource : Resource> repository(): Repository<TResource> {
         return this.applicationContext.dataStore.getRepository(TResource::class)
+    }
+
+    /**
+     * Provides a [Repository] object for [TResource] using the data store in context
+     *
+     * @param TResource the type of [Resource] to return a repository for
+     *
+     * @author Benjozork
+     */
+    fun <TResource : Resource> repository(klass: KClass<TResource>): Repository<TResource> {
+        return this.applicationContext.dataStore.getRepository(klass)
     }
 
 }
