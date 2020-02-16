@@ -48,7 +48,7 @@ open class SqlRepository<R : Resource>(val table: ResourceTable<R>) : Repository
     override suspend fun add(res: R): Sr<R> = this.table.insert(res)
 
     override suspend fun update(res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R> {
-        val new = blogify.backend.resources.reflect.update(res, rawData)
+        val new = update(res, rawData)
             .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't update resource")
 
         this.table.update(new)
