@@ -2,6 +2,7 @@
 
 package blogify.backend.database
 
+import blogify.backend.applicationContext
 import blogify.backend.database.handling.query
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
@@ -9,10 +10,7 @@ import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.static.models.StaticResourceHandle
-import blogify.backend.services.ArticleRepository
-import blogify.backend.services.UserRepository
-import blogify.backend.services.CommentRepository
-import blogify.backend.services.models.Repository
+import blogify.backend.persistence.models.Repository
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
@@ -127,7 +125,7 @@ object Articles : ResourceTable<Article>() {
             uuid       = source[uuid],
             title      = source[title],
             createdAt  = source[createdAt],
-            createdBy  = UserRepository.get(callContext, source[createdBy]).get(),
+            createdBy  = applicationContext.repository<User>().get(callContext, source[createdBy]).get(),
             content    = source[content],
             summary    = source[summary],
             categories = transaction {
@@ -283,9 +281,9 @@ object Comments : ResourceTable<Comment>() {
         Comment (
             uuid          = source[uuid],
             content       = source[content],
-            article       = ArticleRepository.get(callContext, source[article]).get(),
-            commenter     = UserRepository.get(callContext, source[commenter]).get(),
-            parentComment = source[parentComment]?.let { CommentRepository.get(callContext, it).get() }
+            article       = applicationContext.repository<Article>().get(callContext, source[article]).get(),
+            commenter     = applicationContext.repository<User>().get(callContext, source[commenter]).get(),
+            parentComment = source[parentComment]?.let { applicationContext.repository<Comment>().get(callContext, it).get() }
         )
     }
 
