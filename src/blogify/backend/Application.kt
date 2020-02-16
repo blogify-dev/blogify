@@ -17,7 +17,7 @@ import blogify.backend.database.Uploadables
 import blogify.backend.database.Users
 import blogify.backend.routing.auth
 import blogify.backend.database.handling.query
-import blogify.backend.persistence.PostgresDataStore
+import blogify.backend.persistence.postgres.PostgresDataStore
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.User
@@ -56,10 +56,10 @@ import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
 
-const val version = "0.3.0-preRelease"
+private const val version = "0.3.0-preRelease"
 
 @Suppress("GrazieInspection")
-const val asciiLogo = """
+private const val asciiLogo = """
     __     __               _  ____      
    / /_   / /____   ____ _ (_)/ __/__  __
   / __ \ / // __ \ / __ `// // /_ / / / /
