@@ -69,6 +69,22 @@ private const val asciiLogo = """
 ---- Version $version - Development build -
 """
 
+val dataStore = PostgresDataStore {
+
+    val config = Configs.Database
+
+    host = config.host
+    port = config.port
+
+    username = config.username
+    password = config.password
+
+    database = config.databaseName
+
+}
+
+val applicationContext = ApplicationContext(dataStore)
+
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
@@ -98,12 +114,12 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
     // Initialize HTTPS refirection
 
-    install(HttpsRedirect) {
-        // The port to redirect to. By default 443, the default HTTPS port.
-        sslPort = 443
-        // 301 Moved Permanently, or 302 Found redirect.
-        permanentRedirect = true
-    }
+//    install(HttpsRedirect) {
+//        // The port to redirect to. By default 443, the default HTTPS port.
+//        sslPort = 443
+//        // 301 Moved Permanently, or 302 Found redirect.
+//        permanentRedirect = true
+//    }
 
     // Initialize call logging
 
@@ -177,20 +193,6 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     }
 
     // Create an application context
-
-    val dataStore = PostgresDataStore {
-
-        val config = Configs.Database
-
-        host = config.host
-        port = config.port
-
-        username = config.username
-        password = config.password
-
-        database = config.databaseName
-
-    }
 
     val appContext = ApplicationContext(dataStore)
 

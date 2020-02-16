@@ -1,18 +1,9 @@
 package blogify.backend.resources.models
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerator
-import com.fasterxml.jackson.annotation.ObjectIdResolver
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.ser.std.StdSerializer
-
-import blogify.backend.resources.Article
-import blogify.backend.resources.Comment
-import blogify.backend.resources.User
+import blogify.backend.applicationContext
+import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.services.UserRepository
-import blogify.backend.services.ArticleRepository
-import blogify.backend.services.CommentRepository
+import blogify.backend.util.MapCache
 
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
@@ -20,8 +11,16 @@ import io.ktor.http.Parameters
 import io.ktor.request.ApplicationRequest
 import io.ktor.response.ApplicationResponse
 import io.ktor.util.Attributes
+import kotlinx.coroutines.GlobalScope
+
+import com.fasterxml.jackson.annotation.ObjectIdGenerator
+import com.fasterxml.jackson.annotation.ObjectIdResolver
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 import kotlinx.coroutines.runBlocking
+import kotlin.reflect.KClass
 
 import java.lang.IllegalStateException
 import java.util.*
@@ -45,6 +44,8 @@ open class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped() {
 
         }
 
+        val FakeRequestContext = RequestContext(applicationContext, GlobalScope, FakeApplicationCall, MapCache())
+
         override fun resolveId(id: ObjectIdGenerator.IdKey?): Any? {
 
             val uuid = id?.key as UUID
@@ -53,37 +54,12 @@ open class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped() {
                     = IllegalStateException("exception during resource (type: ${scope.simpleName}) resolve with UUID $uuid : ${ex.message}", ex)
 
             return runBlocking {
-                // Necessary since we're interacting with Java cruft
-                when (id.scope) {
 
-                    Article::class.java -> {
-                        try {
-                            return@runBlocking ArticleRepository.get(id = uuid).get()
-                        } catch (e: Exception) {
-                            throw genException(id.scope, e)
-                        }
-                    }
-
-                    User::class.java -> {
-                        try {
-                            return@runBlocking UserRepository.get(id = uuid).get()
-                        } catch (e: Exception) {
-                            throw genException(id.scope, e)
-                        }
-                    }
-
-                    Comment::class.java -> {
-                        try {
-                            return@runBlocking CommentRepository.get(id = uuid).get()
-                        } catch (e: Exception) {
-                            throw genException(id.scope, e)
-                        }
-                    }
-
-                    else -> {
-                        error("can't find service for resource class ${id.scope.simpleName}")
-                    }
-
+                try {
+                    @Suppress("UNCHECKED_CAST")
+                    FakeRequestContext.repository(id.scope.kotlin as KClass<Resource>).get(id = uuid).get()
+                } catch (e: Exception) {
+                    throw genException(id.scope, e)
                 }
 
             }
