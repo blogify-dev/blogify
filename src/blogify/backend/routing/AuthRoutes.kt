@@ -7,15 +7,13 @@ import blogify.backend.auth.jwt.validateJwt
 import blogify.backend.database.Users
 import blogify.backend.pipelines.requestContext
 import blogify.backend.pipelines.wrapping.ApplicationContext
+import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.User
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.routing.handling.respondExceptionMessage
 import blogify.backend.search.Typesense
-import blogify.backend.services.UserRepository
 import blogify.backend.services.models.Repository
 import blogify.backend.util.*
-
-import io.ktor.application.call
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
@@ -55,7 +53,7 @@ data class RegisterCredentials (
      * Creates a [user][User] from the [credentials][RegisterCredentials].
      * @return The created user
      */
-    suspend fun createUser(): User {
+    suspend fun createUser(requestContext: RequestContext): User {
         val created = User (
             username = this.username,
             password = this.password.hash(),
@@ -65,7 +63,7 @@ data class RegisterCredentials (
             coverPicture = StaticResourceHandle.None(ContentType.Image.PNG)
         )
 
-        UserRepository.add(created).fold (
+        requestContext.repository<User>().add(created).fold (
             success = { user -> Typesense.uploadResource(user) },
             failure = {
                 error("$created: signup couldn't create user\nError:$it")
@@ -82,32 +80,32 @@ fun Route.auth(applicationContext: ApplicationContext) {
     route("/auth") {
 
         post("/signin") {
+            requestContext(applicationContext) {
+                val credentials = call.receive<LoginCredentials>()
+                val matchingCredentials = repository<User>().getMatching(call) { Users.username eq credentials.username }
 
-            val credentials = call.receive<LoginCredentials>()
-            val matchingCredentials = UserRepository.getMatching(call) { Users.username eq credentials.username }
+                matchingCredentials.fold (
+                    success = { set ->
+                        set.foldForOne ( // We got a set of matching users
+                            one = { singleUser ->
+                                if (credentials.matchFor(singleUser)) {
+                                    val token = generateJWT(singleUser)
 
-            matchingCredentials.fold (
-                success = { set ->
-                    set.foldForOne ( // We got a set of matching users
-                        one = { singleUser ->
-                            if (credentials.matchFor(singleUser)) {
-                                val token = generateJWT(singleUser)
-
-                                call.respond(object { @Suppress("unused") val token = token })
-                            } else {
-                                call.respond(HttpStatusCode.Forbidden, reason("username/password invalid")) // Password doesn't match
-                            }
-                        }, multiple = {
-                            call.respond(HttpStatusCode.InternalServerError)
-                        }, none = {
-                            call.respond(HttpStatusCode.NotFound)
-                        })
-                },
-                failure = { ex ->
-                    call.respondExceptionMessage(ex)
-                }
-            )
-
+                                    call.respond(object { @Suppress("unused") val token = token })
+                                } else {
+                                    call.respond(HttpStatusCode.Forbidden, reason("username/password invalid")) // Password doesn't match
+                                }
+                            }, multiple = {
+                                call.respond(HttpStatusCode.InternalServerError)
+                            }, none = {
+                                call.respond(HttpStatusCode.NotFound)
+                            })
+                    },
+                    failure = { ex ->
+                        call.respondExceptionMessage(ex)
+                    }
+                )
+            }
         }
 
         get("/{token}") {
@@ -124,10 +122,12 @@ fun Route.auth(applicationContext: ApplicationContext) {
         }
 
         post("/signup") {
-            val credentials = call.receive<RegisterCredentials>()
-            println("credentials -> $credentials")
-            val createdUser = credentials.createUser()
-            call.respond(createdUser)
+            requestContext(applicationContext) {
+                val credentials = call.receive<RegisterCredentials>()
+                println("credentials -> $credentials")
+                val createdUser = credentials.createUser(this)
+                call.respond(createdUser)
+            }
         }
 
     }
