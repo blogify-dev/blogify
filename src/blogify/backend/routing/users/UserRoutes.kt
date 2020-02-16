@@ -13,6 +13,7 @@ import blogify.backend.routing.handling.deleteUpload
 import blogify.backend.routing.handling.fetchAllResources
 import blogify.backend.routing.handling.fetchResource
 import blogify.backend.pipelines.obtainResource
+import blogify.backend.pipelines.optionalParam
 import blogify.backend.routing.handling.respondExceptionMessage
 import blogify.backend.routing.handling.updateResource
 import blogify.backend.routing.handling.uploadToResource
@@ -20,11 +21,8 @@ import blogify.backend.pipelines.param
 import blogify.backend.pipelines.requestContext
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
-import blogify.backend.services.UserRepository
 import blogify.backend.services.models.Repository
 import blogify.backend.util.toUUID
-
-import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
@@ -70,26 +68,26 @@ fun Route.users(applicationContext: ApplicationContext) {
         }
 
         get("/byUsername/{username}") {
-            val params = call.parameters
-            val username = params["username"] ?: error("Username is null")
-            val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
+            requestContext(applicationContext) {
+                val username = param("username")
+                val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
-            UserRepository.getMatching { Users.username eq username }.fold(
-                success = {
-                    val user = it.single()
-                    try {
-                        selectedPropertyNames?.let { props ->
+                repository<User>().getMatching { Users.username eq username }.fold(
+                    success = {
+                        val user = it.single()
+                        try {
+                            selectedPropertyNames?.let { props ->
 
-                            call.respond(user.slice(props))
+                                call.respond(user.slice(props))
 
-                        } ?: call.respond(user.sanitize())
-                    } catch (bruhMoment: Repository.Exception) {
-                        call.respondExceptionMessage(bruhMoment)
-                    }
-                },
-                failure = { call.respondExceptionMessage(it) }
-            )
-
+                            } ?: call.respond(user.sanitize())
+                        } catch (bruhMoment: Repository.Exception) {
+                            call.respondExceptionMessage(bruhMoment)
+                        }
+                    },
+                    failure = { call.respondExceptionMessage(it) }
+                )
+            }
         }
 
         post("/upload/{uuid}") {
