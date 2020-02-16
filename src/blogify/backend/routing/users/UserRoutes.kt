@@ -21,7 +21,7 @@ import blogify.backend.pipelines.param
 import blogify.backend.pipelines.requestContext
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
-import blogify.backend.services.models.Repository
+import blogify.backend.persistence.models.Repository
 import blogify.backend.util.toUUID
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond

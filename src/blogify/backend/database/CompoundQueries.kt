@@ -1,6 +1,6 @@
 package blogify.backend.database
 
-import blogify.backend.services.models.Repository
+import blogify.backend.persistence.models.Repository
 import blogify.backend.database.handling.query
 import blogify.backend.util.Sr
 

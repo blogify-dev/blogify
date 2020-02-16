@@ -1,7 +1,6 @@
 package blogify.backend.persistence.models
 
 import blogify.backend.resources.models.Resource
-import blogify.backend.services.models.Repository
 
 import kotlin.reflect.KClass
 

@@ -1,11 +1,9 @@
-package blogify.backend.persistence
+package blogify.backend.persistence.postgres
 
 import blogify.backend.annotations.table
-import blogify.backend.config.Configs
 import blogify.backend.persistence.models.DataStore
-import blogify.backend.persistence.sql.SqlRepository
 import blogify.backend.resources.models.Resource
-import blogify.backend.services.models.Repository
+import blogify.backend.persistence.models.Repository
 import blogify.backend.util.MapCache
 
 import kotlin.reflect.KClass
@@ -20,7 +18,7 @@ class PostgresDataStore (
 
     override fun <R : Resource> getRepository(klass: KClass<R>): Repository<R> {
         @Suppress("UNCHECKED_CAST")
-        return repoCache.getOrElse(klass) { SqlRepository(klass.table) } as Repository<R>
+        return repoCache.getOrElse(klass) { PostgresRepository(klass.table) } as Repository<R>
     }
 
     class PostgresConfiguration : DataStore.Configuration() {

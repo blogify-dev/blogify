@@ -1,10 +1,12 @@
-package blogify.backend.persistence.sql
+package blogify.backend.persistence.postgres
 
 import blogify.backend.database.ResourceTable
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.pipelines.caching.cachedOrElse
-import blogify.backend.services.models.Repository
+import blogify.backend.persistence.models.Repository
+import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.resources.reflect.update
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
@@ -26,7 +28,7 @@ import org.slf4j.LoggerFactory
 
 import java.util.*
 
-open class SqlRepository<R : Resource>(val table: ResourceTable<R>) : Repository<R> {
+open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repository<R> {
 
     private val logger = LoggerFactory.getLogger("blogify-service-${this::class.simpleName}")
 

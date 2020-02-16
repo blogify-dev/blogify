@@ -4,7 +4,7 @@ import blogify.backend.database.Comments
 import blogify.backend.resources.Comment
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
 import blogify.backend.resources.reflect.sanitize
-import blogify.backend.services.models.Repository
+import blogify.backend.persistence.models.Repository
 
 import io.ktor.application.ApplicationCall
 

@@ -13,7 +13,7 @@ import blogify.backend.resources.User
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.routing.handling.respondExceptionMessage
 import blogify.backend.search.Typesense
-import blogify.backend.services.models.Repository
+import blogify.backend.persistence.models.Repository
 import blogify.backend.util.*
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
