@@ -15,14 +15,12 @@ import blogify.backend.routing.handling.updateResource
 import blogify.backend.pipelines.obtainResource
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.requestContext
-import blogify.backend.services.CommentRepository
 import blogify.backend.util.expandCommentNode
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
 import blogify.backend.util.toUUID
 
 import io.ktor.http.HttpStatusCode
-import io.ktor.application.call
 import io.ktor.response.respond
 import io.ktor.routing.*
 
@@ -50,7 +48,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         get("/article/{uuid}") {
             requestContext(applicationContext) {
                 fetchAllWithId(fetch = { articleId ->
-                    CommentRepository.getMatching(call) { Comments.article eq articleId and Comments.parentComment.isNull() }
+                    repository<Comment>().getMatching(call) { Comments.article eq articleId and Comments.parentComment.isNull() }
                 })
             }
         }
@@ -80,11 +78,14 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         }
 
         get("/tree/{uuid}") {
-            val fetched = CommentRepository.get(call, call.parameters["uuid"]!!.toUUID())
+            requestContext(applicationContext) {
+                val repo = repository<Comment>()
+                val fetched = repo.get(call, call.parameters["uuid"]!!.toUUID())
 
-            val depth = call.parameters["depth"]?.toInt() ?: 5
+                val depth = call.parameters["depth"]?.toInt() ?: 5
 
-            call.respond(expandCommentNode(call, fetched.get(), depth = depth))
+                call.respond(expandCommentNode(call, repository = repo, rootNode = fetched.get(), depth = depth))
+            }
         }
 
         val likes = Comments.Likes
@@ -99,7 +100,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
                     val liked = query {
                         likes.select {
                             (likes.comment eq comment.uuid) and (likes.user eq subject.uuid) }.count()
-                    }.getOrPipelineError() == 1;
+                    }.getOrPipelineError() == 1
 
                     call.respond(liked)
                 }
@@ -112,7 +113,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
                 val id = param("uuid")
 
                 runAuthenticated { subject ->
-                    val commentToLike = CommentRepository.get(call, id.toUUID())
+                    val commentToLike = repository<Comment>().get(call, id.toUUID())
                         .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch comment")
 
                     // Figure whether the article was already liked by the user
