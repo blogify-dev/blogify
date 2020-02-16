@@ -13,15 +13,19 @@ import blogify.backend.services.models.Repository
 
 import kotlin.reflect.KClass
 
+// TODO: remove this
 val KClass<Article>.service: ArticleRepository
     get() = ArticleRepository
 
+// TODO: remove this
 val KClass<User>.service: UserRepository
     get() = UserRepository
 
+// TODO: remove this
 val KClass<Comment>.service: CommentRepository
     get() = CommentRepository
 
+// TODO: remove this
 @Suppress("UNCHECKED_CAST")
 val <R : Resource> KClass<R>.repository: Repository<R>
     get() {
