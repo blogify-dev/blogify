@@ -5,6 +5,7 @@ import blogify.backend.auth.encoder
 import blogify.backend.auth.jwt.generateJWT
 import blogify.backend.auth.jwt.validateJwt
 import blogify.backend.database.Users
+import blogify.backend.pipelines.param
 import blogify.backend.pipelines.requestContext
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.pipelines.wrapping.RequestContext
@@ -110,21 +111,17 @@ fun Route.auth(applicationContext: ApplicationContext) {
 
         get("/{token}") {
             requestContext(applicationContext) {
-                call.parameters["token"]?.let { token ->
-
-                    validateJwt(call, this, token).fold(
-                        success = { call.respond( object { @Suppress("unused") val uuid = it.uuid }) },
-                        failure = { call.respondExceptionMessage(Repository.Exception(BException(it))) }
-                    )
-
-                } ?: call.respond(HttpStatusCode.BadRequest)
+                val token = param("token")
+                validateJwt(call, this, token).fold(
+                    success = { call.respond( object { @Suppress("unused") val uuid = it.uuid }) },
+                    failure = { call.respondExceptionMessage(Repository.Exception(BException(it))) }
+                )
             }
         }
 
         post("/signup") {
             requestContext(applicationContext) {
                 val credentials = call.receive<RegisterCredentials>()
-                println("credentials -> $credentials")
                 val createdUser = credentials.createUser(this)
                 call.respond(createdUser)
             }

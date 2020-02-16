@@ -1,0 +1,438 @@
+GET https://localhost:443/api/auth/eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTgyNDU5NjY5fQ.AVoP7ofxbj7nRsoq7jN91nwSi7bvKbNhV7ZXgwItsaF1pX7ZZjuI-TKTgR9vXHucltR3ZMO2yxCRBSY_WqzysayIAHrxgqFIvI5t6toO-DSkgUO2a6tKTd8ivZFScMgVupl7P7sjRnJrQYb0Zzc4RQwToL0w_x8wUKvlwXU-pTHC5fv5
+Accept: application/json
+
+<> 2020-02-16T050757.200.json
+
+###
+
+POST https://localhost:443/api/auth/signin
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "pass"
+}
+
+<> 2020-02-16T050749.200.json
+
+###
+
+GET https://localhost:443/api/users/byUsername/user
+Accept: application/json
+
+<> 2020-02-16T050405.200.json
+
+###
+
+POST https://localhost:443/api/auth/signin
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "pass"
+}
+
+<> 2020-02-16T050002.200.json
+
+###
+
+GET https://localhost:443/api/articles/comments/tree/39612501-a0ee-4556-863a-5234fcf9d50d
+Accept: application/json
+
+<> 2020-02-16T045910.200.json
+
+###
+
+GET https://localhost:443/api/articles/comments/tree/39612501-a0ee-4556-863a-5234fcf9d50d
+Accept: application/json
+
+<> 2020-02-16T045439.200.json
+
+###
+
+GET https://localhost:443/api/articles/comments/article/6e65ae7f-7e14-479e-bebc-533f71f3206b
+Accept: application/json
+
+<> 2020-02-16T045416.200.json
+
+###
+
+GET https://localhost:443/api/articles/forUser/user
+Accept: application/json
+
+<> 2020-02-16T045327.200.json
+
+###
+
+GET https://localhost:443/api/articles/search/?q=title
+Accept: application/json
+
+<> 2020-02-16T041247.200.json
+
+###
+
+GET https://localhost:443/api/articles/search/title
+Accept: application/json
+
+###
+
+GET https://localhost:443/api/articles
+Accept: application/json
+
+<> 2020-02-16T041227.200.json
+
+###
+
+POST https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTgyNDU1NTQzfQ.ASkX36n-6WByNeGSd7vJsFtbnqPstL6OHogxvb8XT-R_G6s4T1xx5HsAcHnupyXqi-0dtejZxng3WUxAcbp-icvxAVEw01cUi6px1LR31n5d7cNV4IJXb5zoBNRvPiy-OccoPQFQz-VcX4d-GD1bCHaXgVtpK88PCwULkwt5wPDSzhRs
+
+<> 2020-02-16T040005.200.json
+
+###
+
+POST https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTgyNDU1NTQzfQ.ASkX36n-6WByNeGSd7vJsFtbnqPstL6OHogxvb8XT-R_G6s4T1xx5HsAcHnupyXqi-0dtejZxng3WUxAcbp-icvxAVEw01cUi6px1LR31n5d7cNV4IJXb5zoBNRvPiy-OccoPQFQz-VcX4d-GD1bCHaXgVtpK88PCwULkwt5wPDSzhRs
+
+<> 2020-02-16T040002.200.json
+
+###
+
+GET https://localhost:443/api/auth/eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTgyNDU1NTQzfQ.ASkX36n-6WByNeGSd7vJsFtbnqPstL6OHogxvb8XT-R_G6s4T1xx5HsAcHnupyXqi-0dtejZxng3WUxAcbp-icvxAVEw01cUi6px1LR31n5d7cNV4IJXb5zoBNRvPiy-OccoPQFQz-VcX4d-GD1bCHaXgVtpK88PCwULkwt5wPDSzhRs
+Accept: application/json
+
+<> 2020-02-16T035936.200.json
+
+###
+
+POST https://localhost:443/api/auth/signin
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "pass"
+}
+
+<> 2020-02-16T035904.200.json
+
+###
+
+GET https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTY0Njk1fQ.AWYX7Wdtt2ZAhgMEWFh61URWQcurofkcuu1XcR6Bq93N5vPyWCZp5zaPgS-T-22PtoXJKEMs2Inl84LMPJGqai7eAGHGFEQbFQCUOrlaniceo8GVK1Ex6ZIesoXqsqBBkGJ0n-1D_BGAtByF9wTcHZ8BcnNbLzq9pc-4loDNHj4Pz7RX
+
+<> 2020-01-18T082026.200.json
+
+###
+
+POST https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTY0Njk1fQ.AWYX7Wdtt2ZAhgMEWFh61URWQcurofkcuu1XcR6Bq93N5vPyWCZp5zaPgS-T-22PtoXJKEMs2Inl84LMPJGqai7eAGHGFEQbFQCUOrlaniceo8GVK1Ex6ZIesoXqsqBBkGJ0n-1D_BGAtByF9wTcHZ8BcnNbLzq9pc-4loDNHj4Pz7RX
+
+<> 2020-01-18T080506.200.json
+
+###
+
+POST https://localhost:443/api/auth/signin
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "pass"
+}
+
+<> 2020-01-18T080455.200.json
+
+###
+
+POST https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTY0MzM3fQ.AW2qxaDQNmAiU_86w3aCy-TUZCkmKVOmG_hpA2C4XdB1ir3PlFWWmKBbJ7AytSGVvb1PMl7hebQBm7KmUL4WJz3OAPz5XTq4feN-Tq5EFXxk9Kc24fwlpY9Qji_zdSMInwq61jLt3yCzJHDZdp34lDkHCp_oEIUq9Xg6OAPlxhAI3lYL
+
+<> 2020-01-18T080205.500.json
+
+###
+
+POST https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTY0MzM3fQ.AW2qxaDQNmAiU_86w3aCy-TUZCkmKVOmG_hpA2C4XdB1ir3PlFWWmKBbJ7AytSGVvb1PMl7hebQBm7KmUL4WJz3OAPz5XTq4feN-Tq5EFXxk9Kc24fwlpY9Qji_zdSMInwq61jLt3yCzJHDZdp34lDkHCp_oEIUq9Xg6OAPlxhAI3lYL
+
+<> 2020-01-18T080105.500.json
+
+###
+
+POST https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTY0MzM3fQ.AW2qxaDQNmAiU_86w3aCy-TUZCkmKVOmG_hpA2C4XdB1ir3PlFWWmKBbJ7AytSGVvb1PMl7hebQBm7KmUL4WJz3OAPz5XTq4feN-Tq5EFXxk9Kc24fwlpY9Qji_zdSMInwq61jLt3yCzJHDZdp34lDkHCp_oEIUq9Xg6OAPlxhAI3lYL
+
+<> 2020-01-18T075909.500.json
+
+###
+
+POST https://localhost:443/api/auth/signin
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "pass"
+}
+
+<> 2020-01-18T075857.200.json
+
+###
+
+POST https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTYzNDU4fQ.ADYgmaO1vQ24qAA9DbnwU1gt2GSGl9Rep8_gjHUf4kcv4Wm7-whYfAmK9sEyg7ekiQWY3nCkfx3wWV6dpSANq12KABv93JCZSACaKnYR02fV-uxoLPUh97N_9AlFCNTthbVhm_LBiRcFSXkZrQW9i69RLJFsyYcUdIX_EXu5Ft2NgYdl
+
+<> 2020-01-18T075854.403.json
+
+###
+
+POST https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTYzNDU4fQ.ADYgmaO1vQ24qAA9DbnwU1gt2GSGl9Rep8_gjHUf4kcv4Wm7-whYfAmK9sEyg7ekiQWY3nCkfx3wWV6dpSANq12KABv93JCZSACaKnYR02fV-uxoLPUh97N_9AlFCNTthbVhm_LBiRcFSXkZrQW9i69RLJFsyYcUdIX_EXu5Ft2NgYdl
+
+<> 2020-01-18T074430.500.json
+
+###
+
+POST https://localhost:443/api/auth/signin
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "pass"
+}
+
+<> 2020-01-18T074418.200.json
+
+###
+
+POST https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTYyODM3fQ.ANP3Q1iyUYhKKhT5p66q6OE5i4ILMlyRLhFyem4MiinsxjiTBuVlysGdZC_86uHNLD6AStKqumrBSbx-zSgjUPirAIq1pUzlflSYCwP_yPMfJIR5083ZxZAe3V9AM3a6Ik-8T_MuQXbqeyuLJpAxPumRPuJol1dBG4hfhXAenNf4CkJ4
+
+<> 2020-01-18T074413.403.json
+
+###
+
+POST https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTYyODM3fQ.ANP3Q1iyUYhKKhT5p66q6OE5i4ILMlyRLhFyem4MiinsxjiTBuVlysGdZC_86uHNLD6AStKqumrBSbx-zSgjUPirAIq1pUzlflSYCwP_yPMfJIR5083ZxZAe3V9AM3a6Ik-8T_MuQXbqeyuLJpAxPumRPuJol1dBG4hfhXAenNf4CkJ4
+
+<> 2020-01-18T073951.500.json
+
+###
+
+GET https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTYyODM3fQ.ANP3Q1iyUYhKKhT5p66q6OE5i4ILMlyRLhFyem4MiinsxjiTBuVlysGdZC_86uHNLD6AStKqumrBSbx-zSgjUPirAIq1pUzlflSYCwP_yPMfJIR5083ZxZAe3V9AM3a6Ik-8T_MuQXbqeyuLJpAxPumRPuJol1dBG4hfhXAenNf4CkJ4
+
+<> 2020-01-18T073946.200.json
+
+###
+
+GET https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTYyODM3fQ.ANP3Q1iyUYhKKhT5p66q6OE5i4ILMlyRLhFyem4MiinsxjiTBuVlysGdZC_86uHNLD6AStKqumrBSbx-zSgjUPirAIq1pUzlflSYCwP_yPMfJIR5083ZxZAe3V9AM3a6Ik-8T_MuQXbqeyuLJpAxPumRPuJol1dBG4hfhXAenNf4CkJ4
+
+###
+
+GET https://localhost:443/api/articles/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTYyODM3fQ.ANP3Q1iyUYhKKhT5p66q6OE5i4ILMlyRLhFyem4MiinsxjiTBuVlysGdZC_86uHNLD6AStKqumrBSbx-zSgjUPirAIq1pUzlflSYCwP_yPMfJIR5083ZxZAe3V9AM3a6Ik-8T_MuQXbqeyuLJpAxPumRPuJol1dBG4hfhXAenNf4CkJ4
+
+###
+
+GET https://localhost:443/api/comments/39612501-a0ee-4556-863a-5234fcf9d50d/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTYyODM3fQ.ANP3Q1iyUYhKKhT5p66q6OE5i4ILMlyRLhFyem4MiinsxjiTBuVlysGdZC_86uHNLD6AStKqumrBSbx-zSgjUPirAIq1pUzlflSYCwP_yPMfJIR5083ZxZAe3V9AM3a6Ik-8T_MuQXbqeyuLJpAxPumRPuJol1dBG4hfhXAenNf4CkJ4
+
+###
+
+POST https://localhost:443/api/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTYyODM3fQ.ANP3Q1iyUYhKKhT5p66q6OE5i4ILMlyRLhFyem4MiinsxjiTBuVlysGdZC_86uHNLD6AStKqumrBSbx-zSgjUPirAIq1pUzlflSYCwP_yPMfJIR5083ZxZAe3V9AM3a6Ik-8T_MuQXbqeyuLJpAxPumRPuJol1dBG4hfhXAenNf4CkJ4
+
+###
+
+POST https://localhost:443/api/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTYyODM3fQ.ANP3Q1iyUYhKKhT5p66q6OE5i4ILMlyRLhFyem4MiinsxjiTBuVlysGdZC_86uHNLD6AStKqumrBSbx-zSgjUPirAIq1pUzlflSYCwP_yPMfJIR5083ZxZAe3V9AM3a6Ik-8T_MuQXbqeyuLJpAxPumRPuJol1dBG4hfhXAenNf4CkJ4
+
+###
+
+POST https://localhost:443/api/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTYyODM3fQ.ANP3Q1iyUYhKKhT5p66q6OE5i4ILMlyRLhFyem4MiinsxjiTBuVlysGdZC_86uHNLD6AStKqumrBSbx-zSgjUPirAIq1pUzlflSYCwP_yPMfJIR5083ZxZAe3V9AM3a6Ik-8T_MuQXbqeyuLJpAxPumRPuJol1dBG4hfhXAenNf4CkJ4
+
+{
+}
+
+###
+
+POST https://localhost:443/api/comments/39612501-a0ee-4556-863a-5234fcf9d50d/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc5OTYyODM3fQ.ANP3Q1iyUYhKKhT5p66q6OE5i4ILMlyRLhFyem4MiinsxjiTBuVlysGdZC_86uHNLD6AStKqumrBSbx-zSgjUPirAIq1pUzlflSYCwP_yPMfJIR5083ZxZAe3V9AM3a6Ik-8T_MuQXbqeyuLJpAxPumRPuJol1dBG4hfhXAenNf4CkJ4
+
+{
+}
+
+###
+
+POST https://localhost:443/api/auth/signin
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "pass"
+}
+
+<> 2020-01-18T073357.200.json
+
+###
+
+POST http://localhost:80/api/auth/signin
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "pass"
+}
+
+###
+
+POST http://localhost:8080/api/auth/signin
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "pass"
+}
+
+###
+
+POST http://localhost:80/api/yes
+Content-Type: application/x-www-form-urlencoded
+
+username=test&password=password123
+
+###
+
+POST http://localhost:80/api/yes
+Content-Type: application/x-www-form-urlencoded
+
+username=test&password=password
+
+###
+
+POST http://localhost:8080/api/users/follow
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc3NjA2OTc5fQ.AFZ5acVpBGippFtW3K2mKU4TF5tgM0s1ZUuGyqK7_FBpCrfWFZFDH8uRU1dhc5Io7hdH05iEpd03Hxz0R_UA84_fAVztTRZI4BhwrrU5xx5ls9FAb6z2zeLF8aDhPA2rmJczu9D8L0t_Oz3LZy_MPByKnM10jzcUDlpYlqs5BWqb1lAd
+
+{
+  "follower": "28c0fec3-f164-4cb3-80be-bd46d450e862",
+  "following": "fad4e690-92a2-4a39-b1c5-6e15cf9a52bc"
+}
+
+###
+
+POST http://localhost:8080/api/users/follow
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJFUzUxMiJ9.eyJzdWIiOiIyOGMwZmVjMy1mMTY0LTRjYjMtODBiZS1iZDQ2ZDQ1MGU4NjIiLCJpc3MiOiJibG9naWZ5IiwiZXhwIjoxNTc3NjA2OTc5fQ.AFZ5acVpBGippFtW3K2mKU4TF5tgM0s1ZUuGyqK7_FBpCrfWFZFDH8uRU1dhc5Io7hdH05iEpd03Hxz0R_UA84_fAVztTRZI4BhwrrU5xx5ls9FAb6z2zeLF8aDhPA2rmJczu9D8L0t_Oz3LZy_MPByKnM10jzcUDlpYlqs5BWqb1lAd
+
+{
+  "follower": "28c0fec3-f164-4cb3-80be-bd46d450e862",
+  "following": "80c9148f-63aa-41a7-8957-3c12341f9ea0"
+}
+
+###
+
+POST http://localhost:8080/api/auth/signin
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "pass"
+}
+
+<> 2019-12-22T010939.200.json
+
+###
+
+POST http://localhost:8080/api/users/follow
+Content-Type: application/json
+
+{
+  "follower": "f04e1d30-ae2d-4f4a-9ab9-cb3d042255f1",
+  "following": "80c9148f-63aa-41a7-8957-3c12341f9ea0"
+}
+
+<> 2019-12-22T010834.500.json
+
+###
+
+POST http://localhost:8080/api/users/follow
+Content-Type: application/json
+
+{
+  "follower": "f04e1d30-ae2d-4f4a-9ab9-cb3d042255f1",
+  "following": "80c9148f-63aa-41a7-8957-3c12341f9ea0"
+}
+
+<> 2019-12-22T010426.500.json
+
+###
+
+POST http://localhost:8080/api/users/follow
+Content-Type: application/json
+
+{
+  "follower": "f04e1d30-ae2d-4f4a-9ab9-cb3d042255f1",
+  "following": "80c9148f-63aa-41a7-8957-3c12341f9ea0"
+}
+
+###
+
+POST http://localhost:8080/api/users/follow
+Content-Type: application/json
+
+{
+  "follower": "f04e1d30-ae2d-4f4a-9ab9-cb3d042255f1",
+  "following": "80c9148f-63aa-41a7-8957-3c12341f9ea0"
+}
+
+###
+
+POST http://localhost:8080/api/users/follow
+Content-Type: application/json
+
+{
+  "follower": "99e5e676-84fc-4f04-9b63-81ffd8e50b30",
+  "following": "80c9148f-63aa-41a7-8957-3c12341f9ea0"
+}
+
+###
+
+POST http://localhost:8080/api/users/follow
+Content-Type: application/json
+
+{
+  "follower": "99e5e676-84fc-4f04-9b63-81ffd8e50b30",
+  "following": "80c9148f-63aa-41a7-8957-3c12341f9ea0"
+}
+
+###
+
+POST http://localhost:8080/api/users/follow
+Content-Type: application/json
+
+{
+  "follower": "99e5e676-84fc-4f04-9b63-81ffd8e50b30",
+  "following": "80c9148f-63aa-41a7-8957-3c12341f9ea0"
+}
+
+###
+
