@@ -201,7 +201,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         route("/api") {
             makeArticleRoutes(appContext)
             users(appContext)
-            auth()
+            auth(appContext)
             static(appContext)
             adminSearch(appContext)
         }

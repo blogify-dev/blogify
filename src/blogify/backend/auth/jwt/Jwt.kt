@@ -1,7 +1,7 @@
 package blogify.backend.auth.jwt
 
+import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.User
-import blogify.backend.services.UserRepository
 import blogify.backend.util.short
 import blogify.backend.util.toUUID
 
@@ -49,7 +49,7 @@ fun generateJWT(user: User) = Jwts
 /**
 * Validates a JWT, returning a [SuspendableResult] if that token authenticates a user, or an exception if the token is invalid
  */
-suspend fun validateJwt(callContext: ApplicationCall, token: String): SuspendableResult<User, Exception> {
+suspend fun validateJwt(callContext: ApplicationCall, requestContext: RequestContext, token: String): SuspendableResult<User, Exception> {
     var jwsClaims: Jws<Claims>? = null
 
     try {
@@ -68,8 +68,8 @@ suspend fun validateJwt(callContext: ApplicationCall, token: String): Suspendabl
         e.printStackTrace()
     }
 
-    val user = UserRepository.get(callContext, jwsClaims?.body?.subject?.toUUID() ?: error("malformed uuid in jwt"))
+    val user = requestContext.repository<User>().get(callContext, jwsClaims?.body?.subject?.toUUID() ?: error("malformed uuid in jwt"))
     logger.debug("got valid JWT for user {${user.get().uuid.short()}...}".green())
 
-    return SuspendableResult.of { user.get() }
+    return user
 }
