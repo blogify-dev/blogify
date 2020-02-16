@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 import java.util.UUID
 
-@JsonIdentityInfo(
+@JsonIdentityInfo (
     scope = Comment::class,
     resolver = Resource.ObjectResolver::class,
     generator = ObjectIdGenerators.PropertyGenerator::class,
