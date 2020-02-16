@@ -1,5 +1,6 @@
-package blogify.backend.services.models
+package blogify.backend.persistence.models
 
+import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
 import blogify.backend.resources.reflect.models.PropMap
@@ -64,7 +65,7 @@ interface Repository<R : Resource> {
 
     suspend fun add(res: R): Sr<R>
 
-    suspend fun update(res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R>
+    suspend fun update(requestContext: RequestContext, res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R>
 
     /**
      * Deletes an instance of [R] from the database

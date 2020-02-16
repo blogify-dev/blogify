@@ -10,8 +10,6 @@ import blogify.backend.util.toUUID
 
 import java.util.UUID
 
-import com.andreapivetta.kolor.yellow
-
 import org.slf4j.LoggerFactory
 
 import kotlin.reflect.KClass
@@ -32,7 +30,7 @@ private val logger = LoggerFactory.getLogger("blogify-datamap-updater")
  *
  * @author Benjozork
  */
-suspend inline fun <reified R : Resource> update(target: R, requestContext: RequestContext, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R> {
+suspend fun <R: Resource> update(target: R, requestContext: RequestContext, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R> {
 
     val targetPropMap = target.cachedUnsafePropMap() // Get unsafe handles too
     val targetCopyFunction = target::class.functions.first { it.name == "copy" }
@@ -55,7 +53,7 @@ suspend inline fun <reified R : Resource> update(target: R, requestContext: Requ
                     val keyResourceType = k.type.classifier as KClass<Resource>
                     val valueUUID = (v as String).toUUID()
                     // I don't know if this works or not
-                    k to requestContext.repository<R>().get(id = valueUUID).get()
+                    k to requestContext.repository(keyResourceType).get(id = valueUUID).get()
                 }
                 k.type.isSubtypeOf(UUID::class.createType()) -> { // KType of property is subtype of UUID
                     k to (v as String).toUUID()

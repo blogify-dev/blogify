@@ -374,7 +374,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
                 }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing image metadata to db")
             }
 
-            repository<R>().update(targetResource, mapOf(targetPropHandle to newHandle))
+            repository<R>().update(this, targetResource, mapOf(targetPropHandle to newHandle))
                 .getOrPipelineError(HttpStatusCode.InternalServerError, "error while updating resource ${targetResource.uuid.short()} with new information")
 
             call.respond(newHandle.toString())
@@ -562,7 +562,7 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
         funcName  = "createWithResource",
         predicate = { user -> authPredicate(user, current) }
     ) {
-        repository<R>().update(current, rawData).fold (
+        repository<R>().update(this, current, rawData).fold (
             success = {
                 call.respond(HttpStatusCode.OK)
                 launch { Typesense.updateResource(it) }
