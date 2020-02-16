@@ -54,7 +54,6 @@ import blogify.backend.pipelines.handleAuthentication
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.pipelineError
-import blogify.backend.pipelines.service
 import blogify.backend.search.Typesense
 import blogify.backend.util.SrList
 import blogify.backend.util.filterThenMapValues
@@ -375,7 +374,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
                 }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing image metadata to db")
             }
 
-            service<R>().update(targetResource, mapOf(targetPropHandle to newHandle))
+            repository<R>().update(targetResource, mapOf(targetPropHandle to newHandle))
                 .getOrPipelineError(HttpStatusCode.InternalServerError, "error while updating resource ${targetResource.uuid.short()} with new information")
 
             call.respond(newHandle.toString())
@@ -492,7 +491,7 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
         }
 
         handleAuthentication(predicate = { u -> authPredicate(u, received) }) {
-            service<R>().add(received).fold (
+            repository<R>().add(received).fold (
                 success = {
                     call.respond(HttpStatusCode.Created, it.sanitize(excludeUndisplayed = true))
                     launch { Typesense.uploadResource(it) }
@@ -529,7 +528,7 @@ suspend inline fun <reified R: Resource> RequestContext.deleteResource (
         funcName  = "deleteWithId",
         predicate = { user -> authPredicate(user, toDelete) }
     ) {
-        service<R>().delete(toDelete).fold (
+        repository<R>().delete(toDelete).fold (
             success = {
                 call.respond(HttpStatusCode.OK)
                 launch { Typesense.deleteResource<R>(toDelete.uuid) }
@@ -563,7 +562,7 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
         funcName  = "createWithResource",
         predicate = { user -> authPredicate(user, current) }
     ) {
-        service<R>().update(current, rawData).fold (
+        repository<R>().update(current, rawData).fold (
             success = {
                 call.respond(HttpStatusCode.OK)
                 launch { Typesense.updateResource(it) }

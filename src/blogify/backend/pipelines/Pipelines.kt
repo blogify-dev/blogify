@@ -137,11 +137,6 @@ suspend inline fun <reified R : Resource> RequestContext.obtainResources(limit: 
 }
 
 /**
- * Get a [blogify.backend.services.models.Repository] from a reified Resource type parameter
- */
-inline fun <reified R : Resource> service() = R::class.repository
-
-/**
  * Signals that a [RequestContext] has encountered an error, and will stop being executed.
  * This function throws a [PipelineException], and therefore stops the entire pipeline call chain, entering its own request handler.
  *

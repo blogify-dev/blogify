@@ -24,8 +24,8 @@ fun Route.adminSearch(applicationContext: ApplicationContext) {
 
                 runAuthenticated(predicate = { it.isAdmin }) {
                     when(what) {
-                        "article" -> Typesense.refreshIndex<Article>()
-                        "user" -> Typesense.refreshIndex<User>()
+                        "article" -> Typesense.refreshIndex<Article>(this@requestContext)
+                        "user" -> Typesense.refreshIndex<User>(this@requestContext)
                         else -> error("Wrong param provided")
                     }.let {
                         call.respond(mapOf("ts_response" to it.receive<Map<String, Any?>>()))

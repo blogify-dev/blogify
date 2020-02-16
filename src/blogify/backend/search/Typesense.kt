@@ -5,7 +5,7 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.pipelines.pipelineError
-import blogify.backend.pipelines.service
+import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.search.ext.TEMPLATE_DEFAULT_DSF
 import blogify.backend.search.ext._rebuildSearchTemplate
 import blogify.backend.search.ext._searchTemplate
@@ -255,7 +255,6 @@ object Typesense {
 
     }
 
-
     /**
      * Refreshes typesense index. It sends the following requests:
      * * [Drop collection][deleteCollection]
@@ -269,8 +268,8 @@ object Typesense {
      *
      * @author hamza1311
      */
-    suspend inline fun <reified R: Resource> refreshIndex(): HttpStatement {
-        val resources = service<R>().getAll().get()
+    suspend inline fun <reified R: Resource> refreshIndex(requestContext: RequestContext): HttpStatement {
+        val resources = requestContext.repository<R>().getAll().get()
         val docs = resources.map { this.makeDocument(it) }
 
         deleteCollection<R>()
