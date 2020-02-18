@@ -18,14 +18,14 @@
            *ngIf="loggedInObs | async"
            (click)="toggleLike()"
         >
-            <fa-icon [icon]="this.comment.likedByUser || this.comment.likedImmediate ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 14 }"></fa-icon>
-            <span>&ensp;{{this.comment.likesCount}}</span>
+            <fa-icon [icon]="this.comment.likedByUser ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 14 }"></fa-icon>
+            <span>&ensp;{{this.comment.likeCount}}</span>
         </a>
 
         <!-- Like count - non-clickable -->
         <span class="like-count negative" *ngIf="!(loggedInObs | async)">
             <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 14 }"></fa-icon>
-            <span>&ensp;{{comment.likesCount}}</span>
+            <span>&ensp;{{comment.likeCount}}</span>
         </span>
     </div>
 

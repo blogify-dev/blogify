@@ -60,9 +60,8 @@ export class SingleCommentComponent implements OnInit {
         this.replyComment = {
             commenter: await this.authService.observeIsLoggedIn() ? await this.authService.userProfile : '',
             article: this.comment.article,
-            likesCount: 0,
+            likeCount: 0,
             likedByUser: false,
-            likedImmediate: false,
             content: '',
             uuid: ''
         };
@@ -88,9 +87,8 @@ export class SingleCommentComponent implements OnInit {
             .likeComment(this.comment, this.authService.userToken)
             .then(() => {
                 this.comment.likedByUser = !this.comment.likedByUser;
-                if (this.comment.likedByUser) {
-                    this.comment.likesCount++;
-                } else this.comment.likesCount--;
+                this.comment.likeCount += (this.comment.likedByUser ? 1 : -1);
+                alert(this.comment.likeCount);
             }).catch(() => {
             console.error(`[blogifyComments] Couldn't like ${this.comment.uuid}` )
         })

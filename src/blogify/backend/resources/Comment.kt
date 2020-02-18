@@ -35,6 +35,6 @@ data class Comment(
 ) : Resource(uuid) {
 
     @[Computed NoSearch]
-    val likesCount by compound { Comments.uuid referredToBy Comments.Likes.comment }
+    val likeCount by compound { Comments.uuid referredToBy Comments.Likes.comment }
 
 }

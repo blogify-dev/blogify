@@ -36,6 +36,7 @@ export class SingleArticleBoxComponent implements OnInit {
             .likeArticle(this.article, this.authService.userToken)
             .then(() => {
                 this.article.likedByUser = !this.article.likedByUser;
+                this.article.likeCount += (this.article.likedByUser ? 1 : -1);
             }).catch(() => {
                 console.error(`[blogifyArticles] Couldn't like ${this.article.uuid}` )
             })

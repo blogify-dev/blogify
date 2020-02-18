@@ -9,8 +9,7 @@ export class Comment {
         public article: Article,
         public content: string,
         public likedByUser: boolean | null = null,
-        public likedImmediate: boolean = false,
-        public likesCount: number,
+        public likeCount: number,
         public parentComment?: Comment,
         public children?: Comment[]
     ) {}

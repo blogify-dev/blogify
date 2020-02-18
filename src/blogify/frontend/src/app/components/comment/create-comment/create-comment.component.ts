@@ -27,9 +27,8 @@ export class CreateCommentComponent implements OnInit {
             this.replyComment = {
                 commenter: value ? await this.authService.userProfile : '',
                 article: this.comment === undefined ? this.article : this.comment.article,
-                likesCount: 0,
+                likeCount: 0,
                 likedByUser: false,
-                likedImmediate: false,
                 content: '',
                 uuid: ''
             };
