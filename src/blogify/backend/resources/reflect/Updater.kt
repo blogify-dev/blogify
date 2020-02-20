@@ -1,17 +1,14 @@
 package blogify.backend.resources.reflect
 
+import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
-import blogify.backend.util.service
 import blogify.backend.util.toUUID
 
-import java.lang.Exception
 import java.util.UUID
-
-import com.andreapivetta.kolor.yellow
 
 import org.slf4j.LoggerFactory
 
@@ -33,7 +30,7 @@ private val logger = LoggerFactory.getLogger("blogify-datamap-updater")
  *
  * @author Benjozork
  */
-suspend fun <R : Resource> update(target: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R> {
+suspend fun <R: Resource> update(target: R, requestContext: RequestContext, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R> {
 
     val targetPropMap = target.cachedUnsafePropMap() // Get unsafe handles too
     val targetCopyFunction = target::class.functions.first { it.name == "copy" }
@@ -55,7 +52,8 @@ suspend fun <R : Resource> update(target: R, rawData: Map<PropMap.PropertyHandle
                     @Suppress("UNCHECKED_CAST")
                     val keyResourceType = k.type.classifier as KClass<Resource>
                     val valueUUID = (v as String).toUUID()
-                    k to keyResourceType.service.get(id = valueUUID).get()
+                    // I don't know if this works or not
+                    k to requestContext.repository(keyResourceType).get(id = valueUUID).get()
                 }
                 k.type.isSubtypeOf(UUID::class.createType()) -> { // KType of property is subtype of UUID
                     k to (v as String).toUUID()
@@ -66,9 +64,9 @@ suspend fun <R : Resource> update(target: R, rawData: Map<PropMap.PropertyHandle
 
     val completeData =
         (notUpdatedParameterMap + updatedParameterMap + (targetCopyFunction.parameters.first() to target)).toMap()
-
-    logger.trace("attempting with paramMap: ${completeData.map { "${it.key.name}: ${it.value!!::class.simpleName}" }}".yellow())
-    logger.trace("function wants paramMap: ${targetCopyFunction.parameters.map { "${it.name}: ${it.type.classifier}" } }".yellow())
+//    You sir, can fuck off. You're so unimportant that nobody even wants to use you
+//    logger.trace("attempting with paramMap: ${completeData.map { "${it.key.name}: ${it.value!!::class.simpleName}" }}".yellow())
+//    logger.trace("function wants paramMap: ${targetCopyFunction.parameters.map { "${it.name}: ${it.type.classifier}" } }".yellow())
 
     return Wrap {
         @Suppress("UNCHECKED_CAST")

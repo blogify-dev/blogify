@@ -2,6 +2,7 @@
 
 package blogify.backend.database
 
+import blogify.backend.applicationContext
 import blogify.backend.database.handling.query
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
@@ -9,10 +10,7 @@ import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.static.models.StaticResourceHandle
-import blogify.backend.services.ArticleService
-import blogify.backend.services.UserService
-import blogify.backend.services.CommentService
-import blogify.backend.services.models.Service
+import blogify.backend.persistence.models.Repository
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
@@ -122,12 +120,12 @@ object Articles : ResourceTable<Article>() {
         true
     }
 
-    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = Sr.of<Article, Service.Exception.Fetching> {
+    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = Sr.of<Article, Repository.Exception.Fetching> {
         Article (
             uuid       = source[uuid],
             title      = source[title],
             createdAt  = source[createdAt],
-            createdBy  = UserService.get(callContext, source[createdBy]).get(),
+            createdBy  = applicationContext.repository<User>().get(callContext, source[createdBy]).get(),
             content    = source[content],
             summary    = source[summary],
             categories = transaction {
@@ -218,7 +216,7 @@ object Users : ResourceTable<User>() {
         }.get() == 1
     }
 
-    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<User, Service.Exception.Fetching> {
+    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<User, Repository.Exception.Fetching> {
         User (
             uuid           = source[uuid],
             username       = source[username],
@@ -279,13 +277,13 @@ object Comments : ResourceTable<Comment>() {
         }.get() == 1
     }
 
-    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Comment, Service.Exception.Fetching> {
+    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Comment, Repository.Exception.Fetching> {
         Comment (
             uuid          = source[uuid],
             content       = source[content],
-            article       = ArticleService.get(callContext, source[article]).get(),
-            commenter     = UserService.get(callContext, source[commenter]).get(),
-            parentComment = source[parentComment]?.let { CommentService.get(callContext, it).get() }
+            article       = applicationContext.repository<Article>().get(callContext, source[article]).get(),
+            commenter     = applicationContext.repository<User>().get(callContext, source[commenter]).get(),
+            parentComment = source[parentComment]?.let { applicationContext.repository<Comment>().get(callContext, it).get() }
         )
     }
 

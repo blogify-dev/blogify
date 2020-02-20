@@ -1,4 +1,4 @@
-package blogify.backend.routing.pipelines.caching
+package blogify.backend.pipelines.caching
 
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall

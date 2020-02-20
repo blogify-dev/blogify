@@ -1,25 +1,27 @@
 package blogify.backend.resources
 
+import blogify.backend.annotations.SqlTable
 import blogify.backend.annotations.search.NoSearch
 import blogify.backend.database.Comments
 import blogify.backend.database.referredToBy
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
+import blogify.backend.resources.models.Resource
+
 import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
-import blogify.backend.resources.models.Resource
-
 import java.util.UUID
 
-@JsonIdentityInfo(
+@JsonIdentityInfo (
     scope = Comment::class,
     resolver = Resource.ObjectResolver::class,
     generator = ObjectIdGenerators.PropertyGenerator::class,
     property = "uuid"
 )
-data class Comment(
+@SqlTable(Comments::class)
+data class Comment (
     @JsonIdentityReference(alwaysAsId = true)
     val commenter: User,
 

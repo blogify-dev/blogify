@@ -1,54 +1,45 @@
-package blogify.backend.routing.pipelines
+package blogify.backend.pipelines
 
 import blogify.backend.annotations.PipelinesDsl
 import blogify.backend.auth.handling.UserAuthPredicate
 import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.pipelines.wrapping.ApplicationContext
+import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.pipelines.wrapping.RequestContextFunction
+import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.routing.handling.defaultResourceLessPredicateLambda
 import blogify.backend.routing.handling.logUnusedAuth
-import blogify.backend.util.Sr
-import blogify.backend.util.SrList
+import blogify.backend.util.MapCache
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
-import blogify.backend.util.service
 
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
-import io.ktor.response.respond
 import io.ktor.util.pipeline.PipelineContext
-import io.ktor.util.pipeline.PipelineInterceptor
+import io.ktor.response.respond
 
 import com.andreapivetta.kolor.red
 
 import org.slf4j.LoggerFactory
+
 import java.util.UUID
 
 private val logger = LoggerFactory.getLogger("blogify-pipeline-manager")
 
 /**
- * Represents a server call pipeline
+ * Represents a server call pipeline before being wrapped into a [RequestContext]
  *
- * @author Benjozork
- */
-typealias CallPipeline = PipelineContext<Unit, ApplicationCall>
-
-/**
- * Represents a server call pipeline
+ * Note: this should not be used as the receiver for any processing pipeline. Please see [RequestContext]
+ * as that should be used as receiver when creating a pipeline function.
  *
  * @author Benjozork
  */
 typealias GenericCallPipeline = PipelineContext<*, ApplicationCall>
 
 /**
- * Represents a server call handler function
- *
- * @author Benjozork
- */
-typealias CallPipeLineFunction = PipelineInterceptor<Unit, ApplicationCall>
-
-/**
- * Represents an error that occurs while a [CallPipeline] is running. Interrupts the pipeline and responds with the given [status code][code] and
+ * Represents an error that occurs while a request pipeline is being executed. Interrupts the pipeline and responds with the given [status code][code] and
  * [error message][message]
  *
  * @property code    the [HttpStatusCode] to respond to the originating request with
@@ -59,38 +50,52 @@ typealias CallPipeLineFunction = PipelineInterceptor<Unit, ApplicationCall>
 class PipelineException(val code: HttpStatusCode, override val message: String) : Exception(message)
 
 /**
- * Starts a child [CallPipeline] from another [pipeline][CallPipeline]
+ * Initially handles and wraps a request by creating a [RequestContext] from an [ApplicationContext].
  *
- * @param wantedParams an array of wanted query parameters, empty by default. The absence of any of them will yield a 400 Bad Request detailing the missing parameter.
- * @param block        the actual pipeline code
+ * If any [PipelineException] occurs during the execution of [block] and it is not handled inside that same function,
+ * an error is sent to the client.
+ *
+ * @receiver a [PipelineContext] with an [ApplicationContext] as subject and [ApplicationCall] as context
+ *
+ * @param applicationContext the application context to use to create the request context
+ * @param block              the function to be run inside the request context
  *
  * @author Benjozork
  */
-@PipelinesDsl
-suspend fun CallPipeline.pipeline(vararg wantedParams: String = emptyArray(), block: suspend CallPipeline.(Array<String>) -> Unit) {
+suspend fun GenericCallPipeline.requestContext (
+    applicationContext: ApplicationContext,
+    block: RequestContextFunction<Unit>
+) {
     try {
-        block(this, wantedParams.map { param -> call.parameters[param] ?: pipelineError(message = "query parameter $param is null") }.toTypedArray())
-    } catch (e: PipelineException) {
+        RequestContext(applicationContext, this, call, MapCache())
+            .execute(block, Unit)
+    }  catch (e: PipelineException) {
         call.respond(e.code, reason(e.message))
     } catch (e: Exception) {
         logger.error (
             """
-            |unhandled exception in pipeline - ${e::class.simpleName} - ${e.message}
-            |${e.stackTrace.joinToString(prefix = "\t", separator = "\n\t")}
-            """.trimMargin()
+                |unhandled exception in pipeline - ${e::class.simpleName} - ${e.message}
+                |${e.stackTrace.joinToString(prefix = "\t", separator = "\n\t")}
+                """.trimMargin()
         )
         call.respond(HttpStatusCode.InternalServerError, reason("unhandled exception in pipeline"))
     }
 }
 
 /**
+ * Returns a query parameter that must exist
+ */
+@PipelinesDsl
+fun RequestContext.param(name: String) = call.parameters[name] ?: pipelineError(message = "query parameter $name is null")
+
+/**
  * Returns a query parameter that may or may not exist
  */
 @PipelinesDsl
-fun CallPipeline.optionalParam(name: String): String? = call.parameters[name]
+fun RequestContext.optionalParam(name: String): String? = call.parameters[name]
 
 /**
- * A default [CallPipeline] that handles client authentication.
+ * A default [RequestContext] that handles client authentication.
  *
  * @param funcName  the name of the pipeline using this pipeline. Only for logging purposes.
  * @param predicate the [UserAuthPredicate] to run as authentication
@@ -99,40 +104,39 @@ fun CallPipeline.optionalParam(name: String): String? = call.parameters[name]
  * @author Benjozork
  */
 @PipelinesDsl
-suspend fun CallPipeline.handleAuthentication(funcName: String = "<unspecified>", predicate: UserAuthPredicate, block: CallPipeLineFunction) {
+suspend fun RequestContext.handleAuthentication (
+    funcName:  String = "<unspecified>",
+    predicate: UserAuthPredicate,
+    block: RequestContextFunction<User?>
+) {
     if (predicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-        runAuthenticated(predicate, { block(this@handleAuthentication, Unit) })
+        runAuthenticated(predicate, { subject -> block(this@handleAuthentication, subject) })
     } else {
         logUnusedAuth(funcName)
-        block(this, Unit)
+        block(this, null)
     }
 }
 
 /**
- * Simplifies fetching a resource from a [CallPipeline]
+ * Simplifies fetching a resource from a [RequestContext]
  */
 @PipelinesDsl
-suspend inline fun <reified R : Resource> GenericCallPipeline.obtainResource(id: UUID): R {
-    return (service<R>()::get)(call, id)
+suspend inline fun <reified R : Resource> RequestContext.obtainResource(id: UUID): R {
+    return (repository<R>()::get)(call, id)
         .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 
 /**
- * Simplifies fetching resources from a [CallPipeline]
+ * Simplifies fetching resources from a [RequestContext]
  */
 @PipelinesDsl
-suspend inline fun <reified R : Resource> GenericCallPipeline.obtainResources(limit: Int = 25): List<R> {
-    return (service<R>()::getAll)(call, limit)
+suspend inline fun <reified R : Resource> RequestContext.obtainResources(limit: Int = 25): List<R> {
+    return (repository<R>()::getAll)(call, limit)
         .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 
 /**
- * Get a [blogify.backend.services.models.Service] from a reified Resource type parameter
- */
-inline fun <reified R : Resource> service() = R::class.service
-
-/**
- * Signals that a [CallPipeline] has encountered an error, and will stop being executed.
+ * Signals that a [RequestContext] has encountered an error, and will stop being executed.
  * This function throws a [PipelineException], and therefore stops the entire pipeline call chain, entering its own request handler.
  *
  * @param code          the [HttpStatusCode] to respond to the originating request with. Defaults to 400 Bad Request.

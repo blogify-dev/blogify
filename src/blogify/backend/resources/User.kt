@@ -1,6 +1,7 @@
 package blogify.backend.resources
 
 import blogify.backend.annotations.Invisible
+import blogify.backend.annotations.SqlTable
 import blogify.backend.annotations.Undisplayed
 import blogify.backend.annotations.search.NoSearch
 import blogify.backend.annotations.search.DelegatedSearchReceiver
@@ -8,6 +9,7 @@ import blogify.backend.annotations.search.QueryByField
 import blogify.backend.annotations.search.SearchDefaultSort
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
+import blogify.backend.database.Articles
 import blogify.backend.database.Users
 import blogify.backend.database.handling.query
 import blogify.backend.database.referredToBy
@@ -31,6 +33,7 @@ import kotlin.random.Random
     generator = ObjectIdGenerators.PropertyGenerator::class,
     property  = "uuid"
 )
+@SqlTable(Users::class)
 data class User (
     @QueryByField
     @DelegatedSearchReceiver

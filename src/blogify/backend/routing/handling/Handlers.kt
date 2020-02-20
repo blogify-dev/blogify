@@ -37,24 +37,23 @@ import blogify.backend.resources.reflect.slice
 import blogify.backend.resources.static.file.StaticFileHandler
 import blogify.backend.resources.static.models.StaticData
 import blogify.backend.resources.static.models.StaticResourceHandle
-import blogify.backend.services.models.Service
+import blogify.backend.persistence.models.Repository
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
 import blogify.backend.database.ImageUploadablesMetadata
+import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.resources.reflect.verify
 import blogify.backend.resources.static.image.ImageMetadata
-import blogify.backend.routing.pipelines.CallPipeline
-import blogify.backend.routing.pipelines.obtainResource
-import blogify.backend.routing.pipelines.obtainResources
-import blogify.backend.routing.pipelines.handleAuthentication
-import blogify.backend.routing.pipelines.optionalParam
-import blogify.backend.routing.pipelines.pipeline
-import blogify.backend.routing.pipelines.pipelineError
-import blogify.backend.routing.pipelines.service
+import blogify.backend.pipelines.obtainResource
+import blogify.backend.pipelines.obtainResources
+import blogify.backend.pipelines.handleAuthentication
+import blogify.backend.pipelines.optionalParam
+import blogify.backend.pipelines.param
+import blogify.backend.pipelines.pipelineError
 import blogify.backend.search.Typesense
 import blogify.backend.util.SrList
 import blogify.backend.util.filterThenMapValues
@@ -67,10 +66,8 @@ import blogify.backend.util.short
 import blogify.backend.util.toUUID
 
 import io.ktor.application.ApplicationCall
-import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
-import io.ktor.util.pipeline.PipelineContext
 import io.ktor.request.ContentTransformationException
 import io.ktor.request.receive
 import io.ktor.http.ContentType
@@ -131,7 +128,7 @@ fun logUnusedAuth(func: String) {
 }
 
 /**
- * Adds a handler to a [CallPipeline] that handles fetching a set of resources with a certain list of desired properties.
+ * Adds a handler to a [RequestContext] that handles fetching a set of resources with a certain list of desired properties.
  *
  * Requires a [Map] of specific property names to be passed in the query URL.
  *
@@ -140,7 +137,8 @@ fun logUnusedAuth(func: String) {
  * @author hamza1311, Benjozork
  */
 @BlogifyDsl
-suspend inline fun <reified R : Resource> PipelineContext<Unit, ApplicationCall>.fetchAllResources() = pipeline {
+suspend inline fun <reified R : Resource> RequestContext.fetchAllResources() {
+
     val limit = optionalParam("amount")?.toInt() ?: 25
     val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
 
@@ -153,10 +151,11 @@ suspend inline fun <reified R : Resource> PipelineContext<Unit, ApplicationCall>
         logger.debug("slicer: getting fields $selectedProperties".magenta())
         call.respond(resources.map { it.slice(selectedProperties) })
     }
+
 }
 
 /**
- * Adds a handler to a [CallPipeline] that handles fetching a resource.
+ * Adds a handler to a [RequestContext] that handles fetching a resource.
  *
  * Requires a [UUID] to be passed in the query URL.
  *
@@ -166,10 +165,11 @@ suspend inline fun <reified R : Resource> PipelineContext<Unit, ApplicationCall>
  * @author Benjozork, hamza1311
  */
 @BlogifyDsl
-suspend inline fun <reified R : Resource> CallPipeline.fetchResource (
+suspend inline fun <reified R : Resource> RequestContext.fetchResource (
     noinline authPredicate: suspend (User) -> Boolean = defaultResourceLessPredicateLambda
-) = pipeline("uuid") { (uuid) ->
+) {
 
+    val uuid = param("uuid")
     val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
 
     handleAuthentication("fetchWithIdAndRespond", authPredicate) {
@@ -185,10 +185,11 @@ suspend inline fun <reified R : Resource> CallPipeline.fetchResource (
         }
 
     }
+
 }
 
 /**
- * Adds a handler to a [CallPipeline] that handles fetching all the available resources that are related to a particular resource.
+ * Adds a handler to a [RequestContext] that handles fetching all the available resources that are related to a particular resource.
  *
  * Requires a [UUID] to be passed in the query URL.
  *
@@ -198,11 +199,12 @@ suspend inline fun <reified R : Resource> CallPipeline.fetchResource (
  * @author Benjozork
  */
 @BlogifyDsl
-suspend fun <R : Resource> CallPipeline.fetchAllWithId (
+suspend fun <R : Resource> RequestContext.fetchAllWithId (
     fetch:     suspend (UUID) -> SrList<R>,
-    transform: suspend (R)    -> Resource = { it }
-) = pipeline("uuid") { (uuid) ->
+    transform: suspend (R) -> Resource = { it }
+) {
 
+    val uuid = param("uuid")
     val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
     if (selectedPropertyNames == null)
@@ -213,7 +215,7 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
     fetch.invoke(uuid.toUUID()).fold (
         success = { fetchedSet ->
             if (fetchedSet.isNotEmpty()) {
-                SuspendableResult.of<Set<Resource>, Service.Exception> {
+                SuspendableResult.of<Set<Resource>, Repository.Exception> {
                     fetchedSet.map { transform.invoke(it) }.toSet() // Cover for any errors in transform()
                 }.fold (
                     success = { fetched ->
@@ -223,7 +225,7 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
                                 call.respond(fetched.map { it.slice(props) })
 
                             } ?: call.respond(fetched.map { it.sanitize(excludeUndisplayed = true) })
-                        } catch (bruhMoment: Service.Exception) {
+                        } catch (bruhMoment: Repository.Exception) {
                             call.respondExceptionMessage(bruhMoment)
                         }
                     },
@@ -240,9 +242,12 @@ suspend fun <R : Resource> CallPipeline.fetchAllWithId (
 
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
-suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
+suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
        noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
-) = pipeline("uuid", "target") { (uuid, target) ->
+) {
+
+    val uuid = param("uuid")
+    val target = param("target")
 
     // Find target resource
     val targetResource = obtainResource<R>(uuid.toUUID())
@@ -257,9 +262,10 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
                 it is PropMap.PropertyHandle.Ok
                         && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
             } as? PropMap.PropertyHandle.Ok
-            ?: pipelineError (
-                message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
-            )
+                               ?: pipelineError(
+                                   message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass
+                                       .simpleName}'"
+                               )
 
         var shouldDelete = false
 
@@ -324,30 +330,38 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
             if (fileContentType matches ContentType.Image.Any) {
                 val metadata = withContext(Dispatchers.IO) { ImageMetadataReader.readMetadata(fileBytes.inputStream()) }
 
-                val imageWidth: Int
-                val imageHeight: Int
+                var imageWidth = 0
+                var imageHeight = 0
 
-                when {
-                    fileContentType matches ContentType.Image.PNG -> {
-                        val pngMeta = metadata.getFirstDirectoryOfType(PngDirectory::class.java)
+                letCatchingOrNull {
 
-                        imageWidth = pngMeta.getInt(PngDirectory.TAG_IMAGE_WIDTH)
-                        imageHeight = pngMeta.getInt(PngDirectory.TAG_IMAGE_HEIGHT)
+                    when {
+                        fileContentType matches ContentType.Image.PNG -> {
+                            val pngMeta = metadata.getFirstDirectoryOfType(PngDirectory::class.java)
+
+                            imageWidth = pngMeta.getInt(PngDirectory.TAG_IMAGE_WIDTH)
+                            imageHeight = pngMeta.getInt(PngDirectory.TAG_IMAGE_HEIGHT)
+                        }
+                        fileContentType matches ContentType.Image.JPEG -> {
+                            val jpegMeta = metadata.getFirstDirectoryOfType(JpegDirectory::class.java)
+
+                            imageWidth = jpegMeta.getInt(JpegDirectory.TAG_IMAGE_WIDTH)
+                            imageHeight = jpegMeta.getInt(JpegDirectory.TAG_IMAGE_HEIGHT)
+                        }
+                        else -> {
+                            val exif = metadata.getFirstDirectoryOfType(ExifImageDirectory::class.java)
+                                       ?: pipelineError(
+                                           HttpStatusCode.UnsupportedMediaType,
+                                           "image must be png, jpeg or contain exif"
+                                       )
+
+                            imageWidth = exif.getInt(ExifImageDirectory.TAG_IMAGE_WIDTH)
+                            imageHeight = exif.getInt(ExifImageDirectory.TAG_IMAGE_HEIGHT)
+                        }
                     }
-                    fileContentType matches ContentType.Image.JPEG -> {
-                        val jpegMeta = metadata.getFirstDirectoryOfType(JpegDirectory::class.java)
 
-                        imageWidth = jpegMeta.getInt(JpegDirectory.TAG_IMAGE_WIDTH)
-                        imageHeight = jpegMeta.getInt(JpegDirectory.TAG_IMAGE_HEIGHT)
-                    }
-                    else -> {
-                        val exif = metadata.getFirstDirectoryOfType(ExifImageDirectory::class.java)
-                            ?: pipelineError(HttpStatusCode.UnsupportedMediaType, "image must be png, jpeg or contain exif")
+                } ?: pipelineError(HttpStatusCode.BadRequest, "invalid metadata in image")
 
-                        imageWidth = exif.getInt(ExifImageDirectory.TAG_IMAGE_WIDTH)
-                        imageHeight = exif.getInt(ExifImageDirectory.TAG_IMAGE_HEIGHT)
-                    }
-                }
 
                 val imageMetadata = ImageMetadata(imageWidth, imageHeight)
 
@@ -360,7 +374,7 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
                 }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing image metadata to db")
             }
 
-            service<R>().update(targetResource, mapOf(targetPropHandle to newHandle))
+            repository<R>().update(this, targetResource, mapOf(targetPropHandle to newHandle))
                 .getOrPipelineError(HttpStatusCode.InternalServerError, "error while updating resource ${targetResource.uuid.short()} with new information")
 
             call.respond(newHandle.toString())
@@ -384,9 +398,10 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
             }
 
         } else {
-            pipelineError ( // Throw an error
+            pipelineError( // Throw an error
                 HttpStatusCode.UnsupportedMediaType,
-                "property '${targetPropHandle.property.name}' of class '${targetClass.simpleName}' does not accept content type '$fileContentType'"
+                "property '${targetPropHandle.property.name}' of class '${targetClass
+                    .simpleName}' does not accept content type '$fileContentType'"
             )
         }
 
@@ -395,9 +410,12 @@ suspend inline fun <reified R : Resource> CallPipeline.uploadToResource (
 }
 
 @BlogifyDsl
-suspend inline fun <reified R : Resource> CallPipeline.deleteUpload (
+suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
-) = pipeline("uuid", "target") { (uuid, target) ->
+) {
+
+    val uuid = param("uuid")
+    val target = param("target")
 
     // Find target resource
     val targetResource = obtainResource<R>(uuid.toUUID())
@@ -412,9 +430,10 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteUpload (
                 it is PropMap.PropertyHandle.Ok
                         && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
             } as? PropMap.PropertyHandle.Ok
-            ?: pipelineError (
-                message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass.simpleName}'"
-            )
+                               ?: pipelineError(
+                                   message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass
+                                       .simpleName}'"
+                               )
 
         when (val targetPropHandleValue = targetPropHandle.property.get(targetResource) as StaticResourceHandle) {
             is StaticResourceHandle.Ok -> {
@@ -429,7 +448,9 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteUpload (
                 // Delete in DB
                 query {
                     Uploadables.deleteWhere { Uploadables.fileId eq uploadableId }
-                }.failure { pipelineError(HttpStatusCode.InternalServerError, "couldn't delete static resource from db") }
+                }.failure {
+                    pipelineError(HttpStatusCode.InternalServerError, "couldn't delete static resource from db")
+                }
 
                 // Delete in FS
                 if (StaticFileHandler.deleteStaticResource(handle)) {
@@ -448,7 +469,7 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteUpload (
 }
 
 /**
- * Adds a handler to a [CallPipeline] that handles creating a new resource.
+ * Adds a handler to a [RequestContext] that handles creating a new resource.
  *
  * @param R             the type of [Resource] to be created
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
@@ -457,9 +478,9 @@ suspend inline fun <reified R : Resource> CallPipeline.deleteUpload (
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
-suspend inline fun <reified R : Resource> CallPipeline.createResource (
+suspend inline fun <reified R : Resource> RequestContext.createResource (
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
-) = pipeline {
+) {
     try {
 
         val received = call.receive<R>() // Receive a resource from the request body
@@ -470,7 +491,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createResource (
         }
 
         handleAuthentication(predicate = { u -> authPredicate(u, received) }) {
-            service<R>().add(received).fold (
+            repository<R>().add(received).fold (
                 success = {
                     call.respond(HttpStatusCode.Created, it.sanitize(excludeUndisplayed = true))
                     launch { Typesense.uploadResource(it) }
@@ -485,7 +506,7 @@ suspend inline fun <reified R : Resource> CallPipeline.createResource (
 }
 
 /**
- * Adds a handler to a [CallPipeline] that handles deleting a new resource.
+ * Adds a handler to a [RequestContext] that handles deleting a new resource.
  *
  * Requires a [UUID] to be passed in the query URL.
  *
@@ -495,9 +516,11 @@ suspend inline fun <reified R : Resource> CallPipeline.createResource (
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
-suspend inline fun <reified R: Resource> CallPipeline.deleteResource (
+suspend inline fun <reified R: Resource> RequestContext.deleteResource (
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
-) = pipeline("uuid") { (uuid) ->
+) {
+
+    val uuid = param("uuid")
 
     val toDelete = obtainResource<R>(uuid.toUUID())
 
@@ -505,7 +528,7 @@ suspend inline fun <reified R: Resource> CallPipeline.deleteResource (
         funcName  = "deleteWithId",
         predicate = { user -> authPredicate(user, toDelete) }
     ) {
-        service<R>().delete(toDelete).fold (
+        repository<R>().delete(toDelete).fold (
             success = {
                 call.respond(HttpStatusCode.OK)
                 launch { Typesense.deleteResource<R>(toDelete.uuid) }
@@ -517,7 +540,7 @@ suspend inline fun <reified R: Resource> CallPipeline.deleteResource (
 }
 
 /**
- * Adds a handler to a [CallPipeline] that handles updating a resource with the given uuid.
+ * Adds a handler to a [RequestContext] that handles updating a resource with the given uuid.
  *
  * @param R             the type of [Resource] to be updated
  * @param authPredicate the [function][Function] that should be run to authenticate the client. If omitted, no authentication is performed.
@@ -526,8 +549,8 @@ suspend inline fun <reified R: Resource> CallPipeline.deleteResource (
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
-suspend inline fun <reified R : Resource> CallPipeline.updateResource (
-    noinline authPredicate: suspend (User, R)  -> Boolean = defaultPredicateLambda
+suspend inline fun <reified R : Resource> RequestContext.updateResource (
+    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) {
 
     val replacement = call.receive<Map<String, Any>>()
@@ -539,7 +562,7 @@ suspend inline fun <reified R : Resource> CallPipeline.updateResource (
         funcName  = "createWithResource",
         predicate = { user -> authPredicate(user, current) }
     ) {
-        service<R>().update(current, rawData).fold (
+        repository<R>().update(this, current, rawData).fold (
             success = {
                 call.respond(HttpStatusCode.OK)
                 launch { Typesense.updateResource(it) }
@@ -553,13 +576,13 @@ suspend inline fun <reified R : Resource> CallPipeline.updateResource (
 }
 
 /**
- * Adds a handler to a [CallPipeline] that returns the validation regexps for a certain class.
+ * Adds a handler to a [RequestContext] that returns the validation regexps for a certain class.
  *
  * @param M the class for which to return validations
  *
  * @author Benjozork
  */
-suspend inline fun <reified M : Mapped> CallPipeline.getValidations() {
+suspend inline fun <reified M : Mapped> RequestContext.getValidations() {
     call.respond (
         M::class.cachedPropMap().ok()
             .filterThenMapValues (

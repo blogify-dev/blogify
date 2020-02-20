@@ -1,12 +1,9 @@
 package blogify.backend.routing
 
 import blogify.backend.auth.handling.runAuthenticated
-import io.ktor.application.call
-import io.ktor.response.respond
-import io.ktor.routing.*
-
 import blogify.backend.database.Comments
 import blogify.backend.database.handling.query
+import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Comment
 import blogify.backend.resources.models.eqr
 import blogify.backend.routing.handling.createResource
@@ -15,75 +12,95 @@ import blogify.backend.routing.handling.fetchAllResources
 import blogify.backend.routing.handling.fetchAllWithId
 import blogify.backend.routing.handling.fetchResource
 import blogify.backend.routing.handling.updateResource
-import blogify.backend.routing.pipelines.obtainResource
-import blogify.backend.routing.pipelines.pipeline
-import blogify.backend.services.CommentService
+import blogify.backend.pipelines.obtainResource
+import blogify.backend.pipelines.param
+import blogify.backend.pipelines.requestContext
 import blogify.backend.util.expandCommentNode
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
 import blogify.backend.util.toUUID
+
 import io.ktor.http.HttpStatusCode
+import io.ktor.response.respond
+import io.ktor.routing.*
 
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 
-fun Route.articleComments() {
+fun Route.articleComments(applicationContext: ApplicationContext) {
 
     route("/comments") {
 
         get("/") {
-            fetchAllResources<Comment>()
+            requestContext(applicationContext) {
+                fetchAllResources<Comment>()
+            }
         }
 
         get("/{uuid}") {
-            fetchResource<Comment>()
+            requestContext(applicationContext) {
+                fetchResource<Comment>()
+            }
         }
 
         get("/article/{uuid}") {
-            fetchAllWithId(fetch = { articleId ->
-                CommentService.getMatching(call) { Comments.article eq articleId and Comments.parentComment.isNull() }
-            })
+            requestContext(applicationContext) {
+                fetchAllWithId(fetch = { articleId ->
+                    repository<Comment>().getMatching(call) { Comments.article eq articleId and Comments.parentComment.isNull() }
+                })
+            }
         }
 
         delete("/{uuid}") {
-            deleteResource<Comment> (
-                authPredicate = { user, comment -> comment.commenter eqr user }
-            )
+            requestContext(applicationContext) {
+                deleteResource<Comment> (
+                    authPredicate = { user, comment -> comment.commenter eqr user }
+                )
+            }
         }
 
         patch("/{uuid}") {
-            updateResource<Comment> (
-                authPredicate = { user, comment -> comment.commenter eqr user }
-            )
+            requestContext(applicationContext) {
+                updateResource<Comment> (
+                    authPredicate = { user, comment -> comment.commenter eqr user }
+                )
+            }
         }
 
         post("/") {
-            createResource<Comment> (
-                authPredicate = { user, comment -> comment.commenter eqr user }
-            )
+            requestContext(applicationContext) {
+                createResource<Comment> (
+                    authPredicate = { user, comment -> comment.commenter eqr user }
+                )
+            }
         }
 
         get("/tree/{uuid}") {
-            val fetched = CommentService.get(call, call.parameters["uuid"]!!.toUUID())
+            requestContext(applicationContext) {
+                val repo = repository<Comment>()
+                val fetched = repo.get(call, call.parameters["uuid"]!!.toUUID())
 
-            val depth = call.parameters["depth"]?.toInt() ?: 5
+                val depth = call.parameters["depth"]?.toInt() ?: 5
 
-            call.respond(expandCommentNode(call, fetched.get(), depth = depth))
+                call.respond(expandCommentNode(call, repository = repo, rootNode = fetched.get(), depth = depth))
+            }
         }
 
         val likes = Comments.Likes
 
         get("/{uuid}/like") {
-            pipeline("uuid") { (id) ->
-                runAuthenticated {
+            requestContext(applicationContext) {
+                val id = param("uuid")
+
+                runAuthenticated { subject ->
                     val comment = this.obtainResource<Comment>(id.toUUID())
 
                     val liked = query {
                         likes.select {
                             (likes.comment eq comment.uuid) and (likes.user eq subject.uuid) }.count()
-                    }.getOrPipelineError() == 1;
+                    }.getOrPipelineError() == 1
 
                     call.respond(liked)
                 }
@@ -91,11 +108,12 @@ fun Route.articleComments() {
         }
 
         post("/{uuid}/like") {
-            println("Got here")
-            pipeline("uuid") { (id) ->
-                println("Got here $id")
-                runAuthenticated {
-                    val commentToLike = CommentService.get(call, id.toUUID())
+
+            requestContext(applicationContext) {
+                val id = param("uuid")
+
+                runAuthenticated { subject ->
+                    val commentToLike = repository<Comment>().get(call, id.toUUID())
                         .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch comment")
 
                     // Figure whether the article was already liked by the user
@@ -124,6 +142,7 @@ fun Route.articleComments() {
                     }
                 }
             }
+
         }
 
     }

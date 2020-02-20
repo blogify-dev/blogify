@@ -2,19 +2,16 @@ package blogify.backend.auth.handling
 
 import blogify.backend.auth.jwt.validateJwt
 
-import io.ktor.application.call
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.header
 import io.ktor.response.respond
-import io.ktor.application.ApplicationCall
-import io.ktor.util.pipeline.PipelineInterceptor
-import io.ktor.util.pipeline.pipelineExecutorFor
 
 import blogify.backend.resources.User
 import blogify.backend.annotations.BlogifyDsl
+import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.pipelines.wrapping.RequestContextFunction
 import blogify.backend.resources.models.eqr
-import blogify.backend.routing.pipelines.CallPipeline
 import blogify.backend.util.reason
 
 /**
@@ -39,9 +36,9 @@ fun isUser(mustBe: User): UserAuthPredicate = { user ->
  */
 @Suppress("EXPERIMENTAL_API_USAGE")
 @BlogifyDsl
-suspend fun CallPipeline.runAuthenticated (
+suspend fun RequestContext.runAuthenticated (
     predicate: UserAuthPredicate = { true },
-    block:     PipelineInterceptor<User, ApplicationCall>
+    block: RequestContextFunction<User>
 ) {
     val header = call.request.header(HttpHeaders.Authorization) ?: run {
         call.respond(HttpStatusCode.Unauthorized) // Header is missing
@@ -56,10 +53,10 @@ suspend fun CallPipeline.runAuthenticated (
         return
     }
 
-    validateJwt(call, token).fold (
+    validateJwt(call, this, token).fold (
         success = { user ->
             if (predicate.invoke(user)) { // Check token against predicate
-                pipelineExecutorFor(call, listOf(block), user).execute(user)
+                this.execute(block, user)
             } else call.respond(HttpStatusCode.Forbidden)
         }, failure = { ex ->
             call.respond(HttpStatusCode.Forbidden, reason("invalid token - ${ex.javaClass.simpleName}"))

@@ -4,7 +4,7 @@ import blogify.backend.database.Comments
 import blogify.backend.resources.Comment
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
 import blogify.backend.resources.reflect.sanitize
-import blogify.backend.services.CommentService
+import blogify.backend.persistence.models.Repository
 
 import io.ktor.application.ApplicationCall
 
@@ -31,7 +31,7 @@ private val logger = LoggerFactory.getLogger("blogify-comment-tree")
  *
  * @author Benjozork
  */
-suspend fun expandCommentNode(callContext: ApplicationCall = FakeApplicationCall, rootNode: Comment, currentNode: Comment = rootNode, depth: Int): Map<String, Any?> {
+suspend fun expandCommentNode(callContext: ApplicationCall = FakeApplicationCall, repository: Repository<Comment>, rootNode: Comment, currentNode: Comment = rootNode, depth: Int): Map<String, Any?> {
     val sanitizedNode = currentNode.sanitize().toMutableMap()
 
     logger.debug("expanding tree node - root: ${rootNode.uuid.short()}, current: ${currentNode.uuid.short()}, depth: $depth".lightMagenta())
@@ -39,7 +39,7 @@ suspend fun expandCommentNode(callContext: ApplicationCall = FakeApplicationCall
     if (depth == 0) {
         return sanitizedNode
     } else {
-        val nodeDirectChildren = CommentService.getMatching(callContext) { Comments.parentComment eq currentNode.uuid }
+        val nodeDirectChildren = repository.getMatching(callContext) { Comments.parentComment eq currentNode.uuid }
             .fold (
                 success = { it },
                 failure = { error("error during node expand") }
@@ -50,7 +50,7 @@ suspend fun expandCommentNode(callContext: ApplicationCall = FakeApplicationCall
         else
             logger.debug("${nodeDirectChildren.size} children for ${currentNode.uuid.short()}".yellow())
 
-        sanitizedNode["children"] = nodeDirectChildren.map { expandCommentNode(callContext, rootNode, it, depth - 1) }
+        sanitizedNode["children"] = nodeDirectChildren.map { expandCommentNode(callContext, repository, rootNode, it, depth - 1) }
     }
 
     return sanitizedNode

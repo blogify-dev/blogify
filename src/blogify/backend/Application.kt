@@ -6,7 +6,8 @@ import com.andreapivetta.kolor.cyan
 
 import com.fasterxml.jackson.databind.*
 
-import blogify.backend.routing.articles
+import blogify.backend.config.Configs
+import blogify.backend.routing.makeArticleRoutes
 import blogify.backend.routing.users.users
 import blogify.backend.database.Database
 import blogify.backend.database.Articles
@@ -16,6 +17,8 @@ import blogify.backend.database.Uploadables
 import blogify.backend.database.Users
 import blogify.backend.routing.auth
 import blogify.backend.database.handling.query
+import blogify.backend.persistence.postgres.PostgresDataStore
+import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
@@ -53,10 +56,10 @@ import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
 
-const val version = "0.3.0-preRelease"
+private const val version = "0.3.0-preRelease"
 
 @Suppress("GrazieInspection")
-const val asciiLogo = """
+private const val asciiLogo = """
     __     __               _  ____      
    / /_   / /____   ____ _ (_)/ __/__  __
   / __ \ / // __ \ / __ `// // /_ / / / /
@@ -65,6 +68,22 @@ const val asciiLogo = """
                  /____/         /____/   
 ---- Version $version - Development build -
 """
+
+val dataStore = PostgresDataStore {
+
+    val config = Configs.Database
+
+    host = config.host
+    port = config.port
+
+    username = config.username
+    password = config.password
+
+    database = config.databaseName
+
+}
+
+val applicationContext = ApplicationContext(dataStore)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
@@ -95,12 +114,12 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
     // Initialize HTTPS refirection
 
-    install(HttpsRedirect) {
-        // The port to redirect to. By default 443, the default HTTPS port.
-        sslPort = 443
-        // 301 Moved Permanently, or 302 Found redirect.
-        permanentRedirect = true
-    }
+//    install(HttpsRedirect) {
+//        // The port to redirect to. By default 443, the default HTTPS port.
+//        sslPort = 443
+//        // 301 Moved Permanently, or 302 Found redirect.
+//        permanentRedirect = true
+//    }
 
     // Initialize call logging
 
@@ -124,7 +143,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
     install(DefaultHeaders) {
         header("X-Blogify-Version", "blogify-core $version")
-        header("X-Blogify-Backend", "Ktor 1.2.6")
+        header("X-Blogify-Backend", "Ktor 1.3.1")
     }
 
     // Caching headers
@@ -173,16 +192,20 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
     }
 
+    // Create an application context
+
+    val appContext = ApplicationContext(dataStore)
+
     // Initialize routes
 
     routing {
 
         route("/api") {
-            articles()
-            users()
-            auth()
-            static()
-            adminSearch()
+            makeArticleRoutes(appContext)
+            users(appContext)
+            auth(appContext)
+            static(appContext)
+            adminSearch(appContext)
         }
 
         get("/") {

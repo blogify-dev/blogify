@@ -1,6 +1,6 @@
 package blogify.backend.util
 
-import blogify.backend.routing.pipelines.pipelineError
+import blogify.backend.pipelines.pipelineError
 
 import io.ktor.http.HttpStatusCode
 

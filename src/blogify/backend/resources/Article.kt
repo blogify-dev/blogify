@@ -1,5 +1,6 @@
 package blogify.backend.resources
 
+import blogify.backend.annotations.SqlTable
 import blogify.backend.annotations.check
 import blogify.backend.annotations.search.*
 import blogify.backend.database.Articles
@@ -31,6 +32,7 @@ import java.util.UUID
     generator = ObjectIdGenerators.PropertyGenerator::class,
     property  = "uuid"
 )
+@SqlTable(Articles::class)
 data class Article (
 
     @QueryByField
