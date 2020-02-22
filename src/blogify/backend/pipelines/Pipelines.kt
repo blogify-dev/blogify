@@ -122,7 +122,7 @@ suspend fun RequestContext.handleAuthentication (
  */
 @PipelinesDsl
 suspend inline fun <reified R : Resource> RequestContext.obtainResource(id: UUID): R {
-    return (repository<R>()::get)(call, id)
+    return (repository<R>()::get)(this, id)
         .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 
@@ -131,7 +131,7 @@ suspend inline fun <reified R : Resource> RequestContext.obtainResource(id: UUID
  */
 @PipelinesDsl
 suspend inline fun <reified R : Resource> RequestContext.obtainResources(limit: Int = 25): List<R> {
-    return (repository<R>()::getAll)(call, limit)
+    return (repository<R>()::getAll)(this, limit)
         .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 

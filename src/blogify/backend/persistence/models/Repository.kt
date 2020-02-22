@@ -2,7 +2,7 @@ package blogify.backend.persistence.models
 
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
+import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.util.BException
 import blogify.backend.util.Sr
@@ -24,7 +24,7 @@ interface Repository<R : Resource> {
     /**
      * Obtains all instances of [R] in the database
      *
-     * @param callContext the context of the [call][ApplicationCall] resulting in this operation,
+     * @param request the context of the [call][ApplicationCall] resulting in this operation,
      *                    used for caching purposes. Defaults to [FakeApplicationCall] without caching.
      *
      * @param limit the max number of items to fetch. Defaults to 256.
@@ -33,12 +33,12 @@ interface Repository<R : Resource> {
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun getAll(callContext: ApplicationCall = FakeApplicationCall, limit: Int = 256): SrList<R>
+    suspend fun getAll(request: RequestContext = FakeRequestContext, limit: Int = 256): SrList<R>
 
     /**
      * Obtains an instance of [R] with a specific [id][UUID] ]in the database
      *
-     * @param callContext the context of the [call][ApplicationCall] resulting in this operation,
+     * @param request the context of the [call][ApplicationCall] resulting in this operation,
      *                    used for caching purposes. Defaults to [FakeApplicationCall] without caching.
      *
      * @param id the [UUID] of the resource to fetch
@@ -47,13 +47,13 @@ interface Repository<R : Resource> {
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun get(callContext: ApplicationCall = FakeApplicationCall, id: UUID): Sr<R>
+    suspend fun get(request: RequestContext = FakeRequestContext, id: UUID): Sr<R>
 
     /**
      * Obtains a set of instances of [R] matching a given [predicate]
      *
-     * @param callContext the context of the [call][ApplicationCall] resulting in this operation,
-     *                    used for caching purposes. Defaults to [FakeApplicationCall] without caching.
+     * @param request the context of the [request][RequestContext] resulting in this operation,
+     *                used for caching purposes. Defaults to [FakeRequestContext] without caching.
      *
      * @param predicate an Exposed predicate that is used to return the needed items
      *
@@ -61,11 +61,11 @@ interface Repository<R : Resource> {
      *
      * @author hamza1311
      */
-    suspend fun getMatching(callContext: ApplicationCall = FakeApplicationCall, predicate: SqlExpressionBuilder.() -> Op<Boolean>): SrList<R>
+    suspend fun getMatching(request: RequestContext = FakeRequestContext, predicate: SqlExpressionBuilder.() -> Op<Boolean>): SrList<R>
 
     suspend fun add(res: R): Sr<R>
 
-    suspend fun update(requestContext: RequestContext, res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R>
+    suspend fun update(request: RequestContext, res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R>
 
     /**
      * Deletes an instance of [R] from the database

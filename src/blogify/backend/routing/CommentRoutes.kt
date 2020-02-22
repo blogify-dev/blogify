@@ -48,7 +48,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         get("/article/{uuid}") {
             requestContext(applicationContext) {
                 fetchAllWithId(fetch = { articleId ->
-                    repository<Comment>().getMatching(call) { Comments.article eq articleId and Comments.parentComment.isNull() }
+                    repository<Comment>().getMatching(this) { Comments.article eq articleId and Comments.parentComment.isNull() }
                 })
             }
         }
@@ -80,11 +80,11 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         get("/tree/{uuid}") {
             requestContext(applicationContext) {
                 val repo = repository<Comment>()
-                val fetched = repo.get(call, call.parameters["uuid"]!!.toUUID())
+                val fetched = repo.get(this, call.parameters["uuid"]!!.toUUID())
 
                 val depth = call.parameters["depth"]?.toInt() ?: 5
 
-                call.respond(expandCommentNode(call, repository = repo, rootNode = fetched.get(), depth = depth))
+                call.respond(expandCommentNode(this, repository = repo, rootNode = fetched.get(), depth = depth))
             }
         }
 
@@ -113,7 +113,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
                 val id = param("uuid")
 
                 runAuthenticated { subject ->
-                    val commentToLike = repository<Comment>().get(call, id.toUUID())
+                    val commentToLike = repository<Comment>().get(this, id.toUUID())
                         .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch comment")
 
                     // Figure whether the article was already liked by the user

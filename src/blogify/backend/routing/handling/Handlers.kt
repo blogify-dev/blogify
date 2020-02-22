@@ -443,7 +443,7 @@ suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
                 // Fake handle
                 val handle = query {
                     Uploadables.select { Uploadables.fileId eq uploadableId }.single()
-                }.map { Uploadables.convert(call, it).get() }.get()
+                }.map { Uploadables.convert(this, it).get() }.get()
 
                 // Delete in DB
                 query {

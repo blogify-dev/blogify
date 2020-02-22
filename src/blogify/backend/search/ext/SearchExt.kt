@@ -6,6 +6,7 @@ import blogify.backend.resources.reflect.sanitize
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.SearchView
 import blogify.backend.persistence.models.Repository
+import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
 import blogify.backend.util.Sr
 import blogify.backend.util.toUUID
 
@@ -14,7 +15,7 @@ import java.lang.IllegalStateException
 
 suspend inline fun <reified T : Resource> Search.Hit.fetchResource(repository: Repository<T>): Sr<T> {
     val resourceUUID = (this.document["uuid"] as String).toUUID()
-    return repository.get(Resource.ObjectResolver.FakeApplicationCall, resourceUUID)
+    return repository.get(FakeRequestContext, resourceUUID)
 }
 
 suspend inline fun <reified R: Resource> Search<R>.asSearchView(requestContext: RequestContext): SearchView {

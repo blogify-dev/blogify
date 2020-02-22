@@ -11,6 +11,7 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.persistence.models.Repository
+import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
@@ -37,16 +38,16 @@ import java.util.UUID
 
 abstract class ResourceTable<R : Resource> : Table() {
 
-    open suspend fun obtainAll(callContext: ApplicationCall, limit: Int): SrList<R> = Wrap {
-        query { this.selectAll().limit(limit).toSet() }.get().map { this.convert(callContext, it).get() }
+    open suspend fun obtainAll(requestContext: RequestContext, limit: Int): SrList<R> = Wrap {
+        query { this.selectAll().limit(limit).toSet() }.get().map { this.convert(requestContext, it).get() }
     }
 
-    open suspend fun obtain(callContext: ApplicationCall, id: UUID): Sr<R> = Wrap {
+    open suspend fun obtain(requestContext: RequestContext, id: UUID): Sr<R> = Wrap {
         query { this.select { uuid eq id }.single() }.get()
-            .let { this.convert(callContext, it).get() }
+            .let { this.convert(requestContext, it).get() }
     }
 
-    abstract suspend fun convert(callContext: ApplicationCall, source: ResultRow): Sr<R>
+    abstract suspend fun convert(requestContext: RequestContext, source: ResultRow): Sr<R>
 
     abstract suspend fun insert(resource: R): Sr<R>
 
@@ -120,12 +121,12 @@ object Articles : ResourceTable<Article>() {
         true
     }
 
-    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = Sr.of<Article, Repository.Exception.Fetching> {
+    override suspend fun convert(requestContext: RequestContext, source: ResultRow) = Sr.of<Article, Repository.Exception.Fetching> {
         Article (
             uuid       = source[uuid],
             title      = source[title],
             createdAt  = source[createdAt],
-            createdBy  = applicationContext.repository<User>().get(callContext, source[createdBy]).get(),
+            createdBy  = applicationContext.repository<User>().get(requestContext, source[createdBy]).get(),
             content    = source[content],
             summary    = source[summary],
             categories = transaction {
@@ -216,7 +217,7 @@ object Users : ResourceTable<User>() {
         }.get() == 1
     }
 
-    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<User, Repository.Exception.Fetching> {
+    override suspend fun convert(requestContext: RequestContext, source: ResultRow) = SuspendableResult.of<User, Repository.Exception.Fetching> {
         User (
             uuid           = source[uuid],
             username       = source[username],
@@ -226,10 +227,10 @@ object Users : ResourceTable<User>() {
             isAdmin        = source[isAdmin],
             profilePicture = source[profilePicture]?.let { transaction {
                 Uploadables.select { Uploadables.fileId eq source[profilePicture]!! }.limit(1).single()
-            }.let { Uploadables.convert(callContext, it).get() } } ?: StaticResourceHandle.None(ContentType.Any),
+            }.let { Uploadables.convert(requestContext, it).get() } } ?: StaticResourceHandle.None(ContentType.Any),
             coverPicture = source[coverPicture]?.let { transaction {
                 Uploadables.select { Uploadables.fileId eq source[coverPicture]!! }.limit(1).single()
-            }.let { Uploadables.convert(callContext, it).get() } } ?: StaticResourceHandle.None(ContentType.Any)
+            }.let { Uploadables.convert(requestContext, it).get() } } ?: StaticResourceHandle.None(ContentType.Any)
         )
     }
 
@@ -277,13 +278,13 @@ object Comments : ResourceTable<Comment>() {
         }.get() == 1
     }
 
-    override suspend fun convert(callContext: ApplicationCall, source: ResultRow) = SuspendableResult.of<Comment, Repository.Exception.Fetching> {
+    override suspend fun convert(requestContext: RequestContext, source: ResultRow) = SuspendableResult.of<Comment, Repository.Exception.Fetching> {
         Comment (
             uuid          = source[uuid],
             content       = source[content],
-            article       = applicationContext.repository<Article>().get(callContext, source[article]).get(),
-            commenter     = applicationContext.repository<User>().get(callContext, source[commenter]).get(),
-            parentComment = source[parentComment]?.let { applicationContext.repository<Comment>().get(callContext, it).get() }
+            article       = applicationContext.repository<Article>().get(requestContext, source[article]).get(),
+            commenter     = applicationContext.repository<User>().get(requestContext, source[commenter]).get(),
+            parentComment = source[parentComment]?.let { applicationContext.repository<Comment>().get(requestContext, it).get() }
         )
     }
 
@@ -296,7 +297,7 @@ object Uploadables : Table() {
 
     override val primaryKey = PrimaryKey(fileId)
 
-    suspend fun convert(@Suppress("UNUSED_PARAMETER") callContext: ApplicationCall, source: ResultRow) = Wrap {
+    suspend fun convert(@Suppress("UNUSED_PARAMETER") requestContext: RequestContext, source: ResultRow) = Wrap {
 
         // Parse the content type
         val contentType = ContentType.parse(source[contentType])
@@ -305,7 +306,7 @@ object Uploadables : Table() {
             StaticResourceHandle.Ok.Image (
                 contentType = contentType,
                 fileId  = source[fileId],
-                metadata = ImageUploadablesMetadata.obtain(callContext, source[fileId])
+                metadata = ImageUploadablesMetadata.obtain(requestContext, source[fileId])
                     .getOrElse(ImageMetadata(0, 0))
             )
         } else { // If not, just return a normal handle
@@ -324,12 +325,12 @@ object ImageUploadablesMetadata : Table("image_metadata") {
     val width    = integer ("width").default(0)
     val height   = integer ("height").default(0)
 
-    suspend fun obtain(callContext: ApplicationCall, id: String): Sr<ImageMetadata> = Wrap {
+    suspend fun obtain(requestContext: RequestContext, id: String): Sr<ImageMetadata> = Wrap {
         query { this.select { handleId eq id }.single() }.get()
-            .let { this.convert(callContext, it).get() }
+            .let { this.convert(requestContext, it).get() }
     }
 
-    private suspend fun convert(@Suppress("UNUSED_PARAMETER") callContext: ApplicationCall, source: ResultRow) = Wrap {
+    private suspend fun convert(@Suppress("UNUSED_PARAMETER") requestContext: RequestContext, source: ResultRow) = Wrap {
         ImageMetadata (
             source[width],
             source[height]

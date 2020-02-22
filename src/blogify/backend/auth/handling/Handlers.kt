@@ -53,7 +53,7 @@ suspend fun RequestContext.runAuthenticated (
         return
     }
 
-    validateJwt(call, this, token).fold (
+    validateJwt(this, token).fold (
         success = { user ->
             if (predicate.invoke(user)) { // Check token against predicate
                 this.execute(block, user)

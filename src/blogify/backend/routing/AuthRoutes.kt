@@ -83,7 +83,7 @@ fun Route.auth(applicationContext: ApplicationContext) {
         post("/signin") {
             requestContext(applicationContext) {
                 val credentials = call.receive<LoginCredentials>()
-                val matchingCredentials = repository<User>().getMatching(call) { Users.username eq credentials.username }
+                val matchingCredentials = repository<User>().getMatching(this) { Users.username eq credentials.username }
 
                 matchingCredentials.fold (
                     success = { set ->
@@ -112,7 +112,7 @@ fun Route.auth(applicationContext: ApplicationContext) {
         get("/{token}") {
             requestContext(applicationContext) {
                 val token = param("token")
-                validateJwt(call, this, token).fold(
+                validateJwt(this, token).fold (
                     success = { call.respond( object { @Suppress("unused") val uuid = it.uuid }) },
                     failure = { call.respondExceptionMessage(Repository.Exception(BException(it))) }
                 )

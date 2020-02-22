@@ -2,9 +2,10 @@ package blogify.backend.util
 
 import blogify.backend.database.Comments
 import blogify.backend.resources.Comment
-import blogify.backend.resources.models.Resource.ObjectResolver.FakeApplicationCall
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.persistence.models.Repository
+import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
 
 import io.ktor.application.ApplicationCall
 
@@ -18,7 +19,7 @@ private val logger = LoggerFactory.getLogger("blogify-comment-tree")
 /**
  * Recursively expands a [Comment] node to the specified [depth]
  *
- * @param callContext the context of the [call][ApplicationCall] resulting in this operation,
+ * @param request the context of the [call][ApplicationCall] resulting in this operation,
  *                    used for caching purposes. Defaults to [FakeApplicationCall] without caching.
  *
  * @param rootNode    the root node to do expansion on. Stays constant in subsequent recursive calls to provide logging convenience.
@@ -31,7 +32,7 @@ private val logger = LoggerFactory.getLogger("blogify-comment-tree")
  *
  * @author Benjozork
  */
-suspend fun expandCommentNode(callContext: ApplicationCall = FakeApplicationCall, repository: Repository<Comment>, rootNode: Comment, currentNode: Comment = rootNode, depth: Int): Map<String, Any?> {
+suspend fun expandCommentNode(request: RequestContext = FakeRequestContext, repository: Repository<Comment>, rootNode: Comment, currentNode: Comment = rootNode, depth: Int): Map<String, Any?> {
     val sanitizedNode = currentNode.sanitize().toMutableMap()
 
     logger.debug("expanding tree node - root: ${rootNode.uuid.short()}, current: ${currentNode.uuid.short()}, depth: $depth".lightMagenta())
@@ -39,7 +40,7 @@ suspend fun expandCommentNode(callContext: ApplicationCall = FakeApplicationCall
     if (depth == 0) {
         return sanitizedNode
     } else {
-        val nodeDirectChildren = repository.getMatching(callContext) { Comments.parentComment eq currentNode.uuid }
+        val nodeDirectChildren = repository.getMatching(request) { Comments.parentComment eq currentNode.uuid }
             .fold (
                 success = { it },
                 failure = { error("error during node expand") }
@@ -50,7 +51,7 @@ suspend fun expandCommentNode(callContext: ApplicationCall = FakeApplicationCall
         else
             logger.debug("${nodeDirectChildren.size} children for ${currentNode.uuid.short()}".yellow())
 
-        sanitizedNode["children"] = nodeDirectChildren.map { expandCommentNode(callContext, repository, rootNode, it, depth - 1) }
+        sanitizedNode["children"] = nodeDirectChildren.map { expandCommentNode(request, repository, rootNode, it, depth - 1) }
     }
 
     return sanitizedNode
