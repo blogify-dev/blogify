@@ -38,9 +38,6 @@ export class NewArticleComponent implements OnInit {
 
     result: { status: Result, message: string } = { status: 'none', message: null };
 
-    @ViewChild(ToasterComponent)
-    private toaster: ToasterComponent;
-
     constructor (
         private articleService: ArticleService,
         private authService: AuthService,
@@ -52,27 +49,6 @@ export class NewArticleComponent implements OnInit {
     async ngOnInit() {
         this.user = await this.authService.userProfile;
         this.validations = await this.http.get<object>('/api/articles/_validations').toPromise();
-
-        this.toasterService.plugInto(this.toaster);
-        this.toasterService.feed (
-            new Toast ({
-                header: 'One toast !',
-                content: 'Body of the first toast, neutral colored ! :)',
-                backgroundColor: ToastStyle.NEUTRAL
-            }),
-            new Toast ({
-                header: 'The Second Toast...',
-                content: 'Contents of the second toast. Interesting.',
-                icon: faExclamationCircle,
-                backgroundColor: ToastStyle.MILD
-            }),
-            new Toast ({
-                header: 'A THIRD ONE !',
-                content: 'Danger danger danger danger danger danger danger !',
-                icon: faTimes,
-                backgroundColor: ToastStyle.NEGATIVE
-            })
-        );
     }
 
     private validateOnServer(fieldName: string): ValidatorFn {
