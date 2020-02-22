@@ -67,7 +67,7 @@ suspend fun GenericCallPipeline.requestContext (
     block: RequestContextFunction<Unit>
 ) {
     try {
-        RequestContext(applicationContext, this, call, MapCache())
+        RequestContext(applicationContext, this, call)
             .execute(block, Unit)
     }  catch (e: PipelineException) {
         call.respond(e.code, reason(e.message))
