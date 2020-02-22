@@ -34,7 +34,7 @@
         </a>
 
         <!-- New article -->
-        <a id="header-create-btn" (click)="navigateToNewArticle()" *ngIf="allowCreate && !forceNoAllowCreate">
+        <a id="header-create-btn" class="clickable" (click)="navigateToNewArticle()" *ngIf="allowCreate && !forceNoAllowCreate">
             <fa-icon [icon]="faPencil" size="2x"></fa-icon>
         </a>
     </div>
