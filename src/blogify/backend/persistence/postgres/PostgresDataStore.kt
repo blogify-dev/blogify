@@ -18,7 +18,9 @@ class PostgresDataStore (
 
     override fun <R : Resource> getRepository(klass: KClass<R>): Repository<R> {
         @Suppress("UNCHECKED_CAST")
-        return repoCache.getOrElse(klass) { PostgresRepository(klass.table) } as Repository<R>
+        return repoCache.findOr(klass) {
+            PostgresRepository(klass.table)
+        }.get()
     }
 
     class PostgresConfiguration : DataStore.Configuration() {
