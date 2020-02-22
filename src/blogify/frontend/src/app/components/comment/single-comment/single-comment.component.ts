@@ -88,7 +88,6 @@ export class SingleCommentComponent implements OnInit {
             .then(() => {
                 this.comment.likedByUser = !this.comment.likedByUser;
                 this.comment.likeCount += (this.comment.likedByUser ? 1 : -1);
-                alert(this.comment.likeCount);
             }).catch(() => {
             console.error(`[blogifyComments] Couldn't like ${this.comment.uuid}` )
         })
