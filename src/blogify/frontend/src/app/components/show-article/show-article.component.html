@@ -20,10 +20,9 @@
         <!-- Summary -->
         <h1 class="summary-row">{{article.summary}}</h1>
 
+        <!-- Author -->
         <div class="header-bottom">
-
-            <!-- Author -->
-            <app-user-display [user]="article.createdBy" emSize="2.75"></app-user-display>
+            <app-user-display [user]="article.createdBy" emSize="2.5"></app-user-display>
 
             <span class="separator"></span>
 
@@ -37,9 +36,9 @@
                 <fa-icon [icon]="faCopy" size="2x" [transform]="{ size: 14, y: 1 }"></fa-icon>
             </a>
 
-             <!-- Update button -->
+            <!-- Update button -->
             <a id="button-update" class="clickable hover-positive" routerLink="/article/update/{{article.uuid}}" *ngIf="showUpdateButton">
-                 <fa-icon [icon]="faEdit" size="2x" [transform]="{ size: 15 }"></fa-icon>
+                <fa-icon [icon]="faEdit" size="2x" [transform]="{ size: 15 }"></fa-icon>
             </a>
 
             <!-- Delete button -->

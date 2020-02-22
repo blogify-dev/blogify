@@ -48,7 +48,7 @@
 
         .summary-row {
             font-size: 1.5em;
-            padding-bottom: .25em;
+            padding-bottom: .65em;
             padding-top: 0;
         }
 
@@ -97,8 +97,12 @@
     }
 
     #article-content {
+        display: block;
+
         text-align: justify;
         text-justify: inter-word;
+
+        margin-bottom: .75em;
     }
 
     .article-comments {
