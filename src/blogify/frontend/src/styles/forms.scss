@@ -163,14 +163,29 @@ button {
     cursor: pointer;
 
     &:not(.no-highlight) {
-        &:hover, &:hover * { color: var(--accent-neutral); }
+        &:not(.highlight-border) {
+            &:hover, &:hover * { color: var(--accent-positive); }
+        }
+        &.highlight-border {
+            &:hover, &:hover * { border-color: var(--accent-positive); }
+        }
     }
 
-    &:hover.hover-neutral  { &, & * {color: var(--accent-neutral);  } };
-    &:hover.hover-positive { &, & * {color: var(--accent-positive); } };
-    &:hover.hover-mild     { &, & * {color: var(--accent-mild);     } };
-    &:hover.hover-negative { &, & * {color: var(--accent-negative); } };
-    &:hover.hover-gray     { &, & * {color: var(--accent-gray);     } };
+    &:not(.highlight-border) {
+        &:hover.hover-neutral  { &, & * {color: var(--accent-neutral);  } };
+        &:hover.hover-positive { &, & * {color: var(--accent-positive); } };
+        &:hover.hover-mild     { &, & * {color: var(--accent-mild);     } };
+        &:hover.hover-negative { &, & * {color: var(--accent-negative); } };
+        &:hover.hover-gray     { &, & * {color: var(--accent-gray);     } };
+    }
+
+    &.highlight-border {
+        &:hover.hover-neutral  { & {border-color: var(--accent-neutral);  } };
+        &:hover.hover-positive { & {border-color: var(--accent-positive); } };
+        &:hover.hover-mild     { & {border-color: var(--accent-mild);     } };
+        &:hover.hover-negative { & {border-color: var(--accent-negative); } };
+        &:hover.hover-gray     { & {border-color: var(--accent-gray);     } };
+    }
 
 }
 
