@@ -10,20 +10,84 @@
     justify-content: stretch;
     align-items:     flex-start;
 
-    #header-row {
-        width: 100%;
+    #title-row {
+        font-size: 2.75rem;
 
-        display:         flex;
-        flex-direction:  row;
-        justify-content: space-between;
-        align-items:     center;
+        padding-bottom: 0;
+        padding-top: 0;
+    }
+
+    #author-row {
+        padding: .4em 0;
+    }
+
+    #summary-row {
+        font-size: 1.3rem;
+    }
+
+    #content-row > textarea {
+        &::placeholder {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        font-size: 1.25em;
+        font-weight: normal;
+    }
+
+    #categories-row {
+        span:first-child { margin-right: auto; }
+        justify-content: flex-end;
+
+        input {
+            margin: 0 .25em;
+        }
+
+        #category-add {
+            margin-right: .7em;
+            height: 100%;
+        }
+    }
+
+    #submit-row {
+        width: 60%;
+
+        margin-left: auto;
+        margin-top: 1.25em;
+
+        flex-direction: row;
+        justify-content: flex-end;
+
+        * { font-size: 1.35em; }
+
+        #submit-result-container {
+            margin-right: auto;
+            text-align: center;
+
+            &.none {
+                display: none;
+            }
+
+            &.success {
+                color: var(--accent-positive);
+            }
+
+            &.error {
+                color: var(--accent-negative);
+            }
+        }
+
+        button {
+            flex-grow: 0;
+            margin-left: .5em;
+        }
     }
 
     .data-row {
         width: 100%;
 
         &:not(:first-child) {
-            margin-top: 1em;
+            margin-top: .75em;
         }
 
         &:not(:last-of-type) > span:first-child {
@@ -39,53 +103,15 @@
 
         & input:last-child,
         & textarea:last-child {
+
+            font-size: 1em;
+            font-weight: bold;
+
+            padding: .55rem 1.35rem;
+
+            border-radius: .75rem;
+
             flex-grow: 1;
-        }
-
-        &#categories-row {
-            span:first-child { margin-right: auto; }
-            justify-content: flex-end;
-
-            input {
-                margin: 0 .25em;
-            }
-
-            #category-add {
-                margin-right: .7em;
-                height: 100%;
-            }
-        }
-
-        &#submit {
-            width: 60%;
-            margin-left: auto;
-
-            flex-direction: row;
-            justify-content: flex-end;
-
-            * { font-size: 1.35em; }
-
-            #submit-result-container {
-                margin-right: auto;
-                text-align: center;
-
-                &.none {
-                    display: none;
-                }
-
-                &.success {
-                    color: var(--accent-positive);
-                }
-
-                &.error {
-                    color: var(--accent-negative);
-                }
-            }
-
-            button {
-                flex-grow: 0;
-                margin-left: .5em;
-            }
         }
 
         display:         flex;
