@@ -22,6 +22,10 @@
     font-size: 10px;
 }
 
+html {
+    overflow-x: hidden;
+}
+
 #parent {
     background-color: var(--body-bg);
 

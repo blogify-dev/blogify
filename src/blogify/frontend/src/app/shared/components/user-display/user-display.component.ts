@@ -21,13 +21,17 @@ export class UserDisplayComponent implements OnInit, OnChanges {
     constructor() {}
 
     ngOnInit() {
-        this.infoText = this.info === 'username' ? this.user.username : this.user.name;
-        this.secondaryInfoText = this.info === 'username' ? this.user.name : `@${this.user.username}`;
+        if (this.user) {
+            this.infoText = this.info === 'username' ? this.user.username : this.user.name;
+            this.secondaryInfoText = this.info === 'username' ? this.user.name : `@${this.user.username}`;
+        }
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        this.infoText = this.info === 'username' ? this.user.username : this.user.name;
-        this.secondaryInfoText = this.info === 'username' ? this.user.name : `@${this.user.username}`;
+        if (this.user) {
+            this.infoText = this.info === 'username' ? this.user.username : this.user.name;
+            this.secondaryInfoText = this.info === 'username' ? this.user.name : `@${this.user.username}`;
+        }
     }
 
 }

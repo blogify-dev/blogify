@@ -1,4 +1,5 @@
 <span class="user-display"
+      *ngIf="user"
       [style.font-size]="emSize / sizeRatio + 'em'"
       [routerLink]="['/profile/' + user.username]">
 
