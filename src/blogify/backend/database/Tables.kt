@@ -86,14 +86,14 @@ object Articles : ResourceTable<Article>() {
                     it[content]   = resource.content
                     it[summary]   = resource.summary
                 }
-            }
+            }.get()
 
              query {
                 Categories.batchInsert(resource.categories) {
                     this[Categories.article] = resource.uuid
                     this[Categories.name]    = it.name
                 }
-            }
+            }.get()
 
             return@Wrap resource
         }
