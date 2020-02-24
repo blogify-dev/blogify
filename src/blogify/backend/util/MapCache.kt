@@ -9,9 +9,9 @@ open class MapCache<K : Any, V : Any> {
 
     private val map = mutableMapOf<K, V>()
 
-    protected open operator fun get(key: K): V? = map[key]
+    open operator fun get(key: K): V? = map[key]
 
-    protected operator fun set(key: K, value: V) = map.put(key, value)
+    operator fun set(key: K, value: V) = map.put(key, value)
 
     private suspend fun getOrElse(key: K, createNewValue: suspend () -> V): V {
         val attempt = this[key]
