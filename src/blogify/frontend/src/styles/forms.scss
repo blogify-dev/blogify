@@ -151,6 +151,11 @@ button {
         &.gray     { color: var(--accent-gray);     border-color: var(--accent-gray); }
     }
 
+    &.borderless {
+        border: none;
+        background: none;
+    }
+
     &.rounded {
         border-radius: 1.15em;
         padding: .5em 1.15em;

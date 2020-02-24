@@ -23,6 +23,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
     "@fortawesome/free-regular-svg-icons": "^5.11.2",
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
+    "@tinkoff/angular-contenteditable-accessor": "^1.1.0",
     "angular-font-awesome": "^3.1.2",
     "font-awesome": "^4.7.0",
     "ngx-clipboard": "^12.3.0",

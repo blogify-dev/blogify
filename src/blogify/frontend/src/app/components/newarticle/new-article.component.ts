@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
 import { User } from '../../models/User';
@@ -6,11 +6,9 @@ import { StaticFile } from '../../models/Static';
 import { AuthService } from '../../shared/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { faExclamationCircle, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
-import { ToasterComponent } from '../../shared/components/toaster/toaster.component';
 import { ToasterService } from '../../shared/services/toaster/toaster.service';
-import { Toast, ToastStyle } from '../../shared/services/toaster/models/Toast';
 
 type Result = 'none' | 'success' | 'error';
 
@@ -47,7 +45,10 @@ export class NewArticleComponent implements OnInit {
     ) {}
 
     async ngOnInit() {
-        this.user = await this.authService.userProfile;
+        this.authService.observeIsLoggedIn().subscribe(state => {
+            if (state) this.authService.userProfile.then(it => this.user = it);
+            else console.error('[blogifyNewArticle] must be logged in; check links to not allow unauth access to new-article')
+        });
         this.validations = await this.http.get<object>('/api/articles/_validations').toPromise();
     }
 
@@ -64,16 +65,16 @@ export class NewArticleComponent implements OnInit {
         }
     }
 
-    formTitle = new FormControl('',
+    public formTitle = new FormControl('',
         [Validators.required, this.validateOnServer('title')]
     );
-    formSummary = new FormControl('',
+    public formSummary = new FormControl('',
         [Validators.required, this.validateOnServer('summary')]
     );
-    formContent = new FormControl('',
+    public formContent = new FormControl('',
         [Validators.required, this.validateOnServer('content')]
     );
-    formCategories = new FormArray([new FormControl('')]);
+    public formCategories = new FormArray([]);
 
     form = new FormGroup({
         'title':      this.formTitle,
@@ -83,16 +84,18 @@ export class NewArticleComponent implements OnInit {
     });
 
     // noinspection JSMethodCanBeStatic
-    transformArticleData(input: object): object {
-        input['categories'] = input['categories']
-            .filter((cat: string) => cat.match(/\\s/) !== null)
+    transformArticleData(form: FormGroup): object {
+        const article = form.value;
+        article['categories'] = (<FormArray>form.controls['categories']).controls.map(it => <string> it.value)
+            // .filter((cat: string) => cat.match(/\\s/) !== null)
             .map(cat => { return { name: cat }});
-        return input
+        console.table(article);
+        return article
     }
 
     createNewArticle() {
         this.articleService.createNewArticle (
-            (<Article> this.transformArticleData(this.form.value))
+            (<Article> this.transformArticleData(this.form))
         ).then(async (article: object) => {
             const uuid = article['uuid'];
             this.result = { status: 'success', message: 'Article created successfully' };
@@ -102,8 +105,9 @@ export class NewArticleComponent implements OnInit {
         );
     }
 
-    addCategory() {
-        this.formCategories.push(new FormControl(''));
+    addCategory(input: HTMLInputElement) {
+        this.formCategories.push(new FormControl(input.value));
+        input.value = '';
     }
 
 }

@@ -68,3 +68,4 @@ Please try to only use these colors in all other files. This ensures consistency
 *.mild     { &, & * {color: var(--accent-mild);     } };
 *.negative { &, & * {color: var(--accent-negative); } };
 *.gray     { &, & * {color: var(--accent-gray);     } };
+*.white    { &, & * {color: var(--body-fg);         } };
