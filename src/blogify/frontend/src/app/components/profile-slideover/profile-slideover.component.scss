@@ -1,0 +1,120 @@
+@import "src/styles/queries";
+
+#main-toolbar {
+
+    position: fixed;
+    top: .5em;
+
+    z-index: 100;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    width: 65px;
+    padding: 1.15em;
+
+    span#home-logo img {
+        width: 2.5em;
+        height: 2.5em;
+    }
+
+    #logo-separator {
+        display: block;
+
+        width: 100%;
+        height: 1px;
+
+        margin-left: 0 !important;
+        margin-top: 2.5em;
+    }
+
+    #links-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+
+        gap: 3.75em;
+
+        margin-top: 5em;
+
+        .bottom { margin-top: auto; }
+    }
+
+}
+
+//noinspection SpellCheckingInspection
+#profile-slideover-main {
+    min-height: 100%;
+
+    $slideover-width:  300px;
+    $slideover-offset: 65px;
+    $slideover-side:   "left";
+
+    width: $slideover-width;
+
+    position: fixed;
+
+    top: 0;
+
+    @if ($slideover-side == "right") {
+        right: -$slideover-width + $slideover-offset;
+    } @else if ($slideover-side == "left") {
+        left:  -$slideover-width + $slideover-offset;
+    }
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+
+    background-color: var(--card-bg);
+    box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.2);
+
+    &:hover, *:hover ~ & {
+        @if ($slideover-side == "right") {
+            transform: translate(-$slideover-width + $slideover-offset);
+        } @else if ($slideover-side == "left") {
+            transform: translate($slideover-width - $slideover-offset);
+        }
+
+        & > #bottom-bar { opacity: 1; }
+
+        & + #user-display { color: unset; }
+    }
+
+    transition: transform 250ms ease-in-out;
+
+    #bottom-bar {
+        height: 5.5rem;
+
+        margin-top: auto;
+        margin-bottom: .75em;
+        padding: 2.5em 2.5em;
+
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+
+        opacity: 0;
+
+        #logout {
+            margin-left: auto;
+        }
+
+        transition: opacity 250ms ease-in-out;
+    }
+
+}
+
+#user-display {
+    position: fixed;
+    bottom: 1.6em;
+    left: 1.8em;
+
+    z-index: 100;
+
+    color: transparent;
+}

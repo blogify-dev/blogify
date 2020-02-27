@@ -1,0 +1,40 @@
+<!-- (begin)
+    Please keep those above #profile-slideover so that they can trigger the slide
+-->
+
+<div id="main-toolbar">
+
+    <span id="home-logo">
+        <a routerLink="home" id="home-img-container">
+            <img src="assets/images/logo.svg"
+                 alt="Blogify" />
+        </a>
+    </span>
+
+    <span id="links-container">
+
+        <span id="link-home" class="positive">
+            <fa-icon size="lg" [icon]="faList" [transform]="{ size: 22 }"></fa-icon>
+        </span>
+
+        <span id="link-users">
+            <fa-icon size="lg" [icon]="faUser" [transform]="{ size: 22 }"></fa-icon>
+        </span>
+
+    </span>
+
+</div>
+
+<app-user-display id="user-display" [user]="this.user" showSecondaryInfo="true" emSize="2.75"></app-user-display>
+
+<!-- (end) -->
+
+<div id="profile-slideover-main">
+
+    <div id="bottom-bar">
+        <span id="logout" class="clickable hover-negative" *ngIf="authService.observeIsLoggedIn() | async">
+            <fa-icon size="lg" [icon]="faSignOutAlt" [transform]="{ y: -1, x: 2, size: 24 }"></fa-icon>
+        </span>
+    </div>
+
+</div>
