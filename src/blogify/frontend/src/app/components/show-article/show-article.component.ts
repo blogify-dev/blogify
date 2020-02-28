@@ -5,8 +5,8 @@ import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../shared/auth/auth.service';
 import { User } from '../../models/User';
-import { faPenFancy, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { faCopy } from '@fortawesome/free-regular-svg-icons';
+import { faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
+import { faClipboard, faEdit, faHeart, faTrashAlt} from '@fortawesome/free-regular-svg-icons';
 import { ClipboardService } from "ngx-clipboard";
 
 @Component({
@@ -27,9 +27,14 @@ export class ShowArticleComponent implements OnInit {
         private clipboardService: ClipboardService,
     ) {}
 
-    faEdit = faPenFancy;
-    faTimes = faTimes;
-    faCopy = faCopy;
+    loggedInObs = this.authService.observeIsLoggedIn();
+
+    faHeartOutline = faHeart;
+    faHeartFilled = faHeartFilled;
+
+    faEdit = faEdit;
+    faTimes = faTrashAlt;
+    faCopy = faClipboard;
 
     showUpdateButton = false;
     showDeleteButton = false;
@@ -40,7 +45,7 @@ export class ShowArticleComponent implements OnInit {
 
             this.article = await this.articleService.getArticleByUUID (
                 articleUUID,
-                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
+                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt', 'likeCount']
             );
 
             this.authService.observeIsLoggedIn().subscribe(async it => {
@@ -48,6 +53,17 @@ export class ShowArticleComponent implements OnInit {
                 this.showDeleteButton = it && (await this.authService.userUUID) == (<User> this.article.createdBy).uuid;
             });
         });
+    }
+
+    toggleLike() {
+        this.articleService
+            .likeArticle(this.article, this.authService.userToken)
+            .then(() => {
+                this.article.likedByUser = !this.article.likedByUser;
+                this.article.likeCount += (this.article.likedByUser ? 1 : -1);
+            }).catch(() => {
+            console.error(`[blogifyArticles] Couldn't like ${this.article.uuid}` )
+        })
     }
 
     deleteArticle() {

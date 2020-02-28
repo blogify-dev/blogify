@@ -11,8 +11,6 @@
         justify-content: flex-start;
         align-items:     flex-start;
 
-        * { margin: .1em; }
-
         margin-bottom: 1.5em;
 
         .article-no-tags,
@@ -40,15 +38,30 @@
             }
         }
 
-        .title-row {
-            font-size: 3em;
-            padding-bottom: 0;
-            padding-top: 0;
+        #title-row {
+
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+
+            width: 100%;
+
+            #title {
+                font-size: 3em;
+                padding-bottom: 0;
+                padding-top: 0;
+            }
+
+            #user {
+                margin-left: auto;
+            }
+
         }
 
         .summary-row {
             font-size: 1.5em;
-            padding-bottom: .65em;
+            padding-bottom: 1em;
             padding-top: 0;
         }
 
@@ -63,15 +76,14 @@
 
             * { vertical-align: middle; }
 
-            .user {
-                margin-left: .5em;
-                font-size: 1.85em;
+            .likes {
+                span { font-size: 1.5em; font-weight: 600; margin-left: .3em; }
+                margin-right: .25rem;
             }
 
             .date {
-                margin-left: 1rem;
+                margin-left: 1.25rem;
                 font-size: 1.5em;
-                margin-top: 4px;
             }
 
             .separator {
@@ -80,16 +92,17 @@
             }
 
             #button-share {
-                margin-left: 1rem;
+                margin-left: auto;
+                margin-right: .25rem;
             }
 
             #button-update {
-                margin-left: auto;
+                margin-left: 1.25rem;
                 cursor: pointer;
             }
 
             #button-delete {
-                margin-left: 1.75rem;
+                margin-left: 1.1rem;
                 cursor: pointer;
             }
         }
