@@ -11,7 +11,6 @@ export class Article {
         public createdAt: number,
         public categories: Category[],
         public likedByUser: boolean | null = null,
-        public likedDuringVisit: boolean = false,
         public likeCount: number = 0,
         public commentCount: number = 0,
     ) {}
