@@ -6,17 +6,17 @@ Please try to only use these colors in all other files. This ensures consistency
 
 #parent {
 
-    --body-fg: rgb(60, 60, 60);
-    --body-bg: rgb(255, 255, 255);
+    --body-fg: rgb(70, 70, 60);
+    --body-bg: rgb(236, 236, 236);
     --body-ct: rgb(215, 215, 215);
 
     --header-fg: rgb(70, 70, 70);
-    --header-bg: rgb(240, 240, 240);
+    --header-bg: rgb(238, 238, 238);
     --header-ct: rgb(200, 200, 200);
 
     --card-fg: rgb(70, 70, 70);
-    --card-bg: rgb(250, 250, 250);
-    --card-ct: rgb(225, 225, 225);
+    --card-bg: rgb(238, 238, 238);
+    --card-ct: rgb(235, 235, 235);
 
     --border-color: rgb(200, 200, 200);
 
@@ -32,7 +32,7 @@ Please try to only use these colors in all other files. This ensures consistency
     --toast-positive: hsl(158, 49%, 45%);
     --toast-gray:     hsl(240,  1%, 30%);
 
-    --logo-filter: brightness(0);
+    --logo-filter: brightness(0) contrast(60%);
 
     &[data-theme="dark"] {
         --body-fg: rgb(252, 252, 252);
