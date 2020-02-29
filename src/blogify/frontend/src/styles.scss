@@ -7,6 +7,7 @@
 @import "styles/forms";
 @import "styles/titles";
 @import "styles/code";
+@import "styles/queries";
 
 * {
     transition: color 150ms ease-in-out, background-color 150ms ease-in-out, border-color 150ms ease-in-out;
@@ -19,7 +20,11 @@
     border: none;
     outline: none;
     font-family: $nunito;
+
     font-size: 10px;
+    @media (min-width: $query-desktop) {
+        font-size: 12px;
+    }
 }
 
 html {
