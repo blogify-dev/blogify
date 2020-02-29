@@ -18,12 +18,11 @@
     border: 1px dotted transparent;
     border-radius: $std-border-radius;
 
-    $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.20);
-    -webkit-box-shadow: $box-shadow;
-    -moz-box-shadow: $box-shadow;
-    box-shadow: $box-shadow;;
+    -webkit-box-shadow: $std-box-shadow;
+    -moz-box-shadow: $std-box-shadow;
+    box-shadow: $std-box-shadow;
 
-    padding: 1.2em 1.5em;
+    padding: 1.4em 1.6em;
 
     margin-top: 1.25em;
 
@@ -39,6 +38,7 @@
 
         .title {
             text-align: left;
+            padding-top: 0;
         }
 
         .article-author {
@@ -97,12 +97,6 @@
 
             span { font-size: 1.4rem; }
             font-weight: 600;
-
-            @media (max-width: $query-desktop) {
-                & .button-text {
-                    display: none;
-                }
-            }
 
             &:not(:first-child) { margin-left: $element-separation; }
         }
