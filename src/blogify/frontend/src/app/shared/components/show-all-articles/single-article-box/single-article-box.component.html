@@ -2,7 +2,7 @@
 
     <div class="article-first-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
         <!-- Title -->
-        <h1 class="title">{{article.title}}</h1>
+        <h1 class="article-title">{{article.title}}</h1>
 
         <!-- Author -->
         <app-user-display [user]="article.createdBy" emSize="2.35"></app-user-display>
@@ -49,7 +49,6 @@
 
         <!-- Categories -->
         <div class="article-tags" *ngIf="article.categories.length > 0">
-            <span class="tags-title">Tags:&nbsp;</span>
             <span *ngFor="let tag of article.categories">{{tag.name}}</span>
         </div>
     </div>

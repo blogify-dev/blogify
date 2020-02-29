@@ -36,9 +36,11 @@
         justify-content: space-between;
         align-items:     center;
 
-        .title {
+        padding-bottom: .95em;
+
+        .article-title {
             text-align: left;
-            padding-top: 0;
+            padding: 0;
         }
 
         .article-author {
@@ -65,8 +67,8 @@
         justify-content: space-between;
         align-items:     center;
 
-        .article-summary { font-size: 1.25em; }
-        .article-posted-at { font-size: 1.30em; }
+        .article-summary,
+        .article-posted-at { font-size: 1.3em; }
     }
 
     .article-read-more { color: var(--card-fg); }
@@ -74,7 +76,7 @@
     .article-last-line {
         width: 100%;
 
-        margin-top: 1rem;
+        margin-top: 1.5em;
 
         text-align: center;
 
@@ -82,6 +84,9 @@
         flex-direction:  row;
         justify-content: space-between;
         align-items:     center;
+
+        flex-wrap: wrap;
+        row-gap: 1.4em;
 
         $element-separation: 1.5rem;
         .separator {
@@ -95,7 +100,7 @@
 
             fa-icon:first-child { margin-right: .7rem; }
 
-            span { font-size: 1.4rem; }
+            span { font-size: 1.4rem }
             font-weight: 600;
 
             &:not(:first-child) { margin-left: $element-separation; }
@@ -109,20 +114,23 @@
             margin-right: auto;
         }
 
-        .article-no-tags,
         .article-tags {
             display: flex;
+            flex-wrap: wrap;
+
+            row-gap: .5em;
 
             & > * {
+                margin-right: .45em;
+                padding: .25em .85em;
+
                 font-size: 1.35em;
-                margin:    0    .25em;
-                padding:  .25em .75em;
+                vertical-align: center;
 
                 border-radius: $std-border-radius;
 
-                &:not(:nth-child(1)) { background-color: var(--card-ct); }
-                &:nth-child(1)       { margin-right: 0; padding-right: 0; }
-                &:last-child         { margin-right: 0 }
+                &            { background-color: var(--card-ct); }
+                &:last-child { margin-right: 0; }
             }
         }
 
