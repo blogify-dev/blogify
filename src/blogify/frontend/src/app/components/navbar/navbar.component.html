@@ -11,19 +11,41 @@
                 </a>
             </span>
 
+<!--            <span id="left-links">-->
+<!--                <span class="clickable bold text-large" id="link-home" routerLink="/home">-->
+<!--                    <fa-icon [icon]="faListAlt" [transform]="{ size: 28 }"></fa-icon>-->
+<!--                    Home-->
+<!--                </span>-->
+
+<!--                <span class="clickable bold text-large" id="link-users" routerLink="/users">-->
+<!--                    <fa-icon [icon]="faUser" [transform]="{ size: 25 }"></fa-icon>-->
+<!--                    Users-->
+<!--                </span>-->
+<!--            </span>-->
+
         </span>
 
         <span id="navbar-right" *ngIf="!(authService.observeIsLoggedIn() | async) || user">
 
             <app-user-display
-                class="collapse-on-mobile"
+                class="collapse-on-mobile clickable"
                 id="profile"
                 [user]="user"
-                emSize="2"
+                emSize="2.15"
                 sizeRatio="3.75"
                 *ngIf="authService.observeIsLoggedIn() | async"
                 (click)="navigateToProfile()">
             </app-user-display>
+
+            <span class="separator" *ngIf="authService.observeIsLoggedIn() | async"></span>
+
+<!--            <span id="notifications" class="clickable hover-mild" *ngIf="authService.observeIsLoggedIn() | async">-->
+<!--                <fa-icon size="lg" [icon]="faBell" [transform]="{ y: -1, size: 19 }"></fa-icon>-->
+<!--            </span>-->
+
+            <span id="theme-switch" class="clickable" (click)="toggleDarkMode()">
+                <fa-icon size="lg" [icon]="faMoon" [transform]="{ y: -1, size: 17 }"></fa-icon>
+            </span>
 
             <span class="separator" *ngIf="authService.observeIsLoggedIn() | async"></span>
 
@@ -33,16 +55,6 @@
 
             <span id="login" class="clickable" *ngIf="!(authService.observeIsLoggedIn() | async)" (click)="navigateToLogin()">
                 Login
-            </span>
-
-            <span class="separator"></span>
-
-            <!--<span id="notifications" *ngIf="authService.observeIsLoggedIn() | async">
-                <fa-icon size="lg" [icon]="faBell" [transform]="{ y: -1, size: 19 }"></fa-icon>
-            </span>-->
-
-            <span id="theme-switch" class="clickable" (click)="toggleDarkMode()">
-                <fa-icon size="lg" [icon]="faMoon" [transform]="{ y: -2, size: 17 }"></fa-icon>
             </span>
 
         </span>
