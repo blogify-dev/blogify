@@ -12,4 +12,6 @@ fun <TSource : NotificationSource, TEmitter : NotificationEmitter>
 
     val notification = Notification(emitter, this, this.targets)
 
+    notification.send()
+
 }
