@@ -1,12 +1,21 @@
 package blogify.backend.notifications.models
 
-import blogify.backend.resources.models.Resource
+/**
+ * Represents a notification
+ *
+ * @property emitter the [NotificationEmitter] object that made the action that caused this notificaiton
+ * @property source  the [NotificationSource] object the notification is about
+ * @property targets the [targets][NotificationTarget] of the notification
+ *
+ * @author Benjozork
+ */
+data class Notification <
+        TEmitter : NotificationEmitter,
+        TSource : NotificationSource,
+        TTarget : NotificationTarget > (
 
-data class Notification<TEmitter, TSource, TSubject> (
-    val emitter:  TEmitter,
-    val source:   TSource,
-    val subjects: Set<TSubject>
-) where TEmitter : NotificationEmitter, TEmitter : Resource,
-        TSource  : NotificationSource,  TSource  : Resource,
-        TSubject : NotificationSubject, TSubject : Resource
+    val emitter: TEmitter,
+    val source:  TSource,
+    val targets: Set<TTarget>
 
+)

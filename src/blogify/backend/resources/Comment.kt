@@ -4,6 +4,8 @@ import blogify.backend.annotations.SqlTable
 import blogify.backend.annotations.search.NoSearch
 import blogify.backend.database.Comments
 import blogify.backend.database.referredToBy
+import blogify.backend.notifications.extensions.spawnNotification
+import blogify.backend.notifications.models.NotificationSource
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
@@ -34,7 +36,17 @@ data class Comment (
     val content: String,
 
     override val uuid: UUID = UUID.randomUUID()
-) : Resource(uuid) {
+
+) : Resource(uuid), NotificationSource {
+
+    override suspend fun onCreation() {
+        parentComment
+            ?.spawnNotification(commenter)
+        ?: article.spawnNotification(commenter)
+    }
+
+    // The notification target of a comment is always it's author
+    override val targets = setOf(commenter)
 
     @[Computed NoSearch]
     val likeCount by compound { Comments.uuid referredToBy Comments.Likes.comment }

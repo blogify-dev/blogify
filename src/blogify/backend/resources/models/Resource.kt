@@ -1,9 +1,10 @@
 package blogify.backend.resources.models
 
 import blogify.backend.applicationContext
+import blogify.backend.notifications.models.NotificationEmitter
+import blogify.backend.notifications.models.NotificationSource
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.util.MapCache
 
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
@@ -11,7 +12,6 @@ import io.ktor.http.Parameters
 import io.ktor.request.ApplicationRequest
 import io.ktor.response.ApplicationResponse
 import io.ktor.util.Attributes
-import kotlinx.coroutines.GlobalScope
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator
 import com.fasterxml.jackson.annotation.ObjectIdResolver
@@ -19,13 +19,14 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
 
 import java.lang.IllegalStateException
 import java.util.*
 
-open class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped() {
+abstract class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped(), NotificationSource, NotificationEmitter {
 
     object ObjectResolver : ObjectIdResolver {
 
@@ -90,6 +91,16 @@ open class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped() {
         }
 
     }
+
+    /**
+     * This function is run when the resource is created.
+     * Not to confuse with the constructor; [Resource] subtypes can be constructed
+     * at any moment.
+     *
+     * @author Benjozork
+     */
+    @Suppress("RedundantSuspendModifier")
+    open suspend fun onCreation() = Unit
 
 }
 

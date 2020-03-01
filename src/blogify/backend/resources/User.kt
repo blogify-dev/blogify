@@ -9,10 +9,12 @@ import blogify.backend.annotations.search.QueryByField
 import blogify.backend.annotations.search.SearchDefaultSort
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
-import blogify.backend.database.Articles
 import blogify.backend.database.Users
 import blogify.backend.database.handling.query
 import blogify.backend.database.referredToBy
+import blogify.backend.notifications.models.Notification
+import blogify.backend.notifications.models.NotificationEmitter
+import blogify.backend.notifications.models.NotificationTarget
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
@@ -68,7 +70,15 @@ data class User (
 
     @NoSearch
     override val uuid: UUID = UUID.randomUUID()
-) : Resource(uuid) {
+
+) : Resource(uuid), NotificationEmitter, NotificationTarget {
+
+    // Any notification that is about a user only has the user itself as a target
+    override val targets = setOf(this)
+
+    override fun sendNotification(notification: Notification<*, *, *>) {
+        TODO("Not yet implemented")
+    }
 
     @Computed
     val followCount by compound { Users.uuid referredToBy Users.Follows.following }
