@@ -1,6 +1,7 @@
 package blogify.backend.resources.reflect
 
 import blogify.backend.annotations.Invisible
+import blogify.backend.notifications.models.NotificationTarget
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.ext.ok
 
@@ -13,7 +14,10 @@ class SlicerTests {
         val name: String,
         val age: Int,
         @Invisible val password: String
-    ) : Resource()
+    ) : Resource() {
+        override val targets: Set<NotificationTarget>
+            get() = TODO("Not yet implemented")
+    }
 
     val propMap = TestClass::class.cachedUnsafePropMap()
     val testObject = TestClass("abc", 17, "whatever")
