@@ -1,5 +1,6 @@
 package blogify.backend.resources
 
+import blogify.backend.annotations.Invisible
 import blogify.backend.annotations.SqlTable
 import blogify.backend.annotations.check
 import blogify.backend.annotations.search.*
@@ -65,6 +66,7 @@ data class Article (
     data class Category(@DelegatedSearchReceiver val name: String)
 
     // The notification target of an article is always it's author
+    @Invisible
     override val targets = setOf(createdBy)
 
     @[Computed NoSearch]

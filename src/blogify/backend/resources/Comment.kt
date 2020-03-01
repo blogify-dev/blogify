@@ -1,5 +1,6 @@
 package blogify.backend.resources
 
+import blogify.backend.annotations.Invisible
 import blogify.backend.annotations.SqlTable
 import blogify.backend.annotations.search.NoSearch
 import blogify.backend.database.Comments
@@ -46,6 +47,7 @@ data class Comment (
     }
 
     // The notification target of a comment is always it's author
+    @Invisible
     override val targets = setOf(commenter)
 
     @[Computed NoSearch]

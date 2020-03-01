@@ -74,6 +74,7 @@ data class User (
 ) : Resource(uuid), NotificationEmitter, NotificationTarget {
 
     // Any notification that is about a user only has the user itself as a target
+    @Invisible
     override val targets = setOf(this)
 
     override fun sendNotification(notification: Notification<*, *, *>) {
