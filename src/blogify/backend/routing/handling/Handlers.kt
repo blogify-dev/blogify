@@ -493,6 +493,8 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
         handleAuthentication(predicate = { u -> authPredicate(u, received) }) {
             repository<R>().add(received).fold (
                 success = {
+                    it.onCreation() // Call it's creation function
+
                     call.respond(HttpStatusCode.Created, it.sanitize(excludeUndisplayed = true))
                     launch { Typesense.uploadResource(it) }
                 },
