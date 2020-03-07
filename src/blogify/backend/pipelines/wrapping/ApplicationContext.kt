@@ -5,6 +5,7 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.persistence.models.Repository
 import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
+import blogify.backend.util.concurrentMapOf
 import blogify.backend.util.short
 
 import com.andreapivetta.kolor.yellow
@@ -33,7 +34,7 @@ class ApplicationContext (
 
         private val logger = LoggerFactory.getLogger("blogify-push-server")
 
-        private val clientConnections = mutableMapOf<User, SendChannel<Frame>>()
+        private val clientConnections = concurrentMapOf<User, SendChannel<Frame>>()
 
         /**
          * Sends a message to all connected clients for a given user

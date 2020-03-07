@@ -1,5 +1,7 @@
 package blogify.backend.util
 
+import java.util.concurrent.ConcurrentHashMap
+
 /**
  * Allows to specify a function to execute depending on whether a collection has exactly one item, multiple items or no items.
  */
@@ -36,3 +38,5 @@ fun <K : Any, V : Any, R : Any> Map<K, V>.filterThenMapValues (
 ): Map<K, R> {
     return this.filterValues(predicate).mapValues(mapper)
 }
+
+fun <K : Any, V : Any> concurrentMapOf(vararg entries: Pair<K, V>) = ConcurrentHashMap<K, V>(entries.toMap())
