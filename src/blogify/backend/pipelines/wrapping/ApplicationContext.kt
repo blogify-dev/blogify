@@ -26,21 +26,35 @@ class ApplicationContext (
     val dataStore: DataStore
 ) {
 
+    /**
+     * Class managing the notification / messaging push server
+     */
     class PushServer {
 
         private val logger = LoggerFactory.getLogger("blogify-push-server")
 
         private val clientConnections = mutableMapOf<User, SendChannel<Frame>>()
 
+        /**
+         * Sends a message to all connected clients for a given user
+         *
+         * @param user the [User] for which to look for clients to send the message to
+         */
         suspend fun sendToConnected(user: User, data: String) = this.clientConnections
             .filter { it.key eqr user }.values
             .forEach { it.send(Frame.Text(data)) }
 
+        /**
+         * Connects a new user client along with an associated [SendChannel]
+         */
         fun connect(user: User, channel: SendChannel<Frame>) {
             this.clientConnections[user] = channel
             logger.debug("client connection for ${user.uuid.short()} opened".yellow())
         }
 
+        /**
+         * Connects a user client with its associated [SendChannel]
+         */
         fun disconnect(user: User, channel: SendChannel<Frame>) {
             this.clientConnections.remove(user, channel)
             logger.debug("client connection for ${user.uuid.short()} closed".yellow())
