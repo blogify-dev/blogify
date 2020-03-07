@@ -4,6 +4,8 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.persistence.models.Repository
 import blogify.backend.util.MapCache
 import blogify.backend.util.Sr
+import blogify.backend.util.Wrap
+import blogify.backend.util.WrapBlocking
 
 import io.ktor.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
@@ -23,43 +25,46 @@ import java.util.UUID
  *
  * This can include call caches, request IDs and more.
  *
- * @property appContext the [ApplicationContext] in which this request is executing
- * @property coroutineScope     the [CoroutineScope] that is used for dispatching coroutines started in the request
- * @property call               the [ApplicationCall] that originated in the request
- * @property cache              the [MapCache] to be used to cache resources during the request
+ * @param enableCaching whether or not to enable L0 caching for this request context
+ *
+ * @property appContext     the [ApplicationContext] in which this request is executing
+ * @property coroutineScope the [CoroutineScope] that is used for dispatching coroutines started in the request
+ * @property call           the [ApplicationCall] that originated in the request
+ * @property cache          the [MapCache] to be used to cache resources during the request
  *
  * @author Benjozork
  */
 class RequestContext (
     val appContext: ApplicationContext,
     val coroutineScope: CoroutineScope,
-    val call: ApplicationCall
+    val call: ApplicationCall,
+    enableCaching: Boolean = true
 ) : CoroutineScope by coroutineScope {
 
-    val cache: RequestCache<UUID, Resource> = RequestCache()
+    val cache: RequestCache<UUID, Resource> = RequestCache(enableCaching)
 
-    class RequestCache<K : Any, V : Any> : MapCache<K, V>() {
+    class RequestCache<K : Any, V : Any>(val enableCaching: Boolean) : MapCache<K, V>() {
 
         private val logger = LoggerFactory.getLogger("blogify-request")
 
         override fun get(key: K): V? {
             return super.get(key).also {
-                if (it != null) logger.debug("used call cache for $key !".green())
+                 if (it != null) logger.debug("used call cache for $key !".green())
             }
         }
 
         override fun <D : V> findOr(key: K, createNewValue: () -> D): Sr<D> {
-            return super.findOr (
+            return if (enableCaching) super.findOr (
                 key,
                 { createNewValue().also { logger.debug("added $key to call cache".green()) } }
-            )
+            ) else WrapBlocking { createNewValue() }
         }
 
         override suspend fun <D : V> findOrAsync(key: K, createNewValue: suspend () -> D): Sr<D> {
-            return super.findOrAsync (
+            return if (enableCaching) super.findOrAsync (
                 key,
                 { createNewValue().also { logger.debug("added $key to call cache".green()) } }
-            )
+            ) else Wrap { createNewValue() }
         }
 
     }

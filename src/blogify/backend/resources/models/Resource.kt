@@ -45,7 +45,7 @@ abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : Mapped(),
 
         }
 
-        val FakeRequestContext = RequestContext(appContext, GlobalScope, FakeApplicationCall)
+        val FakeRequestContext = RequestContext(appContext, GlobalScope, FakeApplicationCall, enableCaching = false)
 
         override fun resolveId(id: ObjectIdGenerator.IdKey?): Any? {
 
