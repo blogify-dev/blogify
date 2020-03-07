@@ -79,7 +79,7 @@ data class User (
     override val targets = setOf(this)
 
     override suspend fun sendNotification(appContext: ApplicationContext, notification: Notification<*, *, *>) {
-        appContext.pushServer.sendToConnectedd(this, "Hello, ws notif test")
+        appContext.pushServer.sendToConnected(this, "Hello, ws notif test")
     }
 
     @Computed

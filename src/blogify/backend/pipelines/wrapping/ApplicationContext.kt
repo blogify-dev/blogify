@@ -32,7 +32,7 @@ class ApplicationContext (
 
         private val clientConnections = mutableMapOf<User, SendChannel<Frame>>()
 
-        suspend fun sendToConnectedd(user: User, data: String) = this.clientConnections
+        suspend fun sendToConnected(user: User, data: String) = this.clientConnections
             .filter { it.key eqr user }.values
             .forEach { it.send(Frame.Text(data)) }
 
