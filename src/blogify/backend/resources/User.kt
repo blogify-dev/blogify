@@ -15,6 +15,7 @@ import blogify.backend.database.referredToBy
 import blogify.backend.notifications.models.Notification
 import blogify.backend.notifications.models.NotificationEmitter
 import blogify.backend.notifications.models.NotificationTarget
+import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
@@ -77,8 +78,8 @@ data class User (
     @Invisible
     override val targets = setOf(this)
 
-    override fun sendNotification(notification: Notification<*, *, *>) {
-        TODO("Not yet implemented")
+    override suspend fun sendNotification(appContext: ApplicationContext, notification: Notification<*, *, *>) {
+        appContext.pushServer.sendToConnectedd(this, "Hello, ws notif test")
     }
 
     @Computed

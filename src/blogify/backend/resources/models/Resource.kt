@@ -1,6 +1,6 @@
 package blogify.backend.resources.models
 
-import blogify.backend.applicationContext
+import blogify.backend.appContext
 import blogify.backend.notifications.models.NotificationEmitter
 import blogify.backend.notifications.models.NotificationSource
 import blogify.backend.pipelines.wrapping.RequestContext
@@ -26,7 +26,7 @@ import kotlin.reflect.KClass
 import java.lang.IllegalStateException
 import java.util.*
 
-abstract class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped(), NotificationSource, NotificationEmitter {
+abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : Mapped(), NotificationSource, NotificationEmitter, Identified {
 
     object ObjectResolver : ObjectIdResolver {
 
@@ -45,7 +45,7 @@ abstract class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped(), Not
 
         }
 
-        val FakeRequestContext = RequestContext(applicationContext, GlobalScope, FakeApplicationCall)
+        val FakeRequestContext = RequestContext(appContext, GlobalScope, FakeApplicationCall)
 
         override fun resolveId(id: ObjectIdGenerator.IdKey?): Any? {
 
@@ -93,14 +93,15 @@ abstract class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped(), Not
     }
 
     /**
-     * This function is run when the resource is created.
-     * Not to confuse with the constructor; [Resource] subtypes can be constructed
-     * at any moment.
+     * This function is run when the resource is created. Not to confuse with the constructor;
+     * [Resource] subtypes can be constructed at any moment.
+     *
+     * @param request the [RequestContext] in which the creation originated
      *
      * @author Benjozork
      */
     @Suppress("RedundantSuspendModifier")
-    open suspend fun onCreation() = Unit
+    open suspend fun onCreation(request: RequestContext) = Unit
 
 }
 

@@ -23,6 +23,7 @@ import blogify.backend.resources.Article
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.routing.admin.adminSearch
+import blogify.backend.routing.makeNotificationRoutes
 import blogify.backend.routing.static
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext._searchTemplate
@@ -49,6 +50,7 @@ import io.ktor.http.content.CachingOptions
 import io.ktor.jackson.jackson
 import io.ktor.routing.route
 import io.ktor.routing.routing
+import io.ktor.websocket.WebSockets
 
 import org.jetbrains.exposed.sql.SchemaUtils
 
@@ -83,7 +85,7 @@ val dataStore = PostgresDataStore {
 
 }
 
-val applicationContext = ApplicationContext(dataStore)
+val appContext = ApplicationContext(dataStore)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
@@ -164,6 +166,10 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         }
     }
 
+    // WebSockets
+
+    install(WebSockets)
+
     // Initialize database
 
     Database.init()
@@ -207,6 +213,8 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             static(appContext)
             adminSearch(appContext)
         }
+
+        makeNotificationRoutes()
 
         get("/") {
             call.respondRedirect("/home")

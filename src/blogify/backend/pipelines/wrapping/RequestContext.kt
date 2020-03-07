@@ -23,7 +23,7 @@ import java.util.UUID
  *
  * This can include call caches, request IDs and more.
  *
- * @property applicationContext the [ApplicationContext] in which this request is executing
+ * @property appContext the [ApplicationContext] in which this request is executing
  * @property coroutineScope     the [CoroutineScope] that is used for dispatching coroutines started in the request
  * @property call               the [ApplicationCall] that originated in the request
  * @property cache              the [MapCache] to be used to cache resources during the request
@@ -31,7 +31,7 @@ import java.util.UUID
  * @author Benjozork
  */
 class RequestContext (
-    val applicationContext: ApplicationContext,
+    val appContext: ApplicationContext,
     val coroutineScope: CoroutineScope,
     val call: ApplicationCall
 ) : CoroutineScope by coroutineScope {
@@ -86,7 +86,7 @@ class RequestContext (
      * @author Benjozork
      */
     inline fun <reified TResource : Resource> repository(): Repository<TResource> {
-        return this.applicationContext.dataStore.getRepository(TResource::class)
+        return this.appContext.dataStore.getRepository(TResource::class)
     }
 
     /**
@@ -97,7 +97,7 @@ class RequestContext (
      * @author Benjozork
      */
     fun <TResource : Resource> repository(klass: KClass<TResource>): Repository<TResource> {
-        return this.applicationContext.dataStore.getRepository(klass)
+        return this.appContext.dataStore.getRepository(klass)
     }
 
 }

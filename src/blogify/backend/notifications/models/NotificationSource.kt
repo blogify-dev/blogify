@@ -1,5 +1,7 @@
 package blogify.backend.notifications.models
 
+import blogify.backend.resources.models.Identified
+
 /**
  * Applies to objects that generate [notifications][Notification] when a [NotificationEmitter]
  * interacts with them.
@@ -9,7 +11,7 @@ package blogify.backend.notifications.models
  *
  * @author Benjozork
  */
-public interface NotificationSource {
+public interface NotificationSource : Identified {
 
     /**
      * The [targets][NotificationTarget] that are targeted by this notification

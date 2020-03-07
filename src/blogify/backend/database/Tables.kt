@@ -2,7 +2,7 @@
 
 package blogify.backend.database
 
-import blogify.backend.applicationContext
+import blogify.backend.appContext
 import blogify.backend.database.handling.query
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
@@ -17,7 +17,6 @@ import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
 import blogify.backend.util.matches
 
-import io.ktor.application.ApplicationCall
 import io.ktor.http.ContentType
 
 import org.jetbrains.exposed.sql.ReferenceOption.*
@@ -126,7 +125,7 @@ object Articles : ResourceTable<Article>() {
             uuid       = source[uuid],
             title      = source[title],
             createdAt  = source[createdAt],
-            createdBy  = applicationContext.repository<User>().get(requestContext, source[createdBy]).get(),
+            createdBy  = appContext.repository<User>().get(requestContext, source[createdBy]).get(),
             content    = source[content],
             summary    = source[summary],
             categories = transaction {
@@ -282,9 +281,9 @@ object Comments : ResourceTable<Comment>() {
         Comment (
             uuid          = source[uuid],
             content       = source[content],
-            article       = applicationContext.repository<Article>().get(requestContext, source[article]).get(),
-            commenter     = applicationContext.repository<User>().get(requestContext, source[commenter]).get(),
-            parentComment = source[parentComment]?.let { applicationContext.repository<Comment>().get(requestContext, it).get() }
+            article       = appContext.repository<Article>().get(requestContext, source[article]).get(),
+            commenter     = appContext.repository<User>().get(requestContext, source[commenter]).get(),
+            parentComment = source[parentComment]?.let { appContext.repository<Comment>().get(requestContext, it).get() }
         )
     }
 

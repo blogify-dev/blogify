@@ -7,6 +7,7 @@ import blogify.backend.database.Comments
 import blogify.backend.database.referredToBy
 import blogify.backend.notifications.extensions.spawnNotification
 import blogify.backend.notifications.models.NotificationSource
+import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
@@ -40,10 +41,10 @@ data class Comment (
 
 ) : Resource(uuid), NotificationSource {
 
-    override suspend fun onCreation() {
+    override suspend fun onCreation(request: RequestContext) {
         parentComment
-            ?.spawnNotification(commenter)
-        ?: article.spawnNotification(commenter)
+            ?.spawnNotification(request.appContext, commenter)
+        ?: article.spawnNotification(request.appContext, commenter)
     }
 
     // The notification target of a comment is always it's author

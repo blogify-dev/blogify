@@ -3,6 +3,18 @@ package blogify.backend.pipelines.wrapping
 import blogify.backend.persistence.models.DataStore
 import blogify.backend.resources.models.Resource
 import blogify.backend.persistence.models.Repository
+import blogify.backend.resources.User
+import blogify.backend.resources.models.eqr
+import blogify.backend.util.short
+
+import com.andreapivetta.kolor.yellow
+
+import io.ktor.http.cio.websocket.Frame
+
+import kotlinx.coroutines.channels.SendChannel
+
+import org.slf4j.LoggerFactory
+
 import kotlin.reflect.KClass
 
 /**
@@ -13,6 +25,28 @@ import kotlin.reflect.KClass
 class ApplicationContext (
     val dataStore: DataStore
 ) {
+
+    class PushServer {
+
+        private val logger = LoggerFactory.getLogger("blogify-push-server")
+
+        private val clientConnections = mutableMapOf<User, SendChannel<Frame>>()
+
+        suspend fun sendToConnectedd(user: User, data: String) = this.clientConnections
+            .filter { it.key eqr user }.values
+            .forEach { it.send(Frame.Text(data)) }
+
+        fun connect(user: User, channel: SendChannel<Frame>) {
+            this.clientConnections[user] = channel
+            logger.debug("client connection for ${user.uuid.short()} opened".yellow())
+        }
+
+        fun disconnect(user: User, channel: SendChannel<Frame>) {
+            this.clientConnections.remove(user, channel)
+            logger.debug("client connection for ${user.uuid.short()} closed".yellow())
+        }
+
+    }
 
     /**
      * Provides a [Repository] object for [TResource] using the data store in context
@@ -35,5 +69,7 @@ class ApplicationContext (
     fun <TResource : Resource> repository(klass: KClass<TResource>): Repository<TResource> {
         return this.dataStore.getRepository(klass)
     }
+
+    val pushServer = PushServer()
 
 }
