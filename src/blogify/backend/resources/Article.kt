@@ -9,7 +9,7 @@ import blogify.backend.database.Comments
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
-import blogify.backend.database.referredToBy
+import blogify.backend.database.countReferredToBy
 import blogify.backend.notifications.models.NotificationSource
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
@@ -70,9 +70,9 @@ data class Article (
     override val targets = setOf(createdBy)
 
     @[Computed NoSearch]
-    val likeCount by compound { Articles.uuid referredToBy Articles.Likes.article }
+    val likeCount by compound { Articles.uuid countReferredToBy Articles.Likes.article }
 
     @[Computed NoSearch]
-    val commentCount by compound { Articles.uuid referredToBy Comments.article }
+    val commentCount by compound { Articles.uuid countReferredToBy Comments.article }
 
 }

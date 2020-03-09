@@ -4,7 +4,7 @@ import blogify.backend.annotations.Invisible
 import blogify.backend.annotations.SqlTable
 import blogify.backend.annotations.search.NoSearch
 import blogify.backend.database.Comments
-import blogify.backend.database.referredToBy
+import blogify.backend.database.countReferredToBy
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.notifications.extensions.spawnNotification
 import blogify.backend.notifications.models.NotificationSource
@@ -52,6 +52,6 @@ data class Comment (
     override val targets = setOf(commenter)
 
     @[Computed NoSearch]
-    val likeCount by compound { Comments.uuid referredToBy Comments.Likes.comment }
+    val likeCount by compound { Comments.uuid countReferredToBy Comments.Likes.comment }
 
 }

@@ -2,7 +2,6 @@ package blogify.backend.resources.computed
 
 import blogify.backend.resources.computed.models.ComputedPropertyDelegate
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.models.Mapped
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.Dispatchers
