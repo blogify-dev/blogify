@@ -1,5 +1,7 @@
 package blogify.backend.notifications.models
 
+import blogify.backend.resources.reflect.models.Mapped
+
 /**
  * Represents a notification
  *
@@ -18,4 +20,4 @@ data class Notification <
     val source:  TSource,
     val targets: Set<TTarget>
 
-)
+) : Mapped()

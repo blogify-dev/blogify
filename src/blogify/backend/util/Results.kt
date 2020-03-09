@@ -5,6 +5,7 @@ import blogify.backend.pipelines.pipelineError
 import io.ktor.http.HttpStatusCode
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
+
 import kotlinx.coroutines.runBlocking
 
 open class BException(causedBy: Exception) : Exception(causedBy)
@@ -27,3 +28,6 @@ fun <V : Any, E : Exception> SuspendableResult<V, E>.getOrPipelineError (
         is SuspendableResult.Failure -> pipelineError(code, message, this.error)
     }
 }
+
+fun <V : Any, E : Exception> SuspendableResult<V, E>.getOrNull(): V? =
+    if (this is SuspendableResult.Success) get() else null
