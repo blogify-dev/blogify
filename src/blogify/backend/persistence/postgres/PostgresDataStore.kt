@@ -12,7 +12,7 @@ class PostgresDataStore (
     configure: PostgresConfiguration.() -> Unit
 ) : DataStore(PostgresConfiguration().apply(configure)) {
 
-    val config = configure(PostgresConfiguration())
+    val config = PostgresConfiguration().apply(configure)
 
     val repoCache = MapCache<KClass<*>, Repository<*>>()
 
