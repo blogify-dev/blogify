@@ -2,6 +2,8 @@ package blogify.backend.auth.jwt
 
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.User
+import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
+import blogify.backend.util.Sr
 import blogify.backend.util.short
 import blogify.backend.util.toUUID
 
@@ -42,13 +44,13 @@ fun generateJWT(user: User) = Jwts
         setExpiration(cal.time)
     }
     .signWith(keyPair.private).compact().also {
-        logger.debug("${"created token for user with id".green()} {${user.uuid.toString().take(8)}...}")
+        logger.debug("${"created token for user with id".green()} {${user.uuid.short()}...}")
     }
 
 /**
-* Validates a JWT, returning a [SuspendableResult] if that token authenticates a user, or an exception if the token is invalid
+* Validates a JWT, returning a [Sr] accordingly
  */
-suspend fun validateJwt(requestContext: RequestContext, token: String): SuspendableResult<User, Exception> {
+suspend fun validateJwt(requestContext: RequestContext = FakeRequestContext, token: String): Sr<User> {
     var jwsClaims: Jws<Claims>? = null
 
     try {
