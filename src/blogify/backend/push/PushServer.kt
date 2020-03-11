@@ -61,8 +61,6 @@ class PushServer {
                 if (frame !is Frame.Text)
                     wsServerSession.closeAndExit(BAD_FRAME)
 
-                val x = PostgresDataStore {}
-
                 val text = frame.readText().trim().replace("\"", "").takeIf { it.matches(Regex("\\w+ .*")) }
                            ?: wsServerSession.closeAndExit(BAD_FRAME)
 
