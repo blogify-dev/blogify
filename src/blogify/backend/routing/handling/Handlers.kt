@@ -308,6 +308,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
                         }
                     }
                 }
+                else -> call.respond(HttpStatusCode.BadRequest, reason("invalid part type '${part::class.simpleName}'"))
             }
         }
 
@@ -554,6 +555,8 @@ suspend inline fun <reified R: Resource> RequestContext.deleteResource (
 suspend inline fun <reified R : Resource> RequestContext.updateResource (
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) {
+
+    // @TODO make this a bit more failure-proof
 
     val replacement = call.receive<Map<String, Any>>()
     val current = obtainResource<R>((replacement["uuid"] as String).toUUID())
