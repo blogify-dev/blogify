@@ -1,5 +1,7 @@
 package blogify.backend.push
 
+import blogify.backend.annotations.Invisible
+import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.notifications.models.Notification as ActualNotification
 
@@ -10,7 +12,7 @@ import io.ktor.http.cio.websocket.Frame
  *
  * @author Benjozork
  */
-sealed class Message {
+sealed class Message : Mapped() {
 
     /**
      * Represents a message that is going out to the client
@@ -19,7 +21,7 @@ sealed class Message {
      */
     abstract class Outgoing(message: String) : Message() {
 
-        val frame = Frame.Text(message)
+        @Invisible val frame = Frame.Text(message)
 
         class Notification(notification: ActualNotification<*, *, *>) : Outgoing("notif ${notification.sanitize()}")
 
@@ -31,6 +33,9 @@ sealed class Message {
      * @property connection the [PushServer.Connection] from which the message originated
      * @property content    the raw text content of the message
      */
-    abstract class Incoming(val connection: PushServer.Connection, val content: String) : Message()
+    abstract class Incoming (
+        @Invisible val connection: PushServer.Connection,
+        @Invisible val content: String
+    ) : Message()
 
 }
