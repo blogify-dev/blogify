@@ -48,8 +48,10 @@ open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repos
     override suspend fun add(res: R): Sr<R> = this.table.insert(res)
 
     override suspend fun update(request: RequestContext, res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R> {
-        val new = update(res, request, rawData)
-            .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't update resource")
+        val new = res.update (
+            rawData,
+            fetcher = { type, uuid -> request.repository(type).get(id = uuid) }
+        ).getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't update resource")
 
         this.table.update(new)
 
