@@ -2,7 +2,6 @@ package blogify.backend.routing
 
 import blogify.backend.push.PushServer.ClosingCodes.BAD_FRAME
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_TOKEN
-import blogify.backend.push.PushServer.ResponseCodes.OK
 import blogify.backend.appContext
 import blogify.backend.auth.jwt.validateJwt
 import blogify.backend.push.PushServer
@@ -16,7 +15,6 @@ import io.ktor.http.cio.websocket.close
 import io.ktor.http.cio.websocket.readText
 import io.ktor.routing.Route
 import io.ktor.routing.route
-import io.ktor.websocket.DefaultWebSocketServerSession
 import io.ktor.websocket.WebSocketServerSession
 import io.ktor.websocket.webSocket
 
