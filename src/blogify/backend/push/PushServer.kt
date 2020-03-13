@@ -61,11 +61,18 @@ class PushServer {
                 if (frame !is Frame.Text)
                     wsServerSession.closeAndExit(BAD_FRAME)
 
+                // Read and clean the frame text
+
                 val text = frame.readText().trim().replace("\"", "").takeIf { it.matches(Regex("\\w+ .*")) }
                            ?: wsServerSession.closeAndExit(BAD_FRAME)
 
+                // Find the class it refers to using the prefix list
+
                 val receivedClass = messagePrefixes.entries.firstOrNull { it.key == text.substringBefore(' ') }?.value
                                     ?: wsServerSession.closeAndExit(INVALID_MESSAGE(text.substringBefore(' ')))
+
+                // Instantiate that class
+
                 receivedClass
                     .constructors.first()
                     .letCatchingOrNull { it.call(this, "ha") }
@@ -79,11 +86,9 @@ class PushServer {
 
     private val clientConnections = mutableMapOf<User, Connection>()
 
-    private val messagePrefixes = concurrentMapOf<String, KClass<out Message.Incoming>>()
-
-    init {
-        this.messagePrefixes.putAll(listOf("subn" to SubscribeToNotifications::class))
-    }
+    private val messagePrefixes = mapOf (
+        "subn" to SubscribeToNotifications::class
+    )
 
     /**
      * Sends a message to all connected clients for a given user
