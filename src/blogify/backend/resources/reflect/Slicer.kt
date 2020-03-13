@@ -8,6 +8,7 @@ import blogify.backend.resources.computed.models.ComputedPropertyDelegate
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.valid
+import blogify.backend.util.Dto
 
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.isAccessible
@@ -103,7 +104,7 @@ private fun <M : Mapped> getPropValueOnInstance(instance: M, propertyName: Strin
  *
  * @author hamza1311, Benjozork
  */
-fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>): Map<String, Any?> {
+fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>): Dto {
 
     val selectedPropertiesSanitized = selectedPropertyNames.toMutableSet().apply {
         removeIf { it == "uuid" || it == "UUID" }
@@ -140,7 +141,7 @@ fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>): Map<String, Any?> 
  *
  * @author Benjozork
  */
-fun <M : Mapped> M.sanitize(excludeNoSearch: Boolean = false, excludeUndisplayed: Boolean = false): Map<String, Any?> {
+fun <M : Mapped> M.sanitize(excludeNoSearch: Boolean = false, excludeUndisplayed: Boolean = false): Dto {
     val sanitizedClassProps = this::class.cachedPropMap().valid()
         .asSequence()
         .filter {

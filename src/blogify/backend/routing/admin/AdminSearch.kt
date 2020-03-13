@@ -6,6 +6,7 @@ import blogify.backend.resources.Article
 import blogify.backend.resources.User
 import blogify.backend.pipelines.requestContext
 import blogify.backend.search.Typesense
+import blogify.backend.util.Dto
 
 import io.ktor.response.respond
 import io.ktor.routing.Route
@@ -28,7 +29,7 @@ fun Route.adminSearch(applicationContext: ApplicationContext) {
                         "user" -> Typesense.refreshIndex<User>(this@requestContext)
                         else -> error("Wrong param provided")
                     }.let {
-                        call.respond(mapOf("ts_response" to it.receive<Map<String, Any?>>()))
+                        call.respond(mapOf("ts_response" to it.receive<Dto>()))
                     }
                 }
 
