@@ -5,6 +5,7 @@ import blogify.backend.notifications.models.NotificationTarget
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.Mapped
+import blogify.backend.resources.reflect.models.ext.valid
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -24,14 +25,19 @@ class SlicerTests {
     val propMap = TestClass::class.cachedPropMap()
     val testObject = TestClass("abc", 17, "whatever")
     val slicedObject = testObject.slice(propMap.map.keys - "uuid")
+    val sanitizedObject = testObject.sanitize()
 
-    @Test fun `should include visible properties in sliced resource`() {
+    @Test fun `slice should include visible properties`() {
         assertTrue(slicedObject["name"] == "abc" && slicedObject["age"] == 17, "Should contain valid properties")
     }
 
-    @Test fun `should not include invisible properties in sliced resource`() {
+    @Test fun `slice should not include invisible properties`() {
         assertTrue(slicedObject["password"] == null, "Should not contain password in main values")
         assertTrue(slicedObject["_accessDenied"] == setOf("password", "targets"), "Should contain invisible properties in _accessDenied")
+    }
+
+    @Test fun `sanitize should include all visible properties`() {
+        assertTrue(sanitizedObject.filterNot { it.key.startsWith('_') }.all { it.key in propMap.valid().keys }, "All keys of DTO should be in propMap.valid()")
     }
 
     data class MappedTestClass (
