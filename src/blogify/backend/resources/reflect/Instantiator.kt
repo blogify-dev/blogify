@@ -15,12 +15,17 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
+import com.andreapivetta.kolor.red
+
 import com.github.kittinunf.result.coroutines.mapError
 
-import com.andreapivetta.kolor.red
+import java.lang.IllegalStateException
 
 //suspend inline fun <reified TMapped : Resource> KClass<TMapped>.from(dto: Dto, requestContext: RequestContext)
 //        = this.doInstantiate(dto) { requestContext.repository<TMapped>().get(requestContext, it) }
+
+private class MissingArgumentsException(vararg val parameters: KParameter)
+    : IllegalArgumentException("missing value(s) for parameter(s) ${parameters.joinToString(prefix = "[", postfix = "]") { it.name.toString() }}")
 
 private val noExternalFetcherMessage =
     "fatal: tried to instantiate an object with references to resources but no external fetcher was provided".red()
@@ -44,6 +49,7 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
     params:          Map<PropMap.PropertyHandle.Ok, Any?>,
     externalFetcher: suspend (KClass<Resource>, UUID) -> Sr<Any> = { _, _ -> error(noExternalFetcherMessage) }
 ): Sr<TMapped> {
+
     // We use unsafe because we have to give the @Invisible values too
     val propMap = this.cachedUnsafePropMap()
 
@@ -71,9 +77,16 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
                     }
                     else -> k to v
                 }
-            }.toMap()
+            }.toMap().also { map ->
+                val missingParams = targetCtor.parameters subtract map.keys
+                if (missingParams.isNotEmpty())
+                    throw MissingArgumentsException(*missingParams.toTypedArray())
+            }
     }
 
     return Wrap { targetCtor.callBy(makeParamMap()) }
-        .mapError { error -> IllegalStateException("exception while instantiating class ${this.simpleName}", error.cause ?: error) }
+        .mapError { error ->
+            if (error is MissingArgumentsException) error
+            else IllegalStateException("exception while instantiating class ${this.simpleName}", error.cause ?: error)
+        }
 }
