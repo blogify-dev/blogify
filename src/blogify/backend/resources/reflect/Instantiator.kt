@@ -15,8 +15,13 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
+import com.andreapivetta.kolor.red
+
 //suspend inline fun <reified TMapped : Resource> KClass<TMapped>.from(dto: Dto, requestContext: RequestContext)
 //        = this.doInstantiate(dto) { requestContext.repository<TMapped>().get(requestContext, it) }
+
+private val noExternalFetcherMessage =
+    "fatal: tried to instantiate an object that with references to resources but no external fetcher was provided".red()
 
 /**
  * Instantiates the class in receiver position using a [Map] of [property handles][PropMap.PropertyHandle] and
@@ -35,10 +40,7 @@ import kotlin.reflect.full.isSubtypeOf
  */
 suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
     params:          Map<PropMap.PropertyHandle.Ok, Any?>,
-    externalFetcher: suspend (KClass<Resource>, UUID) -> Sr<Any>
-    /* @TODO we should be more clear about the types here. TMapped as receiver but Resource for externalFetcher ???
-       Maybe let's not support doInstantiate() on Mapped, or allow to provide no dependency loader and fail when a
-       resource UUID is seen in that case */
+    externalFetcher: suspend (KClass<Resource>, UUID) -> Sr<Any> = { _, _ -> error(noExternalFetcherMessage) }
 ): Sr<TMapped> {
     // We use unsafe because we have to give the @Invisible values too
     val propMap = this.cachedUnsafePropMap()
