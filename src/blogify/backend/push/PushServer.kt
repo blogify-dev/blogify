@@ -1,6 +1,5 @@
 package blogify.backend.push
 
-import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.push.PushServer.ClosingCodes.BAD_FRAME
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_MESSAGE
 import blogify.backend.push.notifications.SubscribeToNotifications
@@ -8,6 +7,7 @@ import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.doInstantiate
 import blogify.backend.routing.closeAndExit
+import blogify.backend.util.getOr
 import blogify.backend.util.mappedByHandles
 import blogify.backend.util.short
 import blogify.backend.util.toDto
@@ -87,7 +87,8 @@ class PushServer {
                     .mappedByHandles(receivedClass, unsafe = true)
                     ?: close(INVALID_MESSAGE("bad properties in body"))
 
-                val receivedMessage = receivedClass.doInstantiate(bodyPayload).get()
+                val receivedMessage = receivedClass.doInstantiate(bodyPayload)
+                    .getOr { close(INVALID_MESSAGE("couldn't instantiate message - ${it.javaClass.simpleName}: ${it.message}")) }
 
                 wsServerSession.send(Frame.Text(receivedMessage.toString()))
             }
@@ -159,6 +160,7 @@ class PushServer {
 
         val INVALID_TOKEN = CloseReason(4910, "bad token")
 
+        @Suppress("FunctionName")
         fun INVALID_MESSAGE(prefix: String) = CloseReason(4020, "bad message '$prefix'")
     }
 

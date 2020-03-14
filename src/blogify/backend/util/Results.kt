@@ -29,5 +29,11 @@ fun <V : Any, E : Exception> SuspendableResult<V, E>.getOrPipelineError (
     }
 }
 
+suspend fun <V : Any, E : Exception> SuspendableResult<V, E>.getOr(block: suspend (E) -> Nothing): V =
+    when (this) {
+        is SuspendableResult.Success -> get()
+        is SuspendableResult.Failure -> block(this.error)
+    }
+
 fun <V : Any, E : Exception> SuspendableResult<V, E>.getOrNull(): V? =
     if (this is SuspendableResult.Success) get() else null
