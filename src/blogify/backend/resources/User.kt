@@ -16,6 +16,7 @@ import blogify.backend.notifications.models.Notification
 import blogify.backend.notifications.models.NotificationEmitter
 import blogify.backend.notifications.models.NotificationTarget
 import blogify.backend.pipelines.wrapping.ApplicationContext
+import blogify.backend.push.Message
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
@@ -76,7 +77,7 @@ data class User (
     override val targets = setOf(this)
 
     override suspend fun sendNotification(appContext: ApplicationContext, notification: Notification<*, *, *>) {
-        appContext.pushServer.sendToConnected(this, "Hello, ws notif test")
+        appContext.pushServer.sendMessageToConnected(this, Message.Outgoing.Notification(notification))
     }
 
     @Computed
