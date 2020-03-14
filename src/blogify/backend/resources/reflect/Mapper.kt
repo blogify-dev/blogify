@@ -6,14 +6,14 @@ import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 
-import com.andreapivetta.kolor.green
-
-import org.slf4j.LoggerFactory
-
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
+
+import com.andreapivetta.kolor.green
+
+import org.slf4j.LoggerFactory
 
 private val logger = LoggerFactory.getLogger("blogify-datamap")
 
