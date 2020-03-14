@@ -31,11 +31,9 @@ sealed class Message : Mapped() {
      * Represents a message that is being sent by the client
      *
      * @property connection the [PushServer.Connection] from which the message originated
-     * @property content    the raw text content of the message
      */
     abstract class Incoming (
-        @Invisible val connection: PushServer.Connection,
-        @Invisible val content: String
+        @Invisible open val connection: PushServer.Connection
     ) : Message()
 
 }

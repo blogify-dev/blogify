@@ -1,23 +1,23 @@
 package blogify.backend.push
 
+import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.push.PushServer.ClosingCodes.BAD_FRAME
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_MESSAGE
 import blogify.backend.push.notifications.SubscribeToNotifications
 import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
+import blogify.backend.resources.reflect.doInstantiate
 import blogify.backend.routing.closeAndExit
-import blogify.backend.util.letCatchingOrNull
+import blogify.backend.util.mappedByHandles
 import blogify.backend.util.short
+import blogify.backend.util.toDto
 
 import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.readText
 import io.ktor.websocket.WebSocketServerSession
 
-import com.andreapivetta.kolor.red
 import com.andreapivetta.kolor.yellow
-
-import kotlin.reflect.KClass
 
 import org.slf4j.LoggerFactory
 
@@ -59,22 +59,37 @@ class PushServer {
                 if (frame !is Frame.Text)
                     wsServerSession.closeAndExit(BAD_FRAME)
 
+                suspend fun close(reason: CloseReason): Nothing = wsServerSession.closeAndExit(reason)
+
                 // Read and clean the frame text
 
-                val text = frame.readText().trim().replace("\"", "").takeIf { it.matches(Regex("\\w+ .*")) }
-                           ?: wsServerSession.closeAndExit(BAD_FRAME)
+                val cleanText = frame.readText().trim().dropWhile { it == '\"' }.dropLastWhile { it == '\"' }
+
+                val textMatch = Regex("^(\\w+)\\s+(.*)$").matchEntire(cleanText)
+                                ?: close(INVALID_MESSAGE("bad message syntax"))
+
+                val prefix = textMatch.groupValues[1]
+                val body = textMatch.groupValues[2]
 
                 // Find the class it refers to using the prefix list
 
-                val receivedClass = messagePrefixes.entries.firstOrNull { it.key == text.substringBefore(' ') }?.value
-                                    ?: wsServerSession.closeAndExit(INVALID_MESSAGE(text.substringBefore(' ')))
+                val receivedClass = messagePrefixes.entries.firstOrNull { it.key == prefix }?.value
+                                    ?: close(INVALID_MESSAGE("unknown command $prefix"))
 
                 // Instantiate that class
 
-                receivedClass
-                    .constructors.first()
-                    .letCatchingOrNull { it.call(this, "ha") }
-                ?: error("fatal: could not construct instance of message class ${receivedClass.simpleName}".red())
+                val boyDto = body
+                    .toDto()
+                    ?: close(INVALID_MESSAGE("body is not a DTO"))
+
+                val bodyPayload = boyDto
+                    .plus("connection" to this)
+                    .mappedByHandles(receivedClass, unsafe = true)
+                    ?: close(INVALID_MESSAGE("bad properties in body"))
+
+                val receivedMessage = receivedClass.doInstantiate(bodyPayload).get()
+
+                wsServerSession.send(Frame.Text(receivedMessage.toString()))
             }
         }
 

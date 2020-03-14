@@ -15,13 +15,15 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
+import com.github.kittinunf.result.coroutines.mapError
+
 import com.andreapivetta.kolor.red
 
 //suspend inline fun <reified TMapped : Resource> KClass<TMapped>.from(dto: Dto, requestContext: RequestContext)
 //        = this.doInstantiate(dto) { requestContext.repository<TMapped>().get(requestContext, it) }
 
 private val noExternalFetcherMessage =
-    "fatal: tried to instantiate an object that with references to resources but no external fetcher was provided".red()
+    "fatal: tried to instantiate an object with references to resources but no external fetcher was provided".red()
 
 /**
  * Instantiates the class in receiver position using a [Map] of [property handles][PropMap.PropertyHandle] and
@@ -73,4 +75,5 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
     }
 
     return Wrap { targetCtor.callBy(makeParamMap()) }
+        .mapError { error -> IllegalStateException("exception while instantiating class ${this.simpleName}", error.cause ?: error) }
 }
