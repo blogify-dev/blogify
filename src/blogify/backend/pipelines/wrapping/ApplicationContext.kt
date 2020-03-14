@@ -3,18 +3,7 @@ package blogify.backend.pipelines.wrapping
 import blogify.backend.persistence.models.DataStore
 import blogify.backend.resources.models.Resource
 import blogify.backend.persistence.models.Repository
-import blogify.backend.resources.User
-import blogify.backend.resources.models.eqr
-import blogify.backend.util.concurrentMapOf
-import blogify.backend.util.short
-
-import com.andreapivetta.kolor.yellow
-
-import io.ktor.http.cio.websocket.Frame
-
-import kotlinx.coroutines.channels.SendChannel
-
-import org.slf4j.LoggerFactory
+import blogify.backend.push.PushServer
 
 import kotlin.reflect.KClass
 
@@ -26,42 +15,6 @@ import kotlin.reflect.KClass
 class ApplicationContext (
     val dataStore: DataStore
 ) {
-
-    /**
-     * Class managing the notification / messaging push server
-     */
-    class PushServer {
-
-        private val logger = LoggerFactory.getLogger("blogify-push-server")
-
-        private val clientConnections = concurrentMapOf<User, SendChannel<Frame>>()
-
-        /**
-         * Sends a message to all connected clients for a given user
-         *
-         * @param user the [User] for which to look for clients to send the message to
-         */
-        suspend fun sendToConnected(user: User, data: String) = this.clientConnections
-            .filter { it.key eqr user }.values
-            .forEach { it.send(Frame.Text(data)) }
-
-        /**
-         * Connects a new user client along with an associated [SendChannel]
-         */
-        fun connect(user: User, channel: SendChannel<Frame>) {
-            this.clientConnections[user] = channel
-            logger.debug("client connection for ${user.uuid.short()} opened".yellow())
-        }
-
-        /**
-         * Connects a user client with its associated [SendChannel]
-         */
-        fun disconnect(user: User, channel: SendChannel<Frame>) {
-            this.clientConnections.remove(user, channel)
-            logger.debug("client connection for ${user.uuid.short()} closed".yellow())
-        }
-
-    }
 
     /**
      * Provides a [Repository] object for [TResource] using the data store in context
