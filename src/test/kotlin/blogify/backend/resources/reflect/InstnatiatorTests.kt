@@ -22,6 +22,7 @@ class InstnatiatorTests {
             get() = TODO("Not yet implemented")
     }
 
+    val propMap = SlicerTests.TestClass::class.cachedUnsafePropMap()
     val testObject = TestClass("abc", 17, "whatever")
     val testData = mapOf (
         "name" to "abc",
@@ -31,7 +32,7 @@ class InstnatiatorTests {
 
     @Test fun `instantiate should create object correctly`() {
         runBlocking {
-            val propHandleDto = testData.mapKeys { testObject.cachedUnsafePropMap().ok()[it.key] ?: error("") }
+            val propHandleDto = testData.mapKeys { propMap.ok()[it.key] ?: error("") }
             val newInstance = TestClass::class.doInstantiate(propHandleDto, externalFetcher = { _, _ -> Sr.of { error("") } })
 
             assertEquals(testObject, newInstance.get())
