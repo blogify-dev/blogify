@@ -21,7 +21,7 @@ import { MarkdownModule } from 'ngx-markdown';
 import { SharedModule } from './shared/shared.module';
 import { ProfileModule } from './components/profile/profile/profile.module';
 import { FooterComponent } from './components/footer/footer.component';
-import { ClipboardModule } from "ngx-clipboard";
+import { ClipboardModule } from 'ngx-clipboard';
 import { Error404FallbackComponent } from './components/error404-fallback/error404-fallback.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { AdminModule } from './components/admin/admin/admin.module';

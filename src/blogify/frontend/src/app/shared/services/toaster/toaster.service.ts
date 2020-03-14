@@ -12,13 +12,13 @@ export class ToasterService {
     constructor() {}
 
     plugInto(toaster: ToasterComponent) {
-        this.pluggedToaster = toaster
+        this.pluggedToaster = toaster;
     }
 
     feed(...toast: Toast[]) {
         if (this.pluggedToaster != null) {
-            this.pluggedToaster.bake(...toast.reverse())
-        } else console.error("[blogifyToaster] No destination for toast !")
+            this.pluggedToaster.bake(...toast.reverse());
+        } else console.error('[blogifyToaster] No destination for toast !');
     }
 
 }
