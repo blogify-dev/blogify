@@ -29,7 +29,7 @@ suspend fun <A : Any> countReferences (
     where:          SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }
 ): Sr<Int> {
     return query {
-        referenceField.table.select { referenceField eq referenceValue and where() }.count()
+        referenceField.table.select { referenceField eq referenceValue and where() }.count().toInt()
     }
         .mapError { e -> Repository.Exception(e) }
 }
@@ -56,7 +56,7 @@ private suspend fun <A : Any> countAllReferences (
             .slice(originField, refCountColumn)
             .select(where)
             .groupBy(originField)
-            .toSet().map { it[originField] to it[refCountColumn] }.toMap()
+            .toSet().map { it[originField] to it[refCountColumn].toInt() }.toMap()
     }
 }
 
