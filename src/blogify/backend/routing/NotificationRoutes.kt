@@ -7,7 +7,6 @@ import blogify.backend.push.PushServer
 import blogify.backend.push.PushServer.ResponseCodes.AUTH_OK
 import blogify.backend.resources.User
 import blogify.backend.util.getOrNull
-import com.andreapivetta.kolor.blue
 
 import com.andreapivetta.kolor.red
 
@@ -21,10 +20,9 @@ import io.ktor.websocket.WebSocketServerSession
 import io.ktor.websocket.webSocket
 
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
 
-@ExperimentalCoroutinesApi
+@Suppress("EXPERIMENTAL_API_USAGE")
 fun Route.makePushServerRoutes() {
 
     route("/push") {

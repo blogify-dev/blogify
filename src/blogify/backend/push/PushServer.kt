@@ -7,6 +7,7 @@ import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.doInstantiate
 import blogify.backend.routing.closeAndExit
+import blogify.backend.util.concurrentMapOf
 import blogify.backend.util.getOr
 import blogify.backend.util.mappedByHandles
 import blogify.backend.util.short
@@ -103,11 +104,13 @@ class PushServer(val appContext: ApplicationContext) {
 
     private val logger = LoggerFactory.getLogger("blogify-push-server")
 
-    private val clientConnections = mutableMapOf<User, Connection>()
+    private val clientConnections = concurrentMapOf<User, Connection>()
 
-    private val messagePrefixes = mapOf<String, KClass<out Message.Incoming>> (
-        "subn" to SubscribeToNotifications::class
-    )
+    val messagePrefixes = concurrentMapOf<String, KClass<out Message.Incoming>>()
+
+    init {
+        messagePrefixes["subn"] = SubscribeToNotifications::class
+    }
 
     /**
      * Sends a message to all connected clients for a given user
