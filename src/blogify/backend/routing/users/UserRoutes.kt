@@ -23,6 +23,7 @@ import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.persistence.models.Repository
 import blogify.backend.util.toUUID
+
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
