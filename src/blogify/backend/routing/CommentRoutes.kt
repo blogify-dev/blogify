@@ -13,6 +13,7 @@ import blogify.backend.routing.handling.fetchAllWithId
 import blogify.backend.routing.handling.fetchResource
 import blogify.backend.routing.handling.updateResource
 import blogify.backend.pipelines.obtainResource
+import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.requestContext
 import blogify.backend.util.expandCommentNode
@@ -80,9 +81,10 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         get("/tree/{uuid}") {
             requestContext(applicationContext) {
                 val repo = repository<Comment>()
-                val fetched = repo.get(this, call.parameters["uuid"]!!.toUUID())
 
-                val depth = call.parameters["depth"]?.toInt() ?: 5
+                val id      = param("uuid").toUUID()
+                val fetched = repo.get(this, id)
+                val depth   = optionalParam("depth")?.toIntOrNull() ?: 5
 
                 call.respond(expandCommentNode(this, repository = repo, rootNode = fetched.get(), depth = depth))
             }
