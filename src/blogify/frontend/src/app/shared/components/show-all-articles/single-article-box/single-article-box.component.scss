@@ -26,40 +26,32 @@
 
     margin-top: 1.25em;
 
-    .article-first-line {
+    .first-line {
         width: 100%;
 
         text-align: center;
 
-        display:         flex;
-        flex-direction:  row;
+        display: flex;
+        flex-direction: row;
         justify-content: space-between;
-        align-items:     center;
+        align-items: center;
+        flex-wrap: wrap;
+        column-gap: 3em;
 
         padding-bottom: .95em;
 
-        .article-title {
+        .title {
             text-align: left;
             padding: 0;
         }
 
-        .article-author {
-            display:         flex;
-            flex-direction:  row;
-            justify-content: flex-start;
-            align-items:     center;
-
-            .author-pfp {
-                margin-right: .85em;
-            }
-
-            .author-name { font-size: 1.7em; font-weight: 600; }
-
+        .author {
+            margin-left: auto;
         }
 
     }
 
-    .article-second-line {
+    .second-line {
         width: 100%;
 
         display:         flex;
@@ -67,13 +59,11 @@
         justify-content: space-between;
         align-items:     center;
 
-        .article-summary,
-        .article-posted-at { font-size: 1.3em; }
+        .summary,
+        .posted-at { font-size: 1.3em; }
     }
 
-    .article-read-more { color: var(--card-fg); }
-
-    .article-last-line {
+    .last-line {
         width: 100%;
 
         margin-top: 1.5em;
@@ -106,15 +96,15 @@
             &:not(:first-child) { margin-left: $element-separation; }
         }
 
-        .article-comments-count {
+        .comment-count {
 
         }
 
-        .article-share {
+        .share {
             margin-right: auto;
         }
 
-        .article-tags {
+        .tags {
             display: flex;
             flex-wrap: wrap;
 

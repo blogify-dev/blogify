@@ -14,7 +14,7 @@
         margin-bottom: 1.5em;
 
         .article-no-tags,
-        .article-tags {
+        .tags {
             display:         flex;
             justify-content: flex-start;
             align-items:     flex-start;
@@ -44,6 +44,8 @@
             flex-direction: row;
             justify-content: flex-start;
             align-items: center;
+            flex-wrap: wrap;
+            column-gap: 5em;
 
             width: 100%;
 
@@ -51,6 +53,8 @@
                 font-size: 3em;
                 padding-bottom: 0;
                 padding-top: 0;
+
+                word-break: break-all;
             }
 
             #user {
@@ -69,42 +73,51 @@
 
             width: 100%;
 
-            display:         flex;
-            flex-direction:  row;
+            display: flex;
+            flex-direction: row;
             justify-content: flex-start;
-            align-items:     center;
+            align-items: center;
+            flex-wrap: wrap;
 
             * { vertical-align: middle; }
 
-            .likes {
-                span { font-size: 1.5em; font-weight: 600; margin-left: .3em; }
-                margin-right: .25rem;
+            div {
+                display: flex;
+
+                &#icons-right { margin-left: auto };
+
+                .likes {
+                    span { font-size: 1.5em; font-weight: 600; margin-left: .3em; }
+                    margin-right: .25rem;
+                }
+
+                .date {
+                    margin-left: 1.25rem;
+                    font-size: 1.5em;
+                }
+
+                .separator {
+                    width: 1px;
+                    height: 20px;
+                    margin: auto 0 auto 1rem !important;
+                }
+
+                #button-share {
+                    margin-left: auto;
+                    margin-right: .25rem;
+                }
+
+                #button-update {
+                    margin-left: 1.25rem;
+                    cursor: pointer;
+                }
+
+                #button-delete {
+                    margin-left: 1.1rem;
+                    cursor: pointer;
+                }
             }
 
-            .date {
-                margin-left: 1.25rem;
-                font-size: 1.5em;
-            }
-
-            .separator {
-                height: 20px;
-                margin: auto 0 auto 1rem !important;
-            }
-
-            #button-share {
-                margin-left: auto;
-                margin-right: .25rem;
-            }
-
-            #button-update {
-                margin-left: 1.25rem;
-                cursor: pointer;
-            }
-
-            #button-delete {
-                margin-left: 1.1rem;
-                cursor: pointer;
-            }
         }
 
     }

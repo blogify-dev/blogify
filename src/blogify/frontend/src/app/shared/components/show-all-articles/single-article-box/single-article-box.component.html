@@ -1,22 +1,22 @@
 <div class="article">
 
-    <div class="article-first-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
+    <div class="first-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
         <!-- Title -->
-        <h1 class="article-title">{{article.title}}</h1>
+        <h1 class="title">{{article.title}}</h1>
 
         <!-- Author -->
-        <app-user-display [user]="article.createdBy" emSize="2.35"></app-user-display>
+        <app-user-display class="author" [user]="article.createdBy" emSize="2.35"></app-user-display>
     </div>
 
-    <div class="article-second-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
+    <div class="second-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
         <!-- Summary -->
-        <span class="article-summary">{{article.summary}}</span>
+        <span class="summary">{{article.summary}}</span>
 
         <!-- Timestamp -->
-        <span class="article-posted-at">{{article.createdAt | relativeTime}}</span>
+        <span class="posted-at">{{article.createdAt | relativeTime}}</span>
     </div>
 
-    <div class="article-last-line">
+    <div class="last-line">
         <!-- Like count - clickable -->
         <a class="article-like-count clickable negative"
            *ngIf="loggedInObs | async"
@@ -35,7 +35,7 @@
         <span class="separator"></span>
 
         <!-- Comment count -->
-        <a class="article-comments-count clickable">
+        <a class="comment-count clickable">
             <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ size: 18, y: 1 }"></fa-icon>
             <span>&ensp;{{article.commentCount}}</span>
         </a>
@@ -43,12 +43,12 @@
         <span class="separator"></span>
 
         <!-- Share button -->
-        <a class="article-share clickable" (click)="copyLinkToClipboard()">
+        <a class="share clickable" (click)="copyLinkToClipboard()">
             <fa-icon [icon]="faClipboard" size="lg" [transform]="{ size: 18, y: -1.4 }"></fa-icon>
         </a>
 
         <!-- Categories -->
-        <div class="article-tags" *ngIf="article.categories.length > 0">
+        <div class="tags" *ngIf="article.categories.length > 0">
             <span *ngFor="let tag of article.categories">{{tag.name}}</span>
         </div>
     </div>
