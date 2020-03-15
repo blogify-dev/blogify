@@ -43,7 +43,6 @@ import io.ktor.features.CachingHeaders
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
-import io.ktor.features.HttpsRedirect
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.content.CachingOptions
@@ -200,10 +199,6 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         Typesense.submitResourceTemplate(User::class._searchTemplate)
 
     }
-
-    // Create an application context
-
-    val appContext = ApplicationContext(dataStore)
 
     // Initialize routes
 
