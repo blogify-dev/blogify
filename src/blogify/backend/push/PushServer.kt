@@ -1,6 +1,6 @@
 package blogify.backend.push
 
-import blogify.backend.push.PushServer.ClosingCodes.BAD_FRAME
+import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_MESSAGE
 import blogify.backend.push.notifications.SubscribeToNotifications
 import blogify.backend.resources.User
@@ -17,16 +17,20 @@ import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.readText
 import io.ktor.websocket.WebSocketServerSession
 
-import com.andreapivetta.kolor.yellow
+import kotlinx.coroutines.launch
 
 import org.slf4j.LoggerFactory
+
+import com.andreapivetta.kolor.yellow
+
+import kotlin.reflect.KClass
 
 /**
  * Class managing the notification / messaging push server.
  *
  * @author Benjozork
  */
-class PushServer {
+class PushServer(val appContext: ApplicationContext) {
 
     /**
      * Represents a single connection to a [PushServer].
@@ -39,7 +43,8 @@ class PushServer {
     @Suppress("EXPERIMENTAL_API_USAGE")
     inner class Connection (
         val user: User,
-        val wsServerSession: WebSocketServerSession
+        val wsServerSession: WebSocketServerSession,
+        val appContext: ApplicationContext
     ) {
 
         /**
@@ -48,50 +53,50 @@ class PushServer {
         suspend fun send(message: Message.Outgoing) = wsServerSession.send(message.frame)
 
         /**
-         * Start listening to and accepting incoming frames. Starts parsing incoming messages and instantiating message objects
-         * when valid frames are received.
-         *
-         * **WARNING :** Do not block this function !
+         * Accepts an incoming frame and instantiates a [Message] object
          */
         @Suppress("UNCHECKED_CAST")
-        suspend fun startListening() {
-            for (frame in wsServerSession.incoming) {
-                if (frame !is Frame.Text)
-                    wsServerSession.closeAndExit(BAD_FRAME)
+        suspend fun readFrame(frame: Frame.Text) {
 
-                suspend fun close(reason: CloseReason): Nothing = wsServerSession.closeAndExit(reason)
+            suspend fun close(reason: CloseReason): Nothing = wsServerSession.closeAndExit(reason)
 
-                // Read and clean the frame text
+            // Read and clean the frame text
 
-                val cleanText = frame.readText().trim().dropWhile { it == '\"' }.dropLastWhile { it == '\"' }
+            val cleanText = frame.readText().trim().dropWhile { it == '\"' }.dropLastWhile { it == '\"' }
 
-                val textMatch = Regex("^(\\w+)\\s+(.*)$").matchEntire(cleanText)
-                                ?: close(INVALID_MESSAGE("bad message syntax"))
+            val textMatch = Regex("^(\\w+)\\s+(.*)$").matchEntire(cleanText)
+                ?: close(INVALID_MESSAGE("bad message syntax"))
 
-                val prefix = textMatch.groupValues[1]
-                val body = textMatch.groupValues[2]
+            val prefix = textMatch.groupValues[1]
+            val body = textMatch.groupValues[2]
 
-                // Find the class it refers to using the prefix list
+            // Find the class it refers to using the prefix list
 
-                val receivedClass = messagePrefixes.entries.firstOrNull { it.key == prefix }?.value
-                                    ?: close(INVALID_MESSAGE("unknown command $prefix"))
+            val receivedClass = messagePrefixes.entries.firstOrNull { it.key == prefix }?.value
+                ?: close(INVALID_MESSAGE("unknown command $prefix"))
 
-                // Instantiate that class
+            // Make an actual object
 
-                val boyDto = body
-                    .toDto()
-                    ?: close(INVALID_MESSAGE("body is not a DTO"))
+            val boyDto = body
+                .toDto()
+                ?: close(INVALID_MESSAGE("body is not a DTO"))
 
-                val bodyPayload = boyDto
-                    .plus("connection" to this)
-                    .mappedByHandles(receivedClass, unsafe = true)
-                    ?: close(INVALID_MESSAGE("bad properties in body"))
+            val bodyPayload = boyDto
+                .plus("connection" to this)
+                .mappedByHandles(receivedClass, unsafe = true)
+                ?: close(INVALID_MESSAGE("bad properties in body"))
 
-                val receivedMessage = receivedClass.doInstantiate(bodyPayload)
-                    .getOr { close(INVALID_MESSAGE("couldn't instantiate message - ${it.javaClass.simpleName}: ${it.message}")) }
+            // Instantiate that class
 
-                wsServerSession.send(Frame.Text(receivedMessage.toString()))
-            }
+            val receivedMessage = receivedClass.doInstantiate(bodyPayload)
+                .getOr {
+                    it.printStackTrace()
+                    close(INVALID_MESSAGE("couldn't instantiate message - ${it.javaClass.simpleName}: ${it.message}"))
+                }
+
+            wsServerSession.launch { receivedMessage.onArrival() }
+
+            wsServerSession.send(Frame.Text(receivedMessage.toString()))
         }
 
     }
@@ -100,7 +105,7 @@ class PushServer {
 
     private val clientConnections = mutableMapOf<User, Connection>()
 
-    private val messagePrefixes = mapOf (
+    private val messagePrefixes = mapOf<String, KClass<out Message.Incoming>> (
         "subn" to SubscribeToNotifications::class
     )
 
@@ -114,15 +119,18 @@ class PushServer {
         .forEach { it.send(message) }
 
     /**
-     * Connects a new user client along with an associated [WebSocketServerSession]. Stores
+     * Connects a new user client along with an associated [WebSocketServerSession]. Stores and returns
      * a new instance of [Connection].
      *
      * @param user    the user that is connecting
      * @param session the [WebSocketServerSession] used to communicate
      */
-    suspend fun connect(user: User, session: WebSocketServerSession) {
-        this.clientConnections[user] = Connection(user, session).also { it.startListening() }
+    fun connect(user: User, session: WebSocketServerSession): Connection {
+        val connection = Connection(user, session, appContext)
+        this.clientConnections[user] = connection
+
         logger.debug("client connection for ${user.uuid.short()} opened".yellow())
+        return connection
     }
 
     /**
@@ -148,8 +156,8 @@ class PushServer {
      * Default frame response codes
      */
     object ResponseCodes {
-         val OK = ResponseCode(4000, "OK")
-         val AUTH_OK = ResponseCode(4001, "AUTH OK")
+        val OK = ResponseCode(4000, "OK")
+        val AUTH_OK = ResponseCode(4001, "AUTH OK")
     }
 
     /**

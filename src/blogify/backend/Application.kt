@@ -46,6 +46,7 @@ import io.ktor.features.DefaultHeaders
 import io.ktor.features.HttpsRedirect
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
+import io.ktor.http.cio.websocket.timeout
 import io.ktor.http.content.CachingOptions
 import io.ktor.jackson.jackson
 import io.ktor.routing.route
@@ -168,7 +169,10 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
     // WebSockets
 
-    install(WebSockets)
+    install(WebSockets) {
+        timeoutMillis = 30_000
+        pingPeriodMillis = 15_000
+    }
 
     // Initialize database
 

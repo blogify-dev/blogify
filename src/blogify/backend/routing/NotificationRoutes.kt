@@ -1,6 +1,5 @@
 package blogify.backend.routing
 
-import blogify.backend.push.PushServer.ClosingCodes.BAD_FRAME
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_TOKEN
 import blogify.backend.appContext
 import blogify.backend.auth.jwt.validateJwt
@@ -8,6 +7,9 @@ import blogify.backend.push.PushServer
 import blogify.backend.push.PushServer.ResponseCodes.AUTH_OK
 import blogify.backend.resources.User
 import blogify.backend.util.getOrNull
+import com.andreapivetta.kolor.blue
+
+import com.andreapivetta.kolor.red
 
 import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.Frame
@@ -19,33 +21,37 @@ import io.ktor.websocket.WebSocketServerSession
 import io.ktor.websocket.webSocket
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 
+@ExperimentalCoroutinesApi
 fun Route.makePushServerRoutes() {
 
     route("/push") {
 
         webSocket("/connect") {
 
-            // Attempt to initialize the connection
+            var authenticatedUser: User? = null
+            var connection: PushServer.Connection? = null
 
-            val givenUser: User
+            incoming.consumeEach { frame ->
+                if (frame !is Frame.Text)
+                    return@consumeEach
 
-            val firstFrame = incoming.receive()
+                if (authenticatedUser == null) {
+                    authenticatedUser = validateJwt(token = frame.readText().trim().replace("\"", "")).getOrNull()
+                        ?: closeAndExit(INVALID_TOKEN)
 
-            if (firstFrame is Frame.Text) {
-                val x = firstFrame.readText()
-                givenUser = validateJwt(token = firstFrame.readText().trim().replace("\"", "").also { println(it) }).getOrNull()
-                            ?: closeAndExit(INVALID_TOKEN)
-                send(AUTH_OK)
-                appContext.pushServer.connect(givenUser, this)
-            } else {
-                closeAndExit(BAD_FRAME)
+                    connection = appContext.pushServer.connect(authenticatedUser ?: error("fatal: authenticatedUser is null".red()), this)
+
+                    send(AUTH_OK)
+                } else {
+                    connection!!.readFrame(frame)
+                }
             }
 
-            // Connection is closing
-
             closeReason.invokeOnCompletion {
-                 appContext.pushServer.disconnect(givenUser, this)
+                 appContext.pushServer.disconnect(authenticatedUser ?: error("fatal: authenticatedUser is null".red()), this)
             }
 
         }

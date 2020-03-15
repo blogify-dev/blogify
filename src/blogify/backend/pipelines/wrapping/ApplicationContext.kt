@@ -38,6 +38,6 @@ class ApplicationContext (
         return this.dataStore.getRepository(klass)
     }
 
-    val pushServer = PushServer()
+    val pushServer = PushServer(this)
 
 }

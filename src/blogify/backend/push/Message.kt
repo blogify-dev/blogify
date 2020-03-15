@@ -34,6 +34,10 @@ sealed class Message : Mapped() {
      */
     abstract class Incoming (
         @Invisible open val connection: PushServer.Connection
-    ) : Message()
+    ) : Message() {
+
+        abstract suspend fun onArrival()
+
+    }
 
 }
