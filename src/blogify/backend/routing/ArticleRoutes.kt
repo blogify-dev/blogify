@@ -68,7 +68,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
                     val liked = query {
                         likes.select {
-                            (likes.article eq article.uuid) and (likes.user eq subject.uuid) }.count()
+                            (likes.article eq article.uuid) and (likes.user eq subject.uuid) }.count().toInt()
                     }.getOrPipelineError() == 1
 
                     call.respond(liked)
@@ -86,7 +86,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
                     // Figure whether the article was already liked by the user
                     val alreadyLiked = query {
                         likes.select {
-                            (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid) }.count()
+                            (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid) }.count().toInt()
                     }.getOrPipelineError() == 1
 
                     if (!alreadyLiked) { // Add a like if none were present

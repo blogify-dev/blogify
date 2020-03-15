@@ -99,7 +99,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
 
                     val liked = query {
                         likes.select {
-                            (likes.comment eq comment.uuid) and (likes.user eq subject.uuid) }.count()
+                            (likes.comment eq comment.uuid) and (likes.user eq subject.uuid) }.count().toInt()
                     }.getOrPipelineError() == 1
 
                     call.respond(liked)
@@ -119,7 +119,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
                     // Figure whether the article was already liked by the user
                     val alreadyLiked = query {
                         likes.select {
-                            (likes.comment eq commentToLike.uuid) and (likes.user eq subject.uuid) }.count()
+                            (likes.comment eq commentToLike.uuid) and (likes.user eq subject.uuid) }.count().toInt()
                     }.getOrPipelineError() == 1
 
                     if (!alreadyLiked) { // Add a like if none were present

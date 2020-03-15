@@ -125,7 +125,7 @@ fun Route.users(applicationContext: ApplicationContext) {
                     val hasAlreadyFollowed = query {
                         follows.select {
                             (follows.follower eq subject.uuid) and (follows.following eq following.uuid)
-                        }.count()
+                        }.count().toInt()
                     }.get() == 1
 
                     if (!hasAlreadyFollowed) {
