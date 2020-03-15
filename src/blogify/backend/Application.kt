@@ -8,23 +8,23 @@ import com.fasterxml.jackson.databind.*
 
 import blogify.backend.config.Configs
 import blogify.backend.routing.makeArticleRoutes
-import blogify.backend.routing.users.users
+import blogify.backend.routing.users.makeUserRoutes
 import blogify.backend.database.Database
 import blogify.backend.database.Articles
 import blogify.backend.database.Comments
 import blogify.backend.database.ImageUploadablesMetadata
 import blogify.backend.database.Uploadables
 import blogify.backend.database.Users
-import blogify.backend.routing.auth
+import blogify.backend.routing.makeAuthRoutes
 import blogify.backend.database.handling.query
 import blogify.backend.persistence.postgres.PostgresDataStore
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
-import blogify.backend.routing.admin.adminSearch
+import blogify.backend.routing.admin.makeAdminRoutes
 import blogify.backend.routing.makePushServerRoutes
-import blogify.backend.routing.static
+import blogify.backend.routing.makeStaticRoutes
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Template
@@ -46,7 +46,6 @@ import io.ktor.features.DefaultHeaders
 import io.ktor.features.HttpsRedirect
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
-import io.ktor.http.cio.websocket.timeout
 import io.ktor.http.content.CachingOptions
 import io.ktor.jackson.jackson
 import io.ktor.routing.route
@@ -212,10 +211,10 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
 
         route("/api") {
             makeArticleRoutes(appContext)
-            users(appContext)
-            auth(appContext)
-            static(appContext)
-            adminSearch(appContext)
+            makeUserRoutes(appContext)
+            makeAuthRoutes(appContext)
+            makeStaticRoutes(appContext)
+            makeAdminRoutes(appContext)
         }
 
         makePushServerRoutes()

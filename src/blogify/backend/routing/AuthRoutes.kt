@@ -76,7 +76,7 @@ data class RegisterCredentials (
 
 }
 
-fun Route.auth(applicationContext: ApplicationContext) {
+fun Route.makeAuthRoutes(applicationContext: ApplicationContext) {
 
     route("/auth") {
 

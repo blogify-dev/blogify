@@ -48,7 +48,6 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
             requestContext(applicationContext) {
                 fetchAllResources<Article>()
             }
-
         }
 
         get("/{uuid}") {
@@ -183,7 +182,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
             }
         }
 
-        articleComments(applicationContext)
+        makeArticleCommentRoutes(applicationContext)
 
     }
 

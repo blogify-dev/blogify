@@ -35,7 +35,7 @@ import org.jetbrains.exposed.sql.select
 /**
  * Defines the API routes for interacting with [users][User].
  */
-fun Route.users(applicationContext: ApplicationContext) {
+fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
     route("/users") {
 

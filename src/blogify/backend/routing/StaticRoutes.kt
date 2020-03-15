@@ -11,7 +11,7 @@ import io.ktor.response.respondBytes
 import io.ktor.routing.Route
 import io.ktor.routing.get
 
-fun Route.static(applicationContext: ApplicationContext) {
+fun Route.makeStaticRoutes(applicationContext: ApplicationContext) {
 
     get("/get/{uploadableId}") {
 

@@ -29,7 +29,7 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 
-fun Route.articleComments(applicationContext: ApplicationContext) {
+fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
 
     route("/comments") {
 

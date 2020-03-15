@@ -13,7 +13,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 
-fun Route.adminSearch(applicationContext: ApplicationContext) {
+fun Route.makeAdminRoutes(applicationContext: ApplicationContext) {
 
     route("/admin/search") {
 
