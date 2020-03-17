@@ -33,6 +33,7 @@ import org.jetbrains.exposed.sql.selectAll
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.getOrElse
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
 import java.util.UUID
 
@@ -100,16 +101,34 @@ object Articles : ResourceTable<Article>() {
     }
 
     override suspend fun update(resource: Article): Boolean {
-        return query {
-            this.update(where = { uuid eq resource.uuid }) {
-                it[uuid]      = resource.uuid
-                it[title]     = resource.title
-                it[createdAt] = resource.createdAt
-                it[createdBy] = resource.createdBy.uuid
-                it[content]   = resource.content
-                it[summary]   = resource.summary
-            }
-        }.get() == 1
+        return try {
+            query {
+                this.update(where = { uuid eq resource.uuid }) {
+                    it[uuid]      = resource.uuid
+                    it[title]     = resource.title
+                    it[createdAt] = resource.createdAt
+                    it[createdBy] = resource.createdBy.uuid
+                    it[content]   = resource.content
+                    it[summary]   = resource.summary
+                }
+            }.get()
+
+            query {
+                Categories.deleteWhere { Categories.article eq resource.uuid }
+            }.get()
+
+            query {
+                Categories.batchInsert(resource.categories) {
+                    this[Categories.article] = resource.uuid
+                    this[Categories.name]    = it.name
+                }
+            }.get()
+
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
     }
 
     override suspend fun delete(resource: Article) = Wrap {

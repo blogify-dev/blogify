@@ -7,6 +7,8 @@ import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 import blogify.backend.util.toUUID
+import com.andreapivetta.kolor.red
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 import java.util.UUID
 
@@ -25,12 +27,14 @@ private val logger = LoggerFactory.getLogger("blogify-datamap-updater")
  * @param R       the class associated with [target]
  * @param target  the [Resource] to update
  * @param rawData a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
- *
+ *s
  * @return an updated instance of [R] with all new data from [rawData], but the same unchanged data from [target]
  *
  * @author Benjozork
  */
 suspend fun <R: Resource> update(target: R, requestContext: RequestContext, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R> {
+
+    val ost = jacksonObjectMapper()
 
     val targetPropMap = target.cachedUnsafePropMap() // Get unsafe handles too
     val targetCopyFunction = target::class.functions.first { it.name == "copy" }
@@ -58,7 +62,19 @@ suspend fun <R: Resource> update(target: R, requestContext: RequestContext, rawD
                 k.type.isSubtypeOf(UUID::class.createType()) -> { // KType of property is subtype of UUID
                     k to (v as String).toUUID()
                 }
-                else -> k to v
+                else -> { // We don't know what it is, we need to extract a JavaType and make Jackson deserialize it
+                    val baseTypeClass = (k.type.classifier as? KClass<*>)?.java
+                        ?: error("fatal: found non-class base type when extracting JavaType of parameter '${k.name}' of class '${target::class.simpleName}'".red())
+
+                    val typeParameters = k.type.arguments.map {
+                        (it.type?.classifier as? KClass<*>)?.java
+                            ?: error("fatal: found non-class type parameter when extracting JavaType of parameter '${k.name}' of class '${target::class.simpleName}'".red())
+                    }.toTypedArray()
+
+                    val type = ost.typeFactory.constructParametricType(baseTypeClass, *typeParameters)
+
+                    k to ost.readValue(ost.writeValueAsString(v).toByteArray(), type)
+                }
             }
         }
 
