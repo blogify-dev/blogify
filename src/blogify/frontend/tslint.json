@@ -74,7 +74,7 @@
             "single"
         ],
         "trailing-comma": false,
-        "no-any": true,
+        "no-any": false,
         "no-conflicting-lifecycle": true,
         "no-host-metadata-property": true,
         "no-input-rename": true,
