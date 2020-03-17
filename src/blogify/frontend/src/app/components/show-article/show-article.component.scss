@@ -19,16 +19,16 @@
             justify-content: flex-start;
             align-items:     flex-start;
 
-            margin-top: 1.2em;
+            margin-top: 1.2rem;
 
             & > * {
-                font-size: 1.15em;
+                font-size: 1.15rem;
             }
 
             &:not(.article-no-tags) > * {
 
-                margin:    0    .25em 0 0;
-                padding:  .25em .75em;
+                margin:    0     .25rem 0 0;
+                padding:  .25rem .75rem;
 
                 border-radius: $std-border-radius;
 
@@ -49,8 +49,10 @@
 
             width: 100%;
 
+            margin-top: 1.6em;
+
             #title {
-                font-size: 3em;
+                font-size: 2.5em;
                 padding-bottom: 0;
                 padding-top: 0;
 
@@ -65,6 +67,7 @@
 
         .summary-row {
             font-size: 1.5em;
+
             padding-bottom: 1em;
             padding-top: 0;
         }
@@ -78,6 +81,8 @@
             justify-content: flex-start;
             align-items: center;
             flex-wrap: wrap;
+
+            margin-left: 1px;
 
             * { vertical-align: middle; }
 

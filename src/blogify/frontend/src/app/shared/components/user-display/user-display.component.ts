@@ -11,9 +11,9 @@ export class UserDisplayComponent implements OnInit, OnChanges {
     @Input() user: User;
     @Input() info: 'username' | 'name' = 'username';
     @Input() showSecondaryInfo: boolean;
-    @Input() emSize: number = 3;
+    @Input() emSize = 3;
     @Input() sizeRatio = 2.4;
-    @Input() displayedVertically: boolean = false;
+    @Input() displayedVertically = false;
 
     infoText: string;
     secondaryInfoText: string;
