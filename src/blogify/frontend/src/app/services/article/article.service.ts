@@ -4,7 +4,7 @@ import { Article } from '../../models/Article';
 import { AuthService } from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
 import { User } from '../../models/User';
-import { SearchView } from  '../../models/SearchView';
+import { SearchView } from '../../models/SearchView';
 
 @Injectable({
     providedIn: 'root'
@@ -16,14 +16,14 @@ export class ArticleService {
     private async fetchUserObjects(articles: Article[]): Promise<Article[]> {
         const userUUIDs = new Set([...articles
             .filter (it => typeof it.createdBy === 'string')
-            .map    (it => <string> it.createdBy)]); // Converting to a Set makes sure a single UUID is not fetched more than once
+            .map    (it => it.createdBy as string)]); // Converting to a Set makes sure a single UUID is not fetched more than once
         const userObjects = await Promise.all (
             [...userUUIDs].map(it => this.authService.fetchUser(it))
         );
         return articles.map(a => {
             a.createdBy = userObjects
-                .find(u => u.uuid === <string> a.createdBy);
-            return a
+                .find(u => u.uuid === a.createdBy as string);
+            return a;
         });
     }
 
@@ -44,27 +44,27 @@ export class ArticleService {
             }).catch(_ => {
                 a.likedByUser = null;
             });
-            return a
-        }))
+            return a;
+        }));
     }
 
     private async prepareArticleData(articles: Article[]): Promise<Article[]> {
         return this
             .fetchUserObjects(articles)
-            .then(a => this.authService.userToken ? this.fetchLikeStatus(a, this.authService.userToken) : a)
+            .then(a => this.authService.userToken ? this.fetchLikeStatus(a, this.authService.userToken) : a);
     }
 
     async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {
         const articlesObs = this.httpClient.get<Article[]>(`/api/articles/?fields=${fields.join(',')}&amount=${amount}`);
         const articles = await articlesObs.toPromise();
-        return this.prepareArticleData(articles)
+        return this.prepareArticleData(articles);
     }
 
-    async getArticleByUUID(uuid: string, fields: string[] = []): Promise<Article> {
+    async getArticleByUUID(articleUuid: string, fields: (keyof Article)[] = []): Promise<Article> {
 
-        const actualFieldsString: string = fields.length === 0 ? "" : `?fields=${fields.join(',')}`;
+        const actualFieldsString: string = fields.length === 0 ? '' : `?fields=${fields.join(',')}`;
 
-        const article =  await this.httpClient.get<Article>(`/api/articles/${uuid}${actualFieldsString}`).toPromise();
+        const article =  await this.httpClient.get<Article>(`/api/articles/${articleUuid}${actualFieldsString}`).toPromise();
         article.createdBy = await this.authService.fetchUser(article.createdBy.toString());
         return article;
     }
@@ -97,7 +97,7 @@ export class ArticleService {
         return this.httpClient.post<any>(`/api/articles/`, newArticle, httpOptions).toPromise();
     }
 
-    async likeArticle(article: Article, userToken: string): Promise<HttpResponse<Object>> {
+    async likeArticle(article: Article, userToken: string): Promise<HttpResponse<object>> {
 
         const httpOptions = {
             headers: new HttpHeaders({
@@ -109,10 +109,11 @@ export class ArticleService {
 
         // TypeScript bug with method overloads.
         // @ts-ignore
-        return this.httpClient.post<HttpResponse<Object>>(`/api/articles/${article.uuid}/like`, null, httpOptions).toPromise()
+        // noinspection TypeScriptValidateTypes
+        return this.httpClient.post<HttpResponse<object>>(`/api/articles/${article.uuid}/like`, null, httpOptions).toPromise();
     }
 
-    updateArticle(article: Article, uuid: string = article.uuid, userToken: string = this.authService.userToken) {
+    updateArticle(article: Article, userToken: string = this.authService.userToken) {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
@@ -129,21 +130,21 @@ export class ArticleService {
             createdBy: (typeof article.createdBy === 'string') ? article.createdBy : article.createdBy.uuid,
         };
 
-        return this.httpClient.patch<Article>(`/api/articles/${uuid}`, newArticle, httpOptions).toPromise();
+        return this.httpClient.patch<Article>(`/api/articles/${article.uuid}`, newArticle, httpOptions).toPromise();
     }
 
-    deleteArticle(uuid: string, userToken: string = this.authService.userToken) {
+    deleteArticle(articleUuid: string, userToken: string = this.authService.userToken) {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${userToken}`
             })
         };
-        return this.httpClient.delete(`/api/articles/${uuid}`, httpOptions).toPromise();
+        return this.httpClient.delete(`/api/articles/${articleUuid}`, httpOptions).toPromise();
     }
 
     search(query: string, fields: string[], byUser: User | null) {
-        const byUserString = (byUser ? `&byUser=${byUser.uuid}` : "");
+        const byUserString = (byUser ? `&byUser=${byUser.uuid}` : '');
         const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}${byUserString}`;
         return this.httpClient.get<SearchView<Article>>(url)
             .toPromise()

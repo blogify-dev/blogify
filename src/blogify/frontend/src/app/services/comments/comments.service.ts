@@ -19,14 +19,14 @@ export class CommentsService {
     private async fetchUserObjects(comments: Comment[]): Promise<Comment[]> {
         const userUUIDs = new Set([...comments
             .filter (it => typeof it.commenter === 'string')
-            .map    (it => <string> it.commenter)]); // Converting to a Set makes sure a single UUID is not fetched more than once
+            .map    (it => it.commenter as string)]); // Converting to a Set makes sure a single UUID is not fetched more than once
         const userObjects = await Promise.all (
             [...userUUIDs].map(it => this.authService.fetchUser(it))
         );
         return comments.map(a => {
             a.commenter = userObjects
-                .find(u => u.uuid === <string> a.commenter);
-            return a
+                .find(u => u.uuid === a.commenter as string);
+            return a;
         });
     }
 
@@ -47,19 +47,19 @@ export class CommentsService {
                 }).catch(_ => {
                 c.likedByUser = null;
             });
-            return c
-        }))
+            return c;
+        }));
     }
 
     private async prepareCommentData(comments: Comment[]): Promise<Comment[]> {
         return this
             .fetchUserObjects(comments)
-            .then(a => this.authService.userToken ? this.fetchLikeStatus(a, this.authService.userToken) : a)
+            .then(a => this.authService.userToken ? this.fetchLikeStatus(a, this.authService.userToken) : a);
     }
 
     async getCommentsForArticle(article: Article): Promise<Comment[]> {
         const comments = await this.httpClient.get<Comment[]>(`${commentsEndpoint}/article/${article.uuid}`).toPromise();
-        return this.prepareCommentData(comments)
+        return comments ? this.prepareCommentData(comments) : [];
     }
 
     // tslint:disable-next-line
@@ -133,7 +133,7 @@ export class CommentsService {
         }
     }
 
-    async likeComment(comment: Comment, userToken: string): Promise<HttpResponse<Object>> {
+    async likeComment(comment: Comment, userToken: string): Promise<HttpResponse<object>> {
 
         const httpOptions = {
             headers: new HttpHeaders({
@@ -145,7 +145,8 @@ export class CommentsService {
 
         // TypeScript bug with method overloads.
         // @ts-ignore
-        return this.httpClient.post<HttpResponse<Object>>(`/api/articles/comments/${comment.uuid}/like`, null, httpOptions).toPromise()
+        // noinspection TypeScriptValidateTypes
+        return this.httpClient.post<HttpResponse<object>>(`/api/articles/comments/${comment.uuid}/like`, null, httpOptions).toPromise();
     }
 
     async getChildrenOf(commentUUID: string, depth: number): Promise<Comment> {
