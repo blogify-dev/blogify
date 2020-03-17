@@ -7,6 +7,9 @@
                 4
             ]
         },
+        "max-line-length": {
+            "options": { "limit": 200 }
+        },
         "array-type": false,
         "arrow-parens": false,
         "deprecation": {
