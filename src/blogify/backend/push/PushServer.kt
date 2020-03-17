@@ -5,13 +5,16 @@ import blogify.backend.push.PushServer.ClosingCodes.INVALID_MESSAGE
 import blogify.backend.push.notifications.SubscribeToNotifications
 import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
+import blogify.backend.resources.reflect.cachedPropMap
 import blogify.backend.resources.reflect.doInstantiate
+import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.routing.closeAndExit
 import blogify.backend.util.concurrentMapOf
 import blogify.backend.util.getOr
 import blogify.backend.util.mappedByHandles
 import blogify.backend.util.short
 import blogify.backend.util.toDto
+import com.andreapivetta.kolor.red
 
 import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.Frame
@@ -89,8 +92,12 @@ class PushServer(val appContext: ApplicationContext) {
 
             // Instantiate that class
 
-            val receivedMessage = receivedClass.doInstantiate(bodyPayload)
-                .getOr {
+            val noConnectionHandleMessage = "fatal: no connection property on class ${receivedClass.simpleName}".red()
+
+            val receivedMessage = receivedClass.doInstantiate (
+                    params = bodyPayload,
+                    externallyProvided = setOf(receivedClass.cachedPropMap().ok()["connection"] ?: error(noConnectionHandleMessage))
+                ).getOr {
                     it.printStackTrace()
                     close(INVALID_MESSAGE("couldn't instantiate message - ${it.javaClass.simpleName}: ${it.message}"))
                 }

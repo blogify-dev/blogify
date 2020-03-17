@@ -17,6 +17,8 @@ import kotlin.reflect.full.isSubtypeOf
 
 import com.andreapivetta.kolor.red
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+
 import com.github.kittinunf.result.coroutines.mapError
 
 import java.lang.IllegalStateException
@@ -29,6 +31,11 @@ private class MissingArgumentsException(vararg val parameters: KParameter)
 
 private val noExternalFetcherMessage =
     "fatal: tried to instantiate an object with references to resources but no external fetcher was provided".red()
+
+/**
+ * This is fine, it's thread safe
+ */
+private val objectMapper = jacksonObjectMapper()
 
 /**
  * Instantiates the class in receiver position using a [Map] of [property handles][PropMap.PropertyHandle] and
@@ -46,8 +53,9 @@ private val noExternalFetcherMessage =
  * @author Benjozork
  */
 suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
-    params:          Map<PropMap.PropertyHandle.Ok, Any?>,
-    externalFetcher: suspend (KClass<Resource>, UUID) -> Sr<Any> = { _, _ -> error(noExternalFetcherMessage) }
+    params:             Map<PropMap.PropertyHandle.Ok, Any?>,
+    externalFetcher:    suspend (KClass<Resource>, UUID) -> Sr<Any> = { _, _ -> error(noExternalFetcherMessage) },
+    externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
 ): Sr<TMapped> {
 
     // We use unsafe because we have to give the @Invisible values too
@@ -58,24 +66,41 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
 
     // We make this a function so that Wrap {} catches any error in it
     suspend fun makeParamMap(): Map<KParameter, Any?> {
-        return (propMap.ok().values intersect params.keys)
+        return ((propMap.ok().values intersect params.keys))
             // For now, associate each propHandle to the constructor param with the same name
             .associateWith { targetCtor.parameters.firstOrNull { p -> p.name == it.name } ?: error("fatal: impossible state") }
             // Then map it to the given value in params
-            .map { it.value to params[it.key] }
-            .map { (k ,v) -> // Do some known obvious conversions
-                when {
-                    k.type.isSubtypeOf(Resource::class.createType()) -> { // KType of property is subtype of Resource
-                        @Suppress("UNCHECKED_CAST")
-                        val keyResourceType = k.type.classifier as KClass<Resource>
-                        val valueUUID = (v as String).toUUID()
+            .map { (it.value to it.key) to params[it.key] }
+            .map { (parameterAndHandle ,value) -> // Do some known obvious conversions
+                val (parameter, handle) = parameterAndHandle
 
-                        k to externalFetcher(keyResourceType, valueUUID).get()
+                when {
+                    handle in externallyProvided -> { // Do not deserialize, it's provided !
+                        parameter to value
                     }
-                    k.type.isSubtypeOf(UUID::class.createType()) -> { // KType of property is subtype of UUID
-                        k to (v as String).toUUID()
+                    parameter.type.isSubtypeOf(Resource::class.createType()) -> { // KType of property is subtype of Resource
+                        @Suppress("UNCHECKED_CAST")
+                        val keyResourceType = parameter.type.classifier as KClass<Resource>
+                        val valueUUID = (value as String).toUUID()
+
+                        parameter to externalFetcher(keyResourceType, valueUUID).get()
                     }
-                    else -> k to v
+                    parameter.type.isSubtypeOf(UUID::class.createType()) -> { // KType of property is subtype of UUID
+                        parameter to (value as String).toUUID()
+                    }
+                    else  -> { // We don't know what it is, we need to extract a JavaType and make Jackson deserialize it
+                        val baseTypeClass = (parameter.type.classifier as? KClass<*>)?.java
+                            ?: error("fatal: found non-class base type when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
+
+                        val typeParameters = parameter.type.arguments.map {
+                            (it.type?.classifier as? KClass<*>)?.java
+                                ?: error("fatal: found non-class type parameter when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
+                        }.toTypedArray()
+
+                        val type = objectMapper.typeFactory.constructParametricType(baseTypeClass, *typeParameters)
+
+                        parameter to objectMapper.readValue(objectMapper.writeValueAsString(value).toByteArray(), type)
+                    }
                 }
             }.toMap().also { map ->
                 val missingParams = targetCtor.parameters subtract map.keys
