@@ -8,7 +8,6 @@ import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.search.models.Template
 import blogify.backend.util.filterThenMapValues
 
-import com.andreapivetta.kolor.green
 import kotlin.reflect.KClass
 
 import kotlin.reflect.full.findAnnotation
