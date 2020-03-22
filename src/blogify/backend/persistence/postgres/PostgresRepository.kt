@@ -5,6 +5,7 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.resources.listings.ListingQuery
 import blogify.backend.resources.reflect.update
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
@@ -22,16 +23,15 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
-import org.slf4j.LoggerFactory
-
 import java.util.*
 
 open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repository<R> {
 
-    private val logger = LoggerFactory.getLogger("blogify-service-${this::class.simpleName}")
-
     override suspend fun getAll(request: RequestContext, limit: Int): SrList<R>
             = this.table.obtainAll(request, limit)
+
+    override suspend fun queryListing(request: RequestContext, listingQuery: ListingQuery<R>): Sr<Pair<List<R>, Boolean>>
+            = this.table.obtainListing(request, listingQuery, this.table.uuid)
 
     override suspend fun get(request: RequestContext, id: UUID): Sr<R>
             = request.cache.findOrAsync(id) { table.obtain(request, id).get() }

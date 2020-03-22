@@ -1,4 +1,4 @@
-<ng-container *ngIf="articles !== undefined && forUser !== undefined">
-    <app-show-all-articles appCompact [articles]="articles" [forUser]="forUser" [allowCreate]="false"></app-show-all-articles>
+<ng-container *ngIf="forUser">
+    <app-show-all-articles appCompact [listing]="listing" [allowCreate]="false"></app-show-all-articles>
 </ng-container>
 

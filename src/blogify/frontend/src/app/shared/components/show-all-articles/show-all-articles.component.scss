@@ -55,6 +55,23 @@
 
     #articles-main {
 
+        display: flex;
+        flex-direction: column;
+
+        #next-page {
+            align-self: flex-end;
+
+            display: flex;
+            align-items: center;
+
+            column-gap: .75em;
+
+            margin-top: 1em;
+
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
     }
 
     #content-empty {

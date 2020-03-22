@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Article } from "../../../../models/Article";
-import { ArticleService } from "../../../../services/article/article.service";
+import { Article } from '../../../../models/Article';
+import { ListingQuery } from '../../../../models/ListingQuery';
+import { ArticleService } from '../../../../services/article/article.service';
 import { AuthService } from '../../../../shared/auth/auth.service';
 import { ActivatedRoute, Params } from '@angular/router';
 import { User } from '../../../../models/User';
@@ -12,8 +13,8 @@ import { User } from '../../../../models/User';
 })
 export class OverviewComponent implements OnInit {
 
-    articles: Article[];
     forUser: User;
+    listing: ListingQuery<Article>;
 
     constructor (
         private articleService: ArticleService,
@@ -23,19 +24,13 @@ export class OverviewComponent implements OnInit {
 
     ngOnInit() {
         this.route.parent.params.subscribe((params: Params) => {
-            let username = params['username'];
-
-            this.articleService.getArticleByForUser (
-                username,
-                ['title', 'summary', 'createdBy', 'categories', 'createdAt', 'likeCount', 'commentCount']
-            ).then(articles => {
-                this.articles = articles;
-            });
+            const username = params.username;
 
             this.authService.getByUsername(username).then(user => {{
                 this.forUser = user;
+                this.listing = new ListingQuery<Article>(5, 0, this.forUser.uuid);
             }});
-        })
+        });
     }
 
 }

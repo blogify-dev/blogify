@@ -54,6 +54,7 @@ import blogify.backend.pipelines.handleAuthentication
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.pipelineError
+import blogify.backend.resources.listings.ListingQuery
 import blogify.backend.search.Typesense
 import blogify.backend.util.SrList
 import blogify.backend.util.filterThenMapValues
@@ -151,6 +152,23 @@ suspend inline fun <reified R : Resource> RequestContext.fetchAllResources() {
         logger.debug("slicer: getting fields $selectedProperties".magenta())
         call.respond(resources.map { it.slice(selectedProperties) })
     }
+
+}
+
+@BlogifyDsl
+suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing() {
+
+    val listingQuery = call.receive<ListingQuery<R>>()
+
+    val repo = repository<R>()
+
+    repo.queryListing(this, listingQuery).fold (
+        success = { (articles, moreAvailable) ->
+            val obj = object { val data = articles.map { it.sanitize() }; val moreAvailable = moreAvailable }
+            call.respond(obj)
+        },
+        failure = call::respondExceptionMessage
+    )
 
 }
 
@@ -582,6 +600,7 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
  *
  * @author Benjozork
  */
+@BlogifyDsl
 suspend inline fun <reified M : Mapped> RequestContext.getValidations() {
     call.respond (
         M::class.cachedPropMap().ok()

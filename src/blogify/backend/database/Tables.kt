@@ -12,17 +12,18 @@ import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.resources.listings.ListingQuery
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
 import blogify.backend.util.matches
 
-import io.ktor.application.ApplicationCall
 import io.ktor.http.ContentType
 
 import org.jetbrains.exposed.sql.ReferenceOption.*
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.deleteWhere
@@ -30,20 +31,49 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.getOrElse
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
 import java.util.UUID
 
-abstract class ResourceTable<R : Resource> : Table() {
+import com.andreapivetta.kolor.red
 
-    open suspend fun obtainAll(requestContext: RequestContext, limit: Int): SrList<R> = Wrap {
-        query { this.selectAll().limit(limit).toSet() }.get().map { this.convert(requestContext, it).get() }
+abstract class ResourceTable< R: Resource> : Table() {
+
+    open val authorColumn: Column<UUID>? = null
+
+    suspend fun obtainAll(requestContext: RequestContext, limit: Int): SrList<R> = Wrap {
+        query { this.selectAll().limit(limit).toSet() }.get()
+            .map { this.convert(requestContext, it).get() }
     }
 
-    open suspend fun obtain(requestContext: RequestContext, id: UUID): Sr<R> = Wrap {
+    suspend fun obtainListing(requestContext: RequestContext, listingQuery: ListingQuery<R>, orderBy: Column<*>): Sr<Pair<List<R>, Boolean>> = Wrap {
+
+        if (authorColumn == null)
+            error("fatal: tried to query listing but author column was not set on table".red())
+
+        val selectCondition: SqlExpressionBuilder.() -> Op<Boolean> =
+            if (listingQuery.forUser != null) {
+                { authorColumn!! eq listingQuery.forUser.uuid }
+            } else {
+                { Op.TRUE }
+            }
+
+        query {
+            this.select(selectCondition) //    v-- We add one to check if we reached the end
+                .limit(listingQuery.quantity + 1, (listingQuery.page * listingQuery.quantity).toLong())
+                .orderBy(orderBy)
+                .toList()
+        }.get().let { results ->
+            results.takeLast(listingQuery.quantity)
+                .map { this.convert(requestContext, it).get() } to (results.size - 1 == listingQuery.quantity)
+        }
+    }
+
+    suspend fun obtain(requestContext: RequestContext, id: UUID): Sr<R> = Wrap {
         query { this.select { uuid eq id }.single() }.get()
             .let { this.convert(requestContext, it).get() }
     }
@@ -76,6 +106,8 @@ object Articles : ResourceTable<Article>() {
     val content    = text    ("content")
     val summary    = text    ("summary")
 
+    override val authorColumn = createdBy
+
     override suspend fun insert(resource: Article): Sr<Article> {
         return Wrap {
             query {
@@ -89,7 +121,7 @@ object Articles : ResourceTable<Article>() {
                 }
             }.get()
 
-             query {
+            query {
                 Categories.batchInsert(resource.categories) {
                     this[Categories.article] = resource.uuid
                     this[Categories.name]    = it.name
@@ -261,6 +293,8 @@ object Comments : ResourceTable<Comment>() {
     val article       = uuid ("article").references(Articles.uuid, onDelete = CASCADE)
     val content       = text ("content")
     val parentComment = uuid ("parent_comment").references(uuid, onDelete = CASCADE).nullable()
+
+    override val authorColumn = commenter
 
     object Likes: Table("comment_likes") {
 

@@ -27,6 +27,7 @@ import blogify.backend.resources.User
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.persistence.models.Repository
+import blogify.backend.routing.handling.fetchResourceListing
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
 import blogify.backend.util.toUUID
@@ -49,6 +50,12 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
                 fetchAllResources<Article>()
             }
 
+        }
+
+        post("/listing") {
+            requestContext(applicationContext) {
+                fetchResourceListing<Article>()
+            }
         }
 
         get("/{uuid}") {
