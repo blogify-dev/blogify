@@ -14,6 +14,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.memberProperties
 
 private val logger = LoggerFactory.getLogger("blogify-datamap")
 
@@ -28,7 +29,7 @@ private val logger = LoggerFactory.getLogger("blogify-datamap")
  */
 @Suppress("UNCHECKED_CAST")
 private fun <M : Mapped> KClass<M>.buildPropMap(unsafe: Boolean = false): PropMap {
-    return PropMap(this.declaredMemberProperties
+    return PropMap(this.memberProperties
         .asSequence()
         .associateBy {
             it.name
