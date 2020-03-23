@@ -1,6 +1,9 @@
 package blogify.backend.persistence.postgres.orm.models
 
+import blogify.backend.persistence.postgres.orm.AssociativeTableGenerator
+import blogify.backend.persistence.postgres.orm.extensions.isType
 import blogify.backend.persistence.postgres.orm.extensions.subtypeOf
+import blogify.backend.persistence.postgres.orm.annotations.Cardinality as CardinalityAnnotation
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 
@@ -22,17 +25,29 @@ import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
 import com.andreapivetta.kolor.red
-import blogify.backend.persistence.postgres.orm.annotations.Cardinality as CardinalityAnnotation
+import org.jetbrains.exposed.sql.ForeignKeyConstraint
+import org.jetbrains.exposed.sql.ReferenceOption
 
 sealed class PropertyMapping {
 
-    abstract fun applyMappingToTable(table: Table)
+    abstract fun applyMappingToTable(table: OrmTable<*>): Column<*>?
+
+    data class IdentifierMapping(val handle: PropMap.PropertyHandle.Ok<*>) : PropertyMapping() {
+
+        override fun applyMappingToTable(table: OrmTable<*>): Column<UUID> {
+            if (!(handle.property.returnType isType UUID::class))
+                error("fatal: IdentifierMapping must be made on a UUID property".red())
+
+            return table.registerColumn("uuid", UUIDColumnType())
+        }
+
+    }
 
     data class ValueMapping(val handle: PropMap.PropertyHandle.Ok<*>) : PropertyMapping() {
 
         lateinit var column: Column<*>
 
-        override fun applyMappingToTable(table: Table) {
+        override fun applyMappingToTable(table: OrmTable<*>): Column<*> {
             val type = handle.property.returnType
             val typeClass = type.classifier as KClass<*>
 
@@ -64,6 +79,8 @@ sealed class PropertyMapping {
             } catch (e: DuplicateColumnException) {
                 error("fatal: duplicate column name (DuplicateColumnException thrown) when generating value mapping for property '${handle.name}' of class '${typeClass.simpleName}".red())
             }
+
+            return this.column
         }
 
     }
@@ -72,7 +89,15 @@ sealed class PropertyMapping {
         val leftHandle: PropMap.PropertyHandle.Ok<TLeftResource>
     ) : PropertyMapping() {
 
+        var complete = false
+
         val cardinality = findCardinality(leftHandle)
+
+        @Suppress("UNCHECKED_CAST")
+        val dependency = leftHandle.property.returnType.classifier as KClass<Resource>
+
+        var rightAssociationColumn: Column<UUID>? = null
+        var associationTable: Table? = null
 
         enum class Cardinality {
             ONE_TO_ONE,
@@ -82,8 +107,31 @@ sealed class PropertyMapping {
             MANY_TO_MANY
         }
 
-        override fun applyMappingToTable(table: Table) {
-            TODO("Not yet implemented")
+        fun complete(leftTable: OrmTable<in TLeftResource>, rightTable: OrmTable<in Resource>) {
+            if (complete) error("fatal: associative mapping is already completed".red())
+            complete = true
+
+            rightAssociationColumn = rightTable.identifyingColumn
+            associationTable = AssociativeTableGenerator.makeAssociativeTable(leftHandle, leftTable, rightTable, cardinality)
+        }
+
+        override fun applyMappingToTable(table: OrmTable<*>): Column<*>? {
+            if (!complete) error("fatal: cannot apply associative mapping to table if it wasn't complete()-d".red())
+
+            if (associationTable != null)
+                table.dependencyTables.add(associationTable!!)
+            else if (rightAssociationColumn != null) {
+                val leftAssociationColumn =  table.registerColumn<UUID>(leftHandle.name, UUIDColumnType())
+                leftAssociationColumn.foreignKey = ForeignKeyConstraint (
+                    rightAssociationColumn!!,
+                    leftAssociationColumn,
+                    ReferenceOption.RESTRICT,
+                    ReferenceOption.RESTRICT,
+                    name = "fk_${leftAssociationColumn.name}_${rightAssociationColumn!!.table.tableName}"
+                )
+            }
+
+            return null
         }
 
         companion object {

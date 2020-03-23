@@ -64,7 +64,7 @@ internal class AssociativePropertyMapperTest {
 
     @Test fun `should throw an exception when checking cardinality of collection property with no cardinality annotation`() {
         assertThrows(IllegalStateException::class.java, {
-            val cardinality = PropertyMapping.AssociativeMapping.findCardinality(dummySetInvalidHandle)
+            PropertyMapping.AssociativeMapping.findCardinality(dummySetInvalidHandle)
         }, "fatal: no cardinality annotation on collection element type for property 'dummySetInvalid' of class 'TestClass4'".red())
     }
 
