@@ -1,6 +1,7 @@
 package blogify.backend.persistence.postgres.orm
 
 import blogify.backend.persistence.postgres.orm.annotations.Cardinality
+import blogify.backend.persistence.postgres.orm.models.PropertyMapping
 import blogify.backend.persistence.postgres.orm.models.PropertyMapping.AssociativeMapping.Cardinality.*
 import blogify.backend.resources.reflect.cachedPropMap
 import blogify.backend.resources.reflect.models.Mapped
@@ -23,7 +24,7 @@ internal class AssociativePropertyMapperTest {
     val dummyHandle = TestClass1::class.cachedPropMap().ok().values.first { it.name == "dummy" }
 
     @Test fun `should find one-to-one cardinality properly`() {
-        val cardinality = AssociativePropertyMapper.findCardinality(dummyHandle, TestClass1::class)
+        val cardinality = PropertyMapping.AssociativeMapping.findCardinality(dummyHandle)
 
         assertEquals(ONE_TO_ONE, cardinality)
     }
@@ -36,7 +37,7 @@ internal class AssociativePropertyMapperTest {
     val dummyNullableHandle = TestClass2::class.cachedPropMap().ok().values.first { it.name == "dummyNullable" }
 
     @Test fun `should find one-to-one-or-none cardinality properly`() {
-        val cardinality = AssociativePropertyMapper.findCardinality(dummyNullableHandle, TestClass2::class)
+        val cardinality = PropertyMapping.AssociativeMapping.findCardinality(dummyNullableHandle)
 
         assertEquals(ONE_TO_ONE_OR_NONE, cardinality)
     }
@@ -49,7 +50,7 @@ internal class AssociativePropertyMapperTest {
     val dummySetHandle = TestClass3::class.cachedPropMap().ok().values.first { it.name == "dummySet" }
 
     @Test fun `should find one-to-many cardinality properly`() {
-        val cardinality = AssociativePropertyMapper.findCardinality(dummySetHandle, TestClass3::class)
+        val cardinality = PropertyMapping.AssociativeMapping.findCardinality(dummySetHandle)
 
         assertEquals(ONE_TO_MANY, cardinality)
     }
@@ -63,7 +64,7 @@ internal class AssociativePropertyMapperTest {
 
     @Test fun `should throw an exception when checking cardinality of collection property with no cardinality annotation`() {
         assertThrows(IllegalStateException::class.java, {
-            val cardinality = AssociativePropertyMapper.findCardinality(dummySetInvalidHandle, TestClass4::class)
+            val cardinality = PropertyMapping.AssociativeMapping.findCardinality(dummySetInvalidHandle)
         }, "fatal: no cardinality annotation on collection element type for property 'dummySetInvalid' of class 'TestClass4'".red())
     }
 
