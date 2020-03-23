@@ -7,7 +7,7 @@ import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
 infix fun KType.subtypeOf(klass: KClass<*>) =
-    this.isSubtypeOf(klass.createType(klass.typeParameters.map { KTypeProjection(null, null) }))
+    this.isSubtypeOf(klass.createType(klass.typeParameters.map { KTypeProjection(null, null) }, nullable = this.isMarkedNullable))
 
 infix fun KType.isType(klass: KClass<*>) =
     this.classifier == klass

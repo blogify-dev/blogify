@@ -1,12 +1,14 @@
 package blogify.backend.persistence.postgres.orm
 
 import blogify.backend.annotations.Invisible
+import blogify.backend.persistence.postgres.orm.models.OrmTable
 import blogify.backend.persistence.postgres.orm.models.PropertyMapping
 import blogify.backend.persistence.postgres.orm.models.PropertyMapping.AssociativeMapping.Cardinality as AssociationCardinality
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.ext.handle
-import org.jetbrains.exposed.sql.IntegerColumnType
+import blogify.backend.resources.reflect.models.ext.uuidHandle
 
+import org.jetbrains.exposed.sql.IntegerColumnType
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.TextColumnType
 
@@ -30,18 +32,17 @@ object PropertyMapperTest {
 
     @Test
     fun `should map value properties correctly`() {
-        val testTable = Table()
+        val uuidMapping = PropertyMapper.mapProperty(ComplexTestClass::class, ComplexTestClass::class.uuidHandle)
 
         val nameMapping = PropertyMapper.mapProperty(ComplexTestClass::class, ComplexTestClass::name.handle())
         assertTrue(nameMapping is PropertyMapping.ValueMapping)
 
-        nameMapping.applyMappingToTable(testTable)
-        assertTrue(testTable.columns.any { it.name == "name" && it.columnType is TextColumnType })
-
         val ageMapping = PropertyMapper.mapProperty(ComplexTestClass::class, ComplexTestClass::age.handle())
         assertTrue(ageMapping is PropertyMapping.ValueMapping)
 
-        ageMapping.applyMappingToTable(testTable)
+        val testTable = OrmTable(ComplexTestClass::class, setOf(uuidMapping, nameMapping, ageMapping))
+
+        assertTrue(testTable.columns.any { it.name == "name" && it.columnType is TextColumnType })
         assertTrue(testTable.columns.any { it.name == "age" && it.columnType is IntegerColumnType })
     }
 
