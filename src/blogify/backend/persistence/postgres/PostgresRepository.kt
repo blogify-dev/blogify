@@ -5,7 +5,7 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.reflect.update
+import blogify.backend.resources.reflect.updateResource
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
@@ -47,8 +47,8 @@ open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repos
 
     override suspend fun add(res: R): Sr<R> = this.table.insert(res)
 
-    override suspend fun update(request: RequestContext, res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R> {
-        val new = update(res, request, rawData)
+    override suspend fun update(request: RequestContext, res: R, rawData: Map<PropMap.PropertyHandle.Ok<R>, Any?>): Sr<R> {
+        val new = updateResource(res, request, rawData)
             .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't update resource")
 
         this.table.update(new)

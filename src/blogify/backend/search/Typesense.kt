@@ -212,20 +212,20 @@ object Typesense {
     }
 
     /**
-     * Executes a search [query] for resources of type [R]
+     * Executes a search [query] for resources of type [TResource]
      *
-     * @param R     the type of resources to search for
+     * @param TResource     the type of resources to search for
      * @param query the search query to use
      *
      * @return a [Search] containing the results
      *
      * @author Benjozork
      */
-    suspend inline fun <reified R : Resource> search (
+    suspend inline fun <reified TResource : Resource> search (
         query:   String,
-        filters: Map<PropMap.PropertyHandle.Ok, Any> = emptyMap()
-    ): Search<R> {
-        val template = R::class._searchTemplate
+        filters: Map<PropMap.PropertyHandle.Ok<*>, Any> = emptyMap()
+    ): Search<TResource> {
+        val template = TResource::class._searchTemplate
 
         val excludedFieldsString = template.fields
             .joinToString(separator = ",") { it.name }
@@ -246,7 +246,7 @@ object Typesense {
             val response = response.execute()
 
             if (response.status.isSuccess()) {
-                return@let response.receive<Search<R>>()
+                return@let response.receive<Search<TResource>>()
             } else {
                 tscLogger.error("couldn't search in Typesense index ${template.name}: ${typesenseMessage(response.receive())}".red())
                 pipelineError(HttpStatusCode.InternalServerError, "error during Typesense search")

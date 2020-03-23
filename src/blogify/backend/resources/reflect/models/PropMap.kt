@@ -1,5 +1,7 @@
 package blogify.backend.resources.reflect.models
 
+import blogify.backend.resources.models.Resource
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
 /**
@@ -10,7 +12,10 @@ import kotlin.reflect.KProperty1
  *
  * @author Benjozork, hamza1311
  */
-class PropMap(val map: Map<String, PropertyHandle>): Iterable<Map.Entry<String, PropMap.PropertyHandle>> {
+class PropMap<TMapped : Mapped> (
+    val klass: KClass<TMapped>,
+    val map: Map<String, PropertyHandle<TMapped>>
+): Iterable<Map.Entry<String, PropMap.PropertyHandle<TMapped>>> {
 
     override fun iterator() = this.map.iterator()
 
@@ -23,11 +28,11 @@ class PropMap(val map: Map<String, PropertyHandle>): Iterable<Map.Entry<String, 
      *
      * @author Benjozork
      */
-    sealed class PropertyHandle(val name: String) {
+    sealed class PropertyHandle<TMapped : Mapped>(val klass: KClass<TMapped>, val name: String) {
 
         override fun equals(other: Any?): Boolean {
             return when (other) {
-                is PropertyHandle -> this.name == other.name
+                is PropertyHandle<*> -> this.name == other.name
                 else -> false
             }
         }
@@ -51,7 +56,7 @@ class PropMap(val map: Map<String, PropertyHandle>): Iterable<Map.Entry<String, 
          *
          * @author Benjozork
          */
-        class Ok(name: String, val regexCheck: Regex?, override val property: KProperty1<Any, Any>): PropertyHandle(name), Valid
+        class Ok<TMapped : Mapped>(klass: KClass<TMapped>, name: String, val regexCheck: Regex?, override val property: KProperty1<Any, Any>): PropertyHandle<TMapped>(klass, name), Valid
 
         /**
          * Represents a valid computed handle, which points to a [KProperty1]
@@ -62,7 +67,7 @@ class PropMap(val map: Map<String, PropertyHandle>): Iterable<Map.Entry<String, 
          *
          * @author Benjozork
          */
-        class Computed(name: String, override val property: KProperty1<Any, Any>): PropertyHandle(name), Valid
+        class Computed<TMapped : Mapped>(klass: KClass<TMapped>, name: String, override val property: KProperty1<Any, Any>): PropertyHandle<TMapped>(klass, name), Valid
 
         /**
          * Represents a handle that points to a property that cannot be accessed due to security policy reasons. This incident will be reported.
@@ -71,7 +76,7 @@ class PropMap(val map: Map<String, PropertyHandle>): Iterable<Map.Entry<String, 
          *
          * @author Benjozork
          */
-        class AccessDenied(name: String): PropertyHandle(name)
+        class AccessDenied<TMapped : Mapped>(klass: KClass<TMapped>, name: String): PropertyHandle<TMapped>(klass, name)
     }
 
 }

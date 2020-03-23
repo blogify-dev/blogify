@@ -24,7 +24,7 @@ object AutogenPropertyVisitor {
             .also { Template.Field.tsaLogger.debug("mapped field subclasses".green()) }
     }
 
-    fun <R : Resource> visitAndMapProperty(handle: PropMap.PropertyHandle.Ok): Template.Field {
+    fun <TResource : Resource> visitAndMapProperty(handle: PropMap.PropertyHandle.Ok<TResource>): Template.Field {
         val property = handle.property
         val propertyClass = property.returnType.classifier as KClass<*>
         val typeAnnotations = property.returnType.annotations
