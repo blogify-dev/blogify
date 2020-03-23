@@ -32,7 +32,7 @@ private val logger = LoggerFactory.getLogger("blogify-datamap-updater")
  *
  * @author Benjozork
  */
-suspend fun <R: Resource> update(target: R, requestContext: RequestContext, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R> {
+suspend fun <R: Resource> updateResource(target: R, requestContext: RequestContext, rawData: Map<PropMap.PropertyHandle.Ok<R>, Any?>): Sr<R> {
 
     val ost = jacksonObjectMapper()
 

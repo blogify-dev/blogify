@@ -11,7 +11,7 @@ import blogify.backend.util.filterThenMapValues
  *
  * @author Benjozork
  */
-fun Mapped.verify(): Map<PropMap.PropertyHandle.Ok, Boolean> = this.cachedPropMap().ok()
+fun <TMapped : Mapped> TMapped.verify(): Map<PropMap.PropertyHandle.Ok<TMapped>, Boolean> = this.cachedPropMap().ok()
     .mapKeys { it.value } // Use property handles as keys
     .filterThenMapValues (
         { it.property.returnType.classifier == String::class },

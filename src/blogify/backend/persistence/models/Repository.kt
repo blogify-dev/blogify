@@ -74,7 +74,7 @@ interface Repository<R : Resource> {
 
     suspend fun add(res: R): Sr<R>
 
-    suspend fun update(request: RequestContext, res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R>
+    suspend fun update(request: RequestContext, res: R, rawData: Map<PropMap.PropertyHandle.Ok<R>, Any?>): Sr<R>
 
     /**
      * Deletes an instance of [R] from the database
