@@ -15,7 +15,7 @@ inline fun <reified TMapped : Mapped> KProperty1<TMapped, *>.handle() =
     TMapped::class.cachedPropMap().ok().values.first { it.name == this.name }
 
 inline val <TResource : Resource> KClass<TResource>.uuidHandle get() =
-    this.cachedPropMap().ok().values.firstOrNull { it.name == "uuid" } ?: error("fatal: no uuid handle on class '${this.simpleName}'".red())
+    this.cachedPropMap().ok().values.firstOrNull { it.name == "uuid" } ?: error("fatal: no uuid handle on class '${this.simpleName}'. Are you sure it's a Resource ?".red())
 
 /**
  * Only returns [PropMap.PropertyHandle]s that respect interface [PropMap.PropertyHandle.Valid]
