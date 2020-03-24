@@ -15,6 +15,8 @@ import java.util.UUID
 
 import kotlin.reflect.KClass
 
+import com.andreapivetta.kolor.red
+
 object AssociativeTableGenerator {
 
     fun <Trl : Resource> makeAssociativeTable (
@@ -22,17 +24,20 @@ object AssociativeTableGenerator {
         leftTable:   Table,
         rightTable:  Table,
         cardinality: Cardinality
-    ): Table? {
+    ): Table {
+        val leftHandleCollectionType = leftHandle.property.returnType.arguments.firstOrNull()?.type
+            ?: error("fatal: left handle type (property '${leftHandle.name}') type should have a type parameter".red())
+
         @Suppress("UNCHECKED_CAST")
         return when(cardinality) {
             Cardinality.ONE_TO_ONE,
             Cardinality.ONE_TO_ONE_OR_NONE,
             Cardinality.MANY_TO_ONE ->
-                null
+                error("fatal: makeAssociativeTable should not be called on X_TO_ONE cardinalities".red())
             Cardinality.ONE_TO_MANY ->
                 doCreateAssociativeTable (
                     left            = leftHandle.klass.uuidHandle,
-                    right           = (leftHandle.property.returnType.classifier as KClass<Resource>).uuidHandle,
+                    right           = (leftHandleCollectionType.classifier as KClass<Resource>).uuidHandle,
                     leftMainColumn  = leftTable.columns.first { it.name == "uuid" } as Column<UUID>,
                     rightMainColumn = rightTable.columns.first { it.name == "uuid" } as Column<UUID>,
                     leftUnique      = true
@@ -40,7 +45,7 @@ object AssociativeTableGenerator {
             Cardinality.MANY_TO_MANY ->
                 doCreateAssociativeTable (
                     left            = leftHandle.klass.uuidHandle,
-                    right           = (leftHandle.property.returnType.classifier as KClass<Resource>).uuidHandle,
+                    right           = (leftHandleCollectionType.classifier as KClass<Resource>).uuidHandle,
                     leftMainColumn  = leftTable.columns.first { it.name == "uuid" } as Column<UUID>,
                     rightMainColumn = rightTable.columns.first { it.name == "uuid" } as Column<UUID>,
                     leftUnique      = false
