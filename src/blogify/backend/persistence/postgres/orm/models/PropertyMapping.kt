@@ -27,6 +27,7 @@ import kotlin.reflect.full.isSubtypeOf
 import com.andreapivetta.kolor.red
 import org.jetbrains.exposed.sql.ForeignKeyConstraint
 import org.jetbrains.exposed.sql.ReferenceOption
+import kotlin.reflect.full.findAnnotation
 
 sealed class PropertyMapping {
 
@@ -93,11 +94,21 @@ sealed class PropertyMapping {
 
         val cardinality = findCardinality(leftHandle)
 
-        @Suppress("UNCHECKED_CAST")
-        val dependency = leftHandle.property.returnType.classifier as KClass<Resource>
+        private val returnType = leftHandle.property.returnType
 
-        var rightAssociationColumn: Column<UUID>? = null
-        var associationTable: Table? = null
+        @Suppress("UNCHECKED_CAST")
+        val dependency =
+            if (returnType subtypeOf Collection::class) {
+                val collectionElementType = returnType.arguments.first().type
+                    ?: error("fatal: found a star projection in property type's type parameter '${leftHandle.name}' of class '${leftHandle.klass.simpleName}'".red())
+
+                if (collectionElementType subtypeOf Resource::class) {
+                    collectionElementType.classifier as KClass<Resource>
+                } else error("fatal: collection element type must be subtype of Resource (was '${(collectionElementType.classifier as KClass<*>).simpleName}')".red())
+            } else returnType.classifier as KClass<Resource>
+
+        lateinit var rightAssociationColumn: Column<UUID>
+        lateinit var associationTable: Table
 
         enum class Cardinality {
             ONE_TO_ONE,
@@ -107,27 +118,41 @@ sealed class PropertyMapping {
             MANY_TO_MANY
         }
 
+        enum class CollectionCardinality {
+            MANY_TO_MANY,
+            ONE_TO_MANY,
+        }
+
         fun complete(leftTable: OrmTable<in TLeftResource>, rightTable: OrmTable<in Resource>) {
             if (complete) error("fatal: associative mapping is already completed".red())
             complete = true
 
-            rightAssociationColumn = rightTable.identifyingColumn
-            associationTable = AssociativeTableGenerator.makeAssociativeTable(leftHandle, leftTable, rightTable, cardinality)
+            when (cardinality) {
+                Cardinality.MANY_TO_ONE,
+                Cardinality.ONE_TO_ONE_OR_NONE -> // Take care of the first and second later
+                    error("fatal: MANY_TO_ONE and ONE_TO_ONE_OR_NONE cardinalities are not supported yet".red())
+                Cardinality.ONE_TO_ONE ->
+                    this.rightAssociationColumn = rightTable.identifyingColumn
+                Cardinality.ONE_TO_MANY,
+                Cardinality.MANY_TO_MANY ->
+                    this.associationTable = AssociativeTableGenerator.makeAssociativeTable(leftHandle, leftTable, rightTable, cardinality)
+            }
         }
 
         override fun applyMappingToTable(table: OrmTable<*>): Column<*>? {
             if (!complete) error("fatal: cannot apply associative mapping to table if it wasn't complete()-d".red())
 
-            if (associationTable != null)
-                table.dependencyTables.add(associationTable!!)
-            else if (rightAssociationColumn != null) {
-                val leftAssociationColumn =  table.registerColumn<UUID>(leftHandle.name, UUIDColumnType())
+            if (this::associationTable.isInitialized) {
+                table.dependencyTables.add(associationTable)
+            } else if (this::rightAssociationColumn.isInitialized) {
+                val leftAssociationColumn = table.registerColumn<UUID>(leftHandle.name, UUIDColumnType())
+
                 leftAssociationColumn.foreignKey = ForeignKeyConstraint (
-                    rightAssociationColumn!!,
+                    rightAssociationColumn,
                     leftAssociationColumn,
                     ReferenceOption.RESTRICT,
                     ReferenceOption.RESTRICT,
-                    name = "fk_${leftAssociationColumn.name}_${rightAssociationColumn!!.table.tableName}"
+                    name = "fk_${leftAssociationColumn.name}_${rightAssociationColumn.table.tableName}"
                 )
             }
 
@@ -151,12 +176,14 @@ sealed class PropertyMapping {
                 return if (isCollectionType) {
                     val collectionElementType = type.arguments[0]
 
-                    collectionElementType.type
-                        ?.let { it.annotations.firstOrNull { a -> a is CardinalityAnnotation }
-                            ?.let { annotation ->
-                                (annotation as CardinalityAnnotation).cardinality
-                            } ?: error("fatal: no cardinality annotation on collection element type for property '${leftHandle.name}' of class '${leftHandle.klass.simpleName}'".red())
-                        } ?: error("fatal: found a star projection in property '${leftHandle.name}' of class '${leftHandle.klass.simpleName}'".red())
+                    collectionElementType.type?.let {
+                        it.findAnnotation<CardinalityAnnotation>()?.cardinality?.let { cardinality ->
+                            when (cardinality) {
+                                CollectionCardinality.ONE_TO_MANY  -> Cardinality.ONE_TO_MANY
+                                CollectionCardinality.MANY_TO_MANY -> Cardinality.MANY_TO_MANY
+                            }
+                        } ?: error("fatal: no cardinality annotation on collection element type for property '${leftHandle.name}' of class '${leftHandle.klass.simpleName}'".red())
+                    } ?: error("fatal: found a star projection in property '${leftHandle.name}' of class '${leftHandle.klass.simpleName}'".red())
                 } else {
                     if (type.isMarkedNullable)
                         Cardinality.ONE_TO_ONE_OR_NONE
