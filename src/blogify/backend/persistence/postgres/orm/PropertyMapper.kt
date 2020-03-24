@@ -21,8 +21,9 @@ object PropertyMapper {
         return when {
             type subtypeOf Number::class ||
             type isType    String::class ||
-            type isType    Char::class     -> PropertyMapping.ValueMapping(handle)
-            type isType    UUID::class     -> PropertyMapping.IdentifierMapping(handle)
+            type isType    Char::class -> PropertyMapping.ValueMapping(handle)
+            type isType    UUID::class -> PropertyMapping.IdentifierMapping(handle)
+            type subtypeOf Collection::class ||
             type subtypeOf Resource::class -> PropertyMapping.AssociativeMapping(handle)
             else -> error("fatal: I don't know how to map property '${handle.name}' of class '${klass.simpleName}'".red())
         }
