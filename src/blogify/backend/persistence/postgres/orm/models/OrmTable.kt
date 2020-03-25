@@ -17,10 +17,12 @@ import kotlin.reflect.KClass
  *
  * @author Benjozork
  */
-data class OrmTable<TResource : Resource> (
+class OrmTable<TResource : Resource> (
     val klass: KClass<TResource>,
     val mappings: Set<PropertyMapping>
-) : Table(klass.simpleName ?: error("klass must not be an anonymous object literal")) {
+) : SimpleOrmTable(name = klass.simpleName ?: error("klass must not be an anonymous object literal")) {
+
+    override var primaryKey: PrimaryKey? = null
 
     val dependencyTables = mutableSetOf<Table>()
 

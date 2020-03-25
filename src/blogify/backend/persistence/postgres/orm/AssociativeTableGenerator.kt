@@ -1,5 +1,6 @@
 package blogify.backend.persistence.postgres.orm
 
+import blogify.backend.persistence.postgres.orm.models.SimpleOrmTable
 import blogify.backend.persistence.postgres.orm.models.PropertyMapping.AssociativeMapping.Cardinality as Cardinality
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
@@ -60,7 +61,7 @@ object AssociativeTableGenerator {
         rightMainColumn: Column<UUID>,
         leftUnique:      Boolean
     ): Table {
-        val createdTable = Table("${left.klass.simpleName}_${left.name}_to_${right.klass.simpleName}_${right.name}")
+        val createdTable = SimpleOrmTable(name = "${left.klass.simpleName}_${left.name}_to_${right.klass.simpleName}_${right.name}")
 
         val leftColumn = createdTable.registerColumn<UUID>(left.klass.simpleName!!, UUIDColumnType())
         leftColumn.foreignKey = ForeignKeyConstraint (
@@ -78,6 +79,7 @@ object AssociativeTableGenerator {
             name = "fk_1"
         )
 
+        createdTable.primaryKey = createdTable.PrimaryKey(leftColumn, rightColumn)
         if (leftUnique) createdTable.uniqueIndex(leftColumn)
 
         return createdTable
