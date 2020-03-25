@@ -1,15 +1,14 @@
 package blogify.backend.persistence.postgres.orm
 
 import blogify.backend.annotations.Invisible
+import blogify.backend.persistence.postgres.orm.models.Cardinality
 import blogify.backend.persistence.postgres.orm.models.OrmTable
 import blogify.backend.persistence.postgres.orm.models.PropertyMapping
-import blogify.backend.persistence.postgres.orm.models.PropertyMapping.AssociativeMapping.Cardinality as AssociationCardinality
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.ext.handle
 import blogify.backend.resources.reflect.models.ext.uuidHandle
 
 import org.jetbrains.exposed.sql.IntegerColumnType
-import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.TextColumnType
 
 import org.junit.jupiter.api.Assertions.*
@@ -50,9 +49,7 @@ object PropertyMapperTest {
         val testMapping = PropertyMapper.mapProperty(ComplexTestClass::class, ComplexTestClass::test.handle())
 
         assertTrue(testMapping is PropertyMapping.AssociativeMapping<*>)
-        assertTrue((testMapping as PropertyMapping.AssociativeMapping<*>).cardinality == AssociationCardinality.ONE_TO_ONE)
-
-        // TODO add column testing when it's ready
+        assertTrue((testMapping as PropertyMapping.AssociativeMapping<*>).cardinality == Cardinality.ONE_TO_ONE)
     }
 
 }
