@@ -29,6 +29,8 @@ import org.jetbrains.exposed.sql.ForeignKeyConstraint
 import org.jetbrains.exposed.sql.ReferenceOption
 
 import com.andreapivetta.kolor.red
+import org.jetbrains.exposed.sql.BooleanColumnType
+import org.jetbrains.exposed.sql.StringColumnType
 
 sealed class PropertyMapping {
 
@@ -55,27 +57,14 @@ sealed class PropertyMapping {
 
             try {
                 this.column = when {
-                    type.isSubtypeOf(UUID::class.createType()) -> {
-                        table.registerColumn<UUID>(handle.name, UUIDColumnType())
-                    }
-                    type.isSubtypeOf(String::class.createType()) -> {
-                         table.registerColumn<String>(handle.name, TextColumnType())
-                    }
-                    type.isSubtypeOf(Int::class.createType()) -> {
-                        table.registerColumn<Int>(handle.name, IntegerColumnType())
-                    }
-                    type.isSubtypeOf(Long::class.createType()) -> {
-                        table.registerColumn<Long>(handle.name, LongColumnType())
-                    }
-                    type.isSubtypeOf(Double::class.createType()) -> {
-                        table.registerColumn<Double>(handle.name, DoubleColumnType())
-                    }
-                    type.isSubtypeOf(Float::class.createType()) -> {
-                        table.registerColumn<Float>(handle.name, FloatColumnType())
-                    }
-                    type.isSubtypeOf(Char::class.createType()) -> {
-                        table.registerColumn<Char>(handle.name, CharacterColumnType())
-                    }
+                    type isType UUID::class    -> table.registerColumn<UUID>(handle.name, UUIDColumnType())
+                    type isType String::class  -> table.registerColumn<String>(handle.name, TextColumnType())
+                    type isType Boolean::class -> table.registerColumn<Boolean>(handle.name, BooleanColumnType())
+                    type isType Int::class     -> table.registerColumn<Int>(handle.name, IntegerColumnType())
+                    type isType Long::class    -> table.registerColumn<Long>(handle.name, LongColumnType())
+                    type isType Double::class  -> table.registerColumn<Double>(handle.name, DoubleColumnType())
+                    type isType Float::class   -> table.registerColumn<Float>(handle.name, FloatColumnType())
+                    type isType Char::class    -> table.registerColumn<Char>(handle.name, CharacterColumnType())
                     else -> error("fatal: cannot generate a value mapping for a property of type '${typeClass.simpleName}'".red())
                 }
             } catch (e: DuplicateColumnException) {
@@ -112,8 +101,7 @@ sealed class PropertyMapping {
         lateinit var associationTable: Table
 
         fun complete(leftTable: OrmTable<in TLeftResource>, rightTable: OrmTable<in Resource>) {
-            if (complete) error("fatal: associative mapping is already completed".red())
-            complete = true
+            require(!complete) { "fatal: associative mapping is already completed".red() }
 
             when (cardinality) {
                 Cardinality.MANY_TO_ONE,
@@ -125,10 +113,12 @@ sealed class PropertyMapping {
                 Cardinality.MANY_TO_MANY ->
                     this.associationTable = AssociativeTableGenerator.makeAssociativeTable(leftHandle, leftTable, rightTable, cardinality)
             }
+
+            this.complete = true
         }
 
         override fun applyMappingToTable(table: OrmTable<*>): Column<*>? {
-            if (!complete) error("fatal: cannot apply associative mapping to table if it wasn't complete()-d".red())
+            require(complete) { "fatal: cannot apply associative mapping to table if it wasn't completed".red() }
 
             if (this::associationTable.isInitialized) {
                 table.dependencyTables.add(associationTable)
@@ -147,40 +137,91 @@ sealed class PropertyMapping {
             return null
         }
 
-        companion object {
-            /**
-             * Finds the cardinality of an associative mapping originating from [leftHandle]
-             *
-             * @param leftHandle the [PropMap.PropertyHandle.Ok] that is an associative mapping
-             *
-             * @return the resolved cardinality of the mapping
-             *
-             * @author Benjozork
-             */
-            fun findCardinality(leftHandle: PropMap.PropertyHandle.Ok<*>): Cardinality {
-                val type = leftHandle.property.returnType
-                val isCollectionType = type subtypeOf Collection::class
+    }
 
-                return if (isCollectionType) {
-                    val collectionElementType = type.arguments[0]
+    data class PrimitiveAssociativeMapping<TLeftResource : Resource> (
+        val leftHandle: PropMap.PropertyHandle.Ok<TLeftResource>
+    ): PropertyMapping() {
 
-                    collectionElementType.type?.let {
-                        it.findAnnotation<CardinalityAnnotation>()?.cardinality?.let { cardinality ->
-                            when (cardinality) {
-                                CollectionCardinality.ONE_TO_MANY  -> Cardinality.ONE_TO_MANY
-                                CollectionCardinality.MANY_TO_MANY -> Cardinality.MANY_TO_MANY
-                            }
-                        } ?: error("fatal: no cardinality annotation on collection element type for property '${leftHandle.name}' of class '${leftHandle.klass.simpleName}'".red())
-                    } ?: error("fatal: found a star projection in property '${leftHandle.name}' of class '${leftHandle.klass.simpleName}'".red())
-                } else {
-                    if (type.isMarkedNullable)
-                        Cardinality.ONE_TO_ONE_OR_NONE
-                    else
-                        Cardinality.ONE_TO_ONE
-                }
+        var complete = false
+
+        lateinit var associationTable: Table
+
+        @Suppress("UNCHECKED_CAST")
+        fun complete(leftTable: OrmTable<in TLeftResource>) {
+            require(!complete) { "fatal: associative mapping is already completed".red() }
+
+            val type = leftHandle.property.returnType
+            val typeClass = type.classifier as KClass<*>
+
+            try {
+                val collectionType = type.arguments.first().type
+                    ?: error("fatal: found a star projection in property '${leftHandle.name}' of class '${leftHandle.klass.simpleName}'".red())
+                val collectionTypeClass = collectionType.classifier as KClass<*>
+
+                this.associationTable = AssociativeTableGenerator.makePrimitiveAssociativeTable (
+                    leftHandle, leftTable as OrmTable<TLeftResource>,
+                    rightColumnType = when {
+                        collectionType isType UUID::class    -> UUIDColumnType()
+                        collectionType isType String::class  -> TextColumnType()
+                        collectionType isType Boolean::class -> BooleanColumnType()
+                        collectionType isType Int::class     -> IntegerColumnType()
+                        collectionType isType Long::class    -> LongColumnType()
+                        collectionType isType Double::class  -> DoubleColumnType()
+                        collectionType isType Float::class   -> FloatColumnType()
+                        collectionType isType Char::class    -> CharacterColumnType()
+                        else -> error("fatal: cannot generate a value mapping for a property of type '${collectionTypeClass.simpleName}'".red())
+                    }
+                )
+            } catch (e: DuplicateColumnException) {
+                error("fatal: duplicate column name (DuplicateColumnException thrown) when generating value mapping for property '${leftHandle.name}' of class '${typeClass.simpleName}".red())
             }
+
+            this.complete = true
         }
 
+        override fun applyMappingToTable(table: OrmTable<*>): Column<*>? {
+            require(complete) { "fatal: cannot apply associative mapping to table if it wasn't completed".red() }
+
+            table.dependencyTables.add(this.associationTable)
+
+            return null
+        }
+
+    }
+
+    companion object {
+        /**
+         * Finds the cardinality of an associative mapping originating from [leftHandle]
+         *
+         * @param leftHandle the [PropMap.PropertyHandle.Ok] that is an associative mapping
+         *
+         * @return the resolved cardinality of the mapping
+         *
+         * @author Benjozork
+         */
+        fun findCardinality(leftHandle: PropMap.PropertyHandle.Ok<*>): Cardinality {
+            val type = leftHandle.property.returnType
+            val isCollectionType = type subtypeOf Collection::class
+
+            return if (isCollectionType) {
+                val collectionElementType = type.arguments[0]
+
+                collectionElementType.type?.let {
+                    it.findAnnotation<CardinalityAnnotation>()?.cardinality?.let { cardinality ->
+                        when (cardinality) {
+                            CollectionCardinality.ONE_TO_MANY  -> Cardinality.ONE_TO_MANY
+                            CollectionCardinality.MANY_TO_MANY -> Cardinality.MANY_TO_MANY
+                        }
+                    } ?: error("fatal: no cardinality annotation on collection element type for property '${leftHandle.name}' of class '${leftHandle.klass.simpleName}'".red())
+                } ?: error("fatal: found a star projection in property '${leftHandle.name}' of class '${leftHandle.klass.simpleName}'".red())
+            } else {
+                if (type.isMarkedNullable)
+                    Cardinality.ONE_TO_ONE_OR_NONE
+                else
+                    Cardinality.ONE_TO_ONE
+            }
+        }
     }
 
 }

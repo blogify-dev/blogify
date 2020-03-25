@@ -1,6 +1,7 @@
 package blogify.backend.persistence.postgres.orm
 
 import blogify.backend.persistence.postgres.orm.models.Cardinality
+import blogify.backend.persistence.postgres.orm.models.OrmTable
 import blogify.backend.persistence.postgres.orm.models.SimpleOrmTable
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
@@ -10,6 +11,7 @@ import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ForeignKeyConstraint
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.IColumnType
 import org.jetbrains.exposed.sql.UUIDColumnType
 
 import java.util.UUID
@@ -25,7 +27,7 @@ object AssociativeTableGenerator {
         leftTable:   Table,
         rightTable:  Table,
         cardinality: Cardinality
-    ): Table {
+    ): SimpleOrmTable {
         val leftHandleCollectionType = leftHandle.property.returnType.arguments.firstOrNull()?.type
             ?: error("fatal: left handle type (property '${leftHandle.name}') type should have a type parameter".red())
 
@@ -54,13 +56,35 @@ object AssociativeTableGenerator {
         }
     }
 
+    fun <Tll : Resource> makePrimitiveAssociativeTable (
+        leftHandle:       PropMap.PropertyHandle.Ok<Tll>,
+        leftTable:        OrmTable<Tll>,
+        rightColumnType: IColumnType
+    ): SimpleOrmTable {
+        val createdTable = SimpleOrmTable(name = "${leftHandle.klass.simpleName}_${leftHandle.name}")
+
+        val leftColumn = createdTable.registerColumn<UUID>(leftHandle.klass.simpleName!!, UUIDColumnType())
+        leftColumn.foreignKey = ForeignKeyConstraint (
+            target = leftTable.identifyingColumn, from = leftColumn,
+            onUpdate = ReferenceOption.CASCADE,
+            onDelete = ReferenceOption.RESTRICT,
+            name = "fk_0"
+        )
+
+        val rightColumn = createdTable.registerColumn<Any>(leftHandle.name, rightColumnType)
+
+        createdTable.primaryKey = createdTable.PrimaryKey(leftColumn, rightColumn)
+
+        return createdTable
+    }
+
     private fun doCreateAssociativeTable (
         left:            PropMap.PropertyHandle.Ok<*>,
         right:           PropMap.PropertyHandle.Ok<*>,
         leftMainColumn:  Column<UUID>,
         rightMainColumn: Column<UUID>,
         leftUnique:      Boolean
-    ): Table {
+    ): SimpleOrmTable {
         val createdTable = SimpleOrmTable(name = "${left.klass.simpleName}_${left.name}_to_${right.klass.simpleName}_${right.name}")
 
         val leftColumn = createdTable.registerColumn<UUID>(left.klass.simpleName!!, UUIDColumnType())

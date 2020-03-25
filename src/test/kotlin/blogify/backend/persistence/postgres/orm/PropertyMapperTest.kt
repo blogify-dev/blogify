@@ -26,17 +26,17 @@ object PropertyMapperTest {
         val name: String,
         val age: Int,
         val test: TestClass,
+        val testStrings: Set<String>,
         @Invisible val password: String
     ) : Resource()
 
-    @Test
-    fun `should map value properties correctly`() {
-        val uuidMapping = PropertyMapper.mapProperty(ComplexTestClass::class, ComplexTestClass::class.uuidHandle)
+    @Test fun `should map value properties correctly`() {
+        val uuidMapping = PropertyMapper.mapProperty(ComplexTestClass::class.uuidHandle)
 
-        val nameMapping = PropertyMapper.mapProperty(ComplexTestClass::class, ComplexTestClass::name.handle())
+        val nameMapping = PropertyMapper.mapProperty(ComplexTestClass::name.handle())
         assertTrue(nameMapping is PropertyMapping.ValueMapping)
 
-        val ageMapping = PropertyMapper.mapProperty(ComplexTestClass::class, ComplexTestClass::age.handle())
+        val ageMapping = PropertyMapper.mapProperty(ComplexTestClass::age.handle())
         assertTrue(ageMapping is PropertyMapping.ValueMapping)
 
         val testTable = OrmTable(ComplexTestClass::class, setOf(uuidMapping, nameMapping, ageMapping))
@@ -46,10 +46,16 @@ object PropertyMapperTest {
     }
 
     @Test fun `should map associative properties properly`() {
-        val testMapping = PropertyMapper.mapProperty(ComplexTestClass::class, ComplexTestClass::test.handle())
+        val testMapping = PropertyMapper.mapProperty(ComplexTestClass::test.handle())
 
         assertTrue(testMapping is PropertyMapping.AssociativeMapping<*>)
         assertTrue((testMapping as PropertyMapping.AssociativeMapping<*>).cardinality == Cardinality.ONE_TO_ONE)
+    }
+
+    @Test fun `should map primitive associative properties properly`() {
+        val testMapping = PropertyMapper.mapProperty(ComplexTestClass::testStrings.handle())
+
+        assertTrue(testMapping is PropertyMapping.PrimitiveAssociativeMapping<*>)
     }
 
 }

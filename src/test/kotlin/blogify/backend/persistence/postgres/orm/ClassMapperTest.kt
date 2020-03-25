@@ -134,7 +134,7 @@ class ClassMapperTest {
         @Invisible val password: String
     ) : Resource()
 
-    @Test fun `should resolve associative mappings with collection properties properly`() {
+    @Test fun `should resolve associative mappings with resource collection properties properly`() {
         val tables = ClassMapper.mapClasses(TestClass::class, TestClassCollections::class).toList()
 
         tables.forEach { println(dumpOrmTable(it) + "\n") }
@@ -175,6 +175,112 @@ class ClassMapperTest {
 
         assertEquals(0, assocTable.indices.count { it.unique })
     }
+
+    private data class TestClassPrimitiveCollections (
+        val name: String,
+        val age: Int,
+        val testStrings: Set<String>,
+        @Invisible val password: String
+    ) : Resource()
+
+    @Test fun `should resolve associative mappings with primitive collection properties properly`() {
+        val primitiveCollectionClassTable = ClassMapper.mapClasses(TestClassPrimitiveCollections::class).first()
+
+        println(dumpOrmTable(primitiveCollectionClassTable) + "\n")
+
+        // Check associative table
+
+        assertEquals(1, primitiveCollectionClassTable.dependencyTables.size)
+
+        val assocTable = primitiveCollectionClassTable.dependencyTables.first()
+
+        // Check assoc. table PK
+
+        assertNotNull(assocTable.primaryKey)
+        assertEquals(2, assocTable.primaryKey!!.columns.size)
+
+        assertTrue(assocTable.primaryKey!!.columns.any { it.name == "TestClassPrimitiveCollections" && it.columnType is UUIDColumnType })
+        assertTrue(assocTable.primaryKey!!.columns.any { it.name == "testStrings" && it.columnType is TextColumnType })
+
+        // Check assoc. table FKs
+
+        assertEquals(1, assocTable.columns.count { it.foreignKey != null })
+        val fk0 = assocTable.columns.mapNotNull { it.foreignKey }.first()
+
+        assertTrue(fk0.from.table == assocTable)
+        assertTrue(fk0.from.name == "TestClassPrimitiveCollections")
+        assertTrue(fk0.target.table == primitiveCollectionClassTable)
+        assertTrue(fk0.target.name == "uuid")
+
+        // Check assoc. table indices
+
+        assertEquals(0, assocTable.indices.count { it.unique })
+    }
+
+/*    private data class User (
+//        @QueryByField
+//        @DelegatedSearchReceiver
+//        val username: String,
+//
+//        @Invisible
+//        val password: String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
+//
+//        @QueryByField
+//        val name: String,
+//
+//        val email: String,
+//
+////        @NoSearch
+////        val profilePicture:
+////        @type("image/*")
+////        @maxByteSize(500_000)
+////        StaticResourceHandle,
+////
+////        @NoSearch
+////        val coverPicture:
+////        @type("image/*")
+////        @maxByteSize(1_000_000)
+////        StaticResourceHandle,
+//
+//        @Invisible
+//        val isAdmin: Boolean = false,
+//
+//        @Undisplayed
+//        @SearchDefaultSort
+//        val dsf: Int = Random.nextInt(),
+//
+//        @NoSearch
+//        override val uuid: UUID = UUID.randomUUID()
+//    ) : Resource(uuid)
+//
+//    private data class Article (
+//
+//        @QueryByField
+//        val title: @check("^.{0,512}") String,
+//
+//        @SearchDefaultSort
+//        val createdAt: Int = Instant.now().epochSecond.toInt(),
+//
+//        val createdBy: User,
+//
+//        @QueryByField
+//        val content: String,
+//
+//        val summary: String,
+//
+//        @NoSearch
+//        val categories: List<String>,
+//
+//        @NoSearch
+//        override val uuid: UUID = UUID.randomUUID()
+//
+//    ) : Resource(uuid)
+//
+//    @Test fun a() {
+//        val classes = ClassMapper.mapClasses(User::class, Article::class)
+//
+//        classes.forEach { println(dumpOrmTable(it) + "\n") }
+//    } */ */ */
 
     private fun dumpOrmTable(table: OrmTable<*>): String {
         val stream = StringBuilder()
