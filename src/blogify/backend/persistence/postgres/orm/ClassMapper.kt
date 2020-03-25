@@ -27,29 +27,31 @@ object ClassMapper {
 
     fun <TResource : Resource> mapSingleClass(klass: KClass<TResource>): OrmTable<TResource> {
         val propertyMappings = klass.cachedUnsafePropMap().ok()
-            .map { PropertyMapper.mapProperty(klass, it.value) }
+            .map { PropertyMapper.mapProperty(it.value) }
             .toSet()
 
         val table = OrmTable(klass, propertyMappings)
 
         table.columnMappings.entries.letCatchingOrNull {
             it.single { mapping -> mapping.key is PropertyMapping.IdentifierMapping }.value
-                .let { column -> table.primaryKey = table.PrimaryKey(column) }
+                .let { column -> table.primaryKey = table.PrimaryKey(column!!) }
         } ?: error("fatal: table doesn't have exactly one IdentifierMapping".red())
 
         return table
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun <TResource : Resource> resolveAssociativeMappings(table: OrmTable<TResource>) {
-        val dependencies = table.remainingAssociativeMappings().associateWith { it.dependency }
-        val mappedDependencies = dependencies.entries.associateWith { (depMapping, depClass) ->
-            mappedClasses.entries.find { it.key == depClass }?.value
-                ?: error("fatal: no mapped table for dependency on '${depClass.simpleName}' of class '${depMapping.leftHandle.klass.simpleName}'")
-        }.mapKeys { it.key.key }
+        table.remainingAssociativeMappings().forEach { mapping ->
+            val dependency = mappedClasses.entries.find { it.key == mapping.dependency }?.value
+                ?: error("fatal: no mapped table for dependency on '${mapping.dependency.simpleName}' of class '${mapping.leftHandle.klass.simpleName}'")
 
-        @Suppress("UNCHECKED_CAST")
-        mappedDependencies.forEach { (mapping, dependencyTable) ->
-            mapping.complete(table as OrmTable<in Resource>, dependencyTable as OrmTable<in Resource>)
+            mapping.complete(table as OrmTable<in Resource>, dependency as OrmTable<in Resource>)
+            mapping.applyMappingToTable(table)
+        }
+
+        table.remainingPrimitiveAssociativeMappings().forEach { mapping ->
+            mapping.complete(table as OrmTable<in Resource>)
             mapping.applyMappingToTable(table)
         }
     }

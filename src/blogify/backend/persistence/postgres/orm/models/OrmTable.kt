@@ -1,6 +1,7 @@
 package blogify.backend.persistence.postgres.orm.models
 
 import blogify.backend.resources.models.Resource
+import com.andreapivetta.kolor.red
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Table
@@ -26,14 +27,18 @@ class OrmTable<TResource : Resource> (
 
     val dependencyTables = mutableSetOf<Table>()
 
-    val columnMappings = mappings.filter { it !is PropertyMapping.AssociativeMapping<*> }.associateWith { it.applyMappingToTable(this)!! }
+    val columnMappings = mappings
+        .filter { it !is PropertyMapping.AssociativeMapping<*> && it !is PropertyMapping.PrimitiveAssociativeMapping<*> }
+        .associateWith { it.applyMappingToTable(this) }
 
     /**
      * Contains the columns that serves as the identifier (a UUID) for the entity stored in this table. This should always be the only
      * mapping of type [PropertyMapping.IdentifierMapping].
      */
     @Suppress("UNCHECKED_CAST")
-    val identifyingColumn = columnMappings.entries.first { it.key is PropertyMapping.IdentifierMapping }.value as Column<UUID>
+    val identifyingColumn: Column<UUID>
+        get() = columnMappings.entries.firstOrNull { it.key is PropertyMapping.IdentifierMapping }?.let { it.value as Column<UUID> }
+            ?: error("fatal: no identifying column in table '${this.tableName}'".red())
 
     /**
      * Check the mapping status of the table
@@ -50,6 +55,13 @@ class OrmTable<TResource : Resource> (
      */
     fun remainingAssociativeMappings() = this.mappings
         .filterIsInstance<PropertyMapping.AssociativeMapping<*>>()
+        .filter { !it.complete }
+
+    /**
+     * @return the remaining [PropertyMapping.AssociativeMapping] mappings in the table
+     */
+    fun remainingPrimitiveAssociativeMappings() = this.mappings
+        .filterIsInstance<PropertyMapping.PrimitiveAssociativeMapping<*>>()
         .filter { !it.complete }
 
 }
