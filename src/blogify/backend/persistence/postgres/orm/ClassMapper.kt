@@ -1,9 +1,13 @@
 package blogify.backend.persistence.postgres.orm
 
 import blogify.backend.persistence.postgres.orm.models.OrmTable
+import blogify.backend.persistence.postgres.orm.models.PropertyMapping
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.cachedUnsafePropMap
 import blogify.backend.resources.reflect.models.ext.ok
+import blogify.backend.util.letCatchingOrNull
+
+import com.andreapivetta.kolor.red
 
 import kotlin.reflect.KClass
 
@@ -18,7 +22,7 @@ object ClassMapper {
 
         return mappedClasses.values
             .map { it.also { resolveAssociativeMappings(it) } }
-            .toSet()
+            .toSet().also { mappedClasses.clear() }
     }
 
     fun <TResource : Resource> mapSingleClass(klass: KClass<TResource>): OrmTable<TResource> {
@@ -26,7 +30,14 @@ object ClassMapper {
             .map { PropertyMapper.mapProperty(klass, it.value) }
             .toSet()
 
-        return OrmTable(klass, propertyMappings)
+        val table = OrmTable(klass, propertyMappings)
+
+        table.columnMappings.entries.letCatchingOrNull {
+            it.single { mapping -> mapping.key is PropertyMapping.IdentifierMapping }.value
+                .let { column -> table.primaryKey = table.PrimaryKey(column) }
+        } ?: error("fatal: table doesn't have exactly one IdentifierMapping".red())
+
+        return table
     }
 
     fun <TResource : Resource> resolveAssociativeMappings(table: OrmTable<TResource>) {
@@ -37,8 +48,8 @@ object ClassMapper {
         }.mapKeys { it.key.key }
 
         @Suppress("UNCHECKED_CAST")
-        mappedDependencies.forEach { (mapping, dependencytable) ->
-            mapping.complete(table as OrmTable<in Resource>, dependencytable as OrmTable<in Resource>)
+        mappedDependencies.forEach { (mapping, dependencyTable) ->
+            mapping.complete(table as OrmTable<in Resource>, dependencyTable as OrmTable<in Resource>)
             mapping.applyMappingToTable(table)
         }
     }
