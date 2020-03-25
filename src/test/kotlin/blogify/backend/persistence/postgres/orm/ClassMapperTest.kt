@@ -1,7 +1,9 @@
 package blogify.backend.persistence.postgres.orm
 
 import blogify.backend.annotations.Invisible
-import blogify.backend.persistence.postgres.orm.annotations.Cardinality
+import blogify.backend.persistence.postgres.orm.models.Cardinality
+import blogify.backend.persistence.postgres.orm.models.CollectionCardinality
+import blogify.backend.persistence.postgres.orm.annotations.Cardinality as CardinalityAnnotation
 import blogify.backend.persistence.postgres.orm.models.OrmTable
 import blogify.backend.persistence.postgres.orm.models.PropertyMapping
 import blogify.backend.resources.models.Resource
@@ -94,7 +96,7 @@ class ClassMapperTest {
         val assocMapping = table.mappings.first { it is PropertyMapping.AssociativeMapping<*> } as PropertyMapping.AssociativeMapping<*>
 
         assertFalse(assocMapping.complete)
-        assertTrue(assocMapping.cardinality == PropertyMapping.AssociativeMapping.Cardinality.ONE_TO_ONE)
+        assertTrue(assocMapping.cardinality == Cardinality.ONE_TO_ONE)
         assertTrue(assocMapping.dependency == TestClass::class)
     }
 
@@ -128,7 +130,7 @@ class ClassMapperTest {
     private data class TestClassCollections (
         val name: String,
         val age: Int,
-        val tests: Set<@Cardinality(PropertyMapping.AssociativeMapping.CollectionCardinality.MANY_TO_MANY) TestClass>,
+        val tests: Set<@CardinalityAnnotation(CollectionCardinality.MANY_TO_MANY) TestClass>,
         @Invisible val password: String
     ) : Resource()
 

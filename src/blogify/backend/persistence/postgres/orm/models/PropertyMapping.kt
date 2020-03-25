@@ -23,11 +23,12 @@ import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
+import kotlin.reflect.full.findAnnotation
 
-import com.andreapivetta.kolor.red
 import org.jetbrains.exposed.sql.ForeignKeyConstraint
 import org.jetbrains.exposed.sql.ReferenceOption
-import kotlin.reflect.full.findAnnotation
+
+import com.andreapivetta.kolor.red
 
 sealed class PropertyMapping {
 
@@ -109,19 +110,6 @@ sealed class PropertyMapping {
 
         lateinit var rightAssociationColumn: Column<UUID>
         lateinit var associationTable: Table
-
-        enum class Cardinality {
-            ONE_TO_ONE,
-            ONE_TO_ONE_OR_NONE,
-            MANY_TO_ONE,
-            ONE_TO_MANY,
-            MANY_TO_MANY
-        }
-
-        enum class CollectionCardinality {
-            MANY_TO_MANY,
-            ONE_TO_MANY,
-        }
 
         fun complete(leftTable: OrmTable<in TLeftResource>, rightTable: OrmTable<in Resource>) {
             if (complete) error("fatal: associative mapping is already completed".red())

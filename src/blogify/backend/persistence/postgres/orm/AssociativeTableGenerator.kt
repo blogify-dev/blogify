@@ -1,7 +1,7 @@
 package blogify.backend.persistence.postgres.orm
 
+import blogify.backend.persistence.postgres.orm.models.Cardinality
 import blogify.backend.persistence.postgres.orm.models.SimpleOrmTable
-import blogify.backend.persistence.postgres.orm.models.PropertyMapping.AssociativeMapping.Cardinality as Cardinality
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.uuidHandle

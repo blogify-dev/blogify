@@ -1,7 +1,9 @@
 package blogify.backend.persistence.postgres.orm
 
-import blogify.backend.persistence.postgres.orm.annotations.Cardinality
+import blogify.backend.persistence.postgres.orm.models.CollectionCardinality
 import blogify.backend.persistence.postgres.orm.models.PropertyMapping
+import blogify.backend.persistence.postgres.orm.annotations.Cardinality as CardinalityAnnotation
+import blogify.backend.persistence.postgres.orm.models.Cardinality
 import blogify.backend.resources.reflect.cachedPropMap
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.ext.ok
@@ -11,7 +13,7 @@ import com.andreapivetta.kolor.red
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-internal class AssociativePropertyMapperTest {
+internal class CardinalityTest {
 
     class Dummy
 
@@ -25,7 +27,7 @@ internal class AssociativePropertyMapperTest {
     @Test fun `should find one-to-one cardinality properly`() {
         val cardinality = PropertyMapping.AssociativeMapping.findCardinality(dummyHandle)
 
-        assertEquals(PropertyMapping.AssociativeMapping.Cardinality.ONE_TO_ONE, cardinality)
+        assertEquals(Cardinality.ONE_TO_ONE, cardinality)
     }
 
     data class TestClass2 (
@@ -38,12 +40,12 @@ internal class AssociativePropertyMapperTest {
     @Test fun `should find one-to-one-or-none cardinality properly`() {
         val cardinality = PropertyMapping.AssociativeMapping.findCardinality(dummyNullableHandle)
 
-        assertEquals(PropertyMapping.AssociativeMapping.Cardinality.ONE_TO_ONE_OR_NONE, cardinality)
+        assertEquals(Cardinality.ONE_TO_ONE_OR_NONE, cardinality)
     }
 
     data class TestClass3 (
         val name: String,
-        val dummySet: Set<@Cardinality(PropertyMapping.AssociativeMapping.CollectionCardinality.ONE_TO_MANY) Dummy>
+        val dummySet: Set<@CardinalityAnnotation(CollectionCardinality.ONE_TO_MANY) Dummy>
     ) : Mapped()
 
     val dummySetHandle = TestClass3::class.cachedPropMap().ok().values.first { it.name == "dummySet" }
@@ -51,7 +53,7 @@ internal class AssociativePropertyMapperTest {
     @Test fun `should find one-to-many cardinality properly`() {
         val cardinality = PropertyMapping.AssociativeMapping.findCardinality(dummySetHandle)
 
-        assertEquals(PropertyMapping.AssociativeMapping.Cardinality.ONE_TO_MANY, cardinality)
+        assertEquals(Cardinality.ONE_TO_MANY, cardinality)
     }
 
     data class TestClass4 (
