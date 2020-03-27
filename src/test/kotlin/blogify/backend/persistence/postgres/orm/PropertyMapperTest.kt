@@ -14,11 +14,14 @@ import org.jetbrains.exposed.sql.TextColumnType
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-object PropertyMapperTest {
+import com.andreapivetta.kolor.red
+
+class PropertyMapperTest {
 
     private data class TestClass (
         val name: String,
         val age: Int,
+        val spouse: String?,
         @Invisible val password: String
     ) : Resource()
 
@@ -41,8 +44,30 @@ object PropertyMapperTest {
 
         val testTable = OrmTable(ComplexTestClass::class, setOf(uuidMapping, nameMapping, ageMapping))
 
-        assertTrue(testTable.columns.any { it.name == "name" && it.columnType is TextColumnType })
-        assertTrue(testTable.columns.any { it.name == "age" && it.columnType is IntegerColumnType })
+        assertTrue(testTable.columns.any { it.name == "name" && it.columnType is TextColumnType && !it.columnType.nullable })
+        assertTrue(testTable.columns.any { it.name == "age" && it.columnType is IntegerColumnType && !it.columnType.nullable })
+    }
+
+    @Test fun `should map nullable value properties correctly`() {
+        val spouseMapping = PropertyMapper.mapProperty(TestClass::spouse.handle())
+        assertTrue(spouseMapping is PropertyMapping.ValueMapping)
+
+        val testTable = OrmTable(ComplexTestClass::class, setOf(spouseMapping))
+
+        assertTrue(testTable.columns.any { it.name == "spouse" && it.columnType.nullable })
+    }
+
+    private data class TestClassInvalidCollections (
+        val name: String,
+        val age: Int,
+        val tests: Set<String>?,
+        @Invisible val password: String
+    ) : Resource()
+
+    @Test fun `should throw an exception when mapping a nullable Collection property`() {
+        assertThrows(IllegalArgumentException::class.java, {
+            ClassMapper.mapClasses(TestClassInvalidCollections::class)
+        }, "fatal: collection property types cannot be marked nullable".red())
     }
 
     @Test fun `should map associative properties properly`() {

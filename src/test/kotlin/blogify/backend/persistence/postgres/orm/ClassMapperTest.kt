@@ -18,8 +18,11 @@ import org.jetbrains.exposed.sql.UUIDColumnType
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
+import kotlin.reflect.KClass
+
 import com.andreapivetta.kolor.yellow
-import com.andreapivetta.kolor.cyan
+import com.andreapivetta.kolor.lightBlue
+import com.andreapivetta.kolor.lightCyan
 import com.andreapivetta.kolor.lightGreen
 import com.andreapivetta.kolor.lightMagenta
 import com.andreapivetta.kolor.lightRed
@@ -29,6 +32,7 @@ class ClassMapperTest {
     private data class TestClass (
         val name: String,
         val age: Int,
+        val spouse: String?,
         @Invisible val password: String
     ) : Resource()
 
@@ -47,14 +51,15 @@ class ClassMapperTest {
         // Check mappings
 
         assertEquals(1, table.mappings.count { it is PropertyMapping.IdentifierMapping })
-        assertEquals(3, table.mappings.count { it is PropertyMapping.ValueMapping })
+        assertEquals(4, table.mappings.count { it is PropertyMapping.ValueMapping })
 
         // Check columns
 
-        assertTrue(table.columns.any { it.name == "uuid" && it.columnType is UUIDColumnType })
-        assertTrue(table.columns.any { it.name == "name" && it.columnType is TextColumnType })
-        assertTrue(table.columns.any { it.name == "age" && it.columnType is IntegerColumnType  })
-        assertTrue(table.columns.any { it.name == "password" && it.columnType is TextColumnType })
+        assertTrue(table.columns.any { it.name == "uuid" && it.columnType is UUIDColumnType && !it.columnType.nullable })
+        assertTrue(table.columns.any { it.name == "name" && it.columnType is TextColumnType && !it.columnType.nullable })
+        assertTrue(table.columns.any { it.name == "age" && it.columnType is IntegerColumnType && !it.columnType.nullable })
+        assertTrue(table.columns.any { it.name == "spouse" && it.columnType is TextColumnType && it.columnType.nullable })
+        assertTrue(table.columns.any { it.name == "password" && it.columnType is TextColumnType && !it.columnType.nullable })
     }
 
     private data class ComplexTestClass (
@@ -107,7 +112,41 @@ class ClassMapperTest {
 
         tables.forEach { println(dumpOrmTable(it) + "\n") }
 
-        ClassMapper.resolveAssociativeMappings(complexClassTable)
+        ClassMapper.resolveAssociativeMappings(complexClassTable, mapOf(TestClass::class as KClass<*> to testClassTable))
+        assertEquals(0, complexClassTable.dependencyTables.size)
+
+        @Suppress("UNCHECKED_CAST")
+        val assocColumn = complexClassTable.mappings.first { it is PropertyMapping.AssociativeMapping<*> }
+            .let { (it as PropertyMapping.AssociativeMapping<*>) to complexClassTable.columns.first { col -> col.name == "test" } }
+
+        assertTrue(assocColumn.first.complete)
+
+        // Check FK
+
+        assertNotNull(assocColumn.second.foreignKey)
+
+        val assocColumnFk = assocColumn.second.foreignKey!!
+
+        assertEquals(assocColumn.second, assocColumnFk.from)
+        assertEquals(testClassTable.identifyingColumn, assocColumnFk.target)
+
+    }
+
+    private data class NullableComplexTestClass (
+        val name: String,
+        val age: Int,
+        val test: TestClass?,
+        @Invisible val password: String
+    ) : Resource()
+
+    @Test fun `should resolve nullable associative mappings properly`() {
+        val tables = ClassMapper.mapClasses(TestClass::class, NullableComplexTestClass::class).toList()
+        val testClassTable = tables[0]
+        val complexClassTable = tables[1]
+
+        tables.forEach { println(dumpOrmTable(it) + "\n") }
+
+        ClassMapper.resolveAssociativeMappings(complexClassTable, mapOf(TestClass::class as KClass<*> to testClassTable))
         assertEquals(0, complexClassTable.dependencyTables.size)
 
         @Suppress("UNCHECKED_CAST")
@@ -298,8 +337,12 @@ class ClassMapperTest {
     private fun dumpTable(table: Table): String {
         val stream = StringBuilder()
 
-        fun dumpColumn(column: Column<*>): String =
-            "${column.let { if (it.indexInPK != null) it.name.lightRed() else it.name.lightGreen() }}: ${column.columnType::class.simpleName?.cyan()}"
+        fun dumpColumn(column: Column<*>): String {
+            val name = column.name; val type = column.columnType; val pk = column.indexInPK != null; val nullable = type.nullable
+
+            return (if (pk) name.lightRed() else if (nullable) ("$name?").lightBlue()  else name.lightGreen()) + ": " +
+                    type::class.simpleName?.lightCyan()
+        }
 
         fun dumpFk(forTable: Table, fk: ForeignKeyConstraint): String {
             val fromTableName = fk.from.table.tableName
