@@ -205,6 +205,35 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResource (
 }
 
 /**
+ * Adds a handler to a [RequestContext] that handles fetching a set of resources that match the given [predicate]
+ *
+ * Allows a [Map] of specific property names to be passed in the query URL. If omitted, all the properties are returned
+ *
+ * **WARNING:** Those property names must *exactly* match property names present in the class of the specific resource type.
+ *
+ * @author hamza1311
+ */
+@BlogifyDsl
+suspend inline fun <reified R : Resource> RequestContext.fetchResourcesMatching(noinline predicate: SqlExpressionBuilder.() -> Op<Boolean>) {
+
+    val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
+
+    repository<R>().getMatching(this, predicate).fold(
+        success = { resources ->
+            if (selectedProperties == null) {
+                logger.debug("slicer: getting all fields".magenta())
+                call.respond(resources.map { it.sanitize(excludeUndisplayed = true) })
+            } else {
+                logger.debug("slicer: getting fields $selectedProperties".magenta())
+                call.respond(resources.map { it.slice(selectedProperties) })
+            }
+        },
+        failure = { call.respondExceptionMessage(it) }
+    )
+
+}
+
+/**
  * Adds a handler to a [RequestContext] that handles fetching all the available resources that are related to a particular resource.
  *
  * Requires a [UUID] to be passed in the query URL.

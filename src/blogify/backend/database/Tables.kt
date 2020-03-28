@@ -97,6 +97,7 @@ object Articles : ResourceTable<Article>() {
     val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = SET_NULL)
     val content    = text    ("content")
     val summary    = text    ("summary")
+    val isPinned   = bool("is_pinned")
 
     override val authorColumn = createdBy
 
@@ -110,6 +111,7 @@ object Articles : ResourceTable<Article>() {
                     it[createdBy] = resource.createdBy.uuid
                     it[content]   = resource.content
                     it[summary]   = resource.summary
+                    it[isPinned]  = resource.isPinned
                 }
             }.get()
 
@@ -134,6 +136,8 @@ object Articles : ResourceTable<Article>() {
                     it[createdBy] = resource.createdBy.uuid
                     it[content]   = resource.content
                     it[summary]   = resource.summary
+                    it[isPinned]  = resource.isPinned
+
                 }
             }.get()
 
@@ -172,6 +176,7 @@ object Articles : ResourceTable<Article>() {
             createdBy  = applicationContext.repository<User>().get(requestContext, source[createdBy]).get(),
             content    = source[content],
             summary    = source[summary],
+            isPinned   = source[isPinned],
             categories = transaction {
                 Categories.select { Categories.article eq source[uuid] }.toList()
             }.map { Categories.convert(it) }

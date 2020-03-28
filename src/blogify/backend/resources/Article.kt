@@ -52,6 +52,9 @@ data class Article (
     val categories: @DelegatedSearch List<Category>,
 
     @NoSearch
+    val isPinned: Boolean = false,
+
+    @NoSearch
     override val uuid: UUID = UUID.randomUUID()
 
 ) : Resource(uuid) {

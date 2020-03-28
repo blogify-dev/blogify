@@ -13,13 +13,6 @@ import blogify.backend.resources.reflect.cachedPropMap
 import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
-import blogify.backend.routing.handling.createResource
-import blogify.backend.routing.handling.deleteResource
-import blogify.backend.routing.handling.fetchAllResources
-import blogify.backend.routing.handling.fetchResource
-import blogify.backend.routing.handling.getValidations
-import blogify.backend.routing.handling.respondExceptionMessage
-import blogify.backend.routing.handling.updateResource
 import blogify.backend.pipelines.obtainResource
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.requestContext
@@ -28,7 +21,7 @@ import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.optionalParam
-import blogify.backend.routing.handling.fetchResourceListing
+import blogify.backend.routing.handling.*
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
 import blogify.backend.util.toUUID
@@ -36,11 +29,7 @@ import blogify.backend.util.toUUID
 import io.ktor.http.HttpStatusCode
 import io.ktor.routing.*
 import io.ktor.response.respond
-
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
 
 fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
@@ -50,7 +39,12 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
             requestContext(applicationContext) {
                 fetchAllResources<Article>()
             }
+        }
 
+        get("/pinned") {
+            requestContext(applicationContext) {
+                fetchResourcesMatching<Article> { Articles.isPinned eq Op.TRUE }
+            }
         }
 
         get("/listing") {
