@@ -6,16 +6,11 @@ import blogify.backend.database.handling.query
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Comment
 import blogify.backend.resources.models.eqr
-import blogify.backend.routing.handling.createResource
-import blogify.backend.routing.handling.deleteResource
-import blogify.backend.routing.handling.fetchAllResources
-import blogify.backend.routing.handling.fetchAllWithId
-import blogify.backend.routing.handling.fetchResource
-import blogify.backend.routing.handling.updateResource
 import blogify.backend.pipelines.obtainResource
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.requestContext
+import blogify.backend.routing.handling.*
 import blogify.backend.util.expandCommentNode
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
@@ -24,11 +19,7 @@ import blogify.backend.util.toUUID
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
-
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
 
 fun Route.articleComments(applicationContext: ApplicationContext) {
 
@@ -48,9 +39,11 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
 
         get("/article/{uuid}") {
             requestContext(applicationContext) {
-                fetchAllWithId(fetch = { articleId ->
-                    repository<Comment>().getMatching(this) { Comments.article eq articleId and Comments.parentComment.isNull() }
-                })
+                val articleId = param("uuid").toUUID()
+                fetchResourceListing<Comment>(
+                    Comments.uuid,
+                    SortOrder.ASC
+                ) { Comments.article eq articleId and Comments.parentComment.isNull() }
             }
         }
 
