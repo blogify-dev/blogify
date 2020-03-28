@@ -25,12 +25,6 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
 
     route("/comments") {
 
-        get("/") {
-            requestContext(applicationContext) {
-                fetchAllResources<Comment>()
-            }
-        }
-
         get("/{uuid}") {
             requestContext(applicationContext) {
                 fetchResource<Comment>()
