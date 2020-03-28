@@ -27,6 +27,7 @@ import blogify.backend.resources.User
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.persistence.models.Repository
+import blogify.backend.pipelines.optionalParam
 import blogify.backend.routing.handling.fetchResourceListing
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
@@ -120,31 +121,46 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
         get("/forUser/{username}") {
             requestContext(applicationContext) {
-            val params = call.parameters
-            val username = params["username"] ?: error("Username is null")
-            val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
+                val username = param("username")
+                val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
-            repository<User>().getMatching { Users.username eq username }.fold(
-                success = {
-                    repository<Article>().getMatching { Articles.createdBy eq it.single().uuid }.fold(
-                        success = { articles ->
-                            try {
-                                selectedPropertyNames?.let { props ->
+                repository<User>().getMatching { Users.username eq username }.fold(
+                    success = {
+                        repository<Article>().getMatching { Articles.createdBy eq it.single().uuid }.fold(
+                            success = { articles ->
+                                try {
+                                    selectedPropertyNames?.let { props ->
 
-                                    call.respond(articles.map { it.slice(props) })
+                                        call.respond(articles.map { it.slice(props) })
 
-                                } ?: call.respond(articles.map { it.sanitize() })
-                            } catch (bruhMoment: Repository.Exception) {
-                                call.respondExceptionMessage(bruhMoment)
-                            }
-                        },
-                        failure = { call.respondExceptionMessage(it) }
-                    )
-                },
-                failure = { call.respondExceptionMessage(it) }
-            )
+                                    } ?: call.respond(articles.map { it.sanitize() })
+                                } catch (bruhMoment: Repository.Exception) {
+                                    call.respondExceptionMessage(bruhMoment)
+                                }
+                            },
+                            failure = { call.respondExceptionMessage(it) }
+                        )
+                    },
+                    failure = { call.respondExceptionMessage(it) }
+                )
+            }
         }
+
+        get("/forUser/{username}/listing") {
+            requestContext(applicationContext) {
+                val username = param("username")
+
+                repository<User>().getMatching { Users.username eq username }.fold(
+                    success = {
+                        fetchResourceListing<Article> {
+                            Articles.createdBy eq it.single().uuid
+                        }
+                    },
+                    failure = { call.respondExceptionMessage(it) }
+                )
+            }
         }
+
 
         delete("/{uuid}") {
             requestContext(applicationContext) {
