@@ -101,7 +101,6 @@ class ClassMapperTest {
 
         tables.forEach { println(dumpOrmTable(it) + "\n") }
 
-        ClassMapper.resolveAssociativeMappings(complexClassTable)
         assertEquals(0, complexClassTable.dependencyTables.size)
 
         @Suppress("UNCHECKED_CAST")

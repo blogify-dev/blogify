@@ -14,15 +14,15 @@ import kotlin.reflect.KClass
 
 object ClassMapper {
 
-    private val mappedClasses = mutableMapOf<KClass<*>, OrmTable<*>>()
-
     fun mapClasses(vararg klasses: KClass<out Resource>): Set<OrmTable<*>> {
+        val mappedClasses = mutableMapOf<KClass<*>, OrmTable<*>>()
+
          for (klass in klasses) {
              mappedClasses[klass] = mapSingleClass(klass)
          }
 
         return mappedClasses.values
-            .map { it.also { resolveAssociativeMappings(it) } }
+            .map { it.also { resolveAssociativeMappings(it, mappedClasses) } }
             .toSet().also { mappedClasses.clear() }
     }
 
@@ -45,7 +45,7 @@ object ClassMapper {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <TResource : Resource> resolveAssociativeMappings(table: OrmTable<TResource>) {
+    fun <TResource : Resource> resolveAssociativeMappings(table: OrmTable<TResource>, mappedClasses: Map<KClass<*>, OrmTable<*>>) {
         table.remainingAssociativeMappings().forEach { mapping ->
             val dependency = mappedClasses.entries.find { it.key == mapping.dependency }?.value
                 ?: error("fatal: no mapped table for dependency on '${mapping.dependency.simpleName}' of class '${mapping.handle.klass.simpleName}'")
