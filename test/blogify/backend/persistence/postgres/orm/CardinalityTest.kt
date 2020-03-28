@@ -22,7 +22,7 @@ internal class CardinalityTest {
         val dummy: Dummy
     ) : Mapped()
 
-    val dummyHandle = TestClass1::class.cachedPropMap().ok().values.first { it.name == "dummy" }
+    private val dummyHandle = TestClass1::class.cachedPropMap().ok().values.first { it.name == "dummy" }
 
     @Test fun `should find one-to-one cardinality properly`() {
         val cardinality = PropertyMapping.findCardinality(dummyHandle)
@@ -35,7 +35,7 @@ internal class CardinalityTest {
         val dummyNullable: Dummy?
     ) : Mapped()
 
-    val dummyNullableHandle = TestClass2::class.cachedPropMap().ok().values.first { it.name == "dummyNullable" }
+    private val dummyNullableHandle = TestClass2::class.cachedPropMap().ok().values.first { it.name == "dummyNullable" }
 
     @Test fun `should find one-to-one-or-none cardinality properly`() {
         val cardinality = PropertyMapping.findCardinality(dummyNullableHandle)
@@ -48,7 +48,7 @@ internal class CardinalityTest {
         val dummySet: Set<@CardinalityAnnotation(CollectionCardinality.ONE_TO_MANY) Dummy>
     ) : Mapped()
 
-    val dummySetHandle = TestClass3::class.cachedPropMap().ok().values.first { it.name == "dummySet" }
+    private val dummySetHandle = TestClass3::class.cachedPropMap().ok().values.first { it.name == "dummySet" }
 
     @Test fun `should find one-to-many cardinality properly`() {
         val cardinality = PropertyMapping.findCardinality(dummySetHandle)
@@ -61,7 +61,7 @@ internal class CardinalityTest {
         val dummySetInvalid: Set<Dummy>
     ) : Mapped()
 
-    val dummySetInvalidHandle = TestClass4::class.cachedPropMap().ok().values.first { it.name == "dummySetInvalid" }
+    private val dummySetInvalidHandle = TestClass4::class.cachedPropMap().ok().values.first { it.name == "dummySetInvalid" }
 
     @Test fun `should throw an exception when checking cardinality of collection property with no cardinality annotation`() {
         assertThrows(IllegalStateException::class.java, {

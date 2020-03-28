@@ -12,6 +12,9 @@ import kotlin.reflect.KProperty1
 import com.andreapivetta.kolor.red
 
 inline fun <reified TMapped : Mapped> KProperty1<TMapped, *>.handle() =
+    TMapped::class.cachedPropMap().map.values.first { it.name == this.name }
+
+inline fun <reified TMapped : Mapped> KProperty1<TMapped, *>.okHandle() =
     TMapped::class.cachedPropMap().ok().values.first { it.name == this.name }
 
 inline val <TResource : Resource> KClass<TResource>.uuidHandle get() =

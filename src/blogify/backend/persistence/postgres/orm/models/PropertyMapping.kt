@@ -7,51 +7,43 @@ import blogify.backend.persistence.postgres.orm.annotations.Cardinality as Cardi
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 
-import org.jetbrains.exposed.sql.CharacterColumnType
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.DoubleColumnType
-import org.jetbrains.exposed.sql.FloatColumnType
-import org.jetbrains.exposed.sql.IntegerColumnType
-import org.jetbrains.exposed.sql.LongColumnType
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.TextColumnType
-import org.jetbrains.exposed.sql.UUIDColumnType
 import org.jetbrains.exposed.exceptions.DuplicateColumnException
+import org.jetbrains.exposed.sql.*
 
 import java.util.UUID
 
 import kotlin.reflect.KClass
-import kotlin.reflect.full.createType
-import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.findAnnotation
 
-import org.jetbrains.exposed.sql.ForeignKeyConstraint
-import org.jetbrains.exposed.sql.ReferenceOption
-
 import com.andreapivetta.kolor.red
-import org.jetbrains.exposed.sql.BooleanColumnType
-import org.jetbrains.exposed.sql.StringColumnType
 
-sealed class PropertyMapping {
+sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
 
-    abstract fun applyMappingToTable(table: OrmTable<*>): Column<*>?
+    abstract fun applyToTable(table: OrmTable<*>): Column<*>?
 
-    data class IdentifierMapping(val handle: PropMap.PropertyHandle.Ok<*>) : PropertyMapping() {
+    abstract class AssociativeTableMapping(override val handle: PropMap.PropertyHandle.Ok<*>): PropertyMapping(handle) {
+        abstract fun joinWith(join: ColumnSet): Join
+    }
 
-        override fun applyMappingToTable(table: OrmTable<*>): Column<UUID> {
+    data class IdentifierMapping(override val handle: PropMap.PropertyHandle.Ok<*>) : PropertyMapping(handle) {
+
+        lateinit var column: Column<UUID>
+
+        override fun applyToTable(table: OrmTable<*>): Column<UUID> {
             if (!(handle.property.returnType isType UUID::class))
                 error("fatal: IdentifierMapping must be made on a UUID property".red())
 
-            return table.registerColumn("uuid", UUIDColumnType())
+            column = table.registerColumn("uuid", UUIDColumnType())
+            return column
         }
 
     }
 
-    data class ValueMapping(val handle: PropMap.PropertyHandle.Ok<*>) : PropertyMapping() {
+    data class ValueMapping(override val handle: PropMap.PropertyHandle.Ok<*>) : PropertyMapping(handle) {
 
         lateinit var column: Column<*>
 
-        override fun applyMappingToTable(table: OrmTable<*>): Column<*> {
+        override fun applyToTable(table: OrmTable<*>): Column<*> {
             val type = handle.property.returnType
             val typeClass = type.classifier as KClass<*>
 
@@ -74,31 +66,33 @@ sealed class PropertyMapping {
             return this.column
         }
 
+        operator fun invoke() = column
+
     }
 
     data class AssociativeMapping<TLeftResource : Resource> (
-        val leftHandle: PropMap.PropertyHandle.Ok<TLeftResource>
-    ) : PropertyMapping() {
+        override val handle: PropMap.PropertyHandle.Ok<TLeftResource>
+    ) : AssociativeTableMapping(handle) {
 
         var complete = false
 
-        val cardinality = findCardinality(leftHandle)
+        val cardinality = findCardinality(handle)
 
-        private val returnType = leftHandle.property.returnType
+        private val returnType = handle.property.returnType
 
         @Suppress("UNCHECKED_CAST")
         val dependency =
             if (returnType subtypeOf Collection::class) {
                 val collectionElementType = returnType.arguments.first().type
-                    ?: error("fatal: found a star projection in property type's type parameter '${leftHandle.name}' of class '${leftHandle.klass.simpleName}'".red())
+                    ?: error("fatal: found a star projection in property type's type parameter '${handle.name}' of class '${handle.klass.simpleName}'".red())
 
                 if (collectionElementType subtypeOf Resource::class) {
                     collectionElementType.classifier as KClass<Resource>
                 } else error("fatal: collection element type must be subtype of Resource (was '${(collectionElementType.classifier as KClass<*>).simpleName}')".red())
             } else returnType.classifier as KClass<Resource>
 
-        lateinit var rightAssociationColumn: Column<UUID>
-        lateinit var associationTable: Table
+        private lateinit var rightAssociationColumn: Column<UUID>
+        private lateinit var associationTable: Table
 
         fun complete(leftTable: OrmTable<in TLeftResource>, rightTable: OrmTable<in Resource>) {
             require(!complete) { "fatal: associative mapping is already completed".red() }
@@ -111,19 +105,19 @@ sealed class PropertyMapping {
                     this.rightAssociationColumn = rightTable.identifyingColumn
                 Cardinality.ONE_TO_MANY,
                 Cardinality.MANY_TO_MANY ->
-                    this.associationTable = AssociativeTableGenerator.makeAssociativeTable(leftHandle, leftTable, rightTable, cardinality)
+                    this.associationTable = AssociativeTableGenerator.makeAssociativeTable(handle, leftTable, rightTable, cardinality)
             }
 
             this.complete = true
         }
 
-        override fun applyMappingToTable(table: OrmTable<*>): Column<*>? {
+        override fun applyToTable(table: OrmTable<*>): Column<*>? {
             require(complete) { "fatal: cannot apply associative mapping to table if it wasn't completed".red() }
 
             if (this::associationTable.isInitialized) {
                 table.dependencyTables.add(associationTable)
             } else if (this::rightAssociationColumn.isInitialized) {
-                val leftAssociationColumn = table.registerColumn<UUID>(leftHandle.name, UUIDColumnType())
+                val leftAssociationColumn = table.registerColumn<UUID>(handle.name, UUIDColumnType())
 
                 leftAssociationColumn.foreignKey = ForeignKeyConstraint (
                     rightAssociationColumn,
@@ -137,11 +131,22 @@ sealed class PropertyMapping {
             return null
         }
 
+        @Suppress("UNCHECKED_CAST")
+        override fun joinWith(join: ColumnSet): Join {
+            require(complete) { "fatal: associative mapping must be completed before joining".red() }
+
+            return if (::associationTable.isInitialized) {
+                join.leftJoin(associationTable).leftJoin(rightAssociationColumn.table)
+            } else {
+                join.leftJoin(rightAssociationColumn.table)
+            }
+        }
+
     }
 
     data class PrimitiveAssociativeMapping<TLeftResource : Resource> (
-        val leftHandle: PropMap.PropertyHandle.Ok<TLeftResource>
-    ): PropertyMapping() {
+        override val handle: PropMap.PropertyHandle.Ok<TLeftResource>
+    ): AssociativeTableMapping(handle) {
 
         var complete = false
 
@@ -151,16 +156,16 @@ sealed class PropertyMapping {
         fun complete(leftTable: OrmTable<in TLeftResource>) {
             require(!complete) { "fatal: associative mapping is already completed".red() }
 
-            val type = leftHandle.property.returnType
+            val type = handle.property.returnType
             val typeClass = type.classifier as KClass<*>
 
             try {
                 val collectionType = type.arguments.first().type
-                    ?: error("fatal: found a star projection in property '${leftHandle.name}' of class '${leftHandle.klass.simpleName}'".red())
+                    ?: error("fatal: found a star projection in property '${handle.name}' of class '${handle.klass.simpleName}'".red())
                 val collectionTypeClass = collectionType.classifier as KClass<*>
 
                 this.associationTable = AssociativeTableGenerator.makePrimitiveAssociativeTable (
-                    leftHandle, leftTable as OrmTable<TLeftResource>,
+                    handle, leftTable as OrmTable<TLeftResource>,
                     rightColumnType = when {
                         collectionType isType UUID::class    -> UUIDColumnType()
                         collectionType isType String::class  -> TextColumnType()
@@ -174,19 +179,23 @@ sealed class PropertyMapping {
                     }
                 )
             } catch (e: DuplicateColumnException) {
-                error("fatal: duplicate column name (DuplicateColumnException thrown) when generating value mapping for property '${leftHandle.name}' of class '${typeClass.simpleName}".red())
+                error("fatal: duplicate column name (DuplicateColumnException thrown) when generating value mapping for property '${handle.name}' of class '${typeClass.simpleName}".red())
             }
 
             this.complete = true
         }
 
-        override fun applyMappingToTable(table: OrmTable<*>): Column<*>? {
+        override fun applyToTable(table: OrmTable<*>): Column<*>? {
             require(complete) { "fatal: cannot apply associative mapping to table if it wasn't completed".red() }
 
             table.dependencyTables.add(this.associationTable)
 
             return null
         }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun joinWith(join: ColumnSet): Join =
+            join.leftJoin(associationTable)
 
     }
 

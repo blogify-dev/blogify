@@ -141,15 +141,6 @@ tasks.withType<Jar> {
     }
 }
 
-dockerCompose {
-    useComposeFiles = mutableListOf("./docker-compose.yml")
-
-    projectName = "blogify"
-
-    waitForTcpPorts = false
-    stopContainers  = true
-}
-
 tasks.register("buildAngularProd", Exec::class) {
     workingDir = File("src/blogify/frontend")
     commandLine = listOf("npm", "run", "build")
@@ -162,5 +153,26 @@ tasks.register("blogifyDeploy", GradleBuild::class) {
 
 // Local test deploy : this packs the jar and runs the docker-compose config
 tasks.register("localTestDeploy", GradleBuild::class) {
-    tasks = mutableListOf("shadowJar", "composeUp")
+    tasks = mutableListOf("shadowJar")
+}
+
+dockerCompose {
+    createNested("localDeploy").apply {
+        isRequiredBy(tasks.getByName("localTestDeploy"))
+
+        useComposeFiles = mutableListOf("./docker-compose.yml")
+
+        projectName = "blogify"
+
+        stopContainers  = false
+        waitForTcpPorts = false
+    }
+
+    createNested("test").apply {
+        isRequiredBy(tasks.getByName("test"))
+
+        projectName = "blogify_test"
+
+        useComposeFiles = mutableListOf("./testresources/docker-compose.test.yml")
+    }
 }

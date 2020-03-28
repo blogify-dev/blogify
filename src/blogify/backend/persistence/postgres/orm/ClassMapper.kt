@@ -8,12 +8,13 @@ import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.util.letCatchingOrNull
 
 import com.andreapivetta.kolor.red
+import org.jetbrains.exposed.sql.Table
 
 import kotlin.reflect.KClass
 
 object ClassMapper {
 
-    val mappedClasses = mutableMapOf<KClass<*>, OrmTable<*>>()
+    private val mappedClasses = mutableMapOf<KClass<*>, OrmTable<*>>()
 
     fun mapClasses(vararg klasses: KClass<out Resource>): Set<OrmTable<*>> {
          for (klass in klasses) {
@@ -32,10 +33,13 @@ object ClassMapper {
 
         val table = OrmTable(klass, propertyMappings)
 
-        table.columnMappings.entries.letCatchingOrNull {
-            it.single { mapping -> mapping.key is PropertyMapping.IdentifierMapping }.value
-                .let { column -> table.primaryKey = table.PrimaryKey(column!!) }
-        } ?: error("fatal: table doesn't have exactly one IdentifierMapping".red())
+        table.mappings.filter { it !is PropertyMapping.AssociativeTableMapping }
+            .forEach { it.applyToTable(table) }
+
+        table.mappings.filterIsInstance<PropertyMapping.IdentifierMapping>().firstOrNull()
+            ?.column?.let { uuidColumn ->
+                table.primaryKey = table.PrimaryKey(uuidColumn)
+            } ?: error("fatal: table doesn't have exactly one IdentifierMapping".red())
 
         return table
     }
@@ -44,15 +48,15 @@ object ClassMapper {
     fun <TResource : Resource> resolveAssociativeMappings(table: OrmTable<TResource>) {
         table.remainingAssociativeMappings().forEach { mapping ->
             val dependency = mappedClasses.entries.find { it.key == mapping.dependency }?.value
-                ?: error("fatal: no mapped table for dependency on '${mapping.dependency.simpleName}' of class '${mapping.leftHandle.klass.simpleName}'")
+                ?: error("fatal: no mapped table for dependency on '${mapping.dependency.simpleName}' of class '${mapping.handle.klass.simpleName}'")
 
             mapping.complete(table as OrmTable<in Resource>, dependency as OrmTable<in Resource>)
-            mapping.applyMappingToTable(table)
+            mapping.applyToTable(table)
         }
 
         table.remainingPrimitiveAssociativeMappings().forEach { mapping ->
             mapping.complete(table as OrmTable<in Resource>)
-            mapping.applyMappingToTable(table)
+            mapping.applyToTable(table)
         }
     }
 
