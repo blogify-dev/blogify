@@ -159,12 +159,15 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing(
 ) {
 
     val repo = repository<R>()
+    val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
     repo.queryListing(this, selectCondition, param("quantity").toInt(), param("page").toInt(), orderBy, sortOrder).fold(
         success = { (articles, moreAvailable) ->
             @Suppress("unused")
             val obj = object {
-                val data = articles.map { it.sanitize() }
+                val data = articles.map {
+                    selectedPropertyNames?.let { props -> it.slice(props) } ?: it.sanitize()
+                }
                 val moreAvailable = moreAvailable
             }
             call.respond(obj)

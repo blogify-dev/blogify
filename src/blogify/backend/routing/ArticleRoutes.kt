@@ -101,42 +101,14 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
             }
         }
 
-        get("/forUser/{username}") {
-            requestContext(applicationContext) {
-                val username = param("username")
-                val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
-
-                repository<User>().getMatching { Users.username eq username }.fold(
-                    success = {
-                        repository<Article>().getMatching { Articles.createdBy eq it.single().uuid }.fold(
-                            success = { articles ->
-                                try {
-                                    selectedPropertyNames?.let { props ->
-
-                                        call.respond(articles.map { it.slice(props) })
-
-                                    } ?: call.respond(articles.map { it.sanitize() })
-                                } catch (bruhMoment: Repository.Exception) {
-                                    call.respondExceptionMessage(bruhMoment)
-                                }
-                            },
-                            failure = { call.respondExceptionMessage(it) }
-                        )
-                    },
-                    failure = { call.respondExceptionMessage(it) }
-                )
-            }
-        }
-
-        get("/forUser/{username}/listing") {
+        get("/forUser/{username}/") {
             requestContext(applicationContext) {
                 val username = param("username")
 
                 repository<User>().getMatching { Users.username eq username }.fold(
                     success = {
-                        fetchResourceListing<Article>(Articles.isPinned, SortOrder.DESC) {
-                            Articles.createdBy eq it.single().uuid
-                        }
+                        fetchResourceListing<Article>(Articles.uuid, SortOrder.ASC) { Articles.createdBy eq it.single().uuid }
+
                     },
                     failure = { call.respondExceptionMessage(it) }
                 )
