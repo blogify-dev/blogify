@@ -1,7 +1,6 @@
 package blogify.backend.persistence.models
 
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.listings.ListingQuery
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
 import blogify.backend.resources.reflect.models.PropMap
@@ -36,7 +35,7 @@ interface Repository<R : Resource> {
      */
     suspend fun getAll(request: RequestContext = FakeRequestContext, limit: Int = 256): SrList<R>
 
-    suspend fun queryListing(request: RequestContext = FakeRequestContext, listingQuery: ListingQuery<R>): Sr<Pair<List<R>, Boolean>>
+    suspend fun queryListing(request: RequestContext, selectCondition: SqlExpressionBuilder.() -> Op<Boolean>, quantity: Int, page: Int): Sr<Pair<List<R>, Boolean>>
 
     /**
      * Obtains an instance of [R] with a specific [id][UUID] ]in the database

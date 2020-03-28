@@ -12,7 +12,6 @@ import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.listings.ListingQuery
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
@@ -50,26 +49,19 @@ abstract class ResourceTable< R: Resource> : Table() {
             .map { this.convert(requestContext, it).get() }
     }
 
-    suspend fun obtainListing(requestContext: RequestContext, listingQuery: ListingQuery<R>, orderBy: Column<*>): Sr<Pair<List<R>, Boolean>> = Wrap {
+    suspend fun obtainListing(requestContext: RequestContext, selectCondition: SqlExpressionBuilder.() -> Op<Boolean>, quantity: Int, page: Int, orderBy: Column<*>): Sr<Pair<List<R>, Boolean>> = Wrap {
 
         if (authorColumn == null)
             error("fatal: tried to query listing but author column was not set on table".red())
 
-        val selectCondition: SqlExpressionBuilder.() -> Op<Boolean> =
-            if (listingQuery.forUser != null) {
-                { authorColumn!! eq listingQuery.forUser.uuid }
-            } else {
-                { Op.TRUE }
-            }
-
         query {
             this.select(selectCondition) //    v-- We add one to check if we reached the end
-                .limit(listingQuery.quantity + 1, (listingQuery.page * listingQuery.quantity).toLong())
+                .limit(quantity + 1, (page * quantity).toLong())
                 .orderBy(orderBy)
                 .toList()
         }.get().let { results ->
-            results.takeLast(listingQuery.quantity)
-                .map { this.convert(requestContext, it).get() } to (results.size - 1 == listingQuery.quantity)
+            results.takeLast(quantity)
+                .map { this.convert(requestContext, it).get() } to (results.size - 1 == quantity)
         }
     }
 

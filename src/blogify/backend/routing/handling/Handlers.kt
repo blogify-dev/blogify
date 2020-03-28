@@ -54,8 +54,6 @@ import blogify.backend.pipelines.handleAuthentication
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.pipelineError
-import blogify.backend.resources.Article
-import blogify.backend.resources.listings.ListingQuery
 import blogify.backend.search.Typesense
 import blogify.backend.util.SrList
 import blogify.backend.util.filterThenMapValues
@@ -89,10 +87,6 @@ import com.drew.metadata.exif.ExifImageDirectory
 import com.drew.metadata.jpeg.JpegDirectory
 import com.drew.metadata.png.PngDirectory
 
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -101,6 +95,7 @@ import java.util.UUID
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.sql.*
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -157,20 +152,17 @@ suspend inline fun <reified R : Resource> RequestContext.fetchAllResources() {
 }
 
 @BlogifyDsl
-suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing() {
-
-    val listingQuery = ListingQuery<R>(
-        quantity = param("quantity").toInt(),
-        page = param("page").toInt(),
-        forUser = optionalParam("forUser")?.let { repository<User>().get(this, it.toUUID()).get() },
-        searchQuery = optionalParam("searchQuery")
-    )
+suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing(noinline selectCondition: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }) {
 
     val repo = repository<R>()
 
-    repo.queryListing(this, listingQuery).fold (
+    repo.queryListing(this, selectCondition, param("quantity").toInt(), param("page").toInt()).fold(
         success = { (articles, moreAvailable) ->
-            val obj = object { val data = articles.map { it.sanitize() }; val moreAvailable = moreAvailable }
+            @Suppress("unused")
+            val obj = object {
+                val data = articles.map { it.sanitize() };
+                val moreAvailable = moreAvailable
+            }
             call.respond(obj)
         },
         failure = call::respondExceptionMessage
