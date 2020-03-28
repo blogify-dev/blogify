@@ -54,6 +54,7 @@ import blogify.backend.pipelines.handleAuthentication
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.pipelineError
+import blogify.backend.resources.Article
 import blogify.backend.resources.listings.ListingQuery
 import blogify.backend.search.Typesense
 import blogify.backend.util.SrList
@@ -158,7 +159,12 @@ suspend inline fun <reified R : Resource> RequestContext.fetchAllResources() {
 @BlogifyDsl
 suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing() {
 
-    val listingQuery = call.receive<ListingQuery<R>>()
+    val listingQuery = ListingQuery<R>(
+        quantity = param("quantity").toInt(),
+        page = param("page").toInt(),
+        forUser = optionalParam("forUser")?.let { repository<User>().get(this, it.toUUID()).get() },
+        searchQuery = optionalParam("searchQuery")
+    )
 
     val repo = repository<R>()
 

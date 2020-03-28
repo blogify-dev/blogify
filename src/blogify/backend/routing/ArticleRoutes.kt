@@ -52,7 +52,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
         }
 
-        post("/listing") {
+        get("/listing") {
             requestContext(applicationContext) {
                 fetchResourceListing<Article>()
             }
