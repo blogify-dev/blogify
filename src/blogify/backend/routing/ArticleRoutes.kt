@@ -37,19 +37,13 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
         get("/") {
             requestContext(applicationContext) {
-                fetchAllResources<Article>()
+                fetchResourceListing<Article>(orderBy = Articles.isPinned, sortOrder = SortOrder.DESC)
             }
         }
 
         get("/pinned") {
             requestContext(applicationContext) {
                 fetchResourcesMatching<Article> { Articles.isPinned eq Op.TRUE }
-            }
-        }
-
-        get("/listing") {
-            requestContext(applicationContext) {
-                fetchResourceListing<Article>()
             }
         }
 
@@ -146,7 +140,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
                 repository<User>().getMatching { Users.username eq username }.fold(
                     success = {
-                        fetchResourceListing<Article> {
+                        fetchResourceListing<Article>(Articles.isPinned, SortOrder.DESC) {
                             Articles.createdBy eq it.single().uuid
                         }
                     },

@@ -20,18 +20,7 @@ import blogify.backend.util.matches
 import io.ktor.http.ContentType
 
 import org.jetbrains.exposed.sql.ReferenceOption.*
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.getOrElse
@@ -39,6 +28,7 @@ import com.github.kittinunf.result.coroutines.getOrElse
 import java.util.UUID
 
 import com.andreapivetta.kolor.red
+import org.jetbrains.exposed.sql.*
 
 abstract class ResourceTable< R: Resource> : Table() {
 
@@ -49,19 +39,26 @@ abstract class ResourceTable< R: Resource> : Table() {
             .map { this.convert(requestContext, it).get() }
     }
 
-    suspend fun obtainListing(requestContext: RequestContext, selectCondition: SqlExpressionBuilder.() -> Op<Boolean>, quantity: Int, page: Int, orderBy: Column<*>): Sr<Pair<List<R>, Boolean>> = Wrap {
+    suspend fun obtainListing(
+        requestContext: RequestContext,
+        selectCondition: SqlExpressionBuilder.() -> Op<Boolean>,
+        quantity: Int,
+        page: Int,
+        orderBy: Column<*>,
+        sortOrder: SortOrder = SortOrder.ASC
+    ): Sr<Pair<List<R>, Boolean>> = Wrap {
 
         if (authorColumn == null)
             error("fatal: tried to query listing but author column was not set on table".red())
-
+        println("orderBy: $orderBy")
+        println("sortOrder: $sortOrder")
         query {
             this.select(selectCondition) //    v-- We add one to check if we reached the end
+                .orderBy(orderBy, sortOrder)
                 .limit(quantity + 1, (page * quantity).toLong())
-                .orderBy(orderBy)
                 .toList()
         }.get().let { results ->
-            results.takeLast(quantity)
-                .map { this.convert(requestContext, it).get() } to (results.size - 1 == quantity)
+            results.take(quantity).map { this.convert(requestContext, it).get() } to (results.size - 1 == quantity)
         }
     }
 

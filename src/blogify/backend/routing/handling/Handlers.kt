@@ -152,15 +152,19 @@ suspend inline fun <reified R : Resource> RequestContext.fetchAllResources() {
 }
 
 @BlogifyDsl
-suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing(noinline selectCondition: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }) {
+suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing(
+    orderBy: Column<*>,
+    sortOrder: SortOrder,
+    noinline selectCondition: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }
+) {
 
     val repo = repository<R>()
 
-    repo.queryListing(this, selectCondition, param("quantity").toInt(), param("page").toInt()).fold(
+    repo.queryListing(this, selectCondition, param("quantity").toInt(), param("page").toInt(), orderBy, sortOrder).fold(
         success = { (articles, moreAvailable) ->
             @Suppress("unused")
             val obj = object {
-                val data = articles.map { it.sanitize() };
+                val data = articles.map { it.sanitize() }
                 val moreAvailable = moreAvailable
             }
             call.respond(obj)
