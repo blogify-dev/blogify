@@ -41,12 +41,6 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
             }
         }
 
-        get("/pinned") {
-            requestContext(applicationContext) {
-                fetchResourcesMatching<Article> { Articles.isPinned eq Op.TRUE }
-            }
-        }
-
         get("/{uuid}") {
             requestContext(applicationContext) {
                 fetchResource<Article>()
