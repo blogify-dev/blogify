@@ -24,7 +24,6 @@
     "@fortawesome/free-regular-svg-icons": "^5.11.2",
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
     "@tinkoff/angular-contenteditable-accessor": "^1.1.0",
-    "angular-font-awesome": "^3.1.2",
     "font-awesome": "^4.7.0",
     "ngx-clipboard": "^12.3.0",
     "ngx-markdown": "^8.2.1",
@@ -36,8 +35,8 @@
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~0.900.1",
-    "@angular/cli": "^9.0.1",
+    "@angular-devkit/build-angular": "^0.901.0",
+    "@angular/cli": "^9.1.0",
     "@angular/compiler-cli": "~9.0.0",
     "@angular/language-service": "~9.0.0",
     "@types/jasmine": "~3.3.8",
@@ -47,7 +46,7 @@
     "codelyzer": "^5.1.2",
     "jasmine-core": "~3.4.0",
     "jasmine-spec-reporter": "~4.2.1",
-    "karma": "~4.1.0",
+    "karma": "^4.4.1",
     "karma-chrome-launcher": "~2.2.0",
     "karma-coverage-istanbul-reporter": "~2.0.1",
     "karma-jasmine": "~2.0.1",
