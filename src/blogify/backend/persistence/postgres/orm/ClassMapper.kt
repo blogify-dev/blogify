@@ -5,25 +5,21 @@ import blogify.backend.persistence.postgres.orm.models.PropertyMapping
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.cachedUnsafePropMap
 import blogify.backend.resources.reflect.models.ext.ok
-import blogify.backend.util.letCatchingOrNull
-
-import com.andreapivetta.kolor.red
-import org.jetbrains.exposed.sql.Table
 
 import kotlin.reflect.KClass
 
+import com.andreapivetta.kolor.red
+
 object ClassMapper {
 
-    fun mapClasses(vararg klasses: KClass<out Resource>): Set<OrmTable<*>> {
-        val mappedClasses = mutableMapOf<KClass<*>, OrmTable<*>>()
-
+    fun mapClasses(vararg klasses: KClass<out Resource>, mappedClasses: MutableMap<KClass<*>, OrmTable<*>> = mutableMapOf()): Set<OrmTable<*>> {
          for (klass in klasses) {
              mappedClasses[klass] = mapSingleClass(klass)
          }
 
         return mappedClasses.values
             .map { it.also { resolveAssociativeMappings(it, mappedClasses) } }
-            .toSet().also { mappedClasses.clear() }
+            .toSet()
     }
 
     fun <TResource : Resource> mapSingleClass(klass: KClass<TResource>): OrmTable<TResource> {
