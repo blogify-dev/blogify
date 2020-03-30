@@ -46,17 +46,21 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
         override fun applyToTable(table: OrmTable<*>): Column<*> {
             val type = handle.property.returnType
             val typeClass = type.classifier as KClass<*>
+            val typeNullable = type.isMarkedNullable
+
+            fun <TColumn> makeColumn(table: OrmTable<*>, name: String, nullable: Boolean, type: IColumnType): Column<*> =
+                    table.registerColumn<TColumn>(name, type.also { it.nullable = nullable })
 
             try {
                 this.column = when {
-                    type isType UUID::class    -> table.registerColumn<UUID>(handle.name, UUIDColumnType())
-                    type isType String::class  -> table.registerColumn<String>(handle.name, TextColumnType())
-                    type isType Boolean::class -> table.registerColumn<Boolean>(handle.name, BooleanColumnType())
-                    type isType Int::class     -> table.registerColumn<Int>(handle.name, IntegerColumnType())
-                    type isType Long::class    -> table.registerColumn<Long>(handle.name, LongColumnType())
-                    type isType Double::class  -> table.registerColumn<Double>(handle.name, DoubleColumnType())
-                    type isType Float::class   -> table.registerColumn<Float>(handle.name, FloatColumnType())
-                    type isType Char::class    -> table.registerColumn<Char>(handle.name, CharacterColumnType())
+                    type isType UUID::class    -> makeColumn<UUID>    (table, handle.name, typeNullable, UUIDColumnType())
+                    type isType String::class  -> makeColumn<String>  (table, handle.name, typeNullable, TextColumnType())
+                    type isType Boolean::class -> makeColumn<Boolean> (table, handle.name, typeNullable, BooleanColumnType())
+                    type isType Int::class     -> makeColumn<Int>     (table, handle.name, typeNullable, IntegerColumnType())
+                    type isType Long::class    -> makeColumn<Long>    (table, handle.name, typeNullable, LongColumnType())
+                    type isType Double::class  -> makeColumn<Double>  (table, handle.name, typeNullable, DoubleColumnType())
+                    type isType Float::class   -> makeColumn<Float>   (table, handle.name, typeNullable, FloatColumnType())
+                    type isType Char::class    -> makeColumn<Char>    (table, handle.name, typeNullable, CharacterColumnType())
                     else -> error("fatal: cannot generate a value mapping for a property of type '${typeClass.simpleName}'".red())
                 }
             } catch (e: DuplicateColumnException) {
@@ -83,8 +87,12 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
         @Suppress("UNCHECKED_CAST")
         val dependency =
             if (returnType subtypeOf Collection::class) {
+                require(!returnType.isMarkedNullable) { "fatal: collection property types cannot be marked nullable".red() }
+
                 val collectionElementType = returnType.arguments.first().type
                     ?: error("fatal: found a star projection in property type's type parameter '${handle.name}' of class '${handle.klass.simpleName}'".red())
+
+                require(!collectionElementType.isMarkedNullable) { "fatal: collection property element types cannot be marked nullable".red() }
 
                 if (collectionElementType subtypeOf Resource::class) {
                     collectionElementType.classifier as KClass<Resource>
@@ -98,9 +106,9 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
             require(!complete) { "fatal: associative mapping is already completed".red() }
 
             when (cardinality) {
-                Cardinality.MANY_TO_ONE,
-                Cardinality.ONE_TO_ONE_OR_NONE -> // Take care of the first and second later
+                Cardinality.MANY_TO_ONE ->
                     error("fatal: MANY_TO_ONE and ONE_TO_ONE_OR_NONE cardinalities are not supported yet".red())
+                Cardinality.ONE_TO_ONE_OR_NONE,
                 Cardinality.ONE_TO_ONE ->
                     this.rightAssociationColumn = rightTable.identifyingColumn
                 Cardinality.ONE_TO_MANY,
@@ -117,7 +125,9 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
             if (this::associationTable.isInitialized) {
                 table.dependencyTables.add(associationTable)
             } else if (this::rightAssociationColumn.isInitialized) {
-                val leftAssociationColumn = table.registerColumn<UUID>(handle.name, UUIDColumnType())
+                val leftAssociationColumn = table.registerColumn<UUID> (
+                    handle.name, UUIDColumnType().also { if (cardinality == Cardinality.ONE_TO_ONE_OR_NONE) it.nullable = true }
+                )
 
                 leftAssociationColumn.foreignKey = ForeignKeyConstraint (
                     rightAssociationColumn,
@@ -159,22 +169,26 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
             val type = handle.property.returnType
             val typeClass = type.classifier as KClass<*>
 
+            require(!type.isMarkedNullable) { "fatal: collection property types cannot be marked nullable".red() }
+
             try {
-                val collectionType = type.arguments.first().type
+                val collectionElementType = type.arguments.first().type
                     ?: error("fatal: found a star projection in property '${handle.name}' of class '${handle.klass.simpleName}'".red())
-                val collectionTypeClass = collectionType.classifier as KClass<*>
+                val collectionTypeClass = collectionElementType.classifier as KClass<*>
+
+                require(!collectionElementType.isMarkedNullable) { "fatal: collection property element types cannot be marked nullable".red() }
 
                 this.associationTable = AssociativeTableGenerator.makePrimitiveAssociativeTable (
                     handle, leftTable as OrmTable<TLeftResource>,
                     rightColumnType = when {
-                        collectionType isType UUID::class    -> UUIDColumnType()
-                        collectionType isType String::class  -> TextColumnType()
-                        collectionType isType Boolean::class -> BooleanColumnType()
-                        collectionType isType Int::class     -> IntegerColumnType()
-                        collectionType isType Long::class    -> LongColumnType()
-                        collectionType isType Double::class  -> DoubleColumnType()
-                        collectionType isType Float::class   -> FloatColumnType()
-                        collectionType isType Char::class    -> CharacterColumnType()
+                        collectionElementType isType UUID::class    -> UUIDColumnType()
+                        collectionElementType isType String::class  -> TextColumnType()
+                        collectionElementType isType Boolean::class -> BooleanColumnType()
+                        collectionElementType isType Int::class     -> IntegerColumnType()
+                        collectionElementType isType Long::class    -> LongColumnType()
+                        collectionElementType isType Double::class  -> DoubleColumnType()
+                        collectionElementType isType Float::class   -> FloatColumnType()
+                        collectionElementType isType Char::class    -> CharacterColumnType()
                         else -> error("fatal: cannot generate a value mapping for a property of type '${collectionTypeClass.simpleName}'".red())
                     }
                 )

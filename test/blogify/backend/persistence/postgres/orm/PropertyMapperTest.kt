@@ -18,24 +18,22 @@ object PropertyMapperTest {
         @Invisible val password: String
     ) : Resource()
 
+    @Test fun `should map value properties correctly`() {
+        val uuidMapping = PropertyMapper.mapProperty(TestClass::class.uuidHandle)
+        assertTrue(uuidMapping is PropertyMapping.IdentifierMapping)
+
+        val nameMapping = PropertyMapper.mapProperty(TestClass::name.okHandle())
+        assertTrue(nameMapping is PropertyMapping.ValueMapping)
+
+        val ageMapping = PropertyMapper.mapProperty(TestClass::age.okHandle())
+        assertTrue(ageMapping is PropertyMapping.ValueMapping)
+    }
+
     private data class ComplexTestClass (
-        val name: String,
-        val age: Int,
         val test: TestClass,
         val testStrings: Set<String>,
         @Invisible val password: String
     ) : Resource()
-
-    @Test fun `should map value properties correctly`() {
-        val uuidMapping = PropertyMapper.mapProperty(ComplexTestClass::class.uuidHandle)
-        assertTrue(uuidMapping is PropertyMapping.IdentifierMapping)
-
-        val nameMapping = PropertyMapper.mapProperty(ComplexTestClass::name.okHandle())
-        assertTrue(nameMapping is PropertyMapping.ValueMapping)
-
-        val ageMapping = PropertyMapper.mapProperty(ComplexTestClass::age.okHandle())
-        assertTrue(ageMapping is PropertyMapping.ValueMapping)
-    }
 
     @Test fun `should map associative properties properly`() {
         val testMapping = PropertyMapper.mapProperty(ComplexTestClass::test.okHandle())
