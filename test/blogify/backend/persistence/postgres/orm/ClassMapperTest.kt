@@ -7,15 +7,11 @@ import blogify.backend.persistence.postgres.orm.annotations.Cardinality as Cardi
 import blogify.backend.persistence.postgres.orm.models.OrmTable
 import blogify.backend.persistence.postgres.orm.models.PropertyMapping
 import blogify.backend.resources.models.Resource
+import com.andreapivetta.kolor.*
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-import com.andreapivetta.kolor.yellow
-import com.andreapivetta.kolor.cyan
-import com.andreapivetta.kolor.lightGreen
-import com.andreapivetta.kolor.lightMagenta
-import com.andreapivetta.kolor.lightRed
 import org.jetbrains.exposed.sql.*
 
 class ClassMapperTest {
@@ -23,7 +19,7 @@ class ClassMapperTest {
     private data class TestClass (
         val name: String,
         val age: Int,
-        @Invisible val password: String
+        @Invisible val password: String?
     ) : Resource()
 
     @Test fun `should map simple class with only values properly`() {
@@ -47,8 +43,8 @@ class ClassMapperTest {
 
         assertTrue(table.columns.any { it.name == "uuid" && it.columnType is UUIDColumnType })
         assertTrue(table.columns.any { it.name == "name" && it.columnType is TextColumnType })
-        assertTrue(table.columns.any { it.name == "age" && it.columnType is IntegerColumnType  })
-        assertTrue(table.columns.any { it.name == "password" && it.columnType is TextColumnType })
+        assertTrue(table.columns.any { it.name == "age" && it.columnType is IntegerColumnType })
+        assertTrue(table.columns.any { it.name == "password" && it.columnType is TextColumnType && it.columnType.nullable })
     }
 
     private data class ComplexTestClass (
@@ -286,7 +282,11 @@ class ClassMapperTest {
 
         fun dumpColumn(column: Column<*>, verbose: Boolean = false): String =
             (if (verbose) "${column.table.tableName.lightMagenta()}(" else "") +
-            column.let { if (it.indexInPK != null) it.name.lightRed() else it.name.lightGreen() } +
+            column.let { when {
+                it.indexInPK != null   -> it.name.lightRed()
+                it.columnType.nullable -> "${it.name}?".lightBlue()
+                else -> it.name.lightGreen()
+            } } +
             (if (verbose) "): " else ": ") +
             column.columnType::class.simpleName?.cyan()
 
