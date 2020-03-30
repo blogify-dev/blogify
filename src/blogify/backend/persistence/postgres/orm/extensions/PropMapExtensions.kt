@@ -2,21 +2,28 @@ package blogify.backend.persistence.postgres.orm.extensions
 
 import blogify.backend.persistence.postgres.orm.ClassMapper
 import blogify.backend.persistence.postgres.orm.models.OrmTable
-import blogify.backend.persistence.postgres.orm.models.PropertyMapping
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.cachedPropMap
 import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.util.memoized
+import blogify.backend.resources.reflect.models.ext.handle
+import blogify.backend.util.letCatchingOrNull
+
+import java.util.concurrent.ConcurrentHashMap
 
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty1
 
-val <TResource : Resource> PropMap<TResource>.mappedTable: OrmTable<TResource>
-    get() = { klass: KClass<TResource> ->
-        ClassMapper.mapSingleClass(klass)
-    }.memoized()(this.klass)
+import com.andreapivetta.kolor.red
 
-val <TResource : Resource> (PropMap.PropertyHandle<TResource>).mapping: PropertyMapping
-    get() = { handle: PropMap.PropertyHandle<TResource> ->
-        handle.klass.cachedPropMap().mappedTable.mappings.firstOrNull { it.handle == handle }
-            ?: error("")
-    }.memoized()(this)
+private val mappedClasses = ConcurrentHashMap<KClass<*>, OrmTable<*>>()
+
+@Suppress("UNCHECKED_CAST")
+val <TResource : Resource> KClass<TResource>.mappedTable: OrmTable<TResource>
+    get() = mappedClasses.getOrPut(this) { ClassMapper.mapClasses(this, mappedClasses = mappedClasses).first { it.klass == this } } as OrmTable<TResource>
+
+val <TResource : Resource> PropMap.PropertyHandle<TResource>.mapping
+    get() = letCatchingOrNull { this.klass.mappedTable }?.let {
+        it.mappings.firstOrNull { m -> m.handle == this }
+                ?: error("fatal: could not find mapping for property '${this.name}' of class '${this.klass.simpleName}'".red())
+    } ?: error("fatal: could not get mapped table for class '${this.klass.simpleName}'")
+
+inline val <reified TResource : Resource> KProperty1<TResource, *>.mapping get() = this.handle().mapping
