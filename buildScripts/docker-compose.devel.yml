@@ -3,20 +3,20 @@ services:
   web:
     build: ..
     ports:
-      - '89:80'
-      - '5009:5005'
+      - '80:80'
+      - '5005:5005'
     depends_on:
       - db
       - ts
     volumes:
       - 'static-data:/var/static/'
-      - './config_test:/var/blogify/config'
+      - './config_devel:/var/blogify/config'
     environment:
       - 'BLOGIFY_CONFIG_DIRECTORY=/var/blogify/config'
   db:
     image: 'postgres'
     ports:
-      - '5439:5432'
+      - '5432:5432'
     volumes:
       - 'db-data:/var/lib/postgresql/data'
     environment:
@@ -24,7 +24,7 @@ services:
   ts:
     image: 'typesense/typesense:0.11.0'
     ports:
-      - '8109:8108'
+      - '8108:8108'
     volumes:
       - 'ts-data:/data'
     command:
