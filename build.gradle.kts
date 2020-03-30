@@ -153,26 +153,26 @@ tasks.register("blogifyDeploy", GradleBuild::class) {
 
 // Local test deploy : this packs the jar and runs the docker-compose config
 tasks.register("localTestDeploy", GradleBuild::class) {
-    tasks = mutableListOf("shadowJar")
+    tasks = mutableListOf("shadowJar", "localDeployComposeUp")
 }
 
 dockerCompose {
     createNested("localDeploy").apply {
-        isRequiredBy(tasks.getByName("localTestDeploy"))
-
         useComposeFiles = mutableListOf("./buildScripts/docker-compose.devel.yml")
 
         projectName = "blogify"
 
         stopContainers  = false
-        waitForTcpPorts = false
     }
 
     createNested("test").apply {
         isRequiredBy(tasks.getByName("test"))
 
+        useComposeFiles = mutableListOf("./buildScripts/docker-compose.test.yml")
+
         projectName = "blogify_test"
 
-        useComposeFiles = mutableListOf("./buildScripts/docker-compose.test.yml")
+        stopContainers  = true
+        waitForTcpPorts = true
     }
 }
