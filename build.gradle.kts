@@ -160,7 +160,7 @@ dockerCompose {
     createNested("localDeploy").apply {
         isRequiredBy(tasks.getByName("localTestDeploy"))
 
-        useComposeFiles = mutableListOf("./docker-compose.yml")
+        useComposeFiles = mutableListOf("./buildScripts/docker-compose.devel.yml")
 
         projectName = "blogify"
 
@@ -173,6 +173,6 @@ dockerCompose {
 
         projectName = "blogify_test"
 
-        useComposeFiles = mutableListOf("./testresources/docker-compose.test.yml")
+        useComposeFiles = mutableListOf("./buildScripts/docker-compose.test.yml")
     }
 }
