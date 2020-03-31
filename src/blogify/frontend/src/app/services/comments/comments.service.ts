@@ -5,8 +5,11 @@ import { AuthService } from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
 import { Article } from '../../models/Article';
 import { BehaviorSubject } from 'rxjs';
+import { ListingQuery } from '../../models/ListingQuery';
 
 const commentsEndpoint = '/api/articles/comments';
+
+interface ListingResult { data: Comment[]; moreAvailable: boolean; }
 
 @Injectable({
     providedIn: 'root'
@@ -51,15 +54,17 @@ export class CommentsService {
         }));
     }
 
-    private async prepareCommentData(comments: Comment[]): Promise<Comment[]> {
-        return this
-            .fetchUserObjects(comments)
+    private async prepareCommentData(result: ListingResult): Promise<ListingResult> {
+        const mapped =  this
+            .fetchUserObjects(result.data)
             .then(a => this.authService.userToken ? this.fetchLikeStatus(a, this.authService.userToken) : a);
+
+        return {data: result.data ? await mapped : [], moreAvailable: result.moreAvailable};
     }
 
-    async getCommentsForArticle(article: Article): Promise<Comment[]> {
-        const comments = await this.httpClient.get<Comment[]>(`${commentsEndpoint}/article/${article.uuid}`).toPromise();
-        return comments ? this.prepareCommentData(comments) : [];
+    async getCommentsForArticle(article: Article, listing: ListingQuery<Comment>): Promise<ListingResult> {
+        const comments = await this.httpClient.get<ListingResult>(`${commentsEndpoint}/article/${article.uuid}/?quantity=${listing.quantity}&page=${listing.page}`).toPromise();
+        return this.prepareCommentData(comments);
     }
 
     // tslint:disable-next-line

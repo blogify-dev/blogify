@@ -3,6 +3,8 @@ import { CommentsService } from '../../services/comments/comments.service';
 import { Comment } from '../../models/Comment';
 import { Article } from '../../models/Article';
 import { AuthService } from '../../shared/auth/auth.service';
+import { faArrowAltCircleDown } from '@fortawesome/free-regular-svg-icons';
+
 
 @Component({
     selector: 'app-article-comments',
@@ -13,13 +15,28 @@ export class ArticleCommentsComponent implements OnInit {
 
     @Input() article: Article;
 
-    rootComments: Comment[];
+    rootComments: Comment[] = [];
+    moreAvailable: boolean;
+
+    faArrowAltCircleDown = faArrowAltCircleDown;
+    private listingPage = 0;
 
     constructor(private commentService: CommentsService, public authService: AuthService) {}
 
     ngOnInit() {
-        this.commentService.getCommentsForArticle(this.article).then(async it => {
-            this.rootComments = it;
+        this.showCommentsOfArticle();
+
+        this.commentService.latestRootSubmittedComment.subscribe(comment => {
+            if (comment) {
+                this.rootComments.push(comment);
+            }
+        });
+    }
+
+    showCommentsOfArticle() {
+        this.commentService.getCommentsForArticle(this.article, { quantity: 10, page: this.listingPage }).then(async it => {
+            this.rootComments = [...this.rootComments, ...it.data];
+            this.moreAvailable = it.moreAvailable;
 
             // Get promises for children of root comments
             const childrenPromises: Promise<Comment>[] = [];
@@ -36,12 +53,11 @@ export class ArticleCommentsComponent implements OnInit {
             });
             this.rootComments = out;
         });
+    }
 
-        this.commentService.latestRootSubmittedComment.subscribe(comment => {
-            if (comment) {
-                this.rootComments.push(comment);
-            }
-        });
+    loadPage() {
+        this.listingPage++;
+        this.showCommentsOfArticle();
     }
 
     isLoggedIn(): boolean {

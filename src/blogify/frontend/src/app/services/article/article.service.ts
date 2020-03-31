@@ -65,7 +65,7 @@ export class ArticleService {
     }
 
     async getArticlesByListing(fields: (keyof Article)[] = [], listing: ListingQuery<Article>): Promise<ListingResult> {
-        const listingObservable = this.httpClient.post<ListingResult>(`/api/articles/listing`, listing);
+        const listingObservable = this.httpClient.get<ListingResult>(`/api/articles/?quantity=${listing.quantity}&page=${listing.page}`);
         const result = await listingObservable.toPromise();
 
         return { data: await this.prepareArticleData(result.data), moreAvailable: result.moreAvailable };
@@ -154,7 +154,7 @@ export class ArticleService {
         return this.httpClient.delete(`/api/articles/${articleUuid}`, httpOptions).toPromise();
     }
 
-    search(query: string, fields: (keyof Article)[], byUser: User | null) {
+    search(query: string, fields: (keyof Article)[], byUser: User | null = null) {
         const byUserString = (byUser ? `&byUser=${byUser.uuid}` : '');
         const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}${byUserString}`;
         return this.httpClient.get<SearchView<Article>>(url)

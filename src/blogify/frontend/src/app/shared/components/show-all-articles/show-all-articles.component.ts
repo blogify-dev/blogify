@@ -1,13 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { faArrowAltCircleDown } from '@fortawesome/free-regular-svg-icons';
 import { Article } from '../../../models/Article';
-import { User } from '../../../models/User';
 import { ListingQuery } from '../../../models/ListingQuery';
 import { ArticleService } from '../../../services/article/article.service';
 import { AuthService } from '../../auth/auth.service';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { StaticContentService } from '../../../services/static/static-content.service';
-import { faArrowLeft, faPencilAlt, faSearch, faTimes} from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faPencilAlt, faSearch, faTimes, faArrowAltCircleDown } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-show-all-articles',
@@ -92,23 +90,23 @@ export class ShowAllArticlesComponent implements OnInit {
     }
 
     private async startSearch() {
-        this.articleService.getArticlesByListing(this.REQUIRED_FIELDS, new ListingQuery<Article>(this.listing.quantity, this.listing.page, this.listing.forUser, 'oooooooooo'))
-            .then(result => {
-                this.articles = [];
-                this.articles.push(...result.data);
-                this.moreAvailable = result.moreAvailable;
-            });
-        // this.articleService.search (
-        //     this.searchQuery,
-        //     ['title', 'summary', 'createdBy', 'categories', 'createdAt'],
-        //     this.forUser
-        // ).then((it: Article[]) => {
-        //     this.searchResults = it;
-        //     this.showingSearchResults = true;
-        //     this.forceNoAllowCreate = true;
-        // }).catch((err: Error) => {
-        //     console.error(`[blogifySearch] Error during search: ${err.name}: ${err.message}`);
-        // });
+        // this.articleService.getArticlesByListing(this.REQUIRED_FIELDS, new ListingQuery<Article>(this.listing.quantity, this.listing.page, this.listing.forUser, 'oooooooooo'))
+        //     .then(result => {
+        //         this.articles = [];
+        //         this.articles.push(...result.data);
+        //         this.moreAvailable = result.moreAvailable;
+        //     });
+        this.articleService.search (
+            this.searchQuery,
+            ['title', 'summary', 'createdBy', 'categories', 'createdAt'],
+        ).then((result: Article[]) => {
+            this.searchResults = result;
+            this.showingSearchResults = true;
+            this.forceNoAllowCreate = true;
+
+        }).catch((err: Error) => {
+            console.error(`[blogifySearch] Error during search: ${err.name}: ${err.message}`);
+        });
     }
 
     async stopSearch() {
