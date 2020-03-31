@@ -41,7 +41,7 @@ export class AuthService {
         return this.loginObservable_.value ? this.getUser() : null;
     }
 
-    private readonly dummyUser: User = new User('', '', '', '', [], new StaticFile('-1'), new StaticFile('-1'));
+    private readonly dummyUser: User = new User('', '', '', '', [], false, new StaticFile('-1'), new StaticFile('-1'));
 
     private currentUserUuid_ = new BehaviorSubject('');
     private currentUser_ = new BehaviorSubject(this.dummyUser);
@@ -90,8 +90,9 @@ export class AuthService {
             fetchedUserObj.name,
             fetchedUserObj.email,
             fetchedUserObj.followers,
+            fetchedUserObj.isAdmin,
             fetchedUserObj.profilePicture,
-            fetchedUserObj.coverPicture
+            fetchedUserObj.coverPicture,
         );
 
         this.currentUser_.next(fetchedUser);

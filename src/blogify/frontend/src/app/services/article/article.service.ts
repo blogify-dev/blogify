@@ -168,4 +168,14 @@ export class ArticleService {
             }); // Make sure user data is present
     }
 
+    pinArticle(articleUuid: string, userToken: string = this.authService.userToken) {
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${userToken}`
+            })
+        };
+
+        return this.httpClient.patch(`/api/articles/${articleUuid}/pin`, httpOptions).toPromise();
+    }
 }

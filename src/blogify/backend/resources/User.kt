@@ -59,7 +59,6 @@ data class User (
         @maxByteSize(1_000_000)
         StaticResourceHandle,
 
-    @Invisible
     val isAdmin: Boolean = false,
 
     @Undisplayed
