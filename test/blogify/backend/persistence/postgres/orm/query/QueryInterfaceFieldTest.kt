@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-class QueryInterfaceTest {
+class QueryInterfaceFieldTest {
 
     private open class Person (
         val name: String,
