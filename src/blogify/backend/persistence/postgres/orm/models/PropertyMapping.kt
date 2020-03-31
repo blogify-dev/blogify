@@ -17,14 +17,28 @@ import kotlin.reflect.full.findAnnotation
 
 import com.andreapivetta.kolor.red
 
+/**
+ * Used to transform a class [property][kotlin.reflect.KProperty] into its SQL representation.
+ *
+ * @author Benjozork
+ *
+ * @property handle the [PropMap.PropertyHandle.Ok] of the property the mapping is used for
+ */
 sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
 
+    /**
+     * Applies the mapping to a created [OrmTable]. Requires the `complete` function to be called first
+     * in [AssociativeMapping] and [PrimitiveAssociativeMapping].
+     */
     abstract fun applyToTable(table: OrmTable<*>): Column<*>?
 
     abstract class AssociativeTableMapping(override val handle: PropMap.PropertyHandle.Ok<*>): PropertyMapping(handle) {
         abstract fun joinWith(join: ColumnSet): Join
     }
 
+    /**
+     * Maps the [Resource.uuid] property into an SQL primary key
+     */
     data class IdentifierMapping(override val handle: PropMap.PropertyHandle.Ok<*>) : PropertyMapping(handle) {
 
         lateinit var column: Column<UUID>
@@ -39,6 +53,9 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
 
     }
 
+    /**
+     * Maps a property with a primitive ([String], [Number], [Char]...) type to a single SQL column
+     */
     data class ValueMapping(override val handle: PropMap.PropertyHandle.Ok<*>) : PropertyMapping(handle) {
 
         lateinit var column: Column<*>
@@ -74,6 +91,10 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
 
     }
 
+    /**
+     * Maps a property with a [Resource] type to an SQL relation. Only relations to `R | R?` and `C<R>` (where `C <: Collection`
+     * and `R <: Resource`) are supported. Neither `C<R>?`or `C<R?>` are supported.
+     */
     data class AssociativeMapping<TLeftResource : Resource> (
         override val handle: PropMap.PropertyHandle.Ok<TLeftResource>
     ) : AssociativeTableMapping(handle) {
@@ -154,6 +175,9 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
 
     }
 
+    /**
+     * Same as [AssociativeMapping], but for primitive values as discussed above.
+     */
     data class PrimitiveAssociativeMapping<TLeftResource : Resource> (
         override val handle: PropMap.PropertyHandle.Ok<TLeftResource>
     ): AssociativeTableMapping(handle) {
