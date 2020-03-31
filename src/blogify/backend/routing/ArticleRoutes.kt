@@ -101,6 +101,19 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
             }
         }
 
+        patch("/{uuid}/pin") {
+            requestContext(applicationContext) {
+                val id = param("uuid")
+                val article = repository<Article>().get(this, id.toUUID()).get()
+
+                runAuthenticated(predicate = { it.isAdmin }) {
+                    Articles.update(article.copy(isPinned = !article.isPinned)).also {
+                        call.respond(HttpStatusCode.OK)
+                    }
+                }
+            }
+        }
+
         get("/forUser/{username}/") {
             requestContext(applicationContext) {
                 val username = param("username")
