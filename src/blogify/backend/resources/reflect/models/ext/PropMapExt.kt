@@ -17,6 +17,10 @@ inline fun <reified TMapped : Mapped> KProperty1<TMapped, *>.handle() =
 inline fun <reified TMapped : Mapped> KProperty1<TMapped, *>.okHandle() =
     TMapped::class.cachedPropMap().ok().values.first { it.name == this.name }
 
+@Suppress("UNCHECKED_CAST")
+fun KProperty1<*, *>.unsafeOkHandle() =
+    (this.parameters.first().type.classifier as KClass<out Mapped>).cachedPropMap().ok().values.first { it.property == this}
+
 inline val <TResource : Resource> KClass<TResource>.uuidHandle get() =
     this.cachedPropMap().ok().values.firstOrNull { it.name == "uuid" } ?: error("fatal: no uuid handle on class '${this.simpleName}'. Are you sure it's a Resource ?".red())
 
