@@ -5,7 +5,7 @@ import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../shared/auth/auth.service';
 import { User } from '../../models/User';
-import { faHeart as faHeartFilled, faMapPin as faPin } from '@fortawesome/free-solid-svg-icons';
+import {faHeart as faHeartFilled, faMapPin as faPin, faThumbtack} from '@fortawesome/free-solid-svg-icons';
 import { faClipboard, faEdit, faHeart, faTrashAlt} from '@fortawesome/free-regular-svg-icons';
 import { ClipboardService } from 'ngx-clipboard';
 
@@ -35,7 +35,7 @@ export class ShowArticleComponent implements OnInit {
     faEdit = faEdit;
     faTimes = faTrashAlt;
     faCopy = faClipboard;
-    faPin = faPin;
+    faThumbtack = faThumbtack;
 
     showUpdateButton = false;
     showDeleteButton = false;
@@ -47,7 +47,7 @@ export class ShowArticleComponent implements OnInit {
 
             this.article = await this.articleService.getArticleByUUID (
                 articleUUID,
-                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt', 'likeCount']
+                ['title', 'createdBy', 'content', 'summary', 'uuid', 'isPinned', 'categories', 'createdAt', 'likeCount']
             );
 
             this.authService.observeIsLoggedIn().subscribe(async it => {
