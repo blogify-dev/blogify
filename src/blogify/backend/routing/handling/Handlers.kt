@@ -54,7 +54,9 @@ import blogify.backend.pipelines.handleAuthentication
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.pipelineError
+import blogify.backend.resources.Article
 import blogify.backend.search.Typesense
+import blogify.backend.search.ext.asSearchView
 import blogify.backend.util.SrList
 import blogify.backend.util.filterThenMapValues
 import blogify.backend.util.getOrPipelineError
@@ -625,6 +627,12 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
         )
     }
 
+}
+
+suspend inline fun <reified R : Resource> RequestContext.search(filters: Map<PropMap.PropertyHandle.Ok, Any> = emptyMap()) {
+    val query = param("q")
+    val view = Typesense.search<Article>(query, filters).asSearchView(this)
+    call.respond(view)
 }
 
 /**

@@ -155,15 +155,7 @@ fun Route.makeArticleRoutes() {
 
         get("/search") {
             requestContext {
-                val query = call.parameters["q"]!!
-                val user = call.parameters["byUser"]?.toUUID()
-
-                if (user != null) {
-                    val userHandle = Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")
-                    call.respond(Typesense.search<Article>(query, mapOf(userHandle to user)).asSearchView(this))
-                } else {
-                    call.respond(Typesense.search<Article>(query).asSearchView(this))
-                }
+                search<Article>(optionalParam("byUser")?.toUUID()?.let { mapOf((Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")) to it) } ?: emptyMap())
             }
         }
 
