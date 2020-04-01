@@ -5,7 +5,8 @@ import { ArticleService } from '../../../services/article/article.service';
 import { AuthService } from '../../auth/auth.service';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { StaticContentService } from '../../../services/static/static-content.service';
-import { faArrowLeft, faPencilAlt, faSearch, faTimes, faArrowAltCircleDown } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faPencilAlt, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faArrowAltCircleDown } from '@fortawesome/free-regular-svg-icons';
 
 @Component({
     selector: 'app-show-all-articles',
