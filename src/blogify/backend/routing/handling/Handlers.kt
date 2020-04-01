@@ -629,7 +629,7 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
 
 }
 
-suspend inline fun <reified R : Resource> RequestContext.search(filters: Map<PropMap.PropertyHandle.Ok, Any> = emptyMap()) {
+suspend fun RequestContext.search(filters: Map<PropMap.PropertyHandle.Ok<*>, Any> = emptyMap()) {
     val query = param("q")
     val view = Typesense.search<Article>(query, filters).asSearchView(this)
     call.respond(view)

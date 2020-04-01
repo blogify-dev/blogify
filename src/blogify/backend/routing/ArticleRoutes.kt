@@ -6,21 +6,16 @@ import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Articles
 import blogify.backend.database.Users
 import blogify.backend.database.handling.query
-import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.models.eqr
-import blogify.backend.resources.reflect.cachedPropMap
-import blogify.backend.resources.reflect.models.ext.ok
-import blogify.backend.resources.reflect.sanitize
-import blogify.backend.resources.reflect.slice
 import blogify.backend.pipelines.obtainResource
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.requestContext
 import blogify.backend.resources.User
-import blogify.backend.search.Typesense
-import blogify.backend.search.ext.asSearchView
-import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.optionalParam
+import blogify.backend.resources.models.Resource
+import blogify.backend.resources.reflect.models.PropMap
+import blogify.backend.resources.reflect.models.ext.okHandle
 import blogify.backend.routing.handling.*
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
@@ -155,7 +150,13 @@ fun Route.makeArticleRoutes() {
 
         get("/search") {
             requestContext {
-                search<Article>(optionalParam("byUser")?.toUUID()?.let { mapOf((Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")) to it) } ?: emptyMap())
+                val filters = mutableMapOf<PropMap.PropertyHandle.Ok<out Resource>, Any>()
+
+                optionalParam("byUser")?.toUUID()?.let { id ->
+                    filters[Article::createdBy.okHandle()] = id
+                }
+
+                search(filters.toMap())
             }
         }
 
