@@ -1,8 +1,7 @@
-@file:Suppress("RemoveRedundantQualifierName")
+@file:Suppress("RemoveRedundantQualifierName", "DuplicatedCode")
 
 package blogify.backend.database
 
-import blogify.backend.applicationContext
 import blogify.backend.database.handling.query
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
@@ -170,7 +169,7 @@ object Articles : ResourceTable<Article>() {
             uuid       = source[uuid],
             title      = source[title],
             createdAt  = source[createdAt],
-            createdBy  = applicationContext.repository<User>().get(requestContext, source[createdBy]).get(),
+            createdBy  = requestContext.repository<User>().get(requestContext, source[createdBy]).get(),
             content    = source[content],
             summary    = source[summary],
             isPinned   = source[isPinned],
@@ -214,6 +213,7 @@ object Users : ResourceTable<User>() {
     val name           = varchar ("name", 255)
     val profilePicture = varchar ("profile_picture", 32).references(Uploadables.fileId, onDelete = SET_NULL, onUpdate = RESTRICT).nullable()
     val coverPicture   = varchar ("cover_picture", 32).references(Uploadables.fileId, onDelete = SET_NULL, onUpdate = RESTRICT).nullable()
+    @Suppress("MemberVisibilityCanBePrivate")
     val isAdmin        = bool    ("is_admin")
 
     init {
@@ -329,9 +329,9 @@ object Comments : ResourceTable<Comment>() {
         Comment (
             uuid          = source[uuid],
             content       = source[content],
-            article       = applicationContext.repository<Article>().get(requestContext, source[article]).get(),
-            commenter     = applicationContext.repository<User>().get(requestContext, source[commenter]).get(),
-            parentComment = source[parentComment]?.let { applicationContext.repository<Comment>().get(requestContext, it).get() }
+            article       = requestContext.repository<Article>().get(requestContext, source[article]).get(),
+            commenter     = requestContext.repository<User>().get(requestContext, source[commenter]).get(),
+            parentComment = source[parentComment]?.let { requestContext.repository<Comment>().get(requestContext, it).get() }
         )
     }
 

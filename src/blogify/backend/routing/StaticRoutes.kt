@@ -11,11 +11,11 @@ import io.ktor.response.respondBytes
 import io.ktor.routing.Route
 import io.ktor.routing.get
 
-fun Route.static(applicationContext: ApplicationContext) {
+fun Route.static() {
 
     get("/get/{uploadableId}") {
 
-        requestContext(applicationContext) {
+        requestContext {
 
             val uploadableId = param("uploadableId")
 

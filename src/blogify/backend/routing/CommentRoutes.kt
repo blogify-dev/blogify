@@ -21,18 +21,18 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 import org.jetbrains.exposed.sql.*
 
-fun Route.articleComments(applicationContext: ApplicationContext) {
+fun Route.articleComments() {
 
     route("/comments") {
 
         get("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 fetchResource<Comment>()
             }
         }
 
         get("/article/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 val articleId = param("uuid").toUUID()
                 fetchResourceListing<Comment>(
                     Comments.uuid,
@@ -42,7 +42,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         }
 
         delete("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 deleteResource<Comment> (
                     authPredicate = { user, comment -> comment.commenter eqr user }
                 )
@@ -50,7 +50,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         }
 
         patch("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 updateResource<Comment> (
                     authPredicate = { user, comment -> comment.commenter eqr user }
                 )
@@ -58,7 +58,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         }
 
         post("/") {
-            requestContext(applicationContext) {
+            requestContext {
                 createResource<Comment> (
                     authPredicate = { user, comment -> comment.commenter eqr user }
                 )
@@ -66,7 +66,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         }
 
         get("/tree/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 val repo = repository<Comment>()
 
                 val id      = param("uuid").toUUID()
@@ -80,7 +80,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         val likes = Comments.Likes
 
         get("/{uuid}/like") {
-            requestContext(applicationContext) {
+            requestContext {
                 val id = param("uuid")
 
                 runAuthenticated { subject ->
@@ -98,7 +98,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
 
         post("/{uuid}/like") {
 
-            requestContext(applicationContext) {
+            requestContext {
                 val id = param("uuid")
 
                 runAuthenticated { subject ->

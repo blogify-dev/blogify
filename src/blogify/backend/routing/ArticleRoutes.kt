@@ -31,18 +31,18 @@ import io.ktor.routing.*
 import io.ktor.response.respond
 import org.jetbrains.exposed.sql.*
 
-fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
+fun Route.makeArticleRoutes() {
 
     route("/articles") {
 
         get("/") {
-            requestContext(applicationContext) {
+            requestContext {
                 fetchResourceListing<Article>(orderBy = Articles.isPinned, sortOrder = SortOrder.DESC)
             }
         }
 
         get("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 fetchResource<Article>()
             }
         }
@@ -50,7 +50,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         val likes = Articles.Likes
 
         get("/{uuid}/like") {
-            requestContext(applicationContext) {
+            requestContext {
                 val id = param("uuid")
 
                 runAuthenticated { subject ->
@@ -67,7 +67,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         post("/{uuid}/like") {
-            requestContext(applicationContext) {
+            requestContext {
                 val id = param("uuid")
 
                 runAuthenticated { subject ->
@@ -102,7 +102,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         post("/{uuid}/pin") {
-            requestContext(applicationContext) {
+            requestContext {
                 val id = param("uuid")
                 val article = repository<Article>().get(this, id.toUUID()).get()
 
@@ -115,7 +115,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         get("/forUser/{username}/") {
-            requestContext(applicationContext) {
+            requestContext {
                 val username = param("username")
 
                 repository<User>().getMatching { Users.username eq username }.fold(
@@ -130,7 +130,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
 
         delete("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 deleteResource<Article> (
                     authPredicate = { user, article -> article.createdBy == user }
                 )
@@ -138,7 +138,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         patch("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 updateResource<Article> (
                     authPredicate = { user, article -> article.createdBy eqr user }
                 )
@@ -146,7 +146,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         post("/") {
-            requestContext(applicationContext) {
+            requestContext {
                 createResource<Article> (
                     authPredicate = { user, article -> article.createdBy eqr user }
                 )
@@ -154,7 +154,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         get("/search") {
-            requestContext(applicationContext) {
+            requestContext {
                 val query = call.parameters["q"]!!
                 val user = call.parameters["byUser"]?.toUUID()
 
@@ -168,12 +168,12 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         get("_validations") {
-            requestContext(applicationContext) {
+            requestContext {
                 getValidations<Article>()
             }
         }
 
-        articleComments(applicationContext)
+        articleComments()
 
     }
 

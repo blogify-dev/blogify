@@ -1,9 +1,8 @@
 package blogify.backend.resources.models
 
-import blogify.backend.applicationContext
+import blogify.backend.appContext
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.util.MapCache
 
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
@@ -44,7 +43,7 @@ open class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped() {
 
         }
 
-        val FakeRequestContext = RequestContext(applicationContext, GlobalScope, FakeApplicationCall)
+        val FakeRequestContext = RequestContext(appContext, GlobalScope, FakeApplicationCall)
 
         override fun resolveId(id: ObjectIdGenerator.IdKey?): Any? {
 
