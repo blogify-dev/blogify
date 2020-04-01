@@ -101,7 +101,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
             }
         }
 
-        patch("/{uuid}/pin") {
+        post("/{uuid}/pin") {
             requestContext(applicationContext) {
                 val id = param("uuid")
                 val article = repository<Article>().get(this, id.toUUID()).get()

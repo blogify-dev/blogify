@@ -175,7 +175,6 @@ export class ArticleService {
                 Authorization: `Bearer ${userToken}`
             })
         };
-
-        return this.httpClient.patch(`/api/articles/${articleUuid}/pin`, httpOptions).toPromise();
+        return this.httpClient.post(`/api/articles/${articleUuid}/pin`, null, httpOptions).toPromise();
     }
 }
