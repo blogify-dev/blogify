@@ -68,6 +68,14 @@
                 <a id="button-delete" class="clickable hover-negative" (click)="deleteArticle()" *ngIf="showUpdateButton">
                     <fa-icon [icon]="faTimes" size="2x" [transform]="{ size: 13 }"></fa-icon>
                 </a>
+
+                <span class="separator" *ngIf="showPinButton"></span>
+
+                <!-- Pin button -->
+                <a id="button-pin" class="clickable hover-positive" [style.color]="this.article.isPinned ? 'var(--accent-positive)' : 'white'" (click)="pinArticle()" *ngIf="showPinButton">
+                    <fa-icon [icon]="faThumbtack" size="2x" [transform]="{ size: 14, y: 1, rotate: 45 }"></fa-icon>
+                </a>
+
             </div>
 
         </div>

@@ -1,8 +1,7 @@
-@file:Suppress("RemoveRedundantQualifierName")
+@file:Suppress("RemoveRedundantQualifierName", "DuplicatedCode")
 
 package blogify.backend.database
 
-import blogify.backend.applicationContext
 import blogify.backend.database.handling.query
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
@@ -17,33 +16,52 @@ import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
 import blogify.backend.util.matches
 
-import io.ktor.application.ApplicationCall
 import io.ktor.http.ContentType
 
 import org.jetbrains.exposed.sql.ReferenceOption.*
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.selectAll
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.getOrElse
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
 import java.util.UUID
 
-abstract class ResourceTable<R : Resource> : Table() {
+import com.andreapivetta.kolor.red
+import org.jetbrains.exposed.sql.*
 
-    open suspend fun obtainAll(requestContext: RequestContext, limit: Int): SrList<R> = Wrap {
-        query { this.selectAll().limit(limit).toSet() }.get().map { this.convert(requestContext, it).get() }
+abstract class ResourceTable< R: Resource> : Table() {
+
+    open val authorColumn: Column<UUID>? = null
+
+    suspend fun obtainAll(requestContext: RequestContext, limit: Int): SrList<R> = Wrap {
+        query { this.selectAll().limit(limit).toSet() }.get()
+            .map { this.convert(requestContext, it).get() }
     }
 
-    open suspend fun obtain(requestContext: RequestContext, id: UUID): Sr<R> = Wrap {
+    suspend fun obtainListing(
+        requestContext: RequestContext,
+        selectCondition: SqlExpressionBuilder.() -> Op<Boolean>,
+        quantity: Int,
+        page: Int,
+        orderBy: Column<*>,
+        sortOrder: SortOrder = SortOrder.ASC
+    ): Sr<Pair<List<R>, Boolean>> = Wrap {
+
+        if (authorColumn == null)
+            error("fatal: tried to query listing but author column was not set on table".red())
+        println("orderBy: $orderBy")
+        println("sortOrder: $sortOrder")
+        query {
+            this.select(selectCondition) //    v-- We add one to check if we reached the end
+                .orderBy(orderBy, sortOrder)
+                .limit(quantity + 1, (page * quantity).toLong())
+                .toList()
+        }.get().let { results ->
+            results.take(quantity).map { this.convert(requestContext, it).get() } to (results.size - 1 == quantity)
+        }
+    }
+
+    suspend fun obtain(requestContext: RequestContext, id: UUID): Sr<R> = Wrap {
         query { this.select { uuid eq id }.single() }.get()
             .let { this.convert(requestContext, it).get() }
     }
@@ -75,6 +93,9 @@ object Articles : ResourceTable<Article>() {
     val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = SET_NULL)
     val content    = text    ("content")
     val summary    = text    ("summary")
+    val isPinned   = bool("is_pinned")
+
+    override val authorColumn = createdBy
 
     override suspend fun insert(resource: Article): Sr<Article> {
         return Wrap {
@@ -86,10 +107,11 @@ object Articles : ResourceTable<Article>() {
                     it[createdBy] = resource.createdBy.uuid
                     it[content]   = resource.content
                     it[summary]   = resource.summary
+                    it[isPinned]  = resource.isPinned
                 }
             }.get()
 
-             query {
+            query {
                 Categories.batchInsert(resource.categories) {
                     this[Categories.article] = resource.uuid
                     this[Categories.name]    = it.name
@@ -110,6 +132,8 @@ object Articles : ResourceTable<Article>() {
                     it[createdBy] = resource.createdBy.uuid
                     it[content]   = resource.content
                     it[summary]   = resource.summary
+                    it[isPinned]  = resource.isPinned
+
                 }
             }.get()
 
@@ -145,9 +169,10 @@ object Articles : ResourceTable<Article>() {
             uuid       = source[uuid],
             title      = source[title],
             createdAt  = source[createdAt],
-            createdBy  = applicationContext.repository<User>().get(requestContext, source[createdBy]).get(),
+            createdBy  = requestContext.repository<User>().get(requestContext, source[createdBy]).get(),
             content    = source[content],
             summary    = source[summary],
+            isPinned   = source[isPinned],
             categories = transaction {
                 Categories.select { Categories.article eq source[uuid] }.toList()
             }.map { Categories.convert(it) }
@@ -188,6 +213,7 @@ object Users : ResourceTable<User>() {
     val name           = varchar ("name", 255)
     val profilePicture = varchar ("profile_picture", 32).references(Uploadables.fileId, onDelete = SET_NULL, onUpdate = RESTRICT).nullable()
     val coverPicture   = varchar ("cover_picture", 32).references(Uploadables.fileId, onDelete = SET_NULL, onUpdate = RESTRICT).nullable()
+    @Suppress("MemberVisibilityCanBePrivate")
     val isAdmin        = bool    ("is_admin")
 
     init {
@@ -262,6 +288,8 @@ object Comments : ResourceTable<Comment>() {
     val content       = text ("content")
     val parentComment = uuid ("parent_comment").references(uuid, onDelete = CASCADE).nullable()
 
+    override val authorColumn = commenter
+
     object Likes: Table("comment_likes") {
 
         val user    = Comments.Likes.uuid("user").references(Users.uuid, onDelete = CASCADE)
@@ -301,9 +329,9 @@ object Comments : ResourceTable<Comment>() {
         Comment (
             uuid          = source[uuid],
             content       = source[content],
-            article       = applicationContext.repository<Article>().get(requestContext, source[article]).get(),
-            commenter     = applicationContext.repository<User>().get(requestContext, source[commenter]).get(),
-            parentComment = source[parentComment]?.let { applicationContext.repository<Comment>().get(requestContext, it).get() }
+            article       = requestContext.repository<Article>().get(requestContext, source[article]).get(),
+            commenter     = requestContext.repository<User>().get(requestContext, source[commenter]).get(),
+            parentComment = source[parentComment]?.let { requestContext.repository<Comment>().get(requestContext, it).get() }
         )
     }
 

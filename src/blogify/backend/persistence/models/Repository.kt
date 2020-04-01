@@ -10,8 +10,10 @@ import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
 
 import io.ktor.application.ApplicationCall
+import org.jetbrains.exposed.sql.Column
 
 import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 
 import java.util.*
@@ -34,6 +36,13 @@ interface Repository<R : Resource> {
      * @author Benjozork, hamza1311
      */
     suspend fun getAll(request: RequestContext = FakeRequestContext, limit: Int = 256): SrList<R>
+
+    suspend fun queryListing(request: RequestContext,
+                             selectCondition: SqlExpressionBuilder.() -> Op<Boolean>,
+                             quantity: Int,
+                             page: Int,
+                             orderBy: Column<*>,
+                             sortOrder: SortOrder = SortOrder.ASC): Sr<Pair<List<R>, Boolean>>
 
     /**
      * Obtains an instance of [R] with a specific [id][UUID] ]in the database

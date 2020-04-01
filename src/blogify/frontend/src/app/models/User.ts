@@ -7,6 +7,7 @@ export class User {
     public name: string,
     public email: string,
     public followers: string[],
+    public isAdmin: boolean,
     public profilePicture: StaticFile,
     public coverPicture: StaticFile
   ) {}

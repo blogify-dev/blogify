@@ -5,9 +5,9 @@ import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../shared/auth/auth.service';
 import { User } from '../../models/User';
-import { faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
+import {faHeart as faHeartFilled, faMapPin as faPin, faThumbtack} from '@fortawesome/free-solid-svg-icons';
 import { faClipboard, faEdit, faHeart, faTrashAlt} from '@fortawesome/free-regular-svg-icons';
-import { ClipboardService } from "ngx-clipboard";
+import { ClipboardService } from 'ngx-clipboard';
 
 @Component({
     selector: 'app-show-article',
@@ -35,9 +35,11 @@ export class ShowArticleComponent implements OnInit {
     faEdit = faEdit;
     faTimes = faTrashAlt;
     faCopy = faClipboard;
+    faThumbtack = faThumbtack;
 
     showUpdateButton = false;
     showDeleteButton = false;
+    showPinButton = false;
 
     ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
@@ -45,12 +47,14 @@ export class ShowArticleComponent implements OnInit {
 
             this.article = await this.articleService.getArticleByUUID (
                 articleUUID,
-                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt', 'likeCount']
+                ['title', 'createdBy', 'content', 'summary', 'uuid', 'isPinned', 'categories', 'createdAt', 'likeCount']
             );
 
             this.authService.observeIsLoggedIn().subscribe(async it => {
                 this.showUpdateButton = it && (await this.authService.userUUID) == (<User> this.article.createdBy).uuid;
                 this.showDeleteButton = it && (await this.authService.userUUID) == (<User> this.article.createdBy).uuid;
+                console.log((await this.authService.userProfile).isAdmin);
+                this.showPinButton = it && (await this.authService.userProfile).isAdmin;
             });
         });
     }
@@ -68,7 +72,11 @@ export class ShowArticleComponent implements OnInit {
 
     deleteArticle() {
         this.articleService.deleteArticle(this.article.uuid).then(() => {});
-        this.router.navigateByUrl("/home").then(() => {})
+        this.router.navigateByUrl('/home').then(() => {})
+    }
+
+    pinArticle() {
+        this.articleService.pinArticle(this.article.uuid).then(() => {})
     }
 
     copyUrlToClipboard() {

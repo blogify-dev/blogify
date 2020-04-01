@@ -6,16 +6,11 @@ import blogify.backend.database.handling.query
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Comment
 import blogify.backend.resources.models.eqr
-import blogify.backend.routing.handling.createResource
-import blogify.backend.routing.handling.deleteResource
-import blogify.backend.routing.handling.fetchAllResources
-import blogify.backend.routing.handling.fetchAllWithId
-import blogify.backend.routing.handling.fetchResource
-import blogify.backend.routing.handling.updateResource
 import blogify.backend.pipelines.obtainResource
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.requestContext
+import blogify.backend.routing.handling.*
 import blogify.backend.util.expandCommentNode
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
@@ -24,38 +19,30 @@ import blogify.backend.util.toUUID
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
+import org.jetbrains.exposed.sql.*
 
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-
-fun Route.articleComments(applicationContext: ApplicationContext) {
+fun Route.articleComments() {
 
     route("/comments") {
 
-        get("/") {
-            requestContext(applicationContext) {
-                fetchAllResources<Comment>()
-            }
-        }
-
         get("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 fetchResource<Comment>()
             }
         }
 
         get("/article/{uuid}") {
-            requestContext(applicationContext) {
-                fetchAllWithId(fetch = { articleId ->
-                    repository<Comment>().getMatching(this) { Comments.article eq articleId and Comments.parentComment.isNull() }
-                })
+            requestContext {
+                val articleId = param("uuid").toUUID()
+                fetchResourceListing<Comment>(
+                    Comments.uuid,
+                    SortOrder.ASC
+                ) { Comments.article eq articleId and Comments.parentComment.isNull() }
             }
         }
 
         delete("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 deleteResource<Comment> (
                     authPredicate = { user, comment -> comment.commenter eqr user }
                 )
@@ -63,7 +50,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         }
 
         patch("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 updateResource<Comment> (
                     authPredicate = { user, comment -> comment.commenter eqr user }
                 )
@@ -71,7 +58,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         }
 
         post("/") {
-            requestContext(applicationContext) {
+            requestContext {
                 createResource<Comment> (
                     authPredicate = { user, comment -> comment.commenter eqr user }
                 )
@@ -79,7 +66,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         }
 
         get("/tree/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 val repo = repository<Comment>()
 
                 val id      = param("uuid").toUUID()
@@ -93,7 +80,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
         val likes = Comments.Likes
 
         get("/{uuid}/like") {
-            requestContext(applicationContext) {
+            requestContext {
                 val id = param("uuid")
 
                 runAuthenticated { subject ->
@@ -111,7 +98,7 @@ fun Route.articleComments(applicationContext: ApplicationContext) {
 
         post("/{uuid}/like") {
 
-            requestContext(applicationContext) {
+            requestContext {
                 val id = param("uuid")
 
                 runAuthenticated { subject ->

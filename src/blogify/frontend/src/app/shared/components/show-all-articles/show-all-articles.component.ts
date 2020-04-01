@@ -1,11 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Article } from '../../../models/Article';
+import { ListingQuery } from '../../../models/ListingQuery';
+import { ArticleService } from '../../../services/article/article.service';
 import { AuthService } from '../../auth/auth.service';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { StaticContentService } from '../../../services/static/static-content.service';
-import { faArrowLeft, faPencilAlt, faSearch, faTimes} from '@fortawesome/free-solid-svg-icons';
-import { ArticleService } from '../../../services/article/article.service';
-import { User } from '../../../models/User';
+import { faArrowLeft, faPencilAlt, faSearch, faTimes, faArrowAltCircleDown } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-show-all-articles',
@@ -17,15 +17,17 @@ export class ShowAllArticlesComponent implements OnInit {
     faSearch = faSearch;
     faPencil = faPencilAlt;
     faArrowLeft = faArrowLeft;
-
     faTimes = faTimes;
+    faArrowAltCircleDown = faArrowAltCircleDown;
 
     @Input() title = 'Articles';
-    @Input() articles: Article[];
+    @Input() listing = new ListingQuery<Article>(10, 0);
     @Input() noContentMessage = 'Nothing to see here !';
     @Input() noResultsMessage = 'No search results :(';
-    @Input() forUser: User | null;
     @Input() allowCreate = true;
+
+    articles: Article[];
+    moreAvailable: boolean;
 
     forceNoAllowCreate = false;
 
@@ -39,15 +41,21 @@ export class ShowAllArticlesComponent implements OnInit {
         private articleService: ArticleService,
         private staticContentService: StaticContentService,
         private activatedRoute: ActivatedRoute,
-        private router: Router
+        private router: Router,
     ) {}
+
+    /**
+     * Stores the properties of {@link Article} that are needed for display in this component
+     */
+    private readonly REQUIRED_FIELDS: (keyof Article)[] =
+        ['title', 'summary', 'createdAt', 'createdBy', 'categories', 'likeCount', 'commentCount'];
 
     ngOnInit() {
         this.activatedRoute.url.subscribe((it: UrlSegment[]) => {
-            const isSearching = it[it.length - 1].parameters['search'] != undefined;
+            const isSearching = it[it.length - 1].parameters.search !== undefined;
             if (isSearching) { // We are in a search page
-                const query = it[it.length - 1].parameters['search'];
-                const actualQuery = query.match(/^"[^"']+"$/) != null ? query.substring(1, query.length - 1): null;
+                const query = it[it.length - 1].parameters.search;
+                const actualQuery = query.match(/^"[^"']+"$/) != null ? query.substring(1, query.length - 1) : null;
                 if (actualQuery != null) {
                     this.searchQuery = actualQuery;
                     // noinspection JSIgnoredPromiseFromCall
@@ -56,29 +64,48 @@ export class ShowAllArticlesComponent implements OnInit {
             } else { // We are in a regular listing
                 // noinspection JSIgnoredPromiseFromCall
                 this.stopSearch();
+
+                this.articleService.getArticlesByListing(this.REQUIRED_FIELDS, this.listing)
+                    .then(result => ({ data: this.articles, moreAvailable: this.moreAvailable } = result));
             }
-        })
+        });
+    }
+
+    loadPage() {
+        this.listing.page++;
+
+        this.articleService.getArticlesByListing(this.REQUIRED_FIELDS, this.listing)
+            .then(result => {
+                this.articles.push(...result.data);
+                this.moreAvailable = result.moreAvailable;
+            });
     }
 
     async navigateToSearch() {
-        await this.router.navigate([{ search: `"${this.searchQuery}"` }], { relativeTo: this.activatedRoute })
+        await this.router.navigate([{ search: `"${this.searchQuery}"` }], { relativeTo: this.activatedRoute });
     }
 
     async navigateToNoSearch() {
-        await this.router.navigateByUrl(this.router.url.replace(/search/, '')) // Hacky, but works !
+        await this.router.navigateByUrl(this.router.url.replace(/search/, '')); // Hacky, but works !
     }
 
     private async startSearch() {
+        // this.articleService.getArticlesByListing(this.REQUIRED_FIELDS, new ListingQuery<Article>(this.listing.quantity, this.listing.page, this.listing.forUser, 'oooooooooo'))
+        //     .then(result => {
+        //         this.articles = [];
+        //         this.articles.push(...result.data);
+        //         this.moreAvailable = result.moreAvailable;
+        //     });
         this.articleService.search (
             this.searchQuery,
             ['title', 'summary', 'createdBy', 'categories', 'createdAt'],
-            this.forUser
-        ).then(it => {
-            this.searchResults = it;
+        ).then((result: Article[]) => {
+            this.searchResults = result;
             this.showingSearchResults = true;
             this.forceNoAllowCreate = true;
+
         }).catch((err: Error) => {
-            console.error(`[blogifySearch] Error during search: ${err.name}: ${err.message}`)
+            console.error(`[blogifySearch] Error during search: ${err.name}: ${err.message}`);
         });
     }
 
@@ -87,18 +114,18 @@ export class ShowAllArticlesComponent implements OnInit {
         this.forceNoAllowCreate = false;
         this.searchQuery = undefined;
         this.showingMobileSearchBar = false;
-        this.navigateToNoSearch();
+        await this.navigateToNoSearch();
     }
 
     async navigateToNewArticle() {
         this.authService.observeIsLoggedIn().subscribe(it => {
             if (it) this.router.navigateByUrl('/article/new');
-            else this.router.navigateByUrl('/login?redirect=/article/new')
+            else this.router.navigateByUrl('/login?redirect=/article/new');
         });
     }
 
     setShowSearchBar(val: boolean) {
-        this.showingMobileSearchBar = val
+        this.showingMobileSearchBar = val;
     }
 
 }

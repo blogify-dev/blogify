@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Article } from '../../models/Article';
+import { ListingQuery } from '../../models/ListingQuery';
 import { AuthService } from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
 import { User } from '../../models/User';
 import { SearchView } from '../../models/SearchView';
+
+interface ListingResult { data: Article[]; moreAvailable: boolean; }
 
 @Injectable({
     providedIn: 'root'
@@ -57,7 +60,15 @@ export class ArticleService {
     async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {
         const articlesObs = this.httpClient.get<Article[]>(`/api/articles/?fields=${fields.join(',')}&amount=${amount}`);
         const articles = await articlesObs.toPromise();
+
         return this.prepareArticleData(articles);
+    }
+
+    async getArticlesByListing(fields: (keyof Article)[] = [], listing: ListingQuery<Article>): Promise<ListingResult> {
+        const listingObservable = this.httpClient.get<ListingResult>(`/api/articles/?quantity=${listing.quantity}&page=${listing.page}`);
+        const result = await listingObservable.toPromise();
+
+        return { data: await this.prepareArticleData(result.data), moreAvailable: result.moreAvailable };
     }
 
     async getArticleByUUID(articleUuid: string, fields: (keyof Article)[] = []): Promise<Article> {
@@ -69,7 +80,7 @@ export class ArticleService {
         return article;
     }
 
-    async getArticleByForUser(username: string, fields: string[] = []): Promise<Article[]> {
+    async getArticleByForUser(username: string, fields: (keyof Article)[] = []): Promise<Article[]> {
         const articles = await this.httpClient.get<Article[]>(`/api/articles/forUser/${username}?fields=${fields.join(',')}`).toPromise();
         return this.prepareArticleData(articles);
     }
@@ -143,7 +154,7 @@ export class ArticleService {
         return this.httpClient.delete(`/api/articles/${articleUuid}`, httpOptions).toPromise();
     }
 
-    search(query: string, fields: string[], byUser: User | null) {
+    search(query: string, fields: (keyof Article)[], byUser: User | null = null) {
         const byUserString = (byUser ? `&byUser=${byUser.uuid}` : '');
         const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}${byUserString}`;
         return this.httpClient.get<SearchView<Article>>(url)
@@ -157,4 +168,13 @@ export class ArticleService {
             }); // Make sure user data is present
     }
 
+    pinArticle(articleUuid: string, userToken: string = this.authService.userToken) {
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${userToken}`
+            })
+        };
+        return this.httpClient.post(`/api/articles/${articleUuid}/pin`, null, httpOptions).toPromise();
+    }
 }

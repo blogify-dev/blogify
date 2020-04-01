@@ -36,6 +36,7 @@
             true,
             "rxjs/Rx"
         ],
+        "no-inferred-empty-object-type": true,
         "interface-name": false,
         "max-classes-per-file": false,
         "member-access": false,

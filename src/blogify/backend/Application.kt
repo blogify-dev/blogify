@@ -18,6 +18,7 @@ import blogify.backend.database.Users
 import blogify.backend.routing.auth
 import blogify.backend.database.handling.query
 import blogify.backend.persistence.postgres.PostgresDataStore
+import blogify.backend.pipelines.GenericCallPipeline
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.User
@@ -42,7 +43,6 @@ import io.ktor.features.CachingHeaders
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
-import io.ktor.features.HttpsRedirect
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.content.CachingOptions
@@ -69,7 +69,7 @@ private const val asciiLogo = """
 ---- Version $version - Development build -
 """
 
-val dataStore = PostgresDataStore {
+private val dataStore = PostgresDataStore {
 
     val config = Configs.Database
 
@@ -83,7 +83,10 @@ val dataStore = PostgresDataStore {
 
 }
 
-val applicationContext = ApplicationContext(dataStore)
+val appContext = ApplicationContext(dataStore)
+@property:Suppress("unused")
+val GenericCallPipeline.applicationContext
+    get() = appContext
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
@@ -191,21 +194,16 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         Typesense.submitResourceTemplate(User::class._searchTemplate)
 
     }
-
-    // Create an application context
-
-    val appContext = ApplicationContext(dataStore)
-
     // Initialize routes
 
     routing {
 
         route("/api") {
-            makeArticleRoutes(appContext)
-            users(appContext)
-            auth(appContext)
-            static(appContext)
-            adminSearch(appContext)
+            makeArticleRoutes()
+            users()
+            auth()
+            static()
+            adminSearch()
         }
 
         get("/") {

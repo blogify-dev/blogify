@@ -36,24 +36,24 @@ import org.jetbrains.exposed.sql.select
 /**
  * Defines the API routes for interacting with [users][User].
  */
-fun Route.users(applicationContext: ApplicationContext) {
+fun Route.users() {
 
     route("/users") {
 
         get("/") {
-            requestContext(applicationContext) {
+            requestContext {
                 fetchAllResources<User>()
             }
         }
 
         get("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 fetchResource<User>()
             }
         }
 
         delete("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 deleteResource<User> (
                     authPredicate = { user, manipulated -> user eqr manipulated }
                 )
@@ -61,7 +61,7 @@ fun Route.users(applicationContext: ApplicationContext) {
         }
 
         patch("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 updateResource<User> (
                     authPredicate = { user, replaced -> user eqr replaced }
                 )
@@ -69,7 +69,7 @@ fun Route.users(applicationContext: ApplicationContext) {
         }
 
         get("/byUsername/{username}") {
-            requestContext(applicationContext) {
+            requestContext {
                 val username = param("username")
                 val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
@@ -92,7 +92,7 @@ fun Route.users(applicationContext: ApplicationContext) {
         }
 
         post("/upload/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 uploadToResource<User> (
                     authPredicate = { user, manipulated -> user eqr manipulated }
                 )
@@ -100,13 +100,13 @@ fun Route.users(applicationContext: ApplicationContext) {
         }
 
         delete("/upload/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 deleteUpload<User>(authPredicate = { user, manipulated -> user eqr manipulated })
             }
         }
 
         get("/search") {
-            requestContext(applicationContext) {
+            requestContext {
                 val query = param("q")
 
                 call.respond(Typesense.search<User>(query).asSearchView(this))
@@ -116,7 +116,7 @@ fun Route.users(applicationContext: ApplicationContext) {
         post("{uuid}/follow") {
             val follows = Users.Follows
 
-            requestContext(applicationContext) {
+            requestContext {
                 val id = param("uuid")
 
                 val following = obtainResource<User>(id.toUUID())

@@ -54,7 +54,9 @@ import blogify.backend.pipelines.handleAuthentication
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.pipelineError
+import blogify.backend.resources.Article
 import blogify.backend.search.Typesense
+import blogify.backend.search.ext.asSearchView
 import blogify.backend.util.SrList
 import blogify.backend.util.filterThenMapValues
 import blogify.backend.util.getOrPipelineError
@@ -87,10 +89,6 @@ import com.drew.metadata.exif.ExifImageDirectory
 import com.drew.metadata.jpeg.JpegDirectory
 import com.drew.metadata.png.PngDirectory
 
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -99,6 +97,7 @@ import java.util.UUID
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.sql.*
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -154,6 +153,32 @@ suspend inline fun <reified R : Resource> RequestContext.fetchAllResources() {
 
 }
 
+@BlogifyDsl
+suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing(
+    orderBy: Column<*>,
+    sortOrder: SortOrder,
+    noinline selectCondition: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }
+) {
+
+    val repo = repository<R>()
+    val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
+
+    repo.queryListing(this, selectCondition, param("quantity").toInt(), param("page").toInt(), orderBy, sortOrder).fold(
+        success = { (articles, moreAvailable) ->
+            @Suppress("unused")
+            val obj = object {
+                val data = articles.map {
+                    selectedPropertyNames?.let { props -> it.slice(props) } ?: it.sanitize()
+                }
+                val moreAvailable = moreAvailable
+            }
+            call.respond(obj)
+        },
+        failure = call::respondExceptionMessage
+    )
+
+}
+
 /**
  * Adds a handler to a [RequestContext] that handles fetching a resource.
  *
@@ -185,6 +210,35 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResource (
         }
 
     }
+
+}
+
+/**
+ * Adds a handler to a [RequestContext] that handles fetching a set of resources that match the given [predicate]
+ *
+ * Allows a [Map] of specific property names to be passed in the query URL. If omitted, all the properties are returned
+ *
+ * **WARNING:** Those property names must *exactly* match property names present in the class of the specific resource type.
+ *
+ * @author hamza1311
+ */
+@BlogifyDsl
+suspend inline fun <reified R : Resource> RequestContext.fetchResourcesMatching(noinline predicate: SqlExpressionBuilder.() -> Op<Boolean>) {
+
+    val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
+
+    repository<R>().getMatching(this, predicate).fold(
+        success = { resources ->
+            if (selectedProperties == null) {
+                logger.debug("slicer: getting all fields".magenta())
+                call.respond(resources.map { it.sanitize(excludeUndisplayed = true) })
+            } else {
+                logger.debug("slicer: getting fields $selectedProperties".magenta())
+                call.respond(resources.map { it.slice(selectedProperties) })
+            }
+        },
+        failure = { call.respondExceptionMessage(it) }
+    )
 
 }
 
@@ -575,6 +629,12 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
 
 }
 
+suspend inline fun <reified R : Resource> RequestContext.search(filters: Map<PropMap.PropertyHandle.Ok, Any> = emptyMap()) {
+    val query = param("q")
+    val view = Typesense.search<Article>(query, filters).asSearchView(this)
+    call.respond(view)
+}
+
 /**
  * Adds a handler to a [RequestContext] that returns the validation regexps for a certain class.
  *
@@ -582,6 +642,7 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
  *
  * @author Benjozork
  */
+@BlogifyDsl
 suspend inline fun <reified M : Mapped> RequestContext.getValidations() {
     call.respond (
         M::class.cachedPropMap().ok()

@@ -16,22 +16,26 @@ import io.ktor.http.HttpStatusCode
 import com.github.kittinunf.result.coroutines.map
 
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.sql.*
 
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
-
-import org.slf4j.LoggerFactory
 
 import java.util.*
 
 open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repository<R> {
 
-    private val logger = LoggerFactory.getLogger("blogify-service-${this::class.simpleName}")
-
     override suspend fun getAll(request: RequestContext, limit: Int): SrList<R>
             = this.table.obtainAll(request, limit)
+
+    override suspend fun queryListing(
+        request: RequestContext,
+        selectCondition: SqlExpressionBuilder.() -> Op<Boolean>,
+        quantity: Int,
+        page: Int,
+        orderBy: Column<*>,
+        sortOrder: SortOrder
+    ): Sr<Pair<List<R>, Boolean>>
+            = this.table.obtainListing(request, selectCondition, quantity, page, orderBy, sortOrder)
 
     override suspend fun get(request: RequestContext, id: UUID): Sr<R>
             = request.cache.findOrAsync(id) { table.obtain(request, id).get() }

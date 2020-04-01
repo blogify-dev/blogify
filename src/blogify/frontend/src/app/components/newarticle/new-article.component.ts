@@ -26,8 +26,9 @@ export class NewArticleComponent implements OnInit {
         '',
         '',
         '',
-        new User('', '', '', '', [], new StaticFile('-1'), new StaticFile('-1')),
+        new User('', '', '', '', [], false, new StaticFile('-1'), new StaticFile('-1')),
         Date.now(),
+        false,
         []
     );
 
