@@ -14,7 +14,6 @@ import blogify.backend.util.getOr
 import blogify.backend.util.mappedByHandles
 import blogify.backend.util.short
 import blogify.backend.util.toDto
-import com.andreapivetta.kolor.red
 
 import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.Frame
@@ -26,6 +25,7 @@ import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
 import com.andreapivetta.kolor.yellow
+import com.andreapivetta.kolor.red
 
 import kotlin.reflect.KClass
 
