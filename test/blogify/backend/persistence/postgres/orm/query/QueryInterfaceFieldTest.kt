@@ -4,7 +4,7 @@ import blogify.backend.persistence.postgres.orm.extensions.mappedTable
 import blogify.backend.persistence.postgres.orm.extensions.mapping
 import blogify.backend.persistence.postgres.orm.models.PropertyMapping
 import blogify.backend.resources.models.Resource
-import blogify.backend.testutils.dumpExpression
+import blogify.backend.testutils.SqlUtils
 
 import org.jetbrains.exposed.sql.Column
 
@@ -28,7 +28,7 @@ class QueryInterfaceFieldTest {
         val fields = people.queryInterface
                 .findFieldsForMappings(listOf(name, age))
 
-        println(fields.fields.map { dumpExpression(it, verbose = true) })
+        println(fields.fields.map { SqlUtils.dumpExpression(it, verbose = true) })
 
         assertTrue(name.column in fields.fields)
         assertTrue(age.column in fields.fields)
@@ -59,7 +59,7 @@ class QueryInterfaceFieldTest {
         val fields = marriedPeople.queryInterface
                 .findFieldsForMappings(listOf(name, age, car, carColor))
 
-        println(fields.fields.map { dumpExpression(it, verbose = true) })
+        println(fields.fields.map { SqlUtils.dumpExpression(it, verbose = true) })
 
         assertEquals(3, fields.fields.size)
 
@@ -81,7 +81,7 @@ class QueryInterfaceFieldTest {
         val fields = peopleWithCars.queryInterface
                 .findFieldsForMappings(listOf(name, age, car, carColor), keepImplicitKeys = true)
 
-        println(fields.fields.map { dumpExpression(it, verbose = true) })
+        println(fields.fields.map { SqlUtils.dumpExpression(it, verbose = true) })
 
         assertEquals(4, fields.fields.size)
 

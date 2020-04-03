@@ -1,30 +1,36 @@
 package blogify.backend.persistence.postgres.orm.query
 
+import blogify.backend.persistence.postgres.orm.annotations.Cardinality
+import blogify.backend.persistence.postgres.orm.extensions.mappedTable
+import blogify.backend.persistence.postgres.orm.models.CollectionCardinality
 import blogify.backend.persistence.postgres.orm.query.extensions.then
+import blogify.backend.persistence.postgres.orm.query.extensions.thenEach
+import blogify.backend.persistence.postgres.orm.query.models.CollectionPointer
 import blogify.backend.persistence.postgres.orm.query.models.PropertyGraph
 import blogify.backend.persistence.postgres.orm.query.models.Pointer
-import blogify.backend.resources.Article
-import blogify.backend.resources.Comment
-import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.cachedPropMap
 import blogify.backend.resources.reflect.models.ext.okHandle
-import blogify.backend.testutils.PropertyGraphUtils
+import blogify.backend.testutils.*
 
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.jetbrains.exposed.sql.Join
+
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertEquals
 
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 import kotlin.time.milliseconds
 
 import com.andreapivetta.kolor.lightBlue
+import com.andreapivetta.kolor.red
 import com.andreapivetta.kolor.yellow
 
 class PropertyGraphTest {
 
     private data class House (
-        val size: Pair<Int, Int>,
+        val size: Int,
         val occupant: Owner
     ) : Resource()
 
@@ -39,38 +45,82 @@ class PropertyGraphTest {
     ) : Resource()
 
     @ExperimentalTime
-    @Test fun `should make graph with simple pointers`() {
+    @Test fun `should make graph and join with simple pointers`() {
+        Cat::class.mappedTable
+        Owner::class.mappedTable
         House::class.cachedPropMap()
+        House::class.mappedTable
         Owner::class.cachedPropMap()
         Cat::class.cachedPropMap()
 
+        var graph: PropertyGraph<House>? = null
+
         val timeTaken = measureTime {
-            val houseOccupant = Pointer<House, House, Owner>(null, House::occupant)
-            val houseOccupantName = houseOccupant then Owner::name
-            val houseOccupantCat = houseOccupant then Owner::cat
-            val houseOccupantCatName = houseOccupantCat then Cat::name
-            val houseOccupantCatBreed = houseOccupantCat then Cat::breed
+            for (i in 1..10) {
+                val houseOccupant = Pointer<House, House, Owner>(null, House::occupant)
+                val houseOccupantName = houseOccupant then Owner::name
+                val houseOccupantCat = houseOccupant then Owner::cat
+                val houseOccupantCatName = houseOccupantCat then Cat::name
+                val houseOccupantCatBreed = houseOccupantCat then Cat::breed
 
-            val graph = PropertyGraph (
-                House::class,
-                houseOccupant,
-                houseOccupantName,
-                houseOccupantCat,
-                houseOccupantCatName,
-                houseOccupantCatBreed
-            )
+                graph = PropertyGraph (
+                    House::class,
+                    houseOccupant,
+                    houseOccupantName,
+                    houseOccupantCat,
+                    houseOccupantCatName,
+                    houseOccupantCatBreed
+                )
+            }
+        } / 10
 
-            println(PropertyGraphUtils.dumpPropertyGraph(graph))
+        // Check time taken
 
-            assertTrue(graph.rootChildren.map { it.pointer.handle.name }.containsAll(listOf("occupant")))
-            assertTrue(graph.rootChildren.first().children.map { it.pointer.handle.name }.containsAll(listOf("name", "cat")))
-            assertTrue(graph.rootChildren.first().children.first { it.pointer.handle.name == "cat" }.children.map { it.pointer.handle.name }
-                .containsAll(listOf("name", "breed")))
-        }
+        println(PropertyGraphUtils.dumpPropertyGraph(graph!!) + "\n")
 
         println("Time taken : ".yellow() + timeTaken.toString().lightBlue())
 
-        assertTrue(timeTaken < 10.milliseconds)
+        assertTrue(timeTaken < 1.milliseconds, "took >1ms")
+
+        // Check graph
+
+        assertTrue(graph!!.rootChildren.map { it.pointer.handle.name }.containsAll(listOf("occupant")))
+        assertTrue(graph!!.rootChildren.first().children.map { it.pointer.handle.name }.containsAll(listOf("name", "cat")))
+        assertTrue(graph!!.rootChildren.first().children.first { it.pointer.handle.name == "cat" }.children.map { it.pointer.handle.name }
+            .containsAll(listOf("name", "breed")))
+
+        // Check generated join
+
+        val join = graph!!.toJoin()
+
+        println(SqlUtils.dumpJoin(graph!!.toJoin()) + "\n")
+
+        // Check generated join
+
+        val joinTable = join.let {
+            var table = it.table
+            while (table is Join) {
+                table = table.table
+            }
+            table
+        }
+
+        val columnDumps = arrayOf (
+            Regex ("House.*uuid.*UUIDColumnType"),
+            Regex ("House.*size.*IntegerColumnType"),
+            Regex ("House.*occupant.*UUIDColumnType"),
+            Regex ("Owner.*uuid.*UUIDColumnType"),
+            Regex ("Owner.*name.*TextColumnType"),
+            Regex ("Owner.*cat.*UUIDColumnType"),
+            Regex ("Cat.*uuid.*UUIDColumnType"),
+            Regex ("Cat.*name.*TextColumnType"),
+            Regex ("Cat.*breed.*TextColumnType")
+        )
+
+        assertEquals(House::class.mappedTable, joinTable)
+        join.columns.map {SqlUtils.dumpColumn(it, true) }.forEach {
+            assertTrue(columnDumps.any { r -> it.contains(r) }, "$it doesn't match".red())
+        }
     }
 
     private data class PartnerContainer (
@@ -82,46 +132,149 @@ class PropertyGraphTest {
         val spouse: Partner?
     ) : Resource()
 
-    @Test fun `should make graph with circular reference pointers`() {
-        val partner = Pointer<PartnerContainer, PartnerContainer, Partner>(null, PartnerContainer::contained.okHandle())
-        val partnerName = Pointer<PartnerContainer, Partner, String>(partner, Partner::name.okHandle())
-        val partnerSpouse = Pointer<PartnerContainer, Partner, Partner>(partner, Partner::spouse.okHandle())
-        val partnerSpouseName = Pointer<PartnerContainer, Partner, String>(partnerSpouse, Partner::name.okHandle())
+    @ExperimentalTime
+    @Test fun `should make graph and join with circular reference pointers`() {
+        Partner::class.cachedPropMap()
+        Partner::class.mappedTable
 
-        val graph = PropertyGraph (
-            PartnerContainer::class,
-            partner,
-            partnerName,
-            partnerSpouse,
-            partnerSpouseName
+        var graph: PropertyGraph<PartnerContainer>? = null
+
+        val timeTaken = measureTime {
+            for (i in 1..10) {
+                val partner =
+                    Pointer<PartnerContainer, PartnerContainer, Partner>(null, PartnerContainer::contained.okHandle())
+                val partnerName = partner then Partner::name
+                val partnerSpouse = Pointer<PartnerContainer, Partner, Partner>(partner, Partner::spouse.okHandle())
+                val partnerSpouseName = partnerSpouse then Partner::name
+
+                graph = PropertyGraph(
+                    PartnerContainer::class,
+                    partner,
+                    partnerName,
+                    partnerSpouse,
+                    partnerSpouseName
+                )
+            }
+        } / 10
+
+        println(PropertyGraphUtils.dumpPropertyGraph(graph!!) + "\n")
+
+        // Check time taken
+
+        println("Time taken : ".yellow() + timeTaken.toString().lightBlue())
+
+        assertTrue(timeTaken < 1.milliseconds, "took >1ms")
+
+        // Check graph
+
+        assertTrue(graph!!.rootChildren.map { it.pointer.handle.name }.containsAll(listOf("contained")))
+        assertTrue(graph!!.rootChildren.first().children.map { it.pointer.handle.name }
+            .containsAll(listOf("name", "spouse")))
+        assertTrue(graph!!.rootChildren.first().children.first { it.pointer.handle.name == "spouse" }.children.map { it.pointer.handle.name }
+            .contains("name"))
+
+        val join = graph!!.toJoin()
+
+        println(SqlUtils.dumpJoin(graph!!.toJoin()) + "\n")
+
+        // Check generated join
+
+        val joinTable = join.let {
+            var table = it.table
+            while (table is Join) {
+                table = table.table
+            }
+            table
+        }
+
+        val columnDumps = arrayOf (
+            Regex ("PartnerContainer.*uuid.*UUIDColumnType"),
+            Regex ("PartnerContainer.*contained.*UUIDColumnType"),
+            Regex ("Partner.*uuid.*UUIDColumnType"),
+            Regex ("Partner.*name.*TextColumnType"),
+            Regex ("Partner.*spouse\\?.*UUIDColumnType"),
+            Regex ("_j_node_\\d+.*name.*TextColumnType"),
+            Regex ("_j_node_\\d+.*uuid.*UUIDColumnType"),
+            Regex ("_j_node_\\d+.*spouse\\?.*UUIDColumnType")
         )
 
-        println(PropertyGraphUtils.dumpPropertyGraph(graph))
-
-        assertTrue(graph.rootChildren.map { it.pointer.handle.name }.containsAll(listOf("contained")))
-        assertTrue(graph.rootChildren.first().children.map { it.pointer.handle.name }.containsAll(listOf("name", "spouse")))
-        assertTrue(graph.rootChildren.first().children.first { it.pointer.handle.name == "spouse" }.children.map { it.pointer.handle.name }
-            .contains("name"))
+        assertEquals(PartnerContainer::class.mappedTable, joinTable)
+        join.columns.map { SqlUtils.dumpColumn(it, true) }.forEach {
+            assertTrue(columnDumps.any { r -> it.contains(r) }, "$it doesn't match".red())
+        }
     }
 
-    @Test fun a() {
-        class CommentContainer(val comment: Comment) : Resource()
-        val comment = Pointer<CommentContainer, CommentContainer, Comment>(null, CommentContainer::comment)
-        val commentAuthor = comment then Comment::commenter
-        val commentAuthorUsername = commentAuthor then User::username
-        val commentArticle = comment then Comment::article
-        val commentArticleTitle = commentArticle then Article::title
+    private data class Jar (
+        val cookies: Set<@Cardinality(CollectionCardinality.ONE_TO_MANY) Cookie>
+    ) : Resource()
 
-        val graph = PropertyGraph (
-            CommentContainer::class,
-            comment,
-            commentAuthor,
-            commentAuthorUsername,
-            commentArticle,
-            commentArticleTitle
+    private data class Cookie (
+        val flavor: String,
+        val color: String,
+        val size: Int
+    ) : Resource()
+
+    @ExperimentalTime
+    @Test fun `should make graph and join with collection pointers`() {
+        Cookie::class.mappedTable
+
+        var graph: PropertyGraph<Jar>? = null
+
+        val timeTaken = measureTime {
+            for (i in 1..10) {
+                val cookies = CollectionPointer<Jar, Jar, Cookie>(null, Jar::cookies)
+                val cookiesFlavor = cookies thenEach Cookie::flavor
+
+                graph = PropertyGraph (
+                    Jar::class,
+                    cookies,
+                    cookiesFlavor
+                )
+            }
+        } / 10
+
+        println(PropertyGraphUtils.dumpPropertyGraph(graph!!) + "\n")
+
+        // Check time taken
+
+        println("Time taken : ".yellow() + timeTaken.toString().lightBlue())
+
+        assertTrue(timeTaken < 2.milliseconds, "took >2ms")
+
+        // Check graph
+
+        assertTrue(graph!!.rootChildren.map { it.pointer.handle.name }.contains("cookies"))
+        assertTrue(graph!!.rootChildren.first().children.map { it.pointer.handle.name }
+            .contains("flavor"))
+
+        val join = graph!!.toJoin()
+
+        println(SqlUtils.dumpJoin(graph!!.toJoin()) + "\n")
+
+        // Check generated join
+
+        val joinTable = join.let {
+            var table = it.table
+            while (table is Join) {
+                table = table.table
+            }
+            table
+        }
+
+        val columnDumps = arrayOf (
+            Regex ("Jar.*uuid.*UUIDColumnType"),
+            Regex ("Jar_uuid_to_Cookie_uuid.*Cookie.*UUIDColumnType"),
+            Regex ("Jar_uuid_to_Cookie_uuid.*uuid.*UUIDColumnType"),
+            Regex ("Cookie.*uuid.*UUIDColumnType"),
+            Regex ("Cookie.*color.*TextColumnType"),
+            Regex ("Cookie.*flavor.*TextColumnType"),
+            Regex ("Cookie.*size.*IntegerColumnType")
         )
 
-        println(PropertyGraphUtils.dumpPropertyGraph(graph))
+        assertEquals(Jar::class.mappedTable, joinTable)
+        join.columns.map { SqlUtils.dumpColumn(it, true) }.forEach {
+            assertTrue(columnDumps.any { r -> it.contains(r) }, "$it doesn't match".red())
+        }
     }
 
 }

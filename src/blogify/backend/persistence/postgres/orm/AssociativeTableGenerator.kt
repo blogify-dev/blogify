@@ -1,5 +1,6 @@
 package blogify.backend.persistence.postgres.orm
 
+import blogify.backend.persistence.postgres.orm.extensions.klass
 import blogify.backend.persistence.postgres.orm.models.Cardinality
 import blogify.backend.persistence.postgres.orm.models.OrmTable
 import blogify.backend.persistence.postgres.orm.models.SimpleOrmTable
@@ -40,7 +41,7 @@ object AssociativeTableGenerator {
             Cardinality.ONE_TO_MANY ->
                 doCreateAssociativeTable (
                     left            = leftHandle.klass.uuidHandle,
-                    right           = (leftHandleCollectionType.classifier as KClass<Resource>).uuidHandle,
+                    right           = leftHandleCollectionType.klass<Resource>().uuidHandle,
                     leftMainColumn  = leftTable.columns.first { it.name == "uuid" } as Column<UUID>,
                     rightMainColumn = rightTable.columns.first { it.name == "uuid" } as Column<UUID>,
                     leftUnique      = true
@@ -48,7 +49,7 @@ object AssociativeTableGenerator {
             Cardinality.MANY_TO_MANY ->
                 doCreateAssociativeTable (
                     left            = leftHandle.klass.uuidHandle,
-                    right           = (leftHandleCollectionType.classifier as KClass<Resource>).uuidHandle,
+                    right           = leftHandleCollectionType.klass<Resource>().uuidHandle,
                     leftMainColumn  = leftTable.columns.first { it.name == "uuid" } as Column<UUID>,
                     rightMainColumn = rightTable.columns.first { it.name == "uuid" } as Column<UUID>,
                     leftUnique      = false

@@ -1,13 +1,20 @@
 package blogify.backend.persistence.postgres.orm.query.models
 
+import blogify.backend.persistence.postgres.orm.extensions.klass
+import blogify.backend.persistence.postgres.orm.extensions.mappedTable
+import blogify.backend.persistence.postgres.orm.extensions.mapping
+import blogify.backend.persistence.postgres.orm.models.OrmTable
+import blogify.backend.persistence.postgres.orm.models.PropertyMapping
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.unsafeOkHandle
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.isSubclassOf
 
 import com.andreapivetta.kolor.red
+import org.jetbrains.exposed.sql.*
 
 /**
  * Points to a specific [property handle][PropMap.PropertyHandle.Ok] in a class. Can specify a pointer to containing property via [parent].
@@ -21,9 +28,9 @@ import com.andreapivetta.kolor.red
  * @property parent if needed, the pointer to a property with type [TContainer], but in the same hierarchy (must have same [TRoot])
  * @property handle the [handle][PropMap.PropertyHandle.Ok] this is referring to
  */
-class Pointer<TRoot : Resource, TContainer : Resource, out TValue : Any> (
-    val parent: Pointer<TRoot, *, TContainer>?,
-    val handle: PropMap.PropertyHandle.Ok<TContainer>
+open class Pointer<TRoot : Resource, TContainer : Resource, out TValue : Any> (
+    open val parent: Pointer<TRoot, *, TContainer>?,
+    open val handle: PropMap.PropertyHandle.Ok<TContainer>
 ) {
 
     @Suppress("UNCHECKED_CAST")
@@ -48,6 +55,19 @@ class Pointer<TRoot : Resource, TContainer : Resource, out TValue : Any> (
     }
 
     override fun toString(): String = if (parent == null) "(${handle.klass.simpleName}) -> ${handle.name}" else (parent as Pointer<*, *, *>).toString() + " -> ${handle.name}"
+
+}
+
+class CollectionPointer<TRoot : Resource, TContainer : Resource, TCollectionElement : Resource> (
+    override val parent: Pointer<TRoot, *, TContainer>?,
+    override val handle: PropMap.PropertyHandle.Ok<TContainer>
+) : Pointer<TRoot, TContainer, TCollectionElement>(parent, handle) {
+
+    @Suppress("UNCHECKED_CAST")
+    constructor(parent: Pointer<TRoot, *, TContainer>?, property: KProperty1<TContainer, Collection<TCollectionElement>>) : this (
+        parent, property.unsafeOkHandle() as? PropMap.PropertyHandle.Ok<TContainer>
+            ?: error("fatal: can't find ok handle for property '${property.name}'".red())
+    )
 
 }
 
@@ -88,18 +108,27 @@ class PropertyGraph<TRoot : Resource> (
         pointers.forEach { rootNode.consume(it) }
     }
 
+    fun toJoin(): Join {
+        var join = Join(this.klass.mappedTable)
+
+        this.rootChildren.forEach { join = it.joinWith(join) }
+
+        return join
+    }
+
     abstract inner class INode (
         open val children: MutableSet<PropertyGraph<TRoot>.Node<*>>
     ) {
-        abstract fun consume(pointer: Pointer<TRoot, *, *>): Boolean
+        abstract fun consume(pointer: Pointer<TRoot, *, *>)
     }
 
     inner class RootNode : INode(rootChildren) {
-        override fun consume(pointer: Pointer<TRoot, *, *>): Boolean {
-            println("--- Consuming $pointer, visiting <root>")
-            println("distances -> " +children.map { it.pointer.handle.name to pointer.distanceToAncestor(it.pointer) })
-            return children.firstOrNull { it.consume(pointer) }?.let { true }
-                ?: children.add(this@PropertyGraph.Node(this@RootNode, pointer)).also { println("adpoting $pointer") }
+        override fun consume(pointer: Pointer<TRoot, *, *>) {
+            children.firstOrNull { pointer.distanceToAncestor(it.pointer) != -1 }
+                ?.consume(pointer)
+                ?: if (pointer.handle.klass == this@PropertyGraph.klass)
+                    children.add(this@PropertyGraph.Node(this@RootNode, pointer))
+                else error("fatal: pointer was not consumed".red())
         }
     }
 
@@ -117,7 +146,12 @@ class PropertyGraph<TRoot : Resource> (
         val pointer: Pointer<TRoot, TNodeContainer, *>
     ) : INode(rootChildren) {
 
-        val type: KClass<out Any> = pointer.handle.property.returnType.classifier as KClass<out Any>
+        @Suppress("UNCHECKED_CAST")
+        val type: KClass<out Any> = pointer.handle.property.returnType.let {
+            if (pointer is CollectionPointer<*, *, *>)
+                it.arguments.first().type?.klass() ?: error("")
+            else it.klass()
+        }
 
         override val children: MutableSet<Node<*>> = mutableSetOf()
 
@@ -125,14 +159,52 @@ class PropertyGraph<TRoot : Resource> (
          * Try to propagate the [Pointer] to the appropriate child [Node]. Throws an exception if no appropriate node
          * was found.
          */
-        override fun consume(pointer: Pointer<TRoot, *, *>): Boolean {
-            println("--- Consuming $pointer, visiting <${this.pointer}>")
-            println("distances -> " + children.map { it.pointer.handle.name to pointer.distanceToAncestor(it.pointer) })
-            return if (pointer.handle.klass == this.type && pointer.parent == this.pointer) { // Is pointer pointing to a property of our class ?
+        override fun consume(pointer: Pointer<TRoot, *, *>) {
+            val pointerType = pointer.let {
+                if (this is CollectionPointer<*, *, *>) {
+                    it.handle.property.returnType.arguments.first().type?.classifier as? KClass<*> ?: error("")
+                } else it.handle.klass
+            }
+            if (pointerType == this.type && pointer.parent == this.pointer) { // Is pointer pointing to a property of our class ?
                 // Yes, add it to our children
-                this.children.add(Node(this, pointer)).also { println("adpoting $pointer") }
-                true
-            } else children.firstOrNull { it.consume(pointer) }?.let { true } ?: false
+                this.children.add(Node(this, pointer))
+            } else children.firstOrNull { pointer.distanceToAncestor(it.pointer) != -1 }
+                ?.consume(pointer)
+                ?: error("fatal: pointer was not consumed".red())
+        }
+
+        /**
+         * Joins this [Node] with the provided [join], accounting for its children as well
+         */
+        @Suppress("UNCHECKED_CAST")
+        fun joinWith(join: Join): Join {
+            return if (pointer is CollectionPointer) {
+                val mapping = (this.pointer.handle.mapping as PropertyMapping.AssociativeMapping<*>)
+
+                mapping.joinWith(join)
+            } else {
+                return if (this.children.all { !it.type.isSubclassOf(Resource::class) }) { // Short-circuit and only join own class when all
+                    val resType = (this.type as KClass<Resource>)                          // children are primitives
+
+                    val joinedTable = if (resType.mappedTable == join.table || join.alreadyInJoin(resType.mappedTable)) { // Self joins need an alias
+                        resType.mappedTable.alias("_j_node_${this.hashCode()}")
+                    } else resType.mappedTable
+
+                    if (joinedTable is Alias<Table>) { // If joinedTable is an alias, we need to join manually since FKs are dropped from Alias'
+                                                       // column override
+                        val otherColumn = (joinedTable.delegate as OrmTable<*>).identifyingColumn
+                        val onColumn = resType.mappedTable.columns.first { it.referee == otherColumn }
+
+                        join.leftJoin(joinedTable, { onColumn }, { joinedTable[otherColumn] })
+                    } else join.leftJoin(joinedTable)
+                } else { // When some children are poiting to Resources, join them too
+                    val newJoin = join.leftJoin((this.type as KClass<Resource>).mappedTable)
+
+                    this.children.filter { child -> child.type.isSubclassOf(Resource::class) }
+                        .fold(newJoin) { j, n -> n.joinWith(j) }
+                }
+            }
+
         }
 
     }

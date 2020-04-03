@@ -42,6 +42,7 @@ import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
 import blogify.backend.database.ImageUploadablesMetadata
+import blogify.backend.persistence.postgres.orm.extensions.klass
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
@@ -314,7 +315,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
         val targetPropHandle = targetClass.cachedPropMap()[target]
             ?.takeIf {
                 it is PropMap.PropertyHandle.Ok
-                        && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
+                        && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.klass<Any>())
             } as? PropMap.PropertyHandle.Ok
                                ?: pipelineError(
                                    message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass
@@ -482,7 +483,7 @@ suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
         val targetPropHandle = targetClass.cachedPropMap()[target]
             ?.takeIf {
                 it is PropMap.PropertyHandle.Ok
-                        && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
+                        && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.klass<Any>())
             } as? PropMap.PropertyHandle.Ok
                                ?: pipelineError(
                                    message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass

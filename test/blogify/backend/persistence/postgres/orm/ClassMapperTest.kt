@@ -6,7 +6,7 @@ import blogify.backend.persistence.postgres.orm.models.CollectionCardinality
 import blogify.backend.persistence.postgres.orm.annotations.Cardinality as CardinalityAnnotation
 import blogify.backend.persistence.postgres.orm.models.PropertyMapping
 import blogify.backend.resources.models.Resource
-import blogify.backend.testutils.dumpOrmTable
+import blogify.backend.testutils.SqlUtils
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -24,7 +24,7 @@ class ClassMapperTest {
     @Test fun `should map simple class with only values properly`() {
         val tables = ClassMapper.mapClasses(TestClass::class, ComplexTestClass::class)
 
-        tables.forEach { println(dumpOrmTable(it) + "\n") }
+        tables.forEach { println(SqlUtils.dumpOrmTable(it) + "\n") }
 
         val table = tables.toList().first()
 
@@ -56,7 +56,7 @@ class ClassMapperTest {
     @Test fun `should map complex class with values and associations properly`() {
         val table = ClassMapper.mapSingleClass(ComplexTestClass::class)
 
-        println(dumpOrmTable(table) + "\n")
+        println(SqlUtils.dumpOrmTable(table) + "\n")
 
         // Check PK
 
@@ -94,7 +94,7 @@ class ClassMapperTest {
         val testClassTable = tables[0]
         val complexClassTable = tables[1]
 
-        tables.forEach { println(dumpOrmTable(it) + "\n") }
+        tables.forEach { println(SqlUtils.dumpOrmTable(it) + "\n") }
 
         assertEquals(0, complexClassTable.dependencyTables.size)
 
@@ -125,7 +125,7 @@ class ClassMapperTest {
     @Test fun `should resolve associative mappings with resource collection properties properly`() {
         val tables = ClassMapper.mapClasses(TestClass::class, TestClassCollections::class).toList()
 
-        tables.forEach { println(dumpOrmTable(it) + "\n") }
+        tables.forEach { println(SqlUtils.dumpOrmTable(it) + "\n") }
 
         val testClassTable = tables[0]
         val collectionClassTable = tables[1]
@@ -174,7 +174,7 @@ class ClassMapperTest {
     @Test fun `should resolve associative mappings with primitive collection properties properly`() {
         val primitiveCollectionClassTable = ClassMapper.mapClasses(TestClassPrimitiveCollections::class).first()
 
-        println(dumpOrmTable(primitiveCollectionClassTable) + "\n")
+        println(SqlUtils.dumpOrmTable(primitiveCollectionClassTable) + "\n")
 
         // Check associative table
 

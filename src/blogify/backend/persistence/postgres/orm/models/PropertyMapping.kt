@@ -2,6 +2,7 @@ package blogify.backend.persistence.postgres.orm.models
 
 import blogify.backend.persistence.postgres.orm.AssociativeTableGenerator
 import blogify.backend.persistence.postgres.orm.extensions.isType
+import blogify.backend.persistence.postgres.orm.extensions.klass
 import blogify.backend.persistence.postgres.orm.extensions.subtypeOf
 import blogify.backend.persistence.postgres.orm.annotations.Cardinality as CardinalityAnnotation
 import blogify.backend.resources.models.Resource
@@ -116,12 +117,12 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
                 require(!collectionElementType.isMarkedNullable) { "fatal: collection property element types cannot be marked nullable".red() }
 
                 if (collectionElementType subtypeOf Resource::class) {
-                    collectionElementType.classifier as KClass<Resource>
-                } else error("fatal: collection element type must be subtype of Resource (was '${(collectionElementType.classifier as KClass<*>).simpleName}')".red())
+                    collectionElementType.klass<Resource>()
+                } else error("fatal: collection element type must be subtype of Resource (was '${collectionElementType.klass<Any>().simpleName}')".red())
             } else returnType.classifier as KClass<Resource>
 
-        private lateinit var rightAssociationColumn: Column<UUID>
-        private lateinit var associationTable: Table
+        lateinit var rightAssociationColumn: Column<UUID>
+        lateinit var associationTable: Table
 
         fun complete(leftTable: OrmTable<in TLeftResource>, rightTable: OrmTable<in Resource>) {
             require(!complete) { "fatal: associative mapping is already completed".red() }
@@ -167,7 +168,7 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
             require(complete) { "fatal: associative mapping must be completed before joining".red() }
 
             return if (::associationTable.isInitialized) {
-                join.leftJoin(associationTable).leftJoin(rightAssociationColumn.table)
+                join.leftJoin(associationTable).leftJoin(associationTable.columns[1].foreignKey!!.target.table)
             } else {
                 join.leftJoin(rightAssociationColumn.table)
             }

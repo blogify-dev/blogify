@@ -42,7 +42,7 @@ class PropMap<TMapped : Mapped> (
         override fun toString() = name
 
         interface Valid {
-            val name: String;
+            val name: String
             val property: KProperty1<Any, Any>
         }
 
