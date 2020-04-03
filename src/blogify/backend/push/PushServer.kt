@@ -121,6 +121,12 @@ class PushServer(val appContext: ApplicationContext) {
 
     /**
      * Sends a message to all connected clients for a given user
+     */
+    suspend fun sendMessageToAllConnected(message: Message.Outgoing) = this.clientConnections.values
+        .forEach { it.send(message) }
+
+    /**
+     * Sends a message to all connected clients for a given user
      *
      * @param user the [User] for which to look for clients to send the message to
      */

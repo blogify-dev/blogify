@@ -1,6 +1,7 @@
 package blogify.backend.push
 
 import blogify.backend.annotations.Invisible
+import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.notifications.models.Notification as ActualNotification
@@ -24,6 +25,8 @@ sealed class Message : Mapped() {
         @Invisible val frame = Frame.Text(message)
 
         class Notification(notification: ActualNotification<*, *, *>) : Outgoing("notif ${notification.sanitize()}")
+
+        class ActivityNotification(subject: Resource) : Outgoing("actnotif { \"id\": \"${subject.uuid}\" }")
 
     }
 
