@@ -10,6 +10,6 @@ infix fun <TRoot : Resource, TContainer : Resource, TValue : Resource, TNewValue
         Pointer<TRoot, TContainer, TValue>.then(next: KProperty1<TValue, TNewValue>) =
     Pointer(this, next)
 
-infix fun <TRoot : Resource, TContainer : Resource, TValue : Collection<TElement>, TElement : Resource, TElementValue : Any>
+infix fun <TRoot : Resource, TContainer : Resource, TElement : Resource, TElementValue : Any>
         CollectionPointer<TRoot, TContainer, TElement>.thenEach(next: KProperty1<TElement, TElementValue>) =
     Pointer(this, next)
