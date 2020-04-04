@@ -25,5 +25,3 @@ val <TResource : Resource> PropMap.PropertyHandle<TResource>.mapping
         it.mappings.firstOrNull { m -> m.handle == this }
                 ?: error("fatal: could not find mapping for property '${this.name}' of class '${this.klass.simpleName}'".red())
     } ?: error("fatal: could not get mapped table for class '${this.klass.simpleName}'")
-
-inline val <reified TResource : Resource> KProperty1<TResource, *>.mapping get() = this.handle().mapping
