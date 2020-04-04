@@ -1,6 +1,5 @@
 package blogify.backend.persistence.postgres.orm.models
 
-import blogify.backend.persistence.postgres.orm.query.internal.QueryInterface
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.okHandle
@@ -37,8 +36,6 @@ class OrmTable<TResource : Resource> (
 
     inline operator fun <reified T : TResource> get(handle: PropMap.PropertyHandle.Ok<T>) =
         mappings.first { it.handle == handle }
-
-    val queryInterface by lazy { QueryInterface(this) }
 
     /**
      * Contains the columns that serves as the identifier (a UUID) for the entity stored in this table. This should always be the only
