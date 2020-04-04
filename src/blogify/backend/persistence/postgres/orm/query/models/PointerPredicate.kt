@@ -6,11 +6,20 @@ import blogify.backend.resources.models.Resource
 
 import org.jetbrains.exposed.sql.*
 
+import java.util.*
+
 /**
  * Represents a comparison operation between a [Pointer] and a value `<: Pointer's TLeft`.
  */
 enum class Op {
-    Less, LessOrEquals, Equals, Greater, GreaterOrEquals
+    Less, LessOrEquals, Equals, NotEquals, Greater, GreaterOrEquals
+}
+
+/**
+ * Represents a comparison operation between a [Pointer] and a value `<: Pointer's TLeft (<: Resource)`.
+ */
+enum class ResourceOp {
+    Equals, NotEquals
 }
 
 /**
@@ -41,8 +50,44 @@ class PointerPredicate<TLeftContainer : Resource, TLeft : Any, TRight : TLeft> (
         Op.Less            -> LessOp((lhs.handle.mapping as PropertyMapping.ValueMapping).column, rhs)
         Op.LessOrEquals    -> LessEqOp((lhs.handle.mapping as PropertyMapping.ValueMapping).column, rhs)
         Op.Equals          -> EqOp((lhs.handle.mapping as PropertyMapping.ValueMapping).column, rhs)
+        Op.NotEquals       -> NeqOp((lhs.handle.mapping as PropertyMapping.ValueMapping).column, rhs)
         Op.Greater         -> GreaterOp((lhs.handle.mapping as PropertyMapping.ValueMapping).column, rhs)
         Op.GreaterOrEquals -> GreaterEqOp((lhs.handle.mapping as PropertyMapping.ValueMapping).column, rhs)
+    }
+
+}
+
+/**
+ * Container for a simple [operation][Op] predicate on a [Pointer].
+ *
+ * This should *not* be used directly by DSL implementations.
+ *
+ * @param TLeftContainer the `TContainer` type of the pointer on [lhs]
+ * @param TLeft          the `TValue` type of the pointer on [lhs
+ *
+ * @param lhs the left-hand pointer of the operation. Must **not** point to a [Resource] property.
+ * @param op  the [operation][Op] to be run
+ * @param rhs the right-hand value of the operation
+ *
+ * @author Benjozork
+ */
+class ResourcePointerPredicate<TLeftContainer : Resource, TLeft : Any> (
+    private val lhs: Pointer<*, TLeftContainer, TLeft>,
+    private val op: ResourceOp,
+    private val rhs: Expression<UUID>
+) {
+
+    /**
+     * Converts a [PointerPredicate] to an [`Expresion<Boolean>`][Expression]
+     */
+    fun toExpr(): Expression<Boolean> {
+        val lhsContainerUuidColumn = (lhs.handle.mapping as PropertyMapping.AssociativeMapping<*>)
+            .leftAssociationColumn
+
+        return when (op) {
+            ResourceOp.Equals    -> EqOp(lhsContainerUuidColumn, rhs)
+            ResourceOp.NotEquals -> NeqOp(lhsContainerUuidColumn, rhs)
+        }
     }
 
 }
