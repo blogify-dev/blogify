@@ -37,22 +37,24 @@ object SqlUtils {
         } else input
     }
 
-    fun dumpExpression(expression: Expression<*>, verbose: Boolean = false): String {
+    fun dumpExpression(expression: Expression<*>, verbose: Boolean = false, showColumnTypes: Boolean = true): String {
         return when (expression) {
-            is Column<*> -> dumpColumn(expression, verbose)
-            else -> "_$expression"
+            is Column<*>      -> dumpColumn(expression, verbose, showColumnTypes)
+            is ComparisonOp   -> "${dumpExpression(expression.expr1, showColumnTypes = false)} ${expression.opSign} ${dumpExpression(expression.expr2)}"
+            is QueryParameter -> "'${expression.value}'".lightRed()
+            else -> "???_cant_render_???".lightRed()
         }
     }
 
-    fun dumpColumn(column: Column<*>, verbose: Boolean = false): String =
+    fun dumpColumn(column: Column<*>, verbose: Boolean = false, showType: Boolean = true): String =
         (if (verbose) "${dumpColumnSetName(column.table)}(" else "") +
                 column.let { when {
                     it.indexInPK != null   -> it.name.lightRed()
                     it.columnType.nullable -> "${it.name}?".lightBlue()
                     else -> it.name.lightGreen()
                 } } +
-                (if (verbose) "): " else ": ") +
-                column.columnType::class.simpleName?.cyan()
+                (if (verbose) "): " else if (showType) ": " else "") +
+                (if (showType) column.columnType::class.simpleName?.cyan() else "")
 
     fun dumpFk(forTable: Table, fk: ForeignKeyConstraint): String {
         val fromTableName = fk.from.table.tableName

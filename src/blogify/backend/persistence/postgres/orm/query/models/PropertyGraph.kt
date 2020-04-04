@@ -28,7 +28,7 @@ import org.jetbrains.exposed.sql.*
  * @property parent if needed, the pointer to a property with type [TContainer], but in the same hierarchy (must have same [TRoot])
  * @property handle the [handle][PropMap.PropertyHandle.Ok] this is referring to
  */
-open class Pointer<TRoot : Resource, TContainer : Resource, out TValue : Any> (
+open class Pointer<TRoot : Resource, TContainer : Resource, TValue : Any> (
     open val parent: Pointer<TRoot, *, TContainer>?,
     open val handle: PropMap.PropertyHandle.Ok<TContainer>
 ) {
