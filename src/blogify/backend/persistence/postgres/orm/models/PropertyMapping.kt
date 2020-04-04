@@ -3,6 +3,7 @@ package blogify.backend.persistence.postgres.orm.models
 import blogify.backend.persistence.postgres.orm.AssociativeTableGenerator
 import blogify.backend.persistence.postgres.orm.extensions.isType
 import blogify.backend.persistence.postgres.orm.extensions.klass
+import blogify.backend.persistence.postgres.orm.extensions.klassOrNull
 import blogify.backend.persistence.postgres.orm.extensions.subtypeOf
 import blogify.backend.persistence.postgres.orm.annotations.Cardinality as CardinalityAnnotation
 import blogify.backend.resources.models.Resource
@@ -116,11 +117,11 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
 
                 require(!collectionElementType.isMarkedNullable) { "fatal: collection property element types cannot be marked nullable".red() }
 
-                if (collectionElementType subtypeOf Resource::class) {
-                    collectionElementType.klass<Resource>()
-                } else error("fatal: collection element type must be subtype of Resource (was '${collectionElementType.klass<Any>().simpleName}')".red())
+                collectionElementType.klassOrNull<Resource>()
+                    ?: error("fatal: collection element type must be subtype of Resource (was '${collectionElementType.klass<Any>().simpleName}')".red())
             } else returnType.classifier as KClass<Resource>
 
+        lateinit var leftAssociationColumn: Column<UUID>
         lateinit var rightAssociationColumn: Column<UUID>
         lateinit var associationTable: Table
 
@@ -147,7 +148,7 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
             if (this::associationTable.isInitialized) {
                 table.dependencyTables.add(associationTable)
             } else if (this::rightAssociationColumn.isInitialized) {
-                val leftAssociationColumn = table.registerColumn<UUID> (
+                leftAssociationColumn = table.registerColumn (
                     handle.name, UUIDColumnType().also { if (cardinality == Cardinality.ONE_TO_ONE_OR_NONE) it.nullable = true }
                 )
 
@@ -192,14 +193,14 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
             require(!complete) { "fatal: associative mapping is already completed".red() }
 
             val type = handle.property.returnType
-            val typeClass = type.classifier as KClass<*>
+            val typeClass = type.klass<Any>()
 
             require(!type.isMarkedNullable) { "fatal: collection property types cannot be marked nullable".red() }
 
             try {
                 val collectionElementType = type.arguments.first().type
                     ?: error("fatal: found a star projection in property '${handle.name}' of class '${handle.klass.simpleName}'".red())
-                val collectionTypeClass = collectionElementType.classifier as KClass<*>
+                val collectionTypeClass = collectionElementType.klass<Any>()
 
                 require(!collectionElementType.isMarkedNullable) { "fatal: collection property element types cannot be marked nullable".red() }
 
@@ -218,7 +219,7 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
                     }
                 )
             } catch (e: DuplicateColumnException) {
-                error("fatal: duplicate column name (DuplicateColumnException thrown) when generating value mapping for property '${handle.name}' of class '${typeClass.simpleName}".red())
+                error("fatal: duplicate column name (DuplicateColumnException thrown) when applying value mapping for property '${handle.name}' of class '${typeClass.simpleName}".red())
             }
 
             this.complete = true

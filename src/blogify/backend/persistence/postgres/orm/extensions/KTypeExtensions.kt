@@ -1,16 +1,23 @@
 package blogify.backend.persistence.postgres.orm.extensions
 
 import blogify.backend.resources.models.Resource
-import com.andreapivetta.kolor.red
+import blogify.backend.util.letCatchingOrNull
+
+
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeProjection
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
+import com.andreapivetta.kolor.red
+
 @Suppress("UNCHECKED_CAST")
 fun <TClass : Any> KType.klass(): KClass<out TClass> =
     this.classifier as? KClass<TClass> ?: error("cannot get class for a type projection".red())
+
+fun <TClass : Any> KType.klassOrNull(): KClass<out TClass>? =
+    letCatchingOrNull { this.klass<TClass>() }
 
 fun KType.isResource() =
     this subtypeOf Resource::class
