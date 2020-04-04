@@ -25,7 +25,6 @@ class PointerPredicateTest {
         val person: Person
     ) : Resource()
 
-    @Suppress("SelfReferenceConstructorParameter")
     private data class Person (
         val name: String,
         val height: Int,
