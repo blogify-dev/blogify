@@ -26,7 +26,7 @@ sealed class Message : Mapped() {
 
         class Notification(notification: ActualNotification<*, *, *>) : Outgoing("notif ${notification.sanitize()}")
 
-        class ActivityNotification(subject: Resource) : Outgoing("actnotif { \"id\": \"${subject.uuid}\" }")
+        class ActivityNotification(subject: Resource) : Outgoing("""actnotif { "id": "${subject.uuid}" }""")
 
     }
 
