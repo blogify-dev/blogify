@@ -14,13 +14,16 @@ import com.andreapivetta.kolor.red
 
 @Suppress("UNCHECKED_CAST")
 fun <TClass : Any> KType.klass(): KClass<out TClass> =
-    this.classifier as? KClass<TClass> ?: error("cannot get class for a type projection".red())
+    this.classifier as? KClass<TClass> ?: error("fatal: cannot get class for a type projection".red())
 
 fun <TClass : Any> KType.klassOrNull(): KClass<out TClass>? =
     letCatchingOrNull { this.klass<TClass>() }
 
 fun KType.isResource() =
     this subtypeOf Resource::class
+
+fun KType.isCollection() =
+    this subtypeOf Collection::class
 
 fun KType.isPrimitive() =
     (this subtypeOf Number::class ||

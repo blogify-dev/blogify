@@ -179,7 +179,7 @@ class PropertyGraph<TRoot : Resource> (
         override fun consume(pointer: Pointer<TRoot, *, *>) {
             val pointerType = pointer.let {
                 if (this is CollectionPointer<*, *, *>) {
-                    it.handle.property.returnType.arguments.first().type?.classifier as? KClass<*> ?: error("")
+                    it.handle.property.returnType.arguments.first().type?.klass<Any>()
                 } else it.handle.klass
             }
             if (pointerType == this.type && pointer.parent == this.pointer) { // Is pointer pointing to a property of our class ?

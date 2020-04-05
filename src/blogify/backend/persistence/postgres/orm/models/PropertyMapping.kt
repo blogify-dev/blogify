@@ -1,10 +1,7 @@
 package blogify.backend.persistence.postgres.orm.models
 
 import blogify.backend.persistence.postgres.orm.AssociativeTableGenerator
-import blogify.backend.persistence.postgres.orm.extensions.isType
-import blogify.backend.persistence.postgres.orm.extensions.klass
-import blogify.backend.persistence.postgres.orm.extensions.klassOrNull
-import blogify.backend.persistence.postgres.orm.extensions.subtypeOf
+import blogify.backend.persistence.postgres.orm.extensions.*
 import blogify.backend.persistence.postgres.orm.annotations.Cardinality as CardinalityAnnotation
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
@@ -14,7 +11,6 @@ import org.jetbrains.exposed.sql.*
 
 import java.util.UUID
 
-import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 import com.andreapivetta.kolor.red
@@ -64,7 +60,7 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
 
         override fun applyToTable(table: OrmTable<*>): Column<*> {
             val type = handle.property.returnType
-            val typeClass = type.classifier as KClass<*>
+            val typeClass = type.klass<Any>()
             val typeNullable = type.isMarkedNullable
 
             fun <TColumn> makeColumn(table: OrmTable<*>, name: String, nullable: Boolean, type: IColumnType): Column<*> =
@@ -89,8 +85,6 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
             return this.column
         }
 
-        operator fun invoke() = column
-
     }
 
     /**
@@ -109,7 +103,7 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
 
         @Suppress("UNCHECKED_CAST")
         val dependency =
-            if (returnType subtypeOf Collection::class) {
+            if (returnType.isCollection()) {
                 require(!returnType.isMarkedNullable) { "fatal: collection property types cannot be marked nullable".red() }
 
                 val collectionElementType = returnType.arguments.first().type
@@ -119,7 +113,7 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
 
                 collectionElementType.klassOrNull<Resource>()
                     ?: error("fatal: collection element type must be subtype of Resource (was '${collectionElementType.klass<Any>().simpleName}')".red())
-            } else returnType.classifier as KClass<Resource>
+            } else returnType.klass<Resource>()
 
         lateinit var leftAssociationColumn: Column<UUID>
         lateinit var rightAssociationColumn: Column<UUID>
@@ -215,7 +209,7 @@ sealed class PropertyMapping(open val handle: PropMap.PropertyHandle.Ok<*>) {
                         collectionElementType isType Double::class  -> DoubleColumnType()
                         collectionElementType isType Float::class   -> FloatColumnType()
                         collectionElementType isType Char::class    -> CharacterColumnType()
-                        else -> error("fatal: cannot generate a value mapping for a property of type '${collectionTypeClass.simpleName}'".red())
+                        else -> error("fatal: cannot generate a primitive association mapping for a property with element type '${collectionTypeClass.simpleName}'".red())
                     }
                 )
             } catch (e: DuplicateColumnException) {
