@@ -12,7 +12,7 @@ const commentsEndpoint = '/api/articles/comments';
     providedIn: 'root'
 })
 export class CommentsService {
-    private newRootComment = new BehaviorSubject<Comment>(undefined);
+    private newComment = new BehaviorSubject<CommentCreatePayload>(undefined);
 
     constructor(private httpClient: HttpClient, private authService: AuthService) {}
 
@@ -157,8 +157,18 @@ export class CommentsService {
         return this.httpClient.get<Comment>(`/api/articles/comments/tree/${commentUUID}/?depth=${depth}`).toPromise();
     }
 
-    get latestRootSubmittedComment() {
-        return this.newRootComment.asObservable();
+    submitNewComment(newCommentWsData: CommentCreatePayload) {
+        this.newComment.next(newCommentWsData);
     }
 
+    get latestSubmittedComment() {
+        return this.newComment.asObservable();
+    }
+
+}
+
+interface CommentCreatePayload {
+    uuid: string;
+    article: string;
+    commenter: string;
 }

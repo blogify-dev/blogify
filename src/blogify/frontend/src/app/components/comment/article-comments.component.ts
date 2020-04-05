@@ -37,9 +37,9 @@ export class ArticleCommentsComponent implements OnInit {
             this.rootComments = out;
         });
 
-        this.commentService.latestRootSubmittedComment.subscribe(comment => {
-            if (comment) {
-                this.rootComments.push(comment);
+        this.commentService.latestSubmittedComment.subscribe(payload => {
+            if (payload && payload.article === this.article.uuid) {
+                console.log(payload);
             }
         });
     }

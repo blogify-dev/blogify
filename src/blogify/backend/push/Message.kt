@@ -4,9 +4,16 @@ import blogify.backend.annotations.Invisible
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.sanitize
+import blogify.backend.resources.reflect.slice
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import blogify.backend.notifications.models.Notification as ActualNotification
 
 import io.ktor.http.cio.websocket.Frame
+
+private val objectMapper = jacksonObjectMapper().apply {
+    registerModule(SimpleModule().apply { addSerializer(Resource.ResourceIdSerializer) })
+}
 
 /**
  * Represents a message sent from a connected client or to that client
@@ -24,10 +31,16 @@ sealed class Message : Mapped() {
 
         @Invisible val frame = Frame.Text(message)
 
-        class Notification(notification: ActualNotification<*, *, *>) : Outgoing("notif ${notification.sanitize()}")
+        class Notification(notification: ActualNotification<*, *, *>) : Outgoing(objectMapper.writeValueAsString(mapOf(
+            "e" to "NOTIFICATION_CREATE",
+            "d" to notification.sanitize()
+        )))
 
-        class ActivityNotification(subject: Resource) : Outgoing("""actnotif { "id": "${subject.uuid}" }""")
-
+        class ActivityNotification(subject: Resource) : Outgoing(objectMapper.writeValueAsString(mapOf(
+            "e" to "${subject::class.simpleName!!.toUpperCase()}_CREATE",
+            "d" to subject.slice(setOf("article", "commenter"))
+        )))
+//        """actnotif { "id": "${subject.uuid}" }"""
     }
 
     /**
