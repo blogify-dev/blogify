@@ -54,7 +54,24 @@ open class Pointer<TRoot : Resource, TContainer : Resource, TValue : Any> (
         return cachedAncestors.indexOf(pointer).takeIf { it != -1 }?.plus(1) ?: -1
     }
 
-    override fun toString(): String = if (parent == null) "(${handle.klass.simpleName}) -> ${handle.name}" else (parent as Pointer<*, *, *>).toString() + " -> ${handle.name}"
+    override fun toString(): String =
+        if (parent == null) "(${handle.klass.simpleName}) -> ${handle.name}" else (parent as Pointer<*, *, *>).toString() + " -> ${handle.name}"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Pointer<*, *, *>) return false
+
+        if (parent != other.parent) return false
+        if (handle != other.handle) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = parent?.hashCode() ?: 0
+        result = 31 * result + handle.hashCode()
+        return result
+    }
 
 }
 
@@ -183,22 +200,20 @@ class PropertyGraph<TRoot : Resource> (
 
                 mapping.joinWith(join)
             } else {
-                return if (this.children.all { !it.type.isSubclassOf(Resource::class) }) { // Short-circuit and only join own class when all
-                    val resType = (this.type as KClass<Resource>)                          // children are primitives
+                val resType = (this.type as KClass<Resource>)
 
-                    val joinedTable = if (resType.mappedTable == join.table || join.alreadyInJoin(resType.mappedTable)) { // Self joins need an alias
-                        resType.mappedTable.alias("_j_node_${this.hashCode()}")
-                    } else resType.mappedTable
+                val joinedTable = resType.mappedTable.alias("joined_ptr_${pointer.hashCode().toString(16).replace('-', 'z')}")
+                val joiningTable = pointer.handle.klass.mappedTable.alias("joined_ptr_${pointer.parent.hashCode().toString(16).replace('-', 'z')}")
 
-                    if (joinedTable is Alias<Table>) { // If joinedTable is an alias, we need to join manually since FKs are dropped from Alias'
-                                                       // column override
-                        val otherColumn = (joinedTable.delegate as OrmTable<*>).identifyingColumn
-                        val onColumn = resType.mappedTable.columns.first { it.referee == otherColumn }
+                val otherColumn = (joinedTable.delegate as OrmTable<*>).identifyingColumn
+                val onColumn = pointer.handle.klass.mappedTable.columns.first { it.referee == otherColumn }
 
-                        join.leftJoin(joinedTable, { onColumn }, { joinedTable[otherColumn] })
-                    } else join.leftJoin(joinedTable)
-                } else { // When some children are poiting to Resources, join them too
-                    val newJoin = join.leftJoin((this.type as KClass<Resource>).mappedTable)
+                return if (this.children.all { !it.type.isSubclassOf(Resource::class) }) {
+                    // Short-circuit and only join own class when all children are primitives
+                    join.leftJoin(joinedTable, { joiningTable[onColumn] }, { joinedTable[otherColumn] })
+                } else {
+                    // When some children are pointing to Resources, join them too
+                    val newJoin = join.leftJoin(joinedTable, { onColumn }, { joinedTable[otherColumn] })
 
                     this.children.filter { child -> child.type.isSubclassOf(Resource::class) }
                         .fold(newJoin) { j, n -> n.joinWith(j) }

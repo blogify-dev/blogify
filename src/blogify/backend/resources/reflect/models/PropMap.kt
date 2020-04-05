@@ -30,16 +30,23 @@ class PropMap<TMapped : Mapped> (
      */
     sealed class PropertyHandle<TMapped : Mapped>(val klass: KClass<TMapped>, val name: String) {
 
+        override fun toString() = name
+
         override fun equals(other: Any?): Boolean {
-            return when (other) {
-                is PropertyHandle<*> -> this.name == other.name
-                else -> false
-            }
+            if (this === other) return true
+            if (other !is PropertyHandle<*>) return false
+
+            if (klass != other.klass) return false
+            if (name != other.name) return false
+
+            return true
         }
 
-        override fun hashCode() = name.hashCode()
-
-        override fun toString() = name
+        override fun hashCode(): Int {
+            var result = klass.hashCode()
+            result = 31 * result + name.hashCode()
+            return result
+        }
 
         interface Valid {
             val name: String

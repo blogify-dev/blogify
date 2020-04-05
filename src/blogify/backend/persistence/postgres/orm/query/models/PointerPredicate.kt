@@ -1,5 +1,6 @@
 package blogify.backend.persistence.postgres.orm.query.models
 
+import blogify.backend.persistence.postgres.orm.extensions.klass
 import blogify.backend.persistence.postgres.orm.extensions.mapping
 import blogify.backend.persistence.postgres.orm.models.PropertyMapping
 import blogify.backend.resources.models.Resource
@@ -46,13 +47,19 @@ class PointerPredicate<TLeftContainer : Resource, TLeft : Any, TRight : TLeft> (
     /**
      * Converts a [PointerPredicate] to an [`Expresion<Boolean>`][Expression]
      */
-    fun toExpr(): Expression<Boolean> = when (op) {
-        Op.Less            -> LessOp((lhs.handle.mapping as PropertyMapping.ValueMapping).column, rhs)
-        Op.LessOrEquals    -> LessEqOp((lhs.handle.mapping as PropertyMapping.ValueMapping).column, rhs)
-        Op.Equals          -> EqOp((lhs.handle.mapping as PropertyMapping.ValueMapping).column, rhs)
-        Op.NotEquals       -> NeqOp((lhs.handle.mapping as PropertyMapping.ValueMapping).column, rhs)
-        Op.Greater         -> GreaterOp((lhs.handle.mapping as PropertyMapping.ValueMapping).column, rhs)
-        Op.GreaterOrEquals -> GreaterEqOp((lhs.handle.mapping as PropertyMapping.ValueMapping).column, rhs)
+    fun toExpr(): Expression<Boolean> {
+        val column = (lhs.handle.mapping as PropertyMapping.ValueMapping).column
+        val table = column.table.alias("joined_ptr_${lhs.parent.hashCode().toString(16).replace('-', 'z')}")
+        val realColumn = table[column]
+
+        return when (op) {
+            Op.Less            -> LessOp(realColumn, rhs)
+            Op.LessOrEquals    -> LessEqOp(realColumn, rhs)
+            Op.Equals          -> EqOp(realColumn, rhs)
+            Op.NotEquals       -> NeqOp(realColumn, rhs)
+            Op.Greater         -> GreaterOp(realColumn, rhs)
+            Op.GreaterOrEquals -> GreaterEqOp(realColumn, rhs)
+        }
     }
 
 }

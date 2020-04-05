@@ -16,6 +16,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.Assertions.assertEquals
 
 import java.util.*
+import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PointerPredicateTest {
@@ -55,35 +56,35 @@ class PointerPredicateTest {
         }
 
         println(nameOpString)
-        assertEquals("person.\"name\" = 'kira'", nameOpString)
+        assertTrue(Regex("joined_ptr_\\w+\\.\"name\" = 'kira'").containsMatchIn(nameOpString))
 
         val notNameOpString = transaction {
             notNameOp.toExpr().toString()
         }
 
         println(notNameOpString)
-        assertEquals("person.\"name\" <> 'robert'", notNameOpString)
+        assertTrue(Regex("joined_ptr_\\w+\\.\"name\" <> 'robert'").containsMatchIn(notNameOpString))
 
         val heightOpString = transaction {
             heightOp.toExpr().toString()
         }
 
         println(heightOpString)
-        assertEquals("person.height >= 150", heightOpString)
+        assertTrue(Regex("joined_ptr_\\w+\\.height >= 150").containsMatchIn(heightOpString))
 
         val friendCountOpString = transaction {
             friendCountOp.toExpr().toString()
         }
 
         println(friendCountOpString)
-        assertEquals("person.\"friendCount\" < 19", friendCountOpString)
+        assertTrue(Regex("joined_ptr_\\w+\\.\"friendCount\" < 19").containsMatchIn(friendCountOpString))
 
         val distanceFromJupiterOpString = transaction {
             distanceFromJupiterOp.toExpr().toString()
         }
 
         println(distanceFromJupiterOpString)
-        assertEquals("person.\"distanceFromJupiter\" > 109000596789654888", distanceFromJupiterOpString)
+        assertTrue(Regex("joined_ptr_\\w+\\.\"distanceFromJupiter\" > 109000596789654888").containsMatchIn(distanceFromJupiterOpString))
     }
 
     private data class Box (

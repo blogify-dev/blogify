@@ -109,12 +109,12 @@ class PropertyGraphTest {
             Regex ("House.*uuid.*UUIDColumnType"),
             Regex ("House.*size.*IntegerColumnType"),
             Regex ("House.*occupant.*UUIDColumnType"),
-            Regex ("Owner.*uuid.*UUIDColumnType"),
-            Regex ("Owner.*name.*TextColumnType"),
-            Regex ("Owner.*cat.*UUIDColumnType"),
-            Regex ("Cat.*uuid.*UUIDColumnType"),
-            Regex ("Cat.*name.*TextColumnType"),
-            Regex ("Cat.*breed.*TextColumnType")
+            Regex ("joined_ptr_\\w+.*uuid.*UUIDColumnType"),
+            Regex ("joined_ptr_\\w+.*name.*TextColumnType"),
+            Regex ("joined_ptr_\\w+.*cat.*UUIDColumnType"),
+            Regex ("joined_ptr_\\w+.*uuid.*UUIDColumnType"),
+            Regex ("joined_ptr_\\w+.*name.*TextColumnType"),
+            Regex ("joined_ptr_\\w+.*breed.*TextColumnType")
         )
 
         assertEquals(House::class.mappedTable, joinTable)
@@ -190,12 +190,12 @@ class PropertyGraphTest {
         val columnDumps = arrayOf (
             Regex ("PartnerContainer.*uuid.*UUIDColumnType"),
             Regex ("PartnerContainer.*contained.*UUIDColumnType"),
-            Regex ("Partner.*uuid.*UUIDColumnType"),
-            Regex ("Partner.*name.*TextColumnType"),
-            Regex ("Partner.*spouse\\?.*UUIDColumnType"),
-            Regex ("_j_node_\\d+.*name.*TextColumnType"),
-            Regex ("_j_node_\\d+.*uuid.*UUIDColumnType"),
-            Regex ("_j_node_\\d+.*spouse\\?.*UUIDColumnType")
+            Regex ("joined_ptr_\\w+.*uuid.*UUIDColumnType"),
+            Regex ("joined_ptr_\\w+.*name.*TextColumnType"),
+            Regex ("joined_ptr_\\w+.*spouse\\?.*UUIDColumnType"),
+            Regex ("joined_ptr_\\w+.*name.*TextColumnType"),
+            Regex ("joined_ptr_\\w+.*uuid.*UUIDColumnType"),
+            Regex ("joined_ptr_\\w+.*spouse\\?.*UUIDColumnType")
         )
 
         assertEquals(PartnerContainer::class.mappedTable, joinTable)
