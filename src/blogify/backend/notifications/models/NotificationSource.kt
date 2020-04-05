@@ -11,7 +11,7 @@ import blogify.backend.resources.models.Identified
  *
  * @author Benjozork
  */
-public interface NotificationSource : Identified {
+interface NotificationSource : Identified {
 
     /**
      * The [targets][NotificationTarget] that are targeted by this notification

@@ -9,7 +9,7 @@ import blogify.backend.resources.models.Identified
  *
  * @author Benjozork
  */
-public interface NotificationTarget : Identified {
+interface NotificationTarget : Identified {
 
     fun registerNotification(appContext: ApplicationContext, notification: Notification<*, *, *>) {
 
