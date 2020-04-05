@@ -1,8 +1,8 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { CommentsService } from '../../services/comments/comments.service';
-import { Comment } from '../../models/Comment';
-import { Article } from '../../models/Article';
-import { AuthService } from '../../shared/auth/auth.service';
+import {Component, OnInit, Input} from '@angular/core';
+import {CommentsService} from '../../services/comments/comments.service';
+import {Comment} from '../../models/Comment';
+import {Article} from '../../models/Article';
+import {AuthService} from '../../shared/auth/auth.service';
 
 @Component({
     selector: 'app-article-comments',
@@ -15,9 +15,25 @@ export class ArticleCommentsComponent implements OnInit {
 
     rootComments: Comment[];
 
-    constructor(private commentService: CommentsService, public authService: AuthService) {}
+    constructor(private commentService: CommentsService, public authService: AuthService) {
+    }
 
     ngOnInit() {
+        this.fetchAndShowComments()
+
+        this.commentService.latestSubmittedComment.subscribe(payload => {
+            if (payload && payload.article === this.article.uuid) {
+                console.log(payload);
+                this.fetchAndShowComments();
+            }
+        });
+    }
+
+    isLoggedIn(): boolean {
+        return this.authService.userToken !== '';
+    }
+
+    private fetchAndShowComments() {
         this.commentService.getCommentsForArticle(this.article).then(async it => {
             this.rootComments = it;
 
@@ -36,15 +52,5 @@ export class ArticleCommentsComponent implements OnInit {
             });
             this.rootComments = out;
         });
-
-        this.commentService.latestSubmittedComment.subscribe(payload => {
-            if (payload && payload.article === this.article.uuid) {
-                console.log(payload);
-            }
-        });
-    }
-
-    isLoggedIn(): boolean {
-        return this.authService.userToken !== '';
     }
 }
