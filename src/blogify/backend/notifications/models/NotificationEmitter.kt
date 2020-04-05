@@ -8,4 +8,4 @@ import blogify.backend.resources.models.Identified
  *
  * @author Benjozork
  */
-public interface NotificationEmitter : Identified
+interface NotificationEmitter : Identified
