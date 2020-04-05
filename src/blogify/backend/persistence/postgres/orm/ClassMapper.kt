@@ -12,14 +12,13 @@ import com.andreapivetta.kolor.red
 
 object ClassMapper {
 
-    fun mapClasses(vararg klasses: KClass<out Resource>, mappedClasses: MutableMap<KClass<*>, OrmTable<*>> = mutableMapOf()): Set<OrmTable<*>> {
+    fun mapClasses(vararg klasses: KClass<out Resource>, mappedClasses: MutableMap<KClass<*>, OrmTable<*>> = mutableMapOf()): List<OrmTable<*>> {
          for (klass in klasses) {
              mappedClasses[klass] = mapSingleClass(klass)
          }
 
         return mappedClasses.values
             .map { it.also { resolveAssociativeMappings(it, mappedClasses) } }
-            .toSet()
     }
 
     fun <TResource : Resource> mapSingleClass(klass: KClass<TResource>): OrmTable<TResource> {
