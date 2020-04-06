@@ -24,8 +24,8 @@ import java.lang.Exception
  */
 @BlogifyDsl
 suspend fun <T : Any> query(block: suspend () -> T): SuspendableResult<T, Database.Exception> {
-        return SuspendableResult.of<T, Exception> { // The transaction can throw any Exception; specify that
-            withContext(Dispatchers.IO) { newSuspendedTransaction { block() } } // Run the transaction
-        }
-            .mapError { ex -> Database.Exception(ex) } // We can now wrap that generic exception inside a DBex
+    return SuspendableResult.of<T, Exception> { // The transaction can throw any Exception; specify that
+        withContext(Dispatchers.IO) { newSuspendedTransaction { block() } } // Run the transaction
+    }
+        .mapError { ex -> Database.Exception(ex) } // We can now wrap that generic exception inside a DBex
 }
