@@ -11,6 +11,7 @@ import blogify.backend.resources.reflect.models.ext.valid
 import blogify.backend.util.Dto
 
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.jvm.isAccessible
 
 /**
@@ -108,7 +109,7 @@ fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>): Dto {
 
     val selectedPropertiesSanitized = selectedPropertyNames.toMutableSet().apply {
         removeIf { it == "uuid" || it == "UUID" }
-        add("uuid")
+        if (this@slice::class.isSubclassOf(Resource::class)) add("uuid")
     }
 
     val unknownProperties = mutableSetOf<String>()
