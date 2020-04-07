@@ -75,10 +75,10 @@ data class Article (
     @Invisible
     override val targets = setOf(createdBy)
 
-    @[Computed NoSearch]
+    @Computed
     val likeCount by compound { Articles.uuid countReferredToBy Articles.Likes.article }
 
-    @[Computed NoSearch]
+    @Computed
     val commentCount by compound { Articles.uuid countReferredToBy Comments.article }
 
 }

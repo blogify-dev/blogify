@@ -58,7 +58,7 @@ data class Comment (
     @Invisible
     override val targets = setOf(commenter)
 
-    @[Computed NoSearch]
+    @Computed
     val likeCount by compound { Comments.uuid countReferredToBy Comments.Likes.comment }
 
 }
