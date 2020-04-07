@@ -6,9 +6,8 @@ import blogify.backend.annotations.search.NoSearch
 import blogify.backend.database.Comments
 import blogify.backend.database.countReferredToBy
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.notifications.extensions.spawnNotification
-import blogify.backend.notifications.models.NotificationSource
-import blogify.backend.push.Message
+import blogify.backend.events.models.Event
+import blogify.backend.events.models.EventSource
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
@@ -40,14 +39,19 @@ data class Comment (
 
     override val uuid: UUID = UUID.randomUUID()
 
-) : Resource(uuid), NotificationSource {
+) : Resource(uuid), EventSource {
+
+    inner class CommentReplyEvent : Event(this.commenter, this) {
+        val onArticle = this@Comment.article.uuid
+        val onComment = this@Comment.parentComment!!.uuid
+        val newComment = source.uuid
+    }
 
     override suspend fun onCreation(request: RequestContext) {
-        parentComment
-            ?.spawnNotification(request.appContext, commenter)
-        ?: article.spawnNotification(request.appContext, commenter)
-
-        request.appContext.pushServer.sendMessageToAllConnected(Message.Outgoing.ActivityNotification(this))
+        if (parentComment != null)
+            this.CommentReplyEvent().send(request)
+        else
+            article.CommentReplyEvent(this).send(request)
     }
 
     // The notification target of a comment is always it's author

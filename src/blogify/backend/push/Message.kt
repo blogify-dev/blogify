@@ -5,9 +5,10 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.resources.reflect.slice
+import blogify.backend.events.models.Event as ActualNotification
+
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import blogify.backend.notifications.models.Notification as ActualNotification
 
 import io.ktor.http.cio.websocket.Frame
 
@@ -31,7 +32,7 @@ sealed class Message : Mapped() {
 
         @Invisible val frame = Frame.Text(message)
 
-        class Notification(notification: ActualNotification<*, *, *>) : Outgoing(objectMapper.writeValueAsString(mapOf(
+        class Notification(notification: ActualNotification) : Outgoing(objectMapper.writeValueAsString(mapOf(
             "e" to "NOTIFICATION_CREATE",
             "d" to notification.sanitize()
         )))

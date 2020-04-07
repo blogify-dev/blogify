@@ -12,9 +12,9 @@ import blogify.backend.annotations.type
 import blogify.backend.database.Users
 import blogify.backend.database.countReferredToBy
 import blogify.backend.database.findReferredToBy
-import blogify.backend.notifications.models.Notification
-import blogify.backend.notifications.models.NotificationEmitter
-import blogify.backend.notifications.models.NotificationTarget
+import blogify.backend.events.models.Event
+import blogify.backend.events.models.EventEmitter
+import blogify.backend.events.models.EventTarget
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.push.Message
 import blogify.backend.resources.computed.compound
@@ -70,14 +70,19 @@ data class User (
     @NoSearch
     override val uuid: UUID = UUID.randomUUID()
 
-) : Resource(uuid), NotificationEmitter, NotificationTarget {
+) : Resource(uuid), EventEmitter, EventTarget {
+
+    inner class FollowedEvent(byUser: User) : Event(byUser, this) {
+        val follower = byUser.uuid
+        val followee = this@User.uuid
+    }
 
     // Any notification that is about a user only has the user itself as a target
     @Invisible
     override val targets = setOf(this)
 
-    override suspend fun sendNotification(appContext: ApplicationContext, notification: Notification<*, *, *>) {
-        appContext.pushServer.sendMessageToConnected(this, Message.Outgoing.Notification(notification))
+    override suspend fun sendEvent(appContext: ApplicationContext, event: Event) {
+        appContext.pushServer.sendMessageToConnected(this, Message.Outgoing.Notification(event))
     }
 
     @Computed

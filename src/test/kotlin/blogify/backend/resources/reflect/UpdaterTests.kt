@@ -1,7 +1,7 @@
 package blogify.backend.resources.reflect
 
 import blogify.backend.annotations.Invisible
-import blogify.backend.notifications.models.NotificationTarget
+import blogify.backend.events.models.EventTarget
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.util.Sr
@@ -20,7 +20,7 @@ class UpdaterTests {
         @Invisible val password: String
     ) : Resource() {
         @Invisible
-        override val targets: Set<NotificationTarget>
+        override val targets: Set<EventTarget>
             get() = TODO("Not yet implemented")
     }
 

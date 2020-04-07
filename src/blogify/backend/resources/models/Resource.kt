@@ -1,8 +1,8 @@
 package blogify.backend.resources.models
 
 import blogify.backend.appContext
-import blogify.backend.notifications.models.NotificationEmitter
-import blogify.backend.notifications.models.NotificationSource
+import blogify.backend.events.models.EventEmitter
+import blogify.backend.events.models.EventSource
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
 
@@ -26,7 +26,7 @@ import kotlin.reflect.KClass
 import java.lang.IllegalStateException
 import java.util.*
 
-abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : Mapped(), NotificationSource, NotificationEmitter, Identified {
+abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : Mapped(), EventSource, EventEmitter, Identified {
 
     object ObjectResolver : ObjectIdResolver {
 

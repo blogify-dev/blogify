@@ -13,9 +13,11 @@ import org.slf4j.LoggerFactory
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
+import kotlin.reflect.KVisibility
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.jvm.isAccessible
 
 private val logger = LoggerFactory.getLogger("blogify-datamap")
 
@@ -35,7 +37,7 @@ private fun <M : Mapped> KClass<M>.buildPropMap(unsafe: Boolean = false): PropMa
         .associateBy {
             it.name
         }.mapValues<String, KProperty1<*, *>, PropMap.PropertyHandle> { (name, self) ->
-            if (self.findAnnotation<Invisible>() != null && !unsafe) {
+            if ((self.findAnnotation<Invisible>() != null || self.visibility != KVisibility.PUBLIC) && !unsafe) {
                 PropMap.PropertyHandle.AccessDenied(name)
             } else {
                 if (self.findAnnotation<Computed>() != null) {

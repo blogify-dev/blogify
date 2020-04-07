@@ -2,7 +2,7 @@ package blogify.backend.resources.reflect
 
 import blogify.backend.annotations.Invisible
 import blogify.backend.annotations.check
-import blogify.backend.notifications.models.NotificationTarget
+import blogify.backend.events.models.EventTarget
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.ext.ok
@@ -16,7 +16,7 @@ import kotlin.reflect.full.findAnnotation
 class PropMapTests {
 
     data class TestClass(val visible: String, @Invisible val invisible: String): Resource() {
-        override val targets: Set<NotificationTarget>
+        override val targets: Set<EventTarget>
             get() = TODO("Not yet implemented")
     }
 
@@ -37,7 +37,7 @@ class PropMapTests {
     }
 
     data class TestClassWithRegexes(val noRegex: String, val withRegex: @check("[a-zA-Z0-9]{3}") String): Resource() {
-        override val targets: Set<NotificationTarget>
+        override val targets: Set<EventTarget>
             get() = TODO("Not yet implemented")
     }
 

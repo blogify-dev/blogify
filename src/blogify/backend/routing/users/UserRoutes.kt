@@ -3,7 +3,6 @@ package blogify.backend.routing.users
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Users
 import blogify.backend.database.handling.query
-import blogify.backend.notifications.extensions.spawnNotification
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
@@ -144,7 +143,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
                             }
                         }
                     }
-                    following.spawnNotification(appContext, subject)
+                    following.FollowedEvent(subject).send(this)
 
                     call.respond(HttpStatusCode.OK)
                 }

@@ -10,10 +10,11 @@ import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
 import blogify.backend.database.countReferredToBy
-import blogify.backend.notifications.models.NotificationSource
+import blogify.backend.events.models.Event
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
+import org.intellij.lang.annotations.Language
 
 import java.time.Instant
 import java.util.UUID
@@ -56,7 +57,12 @@ data class Article (
     @NoSearch
     override val uuid: UUID = UUID.randomUUID()
 
-) : Resource(uuid), NotificationSource {
+) : Resource(uuid) {
+
+    inner class CommentReplyEvent(comment: Comment) : Event(comment.commenter, this) {
+        val onArticle = source.uuid
+        val newComment = comment.uuid
+    }
 
     /**
      * Represents the categories of an [Article].
