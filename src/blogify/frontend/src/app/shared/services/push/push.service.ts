@@ -27,14 +27,27 @@ export class PushService {
                         }
                     } else {
                         const parsed = JSON.parse(msg);
-                        switch (parsed.e) {
-                            case 'COMMENT_CREATE':
-                                commentsService.submitNewComment(parsed.d);
-                                break;
-
-                            case 'NOTIFICATION_CREATE':
-                                console.log('Notification', parsed.d);
-                                break;
+                        if (parsed.e.endsWith('Event')) {
+                            const event = parsed.e.replace('Event', '');
+                            switch (event) {
+                                // TODO: Implement here
+                                case 'CommentReply':
+                                    console.log('Comment reply added', parsed.d);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        } else if (parsed.e.startsWith('Activity')) {
+                            const on = parsed.e.replace('Activity', '');
+                            switch (on.toLowerCase()) {
+                                case 'comment':
+                                    const data = parsed.d;
+                                    this.commentsService.submitNewComment({
+                                        article: data.article,
+                                        commenter: data.commenter,
+                                        uuid: data.uuid
+                                    });
+                            }
                         }
                     }
                 });

@@ -33,15 +33,14 @@ sealed class Message : Mapped() {
         @Invisible val frame = Frame.Text(message)
 
         class Notification(notification: ActualNotification) : Outgoing(objectMapper.writeValueAsString(mapOf(
-            "e" to "NOTIFICATION_CREATE",
+            "e" to "${notification::class.simpleName}",
             "d" to notification.sanitize()
         )))
 
         class ActivityNotification(subject: Resource) : Outgoing(objectMapper.writeValueAsString(mapOf(
-            "e" to "${subject::class.simpleName!!.toUpperCase()}_CREATE",
+            "e" to "Activity${subject::class.simpleName!!.toUpperCase()}",
             "d" to subject.slice(setOf("article", "commenter"))
         )))
-//        """actnotif { "id": "${subject.uuid}" }"""
     }
 
     /**

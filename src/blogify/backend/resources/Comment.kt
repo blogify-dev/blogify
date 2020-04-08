@@ -8,6 +8,7 @@ import blogify.backend.database.countReferredToBy
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.events.models.Event
 import blogify.backend.events.models.EventSource
+import blogify.backend.push.Message
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
@@ -52,6 +53,8 @@ data class Comment (
             this.CommentReplyEvent().send(request)
         else
             article.CommentReplyEvent(this).send(request)
+
+        request.appContext.pushServer.sendMessageToAllConnected(Message.Outgoing.ActivityNotification(this))
     }
 
     // The notification target of a comment is always it's author
