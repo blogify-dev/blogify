@@ -28,6 +28,8 @@ import { AdminModule } from './components/admin/admin/admin.module';
 import { FollowsComponent } from './components/profile/profile/follows/follows.component';
 import { UsersComponent } from './components/users/users.component';
 import { ProfileSlideoverComponent } from './components/profile-slideover/profile-slideover.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
     declarations: [
@@ -57,7 +59,6 @@ import { ProfileSlideoverComponent } from './components/profile-slideover/profil
         FormsModule,
         ReactiveFormsModule,
         ContenteditableValueAccessorModule,
-
         FontAwesomeModule,
         MarkdownModule.forRoot(),
         ClipboardModule,
@@ -65,6 +66,8 @@ import { ProfileSlideoverComponent } from './components/profile-slideover/profil
         SharedModule,
         ProfileModule,
         AdminModule,
+        BrowserAnimationsModule,
+        ToastrModule.forRoot(),
     ],
     providers: [],
     exports: [],

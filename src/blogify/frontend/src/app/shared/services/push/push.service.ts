@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
-import { webSocket } from 'rxjs/webSocket';
-import { AuthService } from '../../auth/auth.service';
-import { CommentsService } from '../../../services/comments/comments.service';
+import {Injectable} from '@angular/core';
+import {webSocket} from 'rxjs/webSocket';
+import {AuthService} from '../../auth/auth.service';
+import {CommentsService} from '../../../services/comments/comments.service';
+import {BehaviorSubject} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -16,6 +17,8 @@ export class PushService {
 
     private authenticated = false;
 
+    private eventsBehaviorSubject = new BehaviorSubject<EventPayload>(undefined);
+
     constructor(private authService: AuthService, private commentsService: CommentsService) {
         this.authService.observeIsLoggedIn().subscribe(loggedIn => {
             if (loggedIn) {
@@ -29,10 +32,11 @@ export class PushService {
                         const parsed = JSON.parse(msg);
                         if (parsed.e.endsWith('Event')) {
                             const event = parsed.e.replace('Event', '');
+                            this.eventsBehaviorSubject.next(parsed);
                             switch (event) {
                                 // TODO: Implement here
                                 case 'CommentReply':
-                                    console.log('Comment reply added', parsed.d);
+                                    // console.log('Comment reply added', parsed.d);
                                     break;
                                 default:
                                     break;
@@ -54,4 +58,14 @@ export class PushService {
             }
         });
     }
+
+    get events() {
+        return this.eventsBehaviorSubject.asObservable();
+    }
+}
+
+
+interface EventPayload {
+    e: string;
+    d: object;
 }
