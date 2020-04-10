@@ -93,7 +93,7 @@ object Articles : ResourceTable<Article>() {
     val createdBy  = uuid    ("created_by").references(Users.uuid, onDelete = SET_NULL)
     val content    = text    ("content")
     val summary    = text    ("summary")
-    val isPinned   = bool("is_pinned")
+    val isPinned   = bool    ("is_pinned").default(false)
 
     override val authorColumn = createdBy
 
