@@ -53,8 +53,6 @@ data class Comment (
             this.CommentReplyEvent().send(request)
         else
             article.CommentReplyEvent(this).send(request)
-
-        request.appContext.pushServer.sendMessageToAllConnected(Message.Outgoing.ActivityNotification(this))
     }
 
     @Invisible

@@ -495,13 +495,18 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
         handleAuthentication(predicate = { u -> authPredicate(u, received) }) {
             repository<R>().add(received).fold (
                 success = {
-                    if (it is UserCreatedResource)
-                        it.CreationEvent().send(this)
-
-                    it.onCreation(this) // Call its creation function
-
                     call.respond(HttpStatusCode.Created, it.sanitize(excludeUndisplayed = true))
-                    launch { Typesense.uploadResource(it) }
+
+                    launch { // Dispatch creation events and call creation function
+                        if (it is UserCreatedResource)
+                            it.CreationEvent().send(this@createResource)
+
+                        it.onCreation(this@createResource)
+                    }
+
+                    launch {
+                        Typesense.uploadResource(it)
+                    }
                 },
                 failure = call::respondExceptionMessage
             )
