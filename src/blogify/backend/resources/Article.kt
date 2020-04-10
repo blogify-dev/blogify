@@ -11,10 +11,10 @@ import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
 import blogify.backend.database.countReferredToBy
 import blogify.backend.events.models.Event
+import blogify.backend.resources.models.UserCreatedResource
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
-import org.intellij.lang.annotations.Language
 
 import java.time.Instant
 import java.util.UUID
@@ -57,7 +57,7 @@ data class Article (
     @NoSearch
     override val uuid: UUID = UUID.randomUUID()
 
-) : Resource(uuid) {
+) : UserCreatedResource(uuid) {
 
     inner class CommentReplyEvent(comment: Comment) : Event(comment.commenter, this) {
         val onArticle = source.uuid
@@ -70,6 +70,9 @@ data class Article (
      * @property name The name content of the category.
      */
     data class Category(@DelegatedSearchReceiver val name: String)
+
+    @Invisible
+    override val creator = createdBy
 
     // The notification target of an article is always it's author
     @Invisible

@@ -32,7 +32,7 @@ sealed class Message : Mapped() {
 
         @Invisible val frame = Frame.Text(message)
 
-        class Notification(notification: ActualNotification) : Outgoing(objectMapper.writeValueAsString(mapOf(
+        class Event(notification: ActualNotification) : Outgoing(objectMapper.writeValueAsString(mapOf(
             "e" to "${notification::class.simpleName}",
             "d" to notification.sanitize()
         )))

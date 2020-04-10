@@ -54,6 +54,7 @@ import blogify.backend.pipelines.handleAuthentication
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.pipelineError
+import blogify.backend.resources.models.UserCreatedResource
 import blogify.backend.search.Typesense
 import blogify.backend.util.SrList
 import blogify.backend.util.filterThenMapValues
@@ -494,7 +495,10 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
         handleAuthentication(predicate = { u -> authPredicate(u, received) }) {
             repository<R>().add(received).fold (
                 success = {
-                    it.onCreation(this) // Call it's creation function
+                    if (it is UserCreatedResource)
+                        it.CreationEvent().send(this)
+
+                    it.onCreation(this) // Call its creation function
 
                     call.respond(HttpStatusCode.Created, it.sanitize(excludeUndisplayed = true))
                     launch { Typesense.uploadResource(it) }

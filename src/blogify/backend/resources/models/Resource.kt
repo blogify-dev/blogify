@@ -1,6 +1,7 @@
 package blogify.backend.resources.models
 
 import blogify.backend.appContext
+import blogify.backend.events.models.Event
 import blogify.backend.events.models.EventEmitter
 import blogify.backend.events.models.EventSource
 import blogify.backend.pipelines.wrapping.RequestContext
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
+
 import kotlin.reflect.KClass
 
 import java.lang.IllegalStateException

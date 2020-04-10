@@ -82,7 +82,7 @@ data class User (
     override val targets = setOf(this)
 
     override suspend fun sendEvent(appContext: ApplicationContext, event: Event) {
-        appContext.pushServer.sendMessageToConnected(this, Message.Outgoing.Notification(event))
+        appContext.pushServer.sendMessageToConnected(this, Message.Outgoing.Event(event))
     }
 
     @Computed

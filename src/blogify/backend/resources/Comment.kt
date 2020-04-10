@@ -2,7 +2,6 @@ package blogify.backend.resources
 
 import blogify.backend.annotations.Invisible
 import blogify.backend.annotations.SqlTable
-import blogify.backend.annotations.search.NoSearch
 import blogify.backend.database.Comments
 import blogify.backend.database.countReferredToBy
 import blogify.backend.pipelines.wrapping.RequestContext
@@ -12,6 +11,7 @@ import blogify.backend.push.Message
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
+import blogify.backend.resources.models.UserCreatedResource
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
@@ -40,7 +40,7 @@ data class Comment (
 
     override val uuid: UUID = UUID.randomUUID()
 
-) : Resource(uuid), EventSource {
+) : UserCreatedResource(uuid), EventSource {
 
     inner class CommentReplyEvent : Event(this.commenter, this) {
         val onArticle = this@Comment.article.uuid
@@ -56,6 +56,9 @@ data class Comment (
 
         request.appContext.pushServer.sendMessageToAllConnected(Message.Outgoing.ActivityNotification(this))
     }
+
+    @Invisible
+    override val creator = commenter
 
     // The notification target of a comment is always it's author
     @Invisible
