@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Article } from '../../../models/Article';
 import { CommentsService } from '../../../services/comments/comments.service';
 import { AuthService } from '../../../shared/auth/auth.service';
@@ -38,9 +38,8 @@ export class CreateCommentComponent implements OnInit {
     async doReply() {
         // Make sure the user is authenticated
         if (this.authService.observeIsLoggedIn() && this.replyComment.commenter instanceof User) {
-
             if (this.comment === undefined) { // Reply to article
-                const newComment = await this.commentsService.createComment (
+                await this.commentsService.createComment (
                     this.replyComment.content,
                     this.article.uuid,
                     this.replyComment.commenter.uuid
@@ -53,6 +52,8 @@ export class CreateCommentComponent implements OnInit {
                     this.comment.uuid
                 );
             }
+
+            this.replying = false;
 
         } else {
             this.replyError = 'You must be logged in to comment.';
