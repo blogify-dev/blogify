@@ -28,7 +28,8 @@ fun KType.isCollection() =
 fun KType.isPrimitive() =
     (this subtypeOf Number::class ||
      this isType    String::class ||
-     this isType    Char::class)
+     this isType   Boolean::class ||
+     this isType      Char::class)
 
 infix fun KType.subtypeOf(klass: KClass<*>) =
     this.isSubtypeOf(klass.createType(klass.typeParameters.map { KTypeProjection(null, null) }, nullable = this.isMarkedNullable))
