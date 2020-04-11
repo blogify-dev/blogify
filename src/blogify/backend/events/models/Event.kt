@@ -7,7 +7,8 @@ import java.time.Instant
 
 open class Event (
     val emitter: EventEmitter,
-    val source: EventSource
+    val source: EventSource,
+    val type: EventType
 ) : Mapped() {
 
     val timestamp: Instant = Instant.now()

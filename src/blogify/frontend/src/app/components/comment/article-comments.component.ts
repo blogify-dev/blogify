@@ -19,12 +19,17 @@ export class ArticleCommentsComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.fetchAndShowComments()
+        this.fetchAndShowComments();
 
-        this.commentService.latestSubmittedComment.subscribe(payload => {
+        this.commentService.latestSubmittedComment.subscribe(async payload => {
             if (payload && payload.article === this.article.uuid) {
                 console.log(payload);
-                this.fetchAndShowComments();
+                const comment = await this.commentService.getCommentByUUID(payload.uuid);
+                if (!comment.parentComment) {
+                    this.rootComments.push(comment);
+                } else {
+                    this.fetchAndShowComments();
+                }
             }
         });
     }

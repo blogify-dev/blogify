@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {webSocket} from 'rxjs/webSocket';
 import {AuthService} from '../../auth/auth.service';
 import {CommentsService} from '../../../services/comments/comments.service';
-import {BehaviorSubject} from 'rxjs';
+import {Subject} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -17,7 +17,7 @@ export class PushService {
 
     private authenticated = false;
 
-    private eventsBehaviorSubject = new BehaviorSubject<EventPayload>(undefined);
+    private notificationsSubject = new Subject<EventPayload>();
 
     constructor(private authService: AuthService, private commentsService: CommentsService) {
         this.authService.observeIsLoggedIn().subscribe(loggedIn => {
@@ -29,29 +29,24 @@ export class PushService {
                             this.authenticated = true;
                         }
                     } else {
-                        const parsed = JSON.parse(msg);
-                        if (parsed.e.endsWith('Event')) {
-                            const event = parsed.e.replace('Event', '');
-                            this.eventsBehaviorSubject.next(parsed);
-                            switch (event) {
-                                // TODO: Implement here
-                                case 'CommentReply':
-                                    // console.log('Comment reply added', parsed.d);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        } else if (parsed.e.startsWith('Activity')) {
-                            const on = parsed.e.replace('Activity', '');
-                            switch (on.toLowerCase()) {
-                                case 'comment':
-                                    const data = parsed.d;
-                                    this.commentsService.submitNewComment({
-                                        article: data.article,
-                                        commenter: data.commenter,
-                                        uuid: data.uuid
-                                    });
-                            }
+                        const parsed = JSON.parse(msg) as EventPayload;
+                        switch (parsed.t) {
+                            case 'Activity':
+                                switch ((parsed.e.replace('Event', ''))) {
+                                    case 'CommentCreate':
+                                        const data = parsed.d as CommentCreatePayload;
+                                        this.commentsService.submitNewComment({
+                                            article: data.article,
+                                            commenter: data.commenter,
+                                            uuid: data.comment
+                                        });
+                                        break;
+                                }
+                                break;
+
+                            case 'Notification':
+                                this.notificationsSubject.next(parsed);
+                                break;
                         }
                     }
                 });
@@ -60,12 +55,19 @@ export class PushService {
     }
 
     get events() {
-        return this.eventsBehaviorSubject.asObservable();
+        return this.notificationsSubject.asObservable();
     }
 }
 
 
 interface EventPayload {
     e: string;
-    d: object;
+    t: string;
+    d: any;
+}
+
+interface CommentCreatePayload {
+    article: string;
+    commenter: string;
+    comment: string;
 }

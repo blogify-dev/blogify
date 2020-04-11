@@ -11,6 +11,7 @@ import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
 import blogify.backend.database.countReferredToBy
 import blogify.backend.events.models.Event
+import blogify.backend.events.models.EventType
 import blogify.backend.resources.models.UserCreatedResource
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
@@ -59,7 +60,7 @@ data class Article (
 
 ) : UserCreatedResource(uuid) {
 
-    inner class CommentReplyEvent(comment: Comment) : Event(comment.commenter, this) {
+    inner class CommentReplyEvent(comment: Comment) : Event(comment.commenter, this, EventType.Notification) {
         val onArticle = source.uuid
         val newComment = comment.uuid
     }

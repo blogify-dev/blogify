@@ -498,9 +498,6 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
                     call.respond(HttpStatusCode.Created, it.sanitize(excludeUndisplayed = true))
 
                     launch { // Dispatch creation events and call creation function
-                        if (it is UserCreatedResource)
-                            it.CreationEvent().send(this@createResource)
-
                         it.onCreation(this@createResource)
                     }
 

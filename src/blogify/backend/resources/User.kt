@@ -15,6 +15,7 @@ import blogify.backend.database.findReferredToBy
 import blogify.backend.events.models.Event
 import blogify.backend.events.models.EventEmitter
 import blogify.backend.events.models.EventTarget
+import blogify.backend.events.models.EventType
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.push.Message
 import blogify.backend.resources.computed.compound
@@ -72,7 +73,7 @@ data class User (
 
 ) : Resource(uuid), EventEmitter, EventTarget {
 
-    inner class FollowedEvent(byUser: User) : Event(byUser, this) {
+    inner class FollowedEvent(byUser: User) : Event(byUser, this, EventType.Notification) {
         val follower = byUser.uuid
         val followee = this@User.uuid
     }
