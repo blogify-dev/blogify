@@ -203,14 +203,16 @@ class PropertyGraph<TRoot : Resource> (
                 val resType = (this.type as KClass<Resource>)
 
                 val joinedTable = resType.mappedTable.alias("joined_ptr_${pointer.hashCode().toString(16).replace('-', 'z')}")
-                val joiningTable = pointer.handle.klass.mappedTable.alias("joined_ptr_${pointer.parent.hashCode().toString(16).replace('-', 'z')}")
+                val joiningTable = if (pointer.parent != null)
+                    pointer.handle.klass.mappedTable.alias("joined_ptr_${pointer.parent.hashCode().toString(16).replace('-', 'z')}")
+                else pointer.handle.klass.mappedTable
 
                 val otherColumn = (joinedTable.delegate as OrmTable<*>).identifyingColumn
                 val onColumn = pointer.handle.klass.mappedTable.columns.first { it.referee == otherColumn }
 
                 return if (this.children.all { !it.type.isSubclassOf(Resource::class) }) {
                     // Short-circuit and only join own class when all children are primitives
-                    join.leftJoin(joinedTable, { joiningTable[onColumn] }, { joinedTable[otherColumn] })
+                    join.leftJoin(joinedTable, { if (joiningTable is Alias<Table>) joiningTable[onColumn] else onColumn }, { joinedTable[otherColumn] })
                 } else {
                     // When some children are pointing to Resources, join them too
                     val newJoin = join.leftJoin(joinedTable, { onColumn }, { joinedTable[otherColumn] })
