@@ -28,7 +28,11 @@ export class ArticleCommentsComponent implements OnInit {
                 if (!comment.parentComment) {
                     this.rootComments.push(comment);
                 } else {
-                    this.fetchAndShowComments();
+                    this.rootComments.forEach(cmt => {
+                        if (cmt.uuid === comment.parentComment.toString()) {
+                            cmt.children.push(comment);
+                        }
+                    });
                 }
             }
         });
