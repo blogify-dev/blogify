@@ -108,8 +108,10 @@ private fun <M : Mapped> getPropValueOnInstance(instance: M, propertyName: Strin
 fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>): Dto {
 
     val selectedPropertiesSanitized = selectedPropertyNames.toMutableSet().apply {
-        removeIf { it == "uuid" || it == "UUID" }
-        if (this@slice::class.isSubclassOf(Resource::class)) add("uuid")
+        if (this@slice::class.isSubclassOf(Resource::class)) {
+            removeIf { it == "uuid" || it == "UUID" }
+            add("uuid")
+        }
     }
 
     val unknownProperties = mutableSetOf<String>()
