@@ -167,7 +167,7 @@ export class CommentsService {
 
 }
 
-interface CommentCreatePayload {
+export interface CommentCreatePayload {
     uuid: string;
     article: string;
     commenter: string;
