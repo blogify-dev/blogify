@@ -7,14 +7,9 @@ import com.andreapivetta.kolor.cyan
 import com.fasterxml.jackson.databind.*
 
 import blogify.backend.config.Configs
+import blogify.backend.database.*
 import blogify.backend.routing.makeArticleRoutes
 import blogify.backend.routing.users.makeUserRoutes
-import blogify.backend.database.Database
-import blogify.backend.database.Articles
-import blogify.backend.database.Comments
-import blogify.backend.database.ImageUploadablesMetadata
-import blogify.backend.database.Uploadables
-import blogify.backend.database.Users
 import blogify.backend.routing.makeAuthRoutes
 import blogify.backend.database.handling.query
 import blogify.backend.persistence.postgres.PostgresDataStore
@@ -189,7 +184,8 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
                 Comments,
                 Comments.Likes,
                 Uploadables,
-                ImageUploadablesMetadata
+                ImageUploadablesMetadata,
+                Notifications
             )
         }
 

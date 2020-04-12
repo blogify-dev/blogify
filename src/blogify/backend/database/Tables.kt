@@ -4,6 +4,7 @@ package blogify.backend.database
 
 import blogify.backend.appContext
 import blogify.backend.database.handling.query
+import blogify.backend.events.models.Event
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
 import blogify.backend.resources.User
@@ -12,10 +13,10 @@ import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.util.Sr
-import blogify.backend.util.Wrap
-import blogify.backend.util.SrList
-import blogify.backend.util.matches
+import blogify.backend.resources.reflect.cachedPropMap
+import blogify.backend.resources.reflect.doInstantiate
+import blogify.backend.resources.reflect.sanitize
+import blogify.backend.util.*
 
 import io.ktor.http.ContentType
 
@@ -354,4 +355,14 @@ object ImageUploadablesMetadata : Table("image_metadata") {
         )
     }
 
+}
+
+object Notifications : Table("notifications") {
+    val data = jsonb<Map<String, Any?>>("data")
+    val emitter = uuid("emitter").references(Users.uuid, onDelete = CASCADE, onUpdate = CASCADE)
+    val timestamp = integer("timestamp")
+
+    suspend inline fun <reified T : Event> convert(requestContext: RequestContext, source: ResultRow): Event {
+        return source[data].mappedByHandles(T::class)?.let { T::class.doInstantiate(it) }?.get() ?: error("Shit went wrong")
+    }
 }

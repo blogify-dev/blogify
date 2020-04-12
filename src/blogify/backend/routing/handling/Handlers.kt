@@ -501,9 +501,9 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
                         it.onCreation(this@createResource)
                     }
 
-                    launch {
+                    /*launch {
                         Typesense.uploadResource(it)
-                    }
+                    }*/
                 },
                 failure = call::respondExceptionMessage
             )
