@@ -18,9 +18,9 @@ export class SingleCommentComponent implements OnInit {
     @Input() comment: Comment;
     @Input() child: boolean;
 
-    isReady: boolean = false;
+    isReady = false;
 
-    replyingEnabled: boolean = false;
+    replyingEnabled = false;
     replyComment: Comment;
     replyError: string;
 
@@ -66,6 +66,16 @@ export class SingleCommentComponent implements OnInit {
             uuid: ''
         };
 
+        // Handle new comments
+
+        this.commentsService.latestSubmittedComment.subscribe(async payload => {
+            if (payload && payload.article === this.comment.article.uuid) {
+                const comment = await this.commentsService.getCommentByUUID(payload.uuid);
+
+                if (comment.parentComment as unknown as string === this.comment.uuid)
+                    this.comment.children.push(comment);
+            }
+        });
     }
 
     async replyToSelf() {
@@ -78,7 +88,7 @@ export class SingleCommentComponent implements OnInit {
                 this.comment.uuid
             );
         } else {
-            this.replyError = 'You must be logged in to comment.'
+            this.replyError = 'You must be logged in to comment.';
         }
     }
 
@@ -89,8 +99,8 @@ export class SingleCommentComponent implements OnInit {
                 this.comment.likedByUser = !this.comment.likedByUser;
                 this.comment.likeCount += (this.comment.likedByUser ? 1 : -1);
             }).catch(() => {
-            console.error(`[blogifyComments] Couldn't like ${this.comment.uuid}` )
-        })
+            console.error(`[blogifyComments] Couldn't like ${this.comment.uuid}` );
+        });
     }
 
 }
