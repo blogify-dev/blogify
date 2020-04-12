@@ -3,7 +3,6 @@ import { webSocket } from 'rxjs/webSocket';
 import { AuthService } from '../../auth/auth.service';
 import { CommentsService } from '../../../services/comments/comments.service';
 import { Subject } from 'rxjs';
-import { LiveUpdateService } from '../../live-update.service';
 
 @Injectable({
     providedIn: 'root'
@@ -20,7 +19,7 @@ export class PushService {
 
     private notificationsSubject = new Subject<EventPayload>();
 
-    constructor(private authService: AuthService, private liveUpdateService: LiveUpdateService) {
+    constructor(private authService: AuthService, private commentsService: CommentsService) {
         this.authService.observeIsLoggedIn().subscribe(loggedIn => {
             if (loggedIn) {
                 this.ws.next(this.authService.userToken);
@@ -38,7 +37,7 @@ export class PushService {
                             if (eventClassName === 'CommentCreate') {
                                 const data = parsed.d as CommentCreatePayload;
 
-                                this.liveUpdateService.acceptResource({
+                                this.commentsService.registerSubmittedComment({
                                     article: data.article,
                                     commenter: data.commenter,
                                     uuid: data.comment
