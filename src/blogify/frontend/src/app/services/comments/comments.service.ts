@@ -157,7 +157,7 @@ export class CommentsService {
         return this.httpClient.get<Comment>(`/api/articles/comments/tree/${commentUUID}/?depth=${depth}`).toPromise();
     }
 
-    submitNewComment(newCommentWsData: CommentCreatePayload) {
+    registerSubmittedComment(newCommentWsData: CommentCreatePayload) {
         this.newComment.next(newCommentWsData);
     }
 

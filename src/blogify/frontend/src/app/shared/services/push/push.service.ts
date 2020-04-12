@@ -1,8 +1,8 @@
-import {Injectable} from '@angular/core';
-import {webSocket} from 'rxjs/webSocket';
-import {AuthService} from '../../auth/auth.service';
-import {CommentsService} from '../../../services/comments/comments.service';
-import {Subject} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { webSocket } from 'rxjs/webSocket';
+import { AuthService } from '../../auth/auth.service';
+import { CommentsService } from '../../../services/comments/comments.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -30,23 +30,21 @@ export class PushService {
                         }
                     } else {
                         const parsed = JSON.parse(msg) as EventPayload;
-                        switch (parsed.t) {
-                            case 'Activity':
-                                switch ((parsed.e.replace('Event', ''))) {
-                                    case 'CommentCreate':
-                                        const data = parsed.d as CommentCreatePayload;
-                                        this.commentsService.submitNewComment({
-                                            article: data.article,
-                                            commenter: data.commenter,
-                                            uuid: data.comment
-                                        });
-                                        break;
-                                }
-                                break;
 
-                            case 'Notification':
-                                this.notificationsSubject.next(parsed);
-                                break;
+                        if (parsed.t === 'Activity') {
+                            const eventClassName = parsed.e.replace('Event', '');
+
+                            if (eventClassName === 'CommentCreate') {
+                                const data = parsed.d as CommentCreatePayload;
+
+                                this.commentsService.registerSubmittedComment({
+                                    article: data.article,
+                                    commenter: data.commenter,
+                                    uuid: data.comment
+                                });
+                            }
+                        } else if (parsed.t === 'Notification') {
+                            this.notificationsSubject.next(parsed);
                         }
                     }
                 });
@@ -62,8 +60,8 @@ export class PushService {
 
 interface EventPayload {
     e: string;
-    t: string;
-    d: any;
+    t: 'Activity' | 'Notification';
+    d: object;
 }
 
 interface CommentCreatePayload {

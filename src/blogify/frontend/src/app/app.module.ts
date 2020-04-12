@@ -62,7 +62,6 @@ import { ToastrModule } from 'ngx-toastr';
         FontAwesomeModule,
         MarkdownModule.forRoot(),
         ClipboardModule,
-
         SharedModule,
         ProfileModule,
         AdminModule,
