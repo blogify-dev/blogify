@@ -88,7 +88,7 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
                     parameter.type.isSubtypeOf(UUID::class.createType()) -> { // KType of property is subtype of UUID
                         parameter to (value as String).toUUID()
                     }
-                    else  -> { // We don't know what it is, we need to extract a JavaType and make Jackson deserialize it
+                    else -> { // We don't know what it is, we need to extract a JavaType and make Jackson deserialize it
                         val baseTypeClass = (parameter.type.classifier as? KClass<*>)?.java
                             ?: error("fatal: found non-class base type when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
 
