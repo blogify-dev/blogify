@@ -27,7 +27,7 @@ export class CreateCommentComponent implements OnInit {
             this.replyComment = {
                 commenter: value ? (await this.authService.userProfile).uuid : '',
                 article: this.comment === undefined ? this.article.uuid : idOf(this.comment.article),
-                parentComment: this.comment.uuid,
+                parentComment: this.comment ? this.comment.uuid : undefined,
                 likeCount: 0,
                 likedByUser: false,
                 content: '',
@@ -45,11 +45,11 @@ export class CreateCommentComponent implements OnInit {
                     this.article.uuid,
                     idOf(this.replyComment.commenter)
                 );
+                this.replyComment.content = '';
             } else { // Reply to comment
                 await this.commentsService.replyToComment(this.replyComment);
+                this.replying = false;
             }
-
-            this.replying = false;
 
         } else {
             this.replyError = 'You must be logged in to comment.';
