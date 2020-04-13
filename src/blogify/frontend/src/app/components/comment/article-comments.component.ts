@@ -21,10 +21,8 @@ export class ArticleCommentsComponent implements OnInit {
         this.fetchAndShowComments();
 
         this.commentService.latestSubmittedComment.subscribe(async payload => {
-            if (payload) {
-                if (!payload.parentComment) {
-                    this.rootComments.push(payload);
-                }
+            if (payload && !payload.parentComment) {
+                this.rootComments = [payload, ...this.rootComments];
             }
         });
     }
