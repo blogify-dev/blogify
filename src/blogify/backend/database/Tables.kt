@@ -368,14 +368,12 @@ object Notifications : Table("notifications") {
     val name      = text("name")
 
     suspend fun convert(requestContext: RequestContext, source: ResultRow): Map<String, Any?> {
-        return source[data].toMutableMap().apply {
-            put("emitter", requestContext.repository<User>().get(requestContext, source[emitter]).get())
-            put("timestamp", Instant.ofEpochSecond(source[timestamp].toLong()))
-            put("name", source[name])
-        }.toMap()
-//        return source[data]
-//            .mappedByHandles(T::class)
-//            .flatMap { T::class.doInstantiate(it) }.getOrNull() ?: never
+         return mutableMapOf(
+             "data" to source[data],
+             "emitter" to requestContext.repository<User>().get(requestContext, source[emitter]).get(),
+             "timestamp" to Instant.ofEpochSecond(source[timestamp].toLong()),
+             "name" to source[name]
+         ).toMap()
     }
 
     suspend fun insert(event: Event): Sr<Event> {
