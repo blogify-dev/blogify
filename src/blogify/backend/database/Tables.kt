@@ -32,7 +32,9 @@ import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.selectAll
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
+import com.github.kittinunf.result.coroutines.flatMap
 import com.github.kittinunf.result.coroutines.getOrElse
+import com.github.kittinunf.result.coroutines.map
 
 import java.util.UUID
 
@@ -358,11 +360,27 @@ object ImageUploadablesMetadata : Table("image_metadata") {
 }
 
 object Notifications : Table("notifications") {
-    val data = jsonb<Map<String, Any?>>("data")
-    val emitter = uuid("emitter").references(Users.uuid, onDelete = CASCADE, onUpdate = CASCADE)
-    val timestamp = integer("timestamp")
+
+    val data      = jsonb<Map<String, Any?>>("data")
+    val emitter   = uuid    ("emitter").references(Users.uuid, onDelete = CASCADE, onUpdate = CASCADE)
+    val timestamp = integer ("timestamp")
 
     suspend inline fun <reified T : Event> convert(requestContext: RequestContext, source: ResultRow): Event {
-        return source[data].mappedByHandles(T::class)?.let { T::class.doInstantiate(it) }?.get() ?: error("Shit went wrong")
+        return source[data]
+            .mappedByHandles(T::class)
+            .flatMap { T::class.doInstantiate(it) }.getOrNull() ?: never
     }
+
+    suspend fun insert(event: Event): Sr<Event> {
+        return Wrap {
+            query {
+                insert {
+                    it[data]      = event.sanitize()
+                    it[emitter]   = event.emitter.uuid
+                    it[timestamp] = event.timestamp.epochSecond.toInt()
+                }
+            }
+        }.map { event }
+    }
+
 }
