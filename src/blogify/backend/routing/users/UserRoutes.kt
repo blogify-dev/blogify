@@ -1,6 +1,7 @@
 package blogify.backend.routing.users
 
 import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.database.Notifications
 import blogify.backend.database.Users
 import blogify.backend.database.handling.query
 import blogify.backend.pipelines.wrapping.ApplicationContext
@@ -148,7 +149,21 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
                     call.respond(HttpStatusCode.OK)
                 }
             }
+        }
+        route("/me") {
 
+            get("/notifications") {
+                requestContext(applicationContext) {
+                    runAuthenticated { user ->
+                        val notifications = query {
+                            Notifications.select { Notifications.emitter eq user.uuid }
+                                .map { Notifications.convert(this, it) }
+                                .toList()
+                        }.get()
+                        call.respond(notifications)
+                    }
+                }
+            }
 
         }
 

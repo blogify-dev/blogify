@@ -16,8 +16,9 @@ open class Event (
 
     suspend fun send(request: RequestContext) {
         source.targets.forEach { it.sendEvent(request.appContext, this) }
-
-        Notifications.insert(this).get()
+        if (this.type == EventType.Notification) {
+            Notifications.insert(this).get()
+        }
     }
 
 }

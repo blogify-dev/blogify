@@ -35,6 +35,7 @@ import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.flatMap
 import com.github.kittinunf.result.coroutines.getOrElse
 import com.github.kittinunf.result.coroutines.map
+import java.time.Instant
 
 import java.util.UUID
 
@@ -364,11 +365,17 @@ object Notifications : Table("notifications") {
     val data      = jsonb<Map<String, Any?>>("data")
     val emitter   = uuid    ("emitter").references(Users.uuid, onDelete = CASCADE, onUpdate = CASCADE)
     val timestamp = integer ("timestamp")
+    val name      = text("name")
 
-    suspend inline fun <reified T : Event> convert(requestContext: RequestContext, source: ResultRow): Event {
-        return source[data]
-            .mappedByHandles(T::class)
-            .flatMap { T::class.doInstantiate(it) }.getOrNull() ?: never
+    suspend fun convert(requestContext: RequestContext, source: ResultRow): Map<String, Any?> {
+        return source[data].toMutableMap().apply {
+            put("emitter", requestContext.repository<User>().get(requestContext, source[emitter]).get())
+            put("timestamp", Instant.ofEpochSecond(source[timestamp].toLong()))
+            put("name", source[name])
+        }.toMap()
+//        return source[data]
+//            .mappedByHandles(T::class)
+//            .flatMap { T::class.doInstantiate(it) }.getOrNull() ?: never
     }
 
     suspend fun insert(event: Event): Sr<Event> {
@@ -378,6 +385,7 @@ object Notifications : Table("notifications") {
                     it[data]      = event.sanitize()
                     it[emitter]   = event.emitter.uuid
                     it[timestamp] = event.timestamp.epochSecond.toInt()
+                    it[name] = event::class.simpleName ?: error("This should never happen")
                 }
             }
         }.map { event }
