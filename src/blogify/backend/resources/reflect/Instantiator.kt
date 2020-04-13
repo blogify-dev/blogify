@@ -6,6 +6,7 @@ import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
+import blogify.backend.util.never
 import blogify.backend.util.toUUID
 
 import java.util.UUID
@@ -68,7 +69,7 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
     suspend fun makeParamMap(): Map<KParameter, Any?> {
         return ((propMap.ok().values intersect params.keys))
             // For now, associate each propHandle to the constructor param with the same name
-            .associateWith { targetCtor.parameters.firstOrNull { p -> p.name == it.name } ?: error("fatal: impossible state") }
+            .associateWith { targetCtor.parameters.firstOrNull { p -> p.name == it.name } ?: never }
             // Then map it to the given value in params
             .map { (it.value to it.key) to params[it.key] }
             .map { (parameterAndHandle ,value) -> // Do some known obvious conversions

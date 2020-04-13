@@ -9,11 +9,7 @@ import blogify.backend.resources.reflect.cachedPropMap
 import blogify.backend.resources.reflect.doInstantiate
 import blogify.backend.resources.reflect.models.ext.ok
 import blogify.backend.routing.closeAndExit
-import blogify.backend.util.concurrentMapOf
-import blogify.backend.util.getOr
-import blogify.backend.util.mappedByHandles
-import blogify.backend.util.short
-import blogify.backend.util.toDto
+import blogify.backend.util.*
 
 import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.Frame
@@ -88,7 +84,7 @@ class PushServer(val appContext: ApplicationContext) {
             val bodyPayload = boyDto
                 .plus("connection" to this)
                 .mappedByHandles(receivedClass, unsafe = true)
-                ?: close(INVALID_MESSAGE("bad properties in body"))
+                .getOrNull() ?: close(INVALID_MESSAGE("bad properties in body"))
 
             // Instantiate that class
 
