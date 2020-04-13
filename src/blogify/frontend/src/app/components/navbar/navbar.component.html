@@ -39,7 +39,7 @@
 
             <span class="separator" *ngIf="authService.observeIsLoggedIn() | async"></span>
 
-            <span id="notifications" class="clickable hover-mild" *ngIf="authService.observeIsLoggedIn() | async">
+            <span id="notifications" class="clickable hover-mild" *ngIf="authService.observeIsLoggedIn() | async" (click)="showNotifications()">
                 <fa-icon size="lg" [icon]="faBell" [transform]="{ y: -1, size: 19 }"></fa-icon>
             </span>
 

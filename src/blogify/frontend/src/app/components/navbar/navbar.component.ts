@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { DarkModeService } from '../../services/darkmode/dark-mode.service';
 import { User } from '../../models/User';
 import { faBell, faMoon, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { NotificationsService } from '../../shared/services/notifications/notifications.service';
 
 @Component({
     selector: 'app-navbar',
@@ -22,6 +23,7 @@ export class NavbarComponent implements OnInit, AfterViewInit {
         public authService: AuthService,
         private router: Router,
         private darkModeService: DarkModeService,
+        private notificationsService: NotificationsService
     ) {}
 
     ngOnInit() {
@@ -56,7 +58,12 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     toggleDarkMode() {
         const darkMode = !this.darkModeService.getDarkModeValue();
         this.darkModeService.setDarkMode(darkMode);
+    }
 
+    async showNotifications() {
+        const notifications = await this.notificationsService.fetchMyNotifications();
+        console.log(notifications);
+        // TODO: Show those in UI
     }
 
     logout() {
