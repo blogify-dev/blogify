@@ -23,6 +23,19 @@ object SqlUtils {
         return stream.toString()
     }
 
+    fun dumpSlice(slice: FieldSet, verbose: Boolean = true): String {
+        val stream = StringBuilder()
+
+        stream.append("[Slice of ${dumpColumnSetName(slice.source)}]\n")
+        stream.append("|  Fields: ${
+        slice.fields.groupBy { (it as Column<*>).table }.values
+            .flatMap { reorderFields(it) }
+            .map { dumpExpression(it, verbose) }
+        }")
+
+        return stream.toString()
+    }
+
     fun dumpColumnSetName(set: ColumnSet) =
         when (set) {
             is Table -> set.tableName.lightMagenta()

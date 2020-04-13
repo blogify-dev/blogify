@@ -13,6 +13,7 @@ import blogify.backend.resources.reflect.cachedPropMap
 import blogify.backend.resources.reflect.models.ext.okHandle
 import blogify.backend.testutils.*
 
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Join
 
 import org.junit.jupiter.api.Test
@@ -121,6 +122,22 @@ class PropertyGraphTest {
         join.columns.map {SqlUtils.dumpColumn(it, true) }.forEach {
             assertTrue(columnDumps.any { r -> it.contains(r) }, "$it doesn't match".red())
         }
+
+        // Check slice
+
+        val slice = graph!!.toSlice()
+
+        println(SqlUtils.dumpSlice(slice) + "\n")
+
+        val sliceColumnDumps = arrayOf (
+            Regex("joined_ptr_\\w+.*name.*TextColumnType"),
+            Regex("joined_ptr_\\w+.*name.*TextColumnType"),
+            Regex("joined_ptr_\\w+.*breed.*TextColumnType")
+        )
+
+        slice.fields.map { SqlUtils.dumpColumn(it as Column<*>, true) }.forEach {
+            assertTrue(sliceColumnDumps.any { r -> it.contains(r) }, "$it doesn't match".red())
+        }
     }
 
     private data class PartnerContainer (
@@ -202,6 +219,21 @@ class PropertyGraphTest {
         join.columns.map { SqlUtils.dumpColumn(it, true) }.forEach {
             assertTrue(columnDumps.any { r -> it.contains(r) }, "$it doesn't match".red())
         }
+
+        // Check slice
+
+        val slice = graph!!.toSlice()
+
+        println(SqlUtils.dumpSlice(slice) + "\n")
+
+        val sliceColumnDumps = arrayOf (
+            Regex("joined_ptr_\\w+.*name.*TextColumnType"),
+            Regex("joined_ptr_\\w+.*name.*TextColumnType")
+        )
+
+        slice.fields.map { SqlUtils.dumpColumn(it as Column<*>, true) }.forEach {
+            assertTrue(sliceColumnDumps.any { r -> it.contains(r) }, "$it doesn't match".red())
+        }
     }
 
     private data class Jar (
@@ -274,6 +306,20 @@ class PropertyGraphTest {
         assertEquals(Jar::class.mappedTable, joinTable)
         join.columns.map { SqlUtils.dumpColumn(it, true) }.forEach {
             assertTrue(columnDumps.any { r -> it.contains(r) }, "$it doesn't match".red())
+        }
+
+        // Check slice
+
+        val slice = graph!!.toSlice()
+
+        println(SqlUtils.dumpSlice(slice) + "\n")
+
+        val sliceColumnDumps = arrayOf (
+            Regex("Cookie.*flavor.*TextColumnType")
+        )
+
+        slice.fields.map { SqlUtils.dumpColumn(it as Column<*>, true) }.forEach {
+            assertTrue(sliceColumnDumps.any { r -> it.contains(r) }, "$it doesn't match".red())
         }
     }
 

@@ -125,12 +125,37 @@ class PropertyGraph<TRoot : Resource> (
         pointers.forEach { rootNode.consume(it) }
     }
 
+    /**
+     * Converts this property graph to a [Join], Visits each child node and joins the necessary tables, aliasing all them to prevent collisions
+     * in recursive relationships.
+     */
     fun toJoin(): Join {
         var join = Join(this.klass.mappedTable)
 
         this.rootChildren.forEach { join = it.joinWith(join) }
 
         return join
+    }
+
+    /**
+     * Converts this property graph to a slice that only contains the columns that contains values requested via input pointers to primitive properties.
+     */
+    fun toSlice(): FieldSet {
+        val join = toJoin()
+
+        val inputValueMappingColumns = pointers.mapNotNull { (it.handle.mapping as? PropertyMapping.ValueMapping)?.column }
+        val fieldsToKeep = join.fields.filter {
+            if (it is Column<*>) {
+                if (it.table is Alias<*>)
+                    (it.table as Alias<*>).delegate.columns.first { c -> // We cannot use `Alias::operator get`, for some reason it doesn't work
+                        c.name == it.name &&
+                                c.columnType == it.columnType
+                    } in inputValueMappingColumns
+                else it in inputValueMappingColumns
+            } else false
+        }
+
+        return join.slice(fieldsToKeep)
     }
 
     abstract inner class INode (
