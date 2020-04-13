@@ -12,7 +12,6 @@ import { CompactDirective } from './directives/compact/compact.directive';
 import { FormsModule } from '@angular/forms';
 import { SingleArticleBoxComponent } from './components/show-all-articles/single-article-box/single-article-box.component';
 import { FilteringMenuComponent } from './components/show-all-articles/filtering-menu/filtering-menu.component';
-import { ToasterComponent } from './components/toaster/toaster.component';
 import { AdminRoutingModule } from '../components/admin/admin/admin-routing.module';
 import { ShowAllUsersComponent } from './components/show-all-users/show-all-users.component';
 import { SingleUserBoxComponent } from './components/show-all-users/single-user-box/single-user-box.component';
@@ -28,7 +27,6 @@ import { SingleUserBoxComponent } from './components/show-all-users/single-user-
         UserDisplayComponent,
         SingleArticleBoxComponent,
         FilteringMenuComponent,
-        ToasterComponent,
         ShowAllUsersComponent,
         SingleUserBoxComponent,
     ],
@@ -47,7 +45,6 @@ import { SingleUserBoxComponent } from './components/show-all-users/single-user-
         ProfilePictureComponent,
         ShowAllArticlesComponent,
         UserDisplayComponent,
-        ToasterComponent,
         ShowAllUsersComponent
     ]
 })
