@@ -30,10 +30,10 @@ fun String.toDto(): Dto? =
         }
     }
 
-fun <TMapped : Mapped> Dto.mappedByHandles(klass: KClass<TMapped>, unsafe: Boolean = false): Map<PropMap.PropertyHandle.Ok, Any?>? {
-    return this.map { (key, value) ->
+fun <TMapped : Mapped> Dto.mappedByHandles(klass: KClass<TMapped>, unsafe: Boolean = false): Sr<Map<PropMap.PropertyHandle.Ok, Any?>> {
+    return WrapBlocking { this.map { (key, value) ->
         ((if (!unsafe) klass.cachedPropMap() else klass.cachedUnsafePropMap())
             .ok().values
-            .firstOrNull { it.name == key } ?: return null) to value
-    }.toMap()
+            .firstOrNull { it.name == key } ?: error("unknown key '$key'")) to value
+    }.toMap() }
 }
