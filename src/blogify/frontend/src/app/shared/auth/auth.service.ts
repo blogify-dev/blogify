@@ -23,8 +23,8 @@ export class AuthService {
     get userToken(): string | null {
         const item = localStorage.getItem('userToken');
 
-        if (!item)
-            throw new Error('userToken called but not authenticated');
+        if (!item || item === '')
+            return null;
         return item;
     }
 

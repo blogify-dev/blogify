@@ -4,4 +4,4 @@
     </div>
 </div>
 
-<app-create-comment *ngIf="isLoggedIn()" [article]="article"></app-create-comment>
+<app-create-comment *ngIf="authService.observeIsLoggedIn() | async" [article]="article"></app-create-comment>

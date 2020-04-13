@@ -27,10 +27,6 @@ export class ArticleCommentsComponent implements OnInit {
         });
     }
 
-    isLoggedIn(): boolean {
-        return this.authService.userToken !== '';
-    }
-
     private fetchAndShowComments() {
         this.commentService.getCommentsForArticle(this.article).then(async it => {
             this.rootComments = it;
