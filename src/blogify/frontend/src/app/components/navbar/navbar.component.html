@@ -39,9 +39,9 @@
 
             <span class="separator" *ngIf="authService.observeIsLoggedIn() | async"></span>
 
-<!--            <span id="notifications" class="clickable hover-mild" *ngIf="authService.observeIsLoggedIn() | async">-->
-<!--                <fa-icon size="lg" [icon]="faBell" [transform]="{ y: -1, size: 19 }"></fa-icon>-->
-<!--            </span>-->
+            <span id="notifications" class="clickable hover-mild" *ngIf="authService.observeIsLoggedIn() | async">
+                <fa-icon size="lg" [icon]="faBell" [transform]="{ y: -1, size: 19 }"></fa-icon>
+            </span>
 
             <span id="theme-switch" class="clickable" (click)="toggleDarkMode()">
                 <fa-icon size="lg" [icon]="faMoon" [transform]="{ y: -1, size: 17 }"></fa-icon>
