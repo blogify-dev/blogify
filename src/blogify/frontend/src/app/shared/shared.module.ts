@@ -15,6 +15,7 @@ import { FilteringMenuComponent } from './components/show-all-articles/filtering
 import { AdminRoutingModule } from '../components/admin/admin/admin-routing.module';
 import { ShowAllUsersComponent } from './components/show-all-users/show-all-users.component';
 import { SingleUserBoxComponent } from './components/show-all-users/single-user-box/single-user-box.component';
+import { NotificationComponent } from './components/notification/notification.component';
 
 @NgModule({
     declarations: [
@@ -29,6 +30,7 @@ import { SingleUserBoxComponent } from './components/show-all-users/single-user-
         FilteringMenuComponent,
         ShowAllUsersComponent,
         SingleUserBoxComponent,
+        NotificationComponent,
     ],
     imports: [
         CommonModule,

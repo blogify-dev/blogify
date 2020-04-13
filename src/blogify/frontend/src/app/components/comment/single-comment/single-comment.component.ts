@@ -53,43 +53,20 @@ export class SingleCommentComponent implements OnInit {
             this.comment.article = await this.articleService.getArticleByUUID(this.comment.article);
         }
 
+        // Make sure our children array is not undefined
+
+        if (!this.comment.children) this.comment.children = [];
+
         this.isReady = true;
-
-        // We're ready, so we can populate the dummy reply comment
-
-        this.replyComment = {
-            commenter: await this.authService.observeIsLoggedIn() ? await this.authService.userProfile : '',
-            article: this.comment.article,
-            likeCount: 0,
-            likedByUser: false,
-            content: '',
-            uuid: ''
-        };
 
         // Handle new comments
 
         this.commentsService.latestSubmittedComment.subscribe(async payload => {
-            if (payload && payload.article === this.comment.article.uuid) {
-                const comment = await this.commentsService.getCommentByUUID(payload.uuid);
-
-                if (comment.parentComment as unknown as string === this.comment.uuid)
-                    this.comment.children.push(comment);
+            if (payload && payload.parentComment) {
+                if (payload.parentComment as unknown as string === this.comment.uuid)
+                    this.comment.children.push(payload);
             }
         });
-    }
-
-    async replyToSelf() {
-        // Make sure the user is authenticated
-        if (this.authService.observeIsLoggedIn() && this.replyComment.commenter instanceof User) {
-            await this.commentsService.replyToComment (
-                this.replyComment.content,
-                this.comment.article.uuid,
-                this.replyComment.commenter.uuid,
-                this.comment.uuid
-            );
-        } else {
-            this.replyError = 'You must be logged in to comment.';
-        }
     }
 
     toggleLike() {

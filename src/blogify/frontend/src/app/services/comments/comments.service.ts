@@ -5,6 +5,7 @@ import { AuthService } from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
 import { Article } from '../../models/Article';
 import { BehaviorSubject } from 'rxjs';
+import { idOf } from '../../models/Shadow';
 
 const commentsEndpoint = '/api/articles/comments';
 
@@ -12,7 +13,7 @@ const commentsEndpoint = '/api/articles/comments';
     providedIn: 'root'
 })
 export class CommentsService {
-    private newComment = new BehaviorSubject<CommentCreatePayload>(undefined);
+    private newComment = new BehaviorSubject<Comment>(undefined);
 
     constructor(private httpClient: HttpClient, private authService: AuthService) {}
 
@@ -67,7 +68,10 @@ export class CommentsService {
     // tslint:disable-next-line:no-shadowed-variable
     async getCommentByUUID(uuid: string): Promise<Comment> {
         const comment = await this.httpClient.get<Comment>(`${commentsEndpoint}/${uuid}`).toPromise();
+
         comment.commenter = await this.authService.fetchUser(comment.commenter.toString());
+        if (!comment.children) comment.children = [];
+
         return comment;
     }
 
@@ -106,35 +110,24 @@ export class CommentsService {
         return await this.httpClient.post<Comment>(`${commentsEndpoint}`, comment, httpOptions).toPromise();
     }
 
-    async replyToComment(
-        commentContent: string,
-        articleUUID: string,
-        userUUID: string,
-        parentCommentUUID: string,
-        userToken: string = this.authService.userToken,
-    ) {
+    async replyToComment(newComment: Comment) {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${userToken}`
+                Authorization: `Bearer ${this.authService.userToken}`
             })
         };
 
-        // noinspection JSDeprecatedSymbols
         const comment = {
             uuid: uuid(),
-            commenter: userUUID,
-            article: articleUUID,
-            content: commentContent,
-            parentComment: parentCommentUUID
+            commenter: idOf(newComment.commenter),
+            article: idOf(newComment.article),
+            content: newComment.content,
+            parentComment: newComment.parentComment ? idOf(newComment.parentComment) : null
         };
 
-        const res = await this.httpClient.post(`${commentsEndpoint}`, comment, httpOptions).toPromise();
-        if (res == null) {
-            return comment;
-        } else {
-            return undefined;
-        }
+        return await this.httpClient.post(commentsEndpoint, comment, httpOptions).toPromise()
+            .then(res => comment, err => undefined);
     }
 
     async likeComment(comment: Comment, userToken: string): Promise<HttpResponse<object>> {
@@ -157,14 +150,20 @@ export class CommentsService {
         return this.httpClient.get<Comment>(`/api/articles/comments/tree/${commentUUID}/?depth=${depth}`).toPromise();
     }
 
-    registerSubmittedComment(newCommentWsData: CommentCreatePayload) {
-        this.newComment.next(newCommentWsData);
+    async registerSubmittedComment(newCommentWsData: CommentCreatePayload) {
+        this.newComment.next(await this.getCommentByUUID(newCommentWsData.uuid));
     }
 
     get latestSubmittedComment() {
         return this.newComment.asObservable();
     }
 
+}
+
+export interface CommentReplyPayload {
+    newComment: string;
+    onArticle: string;
+    onComment: string | null;
 }
 
 export interface CommentCreatePayload {

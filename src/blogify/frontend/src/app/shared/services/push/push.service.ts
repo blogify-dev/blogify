@@ -41,7 +41,7 @@ export class PushService {
                                     article: data.article,
                                     commenter: data.commenter,
                                     uuid: data.comment
-                                });
+                                }).then();
                             }
                         } else if (parsed.t === 'Notification') {
                             this.notificationsSubject.next(parsed);

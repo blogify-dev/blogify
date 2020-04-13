@@ -1,11 +1,11 @@
-/* tslint:disable:variable-name no-console */
+/* tslint:disable:variable-name */
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StaticFile } from '../../models/Static';
 import { StaticContentService } from '../../services/static/static-content.service';
-import {SearchView} from "../../models/SearchView";
+import { SearchView } from '../../models/SearchView';
 
 @Injectable({
     providedIn: 'root'
@@ -21,7 +21,11 @@ export class AuthService {
 
     // noinspection JSMethodCanBeStatic
     get userToken(): string | null {
-        return localStorage.getItem('userToken');
+        const item = localStorage.getItem('userToken');
+
+        if (!item)
+            throw new Error('userToken called but not authenticated');
+        return item;
     }
 
     get userUUID(): Promise<string> {
@@ -156,7 +160,7 @@ export class AuthService {
     }
 
     async fillUsersFromUUIDs(uuids: string[]): Promise<User[]> {
-        return Promise.all(uuids.map(it => this.fetchUser(it)))
+        return Promise.all(uuids.map(it => this.fetchUser(it)));
     }
 
 }

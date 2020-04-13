@@ -30,6 +30,7 @@ import { UsersComponent } from './components/users/users.component';
 import { ProfileSlideoverComponent } from './components/profile-slideover/profile-slideover.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import { NotificationComponent } from './shared/components/notification/notification.component';
 
 @NgModule({
     declarations: [
@@ -66,7 +67,9 @@ import { ToastrModule } from 'ngx-toastr';
         ProfileModule,
         AdminModule,
         BrowserAnimationsModule,
-        ToastrModule.forRoot(),
+        ToastrModule.forRoot({
+            toastComponent: NotificationComponent
+        }),
     ],
     providers: [],
     exports: [],

@@ -21,11 +21,9 @@ export class ArticleCommentsComponent implements OnInit {
         this.fetchAndShowComments();
 
         this.commentService.latestSubmittedComment.subscribe(async payload => {
-            if (payload && payload.article === this.article.uuid) {
-                const comment = await this.commentService.getCommentByUUID(payload.uuid);
-
-                if (!comment.parentComment) {
-                    this.rootComments.push(comment);
+            if (payload) {
+                if (!payload.parentComment) {
+                    this.rootComments.push(payload);
                 }
             }
         });
