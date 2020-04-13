@@ -31,6 +31,7 @@ import { ProfileSlideoverComponent } from './components/profile-slideover/profil
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { NotificationComponent } from './shared/components/notification/notification.component';
+import { PushService } from './shared/services/push/push.service';
 
 @NgModule({
     declarations: [
@@ -75,4 +76,7 @@ import { NotificationComponent } from './shared/components/notification/notifica
     exports: [],
     bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule {
+    // noinspection JSUnusedLocalSymbols
+    constructor(private pushService: PushService) {}
+}

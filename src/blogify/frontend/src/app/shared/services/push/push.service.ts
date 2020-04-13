@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { webSocket } from 'rxjs/webSocket';
 import { AuthService } from '../../auth/auth.service';
 import { CommentsService } from '../../../services/comments/comments.service';
-import { Subject } from 'rxjs';
+import { CommentCreatePayload, EventPayload } from '../../../models/Events';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable({
     providedIn: 'root'
@@ -17,9 +18,7 @@ export class PushService {
 
     private authenticated = false;
 
-    private notificationsSubject = new Subject<EventPayload>();
-
-    constructor(private authService: AuthService, private commentsService: CommentsService) {
+    constructor(private authService: AuthService, private commentsService: CommentsService, private notificationsService: NotificationsService) {
         this.authService.observeIsLoggedIn().subscribe(loggedIn => {
             if (loggedIn) {
                 this.ws.next(this.authService.userToken);
@@ -44,28 +43,14 @@ export class PushService {
                                 }).then();
                             }
                         } else if (parsed.t === 'Notification') {
-                            this.notificationsSubject.next(parsed);
+                            this.notificationsService.registerNotificationEvent(parsed);
                         }
                     }
                 });
             }
         });
     }
-
-    get events() {
-        return this.notificationsSubject.asObservable();
-    }
 }
 
 
-interface EventPayload {
-    e: string;
-    t: 'Activity' | 'Notification';
-    d: object;
-}
 
-interface CommentCreatePayload {
-    article: string;
-    commenter: string;
-    comment: string;
-}
