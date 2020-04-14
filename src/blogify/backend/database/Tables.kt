@@ -13,8 +13,6 @@ import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.reflect.cachedPropMap
-import blogify.backend.resources.reflect.doInstantiate
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.util.*
 
@@ -32,7 +30,6 @@ import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.selectAll
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
-import com.github.kittinunf.result.coroutines.flatMap
 import com.github.kittinunf.result.coroutines.getOrElse
 import com.github.kittinunf.result.coroutines.map
 import java.time.Instant
@@ -360,19 +357,20 @@ object ImageUploadablesMetadata : Table("image_metadata") {
 
 }
 
+@Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER")
 object Notifications : Table("notifications") {
 
-    val data      = jsonb<Map<String, Any?>>("data")
-    val emitter   = uuid    ("emitter").references(Users.uuid, onDelete = CASCADE, onUpdate = CASCADE)
+    val klass     = text    ("class")
     val timestamp = integer ("timestamp")
-    val name      = text("name")
+    val emitter   = uuid    ("emitter").references(Users.uuid, onDelete = CASCADE, onUpdate = CASCADE)
+    val data      = jsonb<Map<String, Any?>>("data")
 
-    suspend fun convert(requestContext: RequestContext, source: ResultRow): Map<String, Any?> {
-         return mutableMapOf(
-             "data" to source[data],
-             "emitter" to requestContext.repository<User>().get(requestContext, source[emitter]).get(),
+    suspend fun convert(request: RequestContext, source: ResultRow): Map<String, Any?> {
+         return mutableMapOf (
+             "data"      to source[data],
+             "emitter"   to source[emitter],
              "timestamp" to Instant.ofEpochSecond(source[timestamp].toLong()),
-             "name" to source[name]
+             "klass"     to source[klass]
          ).toMap()
     }
 
@@ -383,7 +381,7 @@ object Notifications : Table("notifications") {
                     it[data]      = event.sanitize()
                     it[emitter]   = event.emitter.uuid
                     it[timestamp] = event.timestamp.epochSecond.toInt()
-                    it[name] = event::class.simpleName ?: error("This should never happen")
+                    it[klass]     = event::class.qualifiedName ?: never
                 }
             }
         }.map { event }

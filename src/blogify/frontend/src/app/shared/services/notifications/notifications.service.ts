@@ -37,5 +37,5 @@ interface NotificationsPayload {
     data: object;
     emitter: string;
     timestamp: number;
-    name: string;
+    klass: string;
 }
