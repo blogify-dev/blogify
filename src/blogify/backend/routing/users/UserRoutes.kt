@@ -23,6 +23,8 @@ import blogify.backend.pipelines.requestContext
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.persistence.models.Repository
+import blogify.backend.util.getOrNull
+import blogify.backend.util.never
 import blogify.backend.util.toUUID
 
 import io.ktor.http.HttpStatusCode
@@ -150,6 +152,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
                 }
             }
         }
+
         route("/me") {
 
             get("/notifications") {
@@ -159,8 +162,9 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
                             Notifications.select { Notifications.emitter eq user.uuid }
                                 .map { Notifications.convert(this, it) }
                                 .toList()
-                        }.get()
-                        call.respond(notifications)
+                        }.getOrNull() ?: never
+
+                        call.respond(notifications.takeIf { it.isNotEmpty() } ?: "[]")
                     }
                 }
             }
