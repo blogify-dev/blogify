@@ -1,7 +1,6 @@
 package blogify.backend.resources.models
 
 import blogify.backend.appContext
-import blogify.backend.events.models.Event
 import blogify.backend.events.models.EventEmitter
 import blogify.backend.events.models.EventSource
 import blogify.backend.pipelines.wrapping.RequestContext
