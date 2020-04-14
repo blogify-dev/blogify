@@ -1,7 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Notification } from '../../../models/Notification';
-import { StaticFile } from '../../../models/Static';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 @Component({
     selector: 'app-notification',
@@ -19,8 +17,6 @@ export class NotificationComponent implements OnInit {
 
     constructor() {}
 
-    ngOnInit() {
-
-    }
+    ngOnInit() {}
 
 }
