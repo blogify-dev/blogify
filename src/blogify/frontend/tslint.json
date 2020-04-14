@@ -7,6 +7,9 @@
                 4
             ]
         },
+        "whitespace": {
+            "options": "check-module"
+        },
         "max-line-length": {
             "options": { "limit": 200 }
         },
