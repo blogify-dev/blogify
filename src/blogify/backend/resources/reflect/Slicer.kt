@@ -66,8 +66,8 @@ sealed class SlicedProperty(val name: String) {
  * @author hamza1311, Benjozork
  */
 @Suppress("UNCHECKED_CAST")
-private fun <M : Mapped> getPropValueOnInstance(instance: M, propertyName: String): SlicedProperty {
-    return instance.cachedPropMap().map
+private fun <M : Mapped> getPropValueOnInstance(instance: M, propertyName: String, unsafe: Boolean = false): SlicedProperty {
+    return (if (!unsafe) instance.cachedPropMap() else instance.cachedUnsafePropMap()).map
         .entries.firstOrNull { (name, _) -> name == propertyName }
         ?.value?.let { handle ->
             return when (handle) {
@@ -105,7 +105,7 @@ private fun <M : Mapped> getPropValueOnInstance(instance: M, propertyName: Strin
  *
  * @author hamza1311, Benjozork
  */
-fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>): Dto {
+fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>, unsafe: Boolean = false): Dto {
 
     val selectedPropertiesSanitized = selectedPropertyNames.toMutableSet().apply {
         if (this@slice::class.isSubclassOf(Resource::class)) {
@@ -118,7 +118,7 @@ fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>): Dto {
     val accessDeniedProperties = mutableSetOf<String>()
 
     return selectedPropertiesSanitized.associateWith { propName ->
-        when (val result = getPropValueOnInstance(this, propName)) {
+        when (val result = getPropValueOnInstance(this, propName, unsafe)) {
             is SlicedProperty.Value            -> result.value
             is SlicedProperty.NullableValue    -> result.value
             is SlicedProperty.NotFound         -> unknownProperties += result.name

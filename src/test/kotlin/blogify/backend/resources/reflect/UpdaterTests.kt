@@ -21,7 +21,7 @@ class UpdaterTests {
     ) : Resource() {
         @Invisible
         override val targets: Set<EventTarget>
-            get() = TODO("Not yet implemented")
+            get() = setOf()
     }
 
     val propMap = TestClass::class.cachedUnsafePropMap()

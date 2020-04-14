@@ -39,7 +39,7 @@ suspend fun <R : Mapped> R.update (
 
     // Find the values of the unchanged params
     val unchangedValues = this
-        .slice(notUpdatedParameters.map { it.name }.toSet())
+        .slice(notUpdatedParameters.map { it.name }.toSet(), unsafe = true)
         .filter { !it.key.startsWith('_') }
         .mapKeys { targetPropMap.ok()[it.key] ?: error("fatal: unknown propHandle slipped in !".red()) }
 
