@@ -3,7 +3,7 @@ import { Comment } from '../../../models/Comment';
 import { AuthService } from '../../../shared/auth/auth.service';
 import { CommentsService } from '../../../services/comments/comments.service';
 import { ArticleService } from '../../../services/article/article.service';
-import { faComment, faCommentAlt, faHeart } from '@fortawesome/free-regular-svg-icons';
+import { faCommentAlt, faHeart } from '@fortawesome/free-regular-svg-icons';
 import { faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -15,7 +15,6 @@ export class SingleCommentComponent implements OnInit {
 
     @Input() parent: Comment;
     @Input() comment: Comment;
-    @Input() child: boolean;
 
     isReady = false;
 
@@ -74,8 +73,8 @@ export class SingleCommentComponent implements OnInit {
                 this.comment.likedByUser = !this.comment.likedByUser;
                 this.comment.likeCount += (this.comment.likedByUser ? 1 : -1);
             }).catch(() => {
-            console.error(`[blogifyComments] Couldn't like ${this.comment.uuid}` );
-        });
+                console.error(`[blogifyComments] Couldn't like ${this.comment.uuid}` );
+            });
     }
 
 }
