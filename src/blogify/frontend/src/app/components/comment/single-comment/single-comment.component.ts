@@ -3,7 +3,7 @@ import { Comment } from '../../../models/Comment';
 import { AuthService } from '../../../shared/auth/auth.service';
 import { CommentsService } from '../../../services/comments/comments.service';
 import { ArticleService } from '../../../services/article/article.service';
-import { faHeart } from '@fortawesome/free-regular-svg-icons';
+import { faComment, faCommentAlt, faHeart } from '@fortawesome/free-regular-svg-icons';
 import { faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -20,9 +20,8 @@ export class SingleCommentComponent implements OnInit {
     isReady = false;
 
     replyingEnabled = false;
-    replyComment: Comment;
-    replyError: string;
 
+    faCommentAlt = faCommentAlt;
     faHeartOutline = faHeart;
     faHeartFilled = faHeartFilled;
 

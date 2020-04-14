@@ -1,39 +1,60 @@
 @import '../../../../styles/layouts';
 
 .comment {
+    width: 100%;
+
     display:         flex;
     flex-direction:  column;
     justify-content: stretch;
+    align-items: flex-start;
+    row-gap: .85em;
 
-    padding: 1em;
+    padding: .15em 0 0 2.25em;
 
     margin-top: 1em;
 
-    border: 1px solid var(--border-color);
-    border-radius: $std-border-radius;
+    border-left: 2px dotted var(--border-color);
 
-    .comment-user {
-        .user { font-size: 1.25em; }
-    }
-
-    .comment-content {
-        margin-top: .5em;
-        * { font-size: 1.15em; }
-    }
-
-    .comment-last-line {
-        margin-top: .5em;
-
-        &, & * { font-size: 1.15rem; }
-
+    .header {
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
 
-        .like-count {
-            margin-left: .85em;
+        .user { font-size: 1.25em; }
+    }
+
+    .body {
+        * { font-size: 1.15em; }
+    }
+
+    .buttons {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+
+        .separator {
+            margin-left: 1.35em !important;
+            margin-right: 1.35em;
         }
+
+        .button {
+            fa-icon {
+                margin-right: .75em;
+            }
+
+            font-size: 1.5em;
+        }
+
+    }
+
+    app-create-comment.reply {
+        width: 100%;
+    }
+
+    .children {
+        width: 100%;
     }
 
 }
