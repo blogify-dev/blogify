@@ -166,6 +166,11 @@ export interface CommentReplyPayload {
     onComment: string | null;
 }
 
+export interface ArticleCommentReplyPayload {
+    newComment: string;
+    onArticle: string;
+}
+
 export interface CommentCreatePayload {
     uuid: string;
     article: string;
