@@ -1,0 +1,37 @@
+@import "src/styles/layouts";
+
+.notification {
+
+    padding: .75em 1.5em;
+    margin-top: 1em;
+
+    border-radius: $std-border-radius;
+    box-shadow: $std-box-shadow;
+
+    background-color: var(--card-bg);
+    color: var(--card-fg);
+
+    pointer-events: all;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    column-gap: 1em;
+
+    .icon {
+
+    }
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+    .title {
+        font-size: 1.25em;
+    }
+
+}

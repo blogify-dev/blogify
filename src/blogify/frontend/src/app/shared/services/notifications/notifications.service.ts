@@ -28,7 +28,8 @@ export class NotificationsService {
                 Authorization: `Bearer ${this.authService.userToken}`
             }),
         };
-        return this.httpClient.get<NotificationsPayload>('/api/users/me/notifications', httpOptions).toPromise();
+
+        return this.httpClient.get<NotificationsPayload[]>('/api/users/me/notifications', httpOptions).toPromise();
     }
 }
 

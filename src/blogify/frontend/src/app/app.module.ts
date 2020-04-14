@@ -29,9 +29,9 @@ import { FollowsComponent } from './components/profile/profile/follows/follows.c
 import { UsersComponent } from './components/users/users.component';
 import { ProfileSlideoverComponent } from './components/profile-slideover/profile-slideover.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ToastrModule } from 'ngx-toastr';
 import { NotificationComponent } from './shared/components/notification/notification.component';
 import { PushService } from './shared/services/push/push.service';
+import { ToastContainerModule, ToastrModule } from 'ngx-toastr';
 
 @NgModule({
     declarations: [
@@ -63,14 +63,18 @@ import { PushService } from './shared/services/push/push.service';
         ContenteditableValueAccessorModule,
         FontAwesomeModule,
         MarkdownModule.forRoot(),
+        ToastContainerModule,
         ClipboardModule,
         SharedModule,
         ProfileModule,
         AdminModule,
         BrowserAnimationsModule,
         ToastrModule.forRoot({
-            toastComponent: NotificationComponent
+            toastClass: 'toast',
+            toastComponent: NotificationComponent,
+            positionClass: 'toast-bottom-right'
         }),
+        ToastContainerModule
     ],
     providers: [],
     exports: [],

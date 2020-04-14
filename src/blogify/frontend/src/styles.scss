@@ -1,13 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
 /* We're working with the body tag, and so with the WHOLE page */
 
-@import "styles/fonts";
 @import "styles/colours";
-@import "styles/layouts";
-@import "styles/forms";
-@import "styles/titles";
+@import "styles/fonts";
+
 @import "styles/code";
+@import "styles/forms";
+@import "styles/layouts";
 @import "styles/queries";
+@import "styles/titles";
+@import "styles/toasts";
 
 * {
     transition: color 150ms ease-in-out, background-color 150ms ease-in-out, border-color 150ms ease-in-out;

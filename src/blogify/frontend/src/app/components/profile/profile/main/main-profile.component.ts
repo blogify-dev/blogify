@@ -44,12 +44,14 @@ export class MainProfileComponent implements OnInit {
         });
 
         this.route.params.subscribe(async (params: Params) => {
-            let username = params['username'];
+            const username = params.username;
 
             // Set the correct profile data
             this.user = await this.authService.getByUsername(username);
 
-            this.authService.observeIsLoggedIn().subscribe(async () => {
+            this.authService.observeIsLoggedIn().subscribe(async loggedIn => {
+                if (!loggedIn) return;
+
                 this.authService.userProfile.then(u => {
                     this.alreadyFollowed
                         = this.user.followers.findIndex(it => it === u.uuid) !== -1;
@@ -83,10 +85,10 @@ export class MainProfileComponent implements OnInit {
      */
     toggleFollow() {
         this.userService.toggleFollowUser(this.user, this.authService.userToken)
-            .then((r: HttpResponse<Object>) => {
-                if (r.status == 200) this.alreadyFollowed = !this.alreadyFollowed;
+            .then((r: HttpResponse<object>) => {
+                if (r.status === 200) this.alreadyFollowed = !this.alreadyFollowed;
             }).catch(e => {
-                console.error(`[blogifyUsers] Couldn't like ${this.user.uuid}`, e)
+                console.error(`[blogifyUsers] Couldn't like ${this.user.uuid}`, e);
             });
     }
 

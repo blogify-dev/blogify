@@ -1,4 +1,13 @@
-<div class="notification" routerLink="{{this.notification.routerLink}}">
-    <span class="title">{{this.notification.header}}</span>
-    <span class="body">{{this.notification.desc}}</span>
+<div class="notification" *ngIf="notification" routerLink="{{this.notification.routerLink}}">
+
+    <div class="icon">
+        <app-profile-picture *ngIf="this.iconIsPfp" [pfpFile]="this.notification.icon" [emSize]="2.25"></app-profile-picture>
+    </div>
+
+    <div class="content">
+        <span class="title">{{this.notification.header}}</span>
+
+        <span class="body">{{this.notification.desc}}</span>
+    </div>
+
 </div>
