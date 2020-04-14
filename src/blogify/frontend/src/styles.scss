@@ -22,15 +22,16 @@
     border: none;
     outline: none;
     font-family: $nunito;
-
-    font-size: 10px;
-    @media (min-width: $query-desktop) {
-        font-size: 12px;
-    }
 }
 
 html {
     overflow-x: hidden;
+
+    font-size: 10px;
+
+    @media (min-width: $query-desktop) {
+        font-size: 12px;
+    }
 }
 
 #parent {

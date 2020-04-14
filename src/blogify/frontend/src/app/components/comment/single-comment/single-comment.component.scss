@@ -9,7 +9,7 @@
     align-items: flex-start;
     row-gap: .85em;
 
-    padding: .15em 0 0 2.25em;
+    padding: .2em 0 0 2.25em;
 
     margin-top: 1em;
 
@@ -41,10 +41,15 @@
 
         .button {
             fa-icon {
-                margin-right: .75em;
+                margin-right: .4em;
             }
 
-            font-size: 1.5em;
+            font-size: 1.35em;
+
+            &.like-count {
+                font-size: 1.55em;
+                font-weight: bold;
+            }
         }
 
     }

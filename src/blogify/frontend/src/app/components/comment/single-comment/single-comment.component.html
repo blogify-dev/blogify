@@ -11,14 +11,14 @@
     <div class="buttons">
         <!-- Like count - clickable -->
         <span class="button like-count clickable negative" *ngIf="loggedInObs | async" (click)="toggleLike()">
-            <fa-icon [icon]="this.comment.likedByUser ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 18, y: -2 }"></fa-icon>
+            <fa-icon [icon]="this.comment.likedByUser ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 13, y: 0 }"></fa-icon>
 
             {{this.comment.likeCount}}
         </span>
 
         <!-- Like count - non-clickable -->
         <span class="button like-count negative" *ngIf="!(loggedInObs | async)">
-            <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 18, y: -2 }"></fa-icon>
+            <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 13, y: 0 }"></fa-icon>
 
             {{comment.likeCount}}
         </span>
@@ -27,7 +27,7 @@
 
         <!-- Reply -->
         <span class="button reply clickable" (click)="replyingEnabled = !replyingEnabled">
-            <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ y: -1 }"></fa-icon>
+            <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ size: 13, y: 0 }"></fa-icon>
 
             Reply
         </span>
