@@ -1,5 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Notification } from '../../../models/Notification';
+import { ToastRef } from 'ngx-toastr';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-notification',
@@ -8,7 +10,11 @@ import { Notification } from '../../../models/Notification';
 })
 export class NotificationComponent implements OnInit {
 
-    @Input() notification: Notification;
+    toastRef: ToastRef<any>;
+
+    notification: Notification;
+
+    faChevronDown = faChevronDown;
 
     // @ts-ignore
     get iconIsPfp()  { return this.notification.icon.contentType !== undefined;}

@@ -19,6 +19,8 @@
     align-items: center;
     column-gap: 1em;
 
+    &, & > * { font-size: 1.1em };
+
     .icon {
 
     }
@@ -28,10 +30,14 @@
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
+
+        .title {
+            font-size: 1.25em;
+        }
     }
 
-    .title {
-        font-size: 1.25em;
+    .controls {
+        margin-left: auto;
     }
 
 }

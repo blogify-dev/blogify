@@ -10,4 +10,10 @@
         <span class="body">{{this.notification.desc}}</span>
     </div>
 
+    <div class="controls">
+        <span class="close clickable hover-negative" (click)="this.toastRef.close()">
+            <fa-icon [icon]="faChevronDown" size="lg" [transform]="{ size: 22 }"></fa-icon>
+        </span>
+    </div>
+
 </div>

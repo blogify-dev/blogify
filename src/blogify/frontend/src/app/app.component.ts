@@ -50,7 +50,7 @@ export class AppComponent implements OnInit {
                         icon: author.profilePicture,
                         header: `${author.username} responded to your comment`,
                         desc: `"${newComment.content.substr(0, 25)}..."`,
-                        routerLink: '/users'
+                        routerLink: `/articles/${idOf(newComment.article)}`
                     };
                 } else if (msg.e === eventClasses.ARTICLE_REPLY) {
                     const payload = data as ArticleCommentReplyPayload;
@@ -63,13 +63,16 @@ export class AppComponent implements OnInit {
                         icon: author.profilePicture,
                         header: `${author.username} commented on "${article.title.substr(0, 15)}"...`,
                         desc: `"${newComment.content.substr(0, 25)}"`,
-                        routerLink: '/users'
+                        routerLink: `/articles/${idOf(newComment.article)}`
                     };
                 }
 
-                (this.toastrService.show()
-                    .toastRef.componentInstance as NotificationComponent).notification = notification;
-                }
+                const toastRef = this.toastrService.show().toastRef;
+                const notificationComponent = toastRef.componentInstance as NotificationComponent;
+
+                notificationComponent.toastRef = toastRef;
+                notificationComponent.notification = notification;
+            }
         });
     }
 }
