@@ -29,12 +29,18 @@ export class AppComponent implements OnInit {
 
     async ngOnInit() {
         this.toastrService.overlayContainer = this.toastContainer;
+
+        const eventClasses = {
+            COMMENT_REPLY: 'blogify.backend.resources.Comment.CommentReplyEvent',
+            ARTICLE_REPLY: 'blogify.backend.resources.Article.CommentReplyEvent',
+        };
+
         this.notificationsService.notifications.subscribe(async msg => {
             if (msg) {
                 const data = msg.d;
                 let notification: Notification;
 
-                if (msg.e === 'blogify.backend.resources.Comment.CommentReplyEvent') {
+                if (msg.e === eventClasses.COMMENT_REPLY) {
                     const payload = data as CommentReplyPayload;
 
                     const newComment = await this.commentsService.getCommentByUUID(payload.newComment);
@@ -46,7 +52,7 @@ export class AppComponent implements OnInit {
                         desc: `"${newComment.content.substr(0, 25)}..."`,
                         routerLink: '/users'
                     };
-                } else if (msg.e === 'blogify.backend.resources.Article.CommentReplyEvent') {
+                } else if (msg.e === eventClasses.ARTICLE_REPLY) {
                     const payload = data as ArticleCommentReplyPayload;
 
                     const newComment = await this.commentsService.getCommentByUUID(payload.newComment);
