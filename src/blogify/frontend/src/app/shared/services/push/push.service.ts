@@ -31,9 +31,7 @@ export class PushService {
                         const parsed = JSON.parse(msg) as EventPayload;
 
                         if (parsed.t === 'Activity') {
-                            const eventClassName = parsed.e.replace('Event', '');
-
-                            if (eventClassName === 'CommentCreate') {
+                            if (parsed.e === 'blogify.backend.resources.Comment.CommentCreateEvent') {
                                 const data = parsed.d as CommentCreatePayload;
 
                                 this.commentsService.registerSubmittedComment({
