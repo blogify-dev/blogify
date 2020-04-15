@@ -135,6 +135,7 @@ object Articles : ResourceTable<Article>() {
                     it[createdBy] = resource.createdBy.uuid
                     it[content]   = resource.content
                     it[summary]   = resource.summary
+                    it[isPinned]  = resource.isPinned
                 }
             }.get()
 

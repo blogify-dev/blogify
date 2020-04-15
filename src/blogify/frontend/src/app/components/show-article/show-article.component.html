@@ -8,10 +8,10 @@
                 <span *ngFor="let tag of article.categories">{{tag.name}}</span>
             </div>
 
-<!--            &lt;!&ndash; No categories &ndash;&gt;-->
-<!--            <span class="article-no-tags" *ngIf="article.categories.length == 0">-->
-<!--                <em>No tags</em>-->
-<!--            </span>-->
+            <!--            &lt;!&ndash; No categories &ndash;&gt;-->
+            <!--            <span class="article-no-tags" *ngIf="article.categories.length == 0">-->
+            <!--                <em>No tags</em>-->
+            <!--            </span>-->
         </div>
 
         <!-- Title & likes -->
@@ -60,19 +60,24 @@
                 <span class="separator" *ngIf="loggedInObs | async"></span>
 
                 <!-- Update button -->
-                <a id="button-update" class="clickable hover-positive" routerLink="/article/update/{{article.uuid}}" *ngIf="showUpdateButton">
+                <a id="button-update" class="clickable hover-positive" routerLink="/article/update/{{article.uuid}}" *ngIf="isLoggedInUsersArticle">
                     <fa-icon [icon]="faEdit" size="2x" [transform]="{ size: 13, y: 0 }"></fa-icon>
                 </a>
 
                 <!-- Delete button -->
-                <a id="button-delete" class="clickable hover-negative" (click)="deleteArticle()" *ngIf="showUpdateButton">
+                <a id="button-delete" class="clickable hover-negative" (click)="deleteArticle()" *ngIf="isLoggedInUsersArticle || isAdmin">
                     <fa-icon [icon]="faTimes" size="2x" [transform]="{ size: 13 }"></fa-icon>
                 </a>
 
-                <span class="separator" *ngIf="showPinButton"></span>
+                <span class="separator" *ngIf="isLoggedInUsersArticle || isAdmin"></span>
 
                 <!-- Pin button -->
-                <a id="button-pin" class="clickable hover-positive" [style.color]="this.article.isPinned ? 'var(--accent-positive)' : 'white'" (click)="pinArticle()" *ngIf="showPinButton">
+                <a
+                    id="button-pin" class="clickable hover-positive"
+                    [style.color]="this.article.isPinned ? 'var(--accent-positive)' : 'var(--body-fg)'"
+                    (click)="togglePin()"
+                    *ngIf="isLoggedInUsersArticle || isAdmin"
+                >
                     <fa-icon [icon]="faThumbtack" size="2x" [transform]="{ size: 14, y: 1, rotate: 45 }"></fa-icon>
                 </a>
 
