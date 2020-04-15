@@ -1,0 +1,15 @@
+<div id="notifications-popover" *ngIf="this.notifications">
+
+    <h2 id="notifications-title">Notifications</h2>
+
+    <div id="body">
+        <b-notification
+            [notification]="notif"
+            (followed)="this.needsToClose.emit()"
+            (dismissed)="this.removeNotif(notif)"
+            *ngFor="let notif of notifications"
+        ></b-notification>
+    </div>
+
+</div>
+

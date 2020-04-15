@@ -15,6 +15,8 @@ export class NavbarComponent implements OnInit, AfterViewInit {
 
     user: User;
 
+    areNotificationsShowing = false;
+
     faSignOutAlt = faSignOutAlt;
     faBell = faBell;
     faMoon = faMoon;
@@ -60,10 +62,8 @@ export class NavbarComponent implements OnInit, AfterViewInit {
         this.darkModeService.setDarkMode(darkMode);
     }
 
-    async showNotifications() {
-        const notifications = await this.notificationsService.fetchMyNotifications();
-        console.log(notifications);
-        // TODO: Show those in UI
+    async toggleNotifications() {
+        this.areNotificationsShowing = !this.areNotificationsShowing;
     }
 
     logout() {

@@ -1,0 +1,32 @@
+@import "src/styles/layouts";
+@import "src/styles/queries";
+
+:host {
+    position: absolute;
+
+    top: 6.5em;
+    right: 1.25em;
+}
+
+#notifications-popover {
+    width: 100vw;
+    @media (min-width: $query-desktop) {
+        width: 27vw;
+    }
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    padding: 1em 2em;
+
+    border-radius: $std-border-radius;
+
+    background-color: var(--card-bg);
+
+    h2:first-child {
+        padding-top: 0;
+    }
+
+}

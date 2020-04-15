@@ -39,9 +39,11 @@
 
             <span class="separator" *ngIf="authService.observeIsLoggedIn() | async"></span>
 
-            <span id="notifications" class="clickable hover-mild" *ngIf="authService.observeIsLoggedIn() | async" (click)="showNotifications()">
+            <span id="notifications" class="clickable hover-mild" [ngClass]="this.areNotificationsShowing ? 'mild' : ''" *ngIf="authService.observeIsLoggedIn() | async" (click)="toggleNotifications()">
                 <fa-icon size="lg" [icon]="faBell" [transform]="{ y: 0, size: 16 }"></fa-icon>
             </span>
+
+            <b-notifications-popover (needsToClose)="this.toggleNotifications()" *ngIf="this.areNotificationsShowing"></b-notifications-popover>
 
             <span id="theme-switch" class="clickable" (click)="toggleDarkMode()">
                 <fa-icon size="lg" [icon]="faMoon" [transform]="{ y: 0, size: 14 }"></fa-icon>
