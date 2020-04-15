@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Article } from "../../../../models/Article";
+import { Article } from '../../../../models/Article';
 import { faHeart, faCommentAlt, faClipboard } from '@fortawesome/free-regular-svg-icons';
 import { faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
-import { ClipboardService } from "ngx-clipboard";
+import { ClipboardService } from 'ngx-clipboard';
 import { AuthService } from '../../../auth/auth.service';
 import { ArticleService } from '../../../../services/article/article.service';
 
@@ -38,12 +38,12 @@ export class SingleArticleBoxComponent implements OnInit {
                 this.article.likedByUser = !this.article.likedByUser;
                 this.article.likeCount += (this.article.likedByUser ? 1 : -1);
             }).catch(() => {
-                console.error(`[blogifyArticles] Couldn't like ${this.article.uuid}` )
-            })
+                console.error(`[blogifyArticles] Couldn't like ${this.article.uuid}` );
+            });
     }
 
     copyLinkToClipboard() {
-        this.clipboardService.copyFromContent(window.location.href)
+        this.clipboardService.copyFromContent(window.location.href);
     }
 
 }

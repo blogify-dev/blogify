@@ -1,4 +1,4 @@
-<div class="article">
+<div class="article" [style.border]="this.article.isPinned ? '2px solid var(--accent-positive)' : ''">
 
     <div class="first-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
         <!-- Title -->
