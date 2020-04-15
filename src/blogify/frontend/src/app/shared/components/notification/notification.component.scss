@@ -1,8 +1,7 @@
 @import "src/styles/layouts";
 
 .notification {
-
-    padding: .75em 1.5em;
+    padding: 1em 1.75em;
     margin-top: 1em;
 
     border-radius: $std-border-radius;
@@ -17,7 +16,7 @@
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    column-gap: 1em;
+    column-gap: 1.75em;
 
     &, & > * { font-size: 1.1em };
 
@@ -33,6 +32,7 @@
 
         .title {
             font-size: 1.25em;
+            font-weight: bold;
         }
     }
 
