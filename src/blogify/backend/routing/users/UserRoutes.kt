@@ -22,6 +22,7 @@ import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.*
 import blogify.backend.util.getOrNull
 import blogify.backend.util.never
+import blogify.backend.util.toUUID
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode

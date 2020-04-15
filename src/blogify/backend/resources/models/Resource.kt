@@ -5,7 +5,6 @@ import blogify.backend.events.models.EventEmitter
 import blogify.backend.events.models.EventSource
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.util.MapCache
 
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
@@ -13,7 +12,6 @@ import io.ktor.http.Parameters
 import io.ktor.request.ApplicationRequest
 import io.ktor.response.ApplicationResponse
 import io.ktor.util.Attributes
-import kotlinx.coroutines.GlobalScope
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator
 import com.fasterxml.jackson.annotation.ObjectIdResolver

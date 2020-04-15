@@ -60,9 +60,10 @@ export class CommentsService {
     }
 
     async getCommentsForArticle(article: Article): Promise<Comment[]> {
-        const comments = await this.httpClient.get<Comment[]>(`${commentsEndpoint}/article/${article.uuid}`)
+        const comments = await this.httpClient.get<object>(`${commentsEndpoint}/article/${article.uuid}?quantity=35&page=0`)
             .toPromise();
-        return this.prepareCommentData(comments);
+        // @ts-ignore
+        return this.prepareCommentData(comments.data);
     }
 
     // tslint:disable-next-line:no-shadowed-variable

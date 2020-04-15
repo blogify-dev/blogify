@@ -64,6 +64,7 @@ class PipelineException(val code: HttpStatusCode, override val message: String) 
  * @author Benjozork
  */
 suspend fun GenericCallPipeline.requestContext (
+    applicationContext: ApplicationContext,
     block: RequestContextFunction<Unit>
 ) {
     try {

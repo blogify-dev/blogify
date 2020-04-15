@@ -42,6 +42,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         get("/article/{uuid}") {
             requestContext(applicationContext) {
                 val articleId = param("uuid").toUUID()
+
                 fetchResourceListing<Comment>(
                     Comments.uuid,
                     SortOrder.ASC
