@@ -31,7 +31,11 @@ export class AppComponent implements OnInit {
         this.toastrService.overlayContainer = this.toastContainer;
 
         this.notificationsService.liveNotifications.subscribe(async msg => {
+            const toastRef = this.toastrService.show().toastRef;
+            const componentInstance = toastRef.componentInstance as NotificationComponent;
 
+            componentInstance.toastRef = toastRef;
+            componentInstance.notification = msg;
         });
     }
 }
