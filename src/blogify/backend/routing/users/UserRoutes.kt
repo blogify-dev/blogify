@@ -13,16 +13,13 @@ import blogify.backend.routing.handling.deleteResource
 import blogify.backend.routing.handling.deleteUpload
 import blogify.backend.routing.handling.fetchAllResources
 import blogify.backend.routing.handling.fetchResource
-import blogify.backend.pipelines.obtainResource
-import blogify.backend.pipelines.optionalParam
 import blogify.backend.routing.handling.respondExceptionMessage
 import blogify.backend.routing.handling.updateResource
 import blogify.backend.routing.handling.uploadToResource
-import blogify.backend.pipelines.param
-import blogify.backend.pipelines.requestContext
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.persistence.models.Repository
+import blogify.backend.pipelines.*
 import blogify.backend.util.getOrNull
 import blogify.backend.util.never
 import blogify.backend.util.toUUID
@@ -31,10 +28,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
 
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
 
 /**
  * Defines the API routes for interacting with [users][User].
@@ -158,8 +152,12 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
             get("/notifications") {
                 requestContext(applicationContext) {
                     runAuthenticated { user ->
+                        val count = optionalParam("limit")?.toIntOrNull()?.coerceAtMost(25) ?: 25
+
                         val notifications = query {
                             Notifications.select { Notifications.emitter eq user.uuid }
+                                .orderBy(Notifications.timestamp, SortOrder.DESC)
+                                .limit(count)
                                 .map { Notifications.convert(this, it) }
                                 .toList()
                         }.getOrNull() ?: never
