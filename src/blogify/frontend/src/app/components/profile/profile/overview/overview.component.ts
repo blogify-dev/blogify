@@ -28,7 +28,7 @@ export class OverviewComponent implements OnInit {
 
             this.authService.getByUsername(username).then(user => {{
                 this.forUser = user;
-                this.listing = new ListingQuery<Article>(5, 0);
+                this.listing = new ListingQuery<Article>(15, 0);
             }});
         });
     }
