@@ -9,10 +9,15 @@ import blogify.backend.annotations.search.QueryByField
 import blogify.backend.annotations.search.SearchDefaultSort
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
-import blogify.backend.database.Articles
 import blogify.backend.database.Users
-import blogify.backend.database.handling.query
-import blogify.backend.database.referredToBy
+import blogify.backend.database.countReferredToBy
+import blogify.backend.database.findReferredToBy
+import blogify.backend.events.models.Event
+import blogify.backend.events.models.EventEmitter
+import blogify.backend.events.models.EventTarget
+import blogify.backend.events.models.EventType
+import blogify.backend.pipelines.wrapping.ApplicationContext
+import blogify.backend.push.Message
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
@@ -20,9 +25,6 @@ import blogify.backend.resources.static.models.StaticResourceHandle
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
-
-import org.jetbrains.exposed.sql.JoinType
-import org.jetbrains.exposed.sql.selectAll
 
 import java.util.*
 import kotlin.random.Random
@@ -67,23 +69,30 @@ data class User (
 
     @NoSearch
     override val uuid: UUID = UUID.randomUUID()
-) : Resource(uuid) {
+
+) : Resource(uuid), EventEmitter, EventTarget {
+
+    inner class FollowedEvent(byUser: User) : Event(byUser, this, EventType.Notification) {
+        val follower = byUser.uuid
+        val followee = this@User.uuid
+    }
+
+    // Any notification that is about a user only has the user itself as a target
+    @Invisible
+    override val targets = setOf(this)
+
+    override suspend fun sendEvent(appContext: ApplicationContext, event: Event) {
+        appContext.pushServer.sendMessageToConnected(this, Message.Outgoing.Event(event))
+    }
 
     @Computed
-    val followCount by compound { Users.uuid referredToBy Users.Follows.following }
+    val followCount by compound {
+        Users.uuid countReferredToBy Users.Follows.following
+    }
 
     @Computed
     val followers by compound {
-        query {
-            Users.join ( Users.Follows, JoinType.LEFT,
-                onColumn = Users.uuid, otherColumn = Users.Follows.following
-            )
-                .slice(Users.uuid, Users.Follows.follower)
-                .selectAll()
-                .map       { it[Users.uuid] to it.getOrNull(Users.Follows.follower) }
-                .groupBy   { it.first }
-                .mapValues { it.value.mapNotNull { pair -> pair.second } }
-        }.get()
+        Users.uuid findReferredToBy (Users.Follows.following to Users.Follows.follower)
     }
 
 }

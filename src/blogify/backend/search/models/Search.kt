@@ -2,6 +2,7 @@ package blogify.backend.search.models
 
 import blogify.backend.resources.models.Resource
 import blogify.backend.search.Typesense
+import blogify.backend.util.Dto
 
 /**
  * Models for deserializing JSON returned by [Typesense]
@@ -20,7 +21,7 @@ data class Search<R : Resource> (
      * Represents a hit
      */
     data class Hit (
-        val document: Map<String, Any?>,
+        val document: Dto,
         val highlights: List<Highlight>
     )
 

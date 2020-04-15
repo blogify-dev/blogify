@@ -1,20 +1,7 @@
-#comments-main {
-
+:host {
     display: flex;
     flex-direction: column;
-
-    #next-page {
-        align-self: flex-end;
-
-        display: flex;
-        align-items: center;
-
-        column-gap: .75em;
-
-        margin-top: 1em;
-
-        font-size: 1.5em;
-        font-weight: bold;
-    }
-
+    justify-content: flex-start;
+    align-items: flex-start;
+    row-gap: 1.95em;
 }

@@ -54,6 +54,7 @@ import blogify.backend.pipelines.handleAuthentication
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.pipelineError
+import blogify.backend.resources.models.UserCreatedResource
 import blogify.backend.resources.Article
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
@@ -89,6 +90,8 @@ import com.drew.metadata.exif.ExifImageDirectory
 import com.drew.metadata.jpeg.JpegDirectory
 import com.drew.metadata.png.PngDirectory
 
+import org.jetbrains.exposed.sql.*
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -97,7 +100,6 @@ import java.util.UUID
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.sql.*
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -362,6 +364,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
                         }
                     }
                 }
+                else -> call.respond(HttpStatusCode.BadRequest, reason("invalid part type '${part::class.simpleName}'"))
             }
         }
 
@@ -548,7 +551,14 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
             repository<R>().add(received).fold (
                 success = {
                     call.respond(HttpStatusCode.Created, it.sanitize(excludeUndisplayed = true))
-                    launch { Typesense.uploadResource(it) }
+
+                    launch { // Dispatch creation events and call creation function
+                        it.onCreation(this@createResource)
+                    }
+
+                    /*launch {
+                        Typesense.uploadResource(it)
+                    }*/
                 },
                 failure = call::respondExceptionMessage
             )
@@ -606,6 +616,8 @@ suspend inline fun <reified R: Resource> RequestContext.deleteResource (
 suspend inline fun <reified R : Resource> RequestContext.updateResource (
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) {
+
+    // @TODO make this a bit more failure-proof
 
     val replacement = call.receive<Map<String, Any>>()
     val current = obtainResource<R>((replacement["uuid"] as String).toUUID())

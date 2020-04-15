@@ -21,13 +21,18 @@ import { MarkdownModule } from 'ngx-markdown';
 import { SharedModule } from './shared/shared.module';
 import { ProfileModule } from './components/profile/profile/profile.module';
 import { FooterComponent } from './components/footer/footer.component';
-import { ClipboardModule } from "ngx-clipboard";
+import { ClipboardModule } from 'ngx-clipboard';
 import { Error404FallbackComponent } from './components/error404-fallback/error404-fallback.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { AdminModule } from './components/admin/admin/admin.module';
 import { FollowsComponent } from './components/profile/profile/follows/follows.component';
 import { UsersComponent } from './components/users/users.component';
 import { ProfileSlideoverComponent } from './components/profile-slideover/profile-slideover.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NotificationComponent } from './shared/components/notification/notification.component';
+import { PushService } from './shared/services/push/push.service';
+import { ToastContainerModule, ToastrModule } from 'ngx-toastr';
+import { NotificationsPopoverComponent } from './components/navbar/notifications-popover/notifications-popover.component';
 
 @NgModule({
     declarations: [
@@ -48,6 +53,7 @@ import { ProfileSlideoverComponent } from './components/profile-slideover/profil
         FollowsComponent,
         UsersComponent,
         ProfileSlideoverComponent,
+        NotificationsPopoverComponent,
     ],
     imports: [
         BrowserModule,
@@ -57,17 +63,26 @@ import { ProfileSlideoverComponent } from './components/profile-slideover/profil
         FormsModule,
         ReactiveFormsModule,
         ContenteditableValueAccessorModule,
-
         FontAwesomeModule,
         MarkdownModule.forRoot(),
+        ToastContainerModule,
         ClipboardModule,
-
         SharedModule,
         ProfileModule,
         AdminModule,
+        BrowserAnimationsModule,
+        ToastrModule.forRoot({
+            toastClass: 'toast',
+            toastComponent: NotificationComponent,
+            positionClass: 'toast-bottom-right'
+        }),
+        ToastContainerModule
     ],
     providers: [],
     exports: [],
     bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule {
+    // noinspection JSUnusedLocalSymbols
+    constructor(private pushService: PushService) {}
+}

@@ -1,0 +1,19 @@
+<div class="notification clickable highlight-border" *ngIf="notification" (click)="navigate()">
+
+    <div class="icon">
+        <app-profile-picture *ngIf="this.iconIsPfp" [pfpFile]="this.notification.icon" [emSize]="2.25"></app-profile-picture>
+    </div>
+
+    <div class="content">
+        <span class="title">{{this.notification.header}}</span>
+
+        <span class="body">{{this.notification.desc}}</span>
+    </div>
+
+    <div class="controls">
+        <span class="close clickable hover-negative" (click)="this.dismissSelf()">
+            <fa-icon [icon]="faTrashAlt" size="lg" [transform]="{ size: 18 }"></fa-icon>
+        </span>
+    </div>
+
+</div>

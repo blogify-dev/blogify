@@ -19,20 +19,28 @@ import blogify.backend.util.toUUID
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
+
 import org.jetbrains.exposed.sql.*
 
-fun Route.articleComments() {
+
+fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
 
     route("/comments") {
 
+        get("/") {
+            requestContext(applicationContext) {
+                fetchAllResources<Comment>()
+            }
+        }
+
         get("/{uuid}") {
-            requestContext {
+            requestContext(applicationContext) {
                 fetchResource<Comment>()
             }
         }
 
         get("/article/{uuid}") {
-            requestContext {
+            requestContext(applicationContext) {
                 val articleId = param("uuid").toUUID()
                 fetchResourceListing<Comment>(
                     Comments.uuid,
@@ -42,7 +50,7 @@ fun Route.articleComments() {
         }
 
         delete("/{uuid}") {
-            requestContext {
+            requestContext(applicationContext) {
                 deleteResource<Comment> (
                     authPredicate = { user, comment -> comment.commenter eqr user }
                 )
@@ -50,7 +58,7 @@ fun Route.articleComments() {
         }
 
         patch("/{uuid}") {
-            requestContext {
+            requestContext(applicationContext) {
                 updateResource<Comment> (
                     authPredicate = { user, comment -> comment.commenter eqr user }
                 )
@@ -58,7 +66,7 @@ fun Route.articleComments() {
         }
 
         post("/") {
-            requestContext {
+            requestContext(applicationContext) {
                 createResource<Comment> (
                     authPredicate = { user, comment -> comment.commenter eqr user }
                 )
@@ -66,7 +74,7 @@ fun Route.articleComments() {
         }
 
         get("/tree/{uuid}") {
-            requestContext {
+            requestContext(applicationContext) {
                 val repo = repository<Comment>()
 
                 val id      = param("uuid").toUUID()
@@ -80,7 +88,7 @@ fun Route.articleComments() {
         val likes = Comments.Likes
 
         get("/{uuid}/like") {
-            requestContext {
+            requestContext(applicationContext) {
                 val id = param("uuid")
 
                 runAuthenticated { subject ->
@@ -98,7 +106,7 @@ fun Route.articleComments() {
 
         post("/{uuid}/like") {
 
-            requestContext {
+            requestContext(applicationContext) {
                 val id = param("uuid")
 
                 runAuthenticated { subject ->

@@ -11,6 +11,7 @@ import blogify.backend.search.ext._rebuildSearchTemplate
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.Template
+import blogify.backend.util.Dto
 import blogify.backend.util.short
 
 import io.ktor.client.HttpClient
@@ -35,8 +36,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 
 import com.andreapivetta.kolor.green
 import com.andreapivetta.kolor.red
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -99,7 +98,7 @@ object Typesense {
      *
      * @author Benjozork
      */
-    inline fun <reified R : Resource> makeDocument(resource: R): Map<String, Any?> {
+    inline fun <reified R : Resource> makeDocument(resource: R): Dto {
         val template = R::class._searchTemplate
 
         val documentEntries = (resource.sanitize(excludeNoSearch = true) + ("id" to resource.uuid)).entries
@@ -121,7 +120,7 @@ object Typesense {
     /**
      * Get a message from a Typesense error response
      */
-    fun typesenseMessage(response: Map<String, Any?>) = response["message"] as? String
+    fun typesenseMessage(response: Dto) = response["message"] as? String
 
     /**
      * Uploads a document template to the Typesense REST API
@@ -288,7 +287,7 @@ object Typesense {
      *
      * @author Benjozork, hamza1311
      */
-    suspend inline fun <reified R : Resource> bulkUploadResources(documents: List<Map<String, Any?>>): HttpStatement {
+    suspend inline fun <reified R : Resource> bulkUploadResources(documents: List<Dto>): HttpStatement {
         val template = R::class._searchTemplate
 
         return typesenseClient.post {

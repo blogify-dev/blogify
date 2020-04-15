@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Article } from '../../../models/Article';
 import { CommentsService } from '../../../services/comments/comments.service';
 import { AuthService } from '../../../shared/auth/auth.service';
-import { User } from '../../../models/User';
 import { Comment } from '../../../models/Comment';
+import { idOf } from '../../../models/Shadow';
 
 @Component({
     selector: 'app-create-comment',
@@ -12,7 +12,6 @@ import { Comment } from '../../../models/Comment';
 })
 export class CreateCommentComponent implements OnInit {
 
-    commentContent = '';
     @Input() article: Article;
     @Input() comment: Comment;
     @Input() replying = false;
@@ -25,8 +24,9 @@ export class CreateCommentComponent implements OnInit {
     async ngOnInit() {
         this.authService.observeIsLoggedIn().subscribe(async value => {
             this.replyComment = {
-                commenter: value ? await this.authService.userProfile : '',
-                article: this.comment === undefined ? this.article : this.comment.article,
+                commenter: value ? (await this.authService.userProfile).uuid : '',
+                article: this.comment === undefined ? this.article.uuid : idOf(this.comment.article),
+                parentComment: this.comment ? this.comment.uuid : undefined,
                 likeCount: 0,
                 likedByUser: false,
                 content: '',
@@ -37,21 +37,17 @@ export class CreateCommentComponent implements OnInit {
 
     async doReply() {
         // Make sure the user is authenticated
-        if (this.authService.observeIsLoggedIn() && this.replyComment.commenter instanceof User) {
-
+        if (this.authService.observeIsLoggedIn()) {
             if (this.comment === undefined) { // Reply to article
-                const newComment = await this.commentsService.createComment (
+                await this.commentsService.createComment (
                     this.replyComment.content,
                     this.article.uuid,
-                    this.replyComment.commenter.uuid
+                    idOf(this.replyComment.commenter)
                 );
+                this.replyComment.content = '';
             } else { // Reply to comment
-                await this.commentsService.replyToComment (
-                    this.replyComment.content,
-                    this.comment.article.uuid,
-                    this.replyComment.commenter.uuid,
-                    this.comment.uuid
-                );
+                await this.commentsService.replyToComment(this.replyComment);
+                this.replying = false;
             }
 
         } else {

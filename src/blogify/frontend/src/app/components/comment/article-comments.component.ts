@@ -3,8 +3,6 @@ import { CommentsService } from '../../services/comments/comments.service';
 import { Comment } from '../../models/Comment';
 import { Article } from '../../models/Article';
 import { AuthService } from '../../shared/auth/auth.service';
-import { faArrowAltCircleDown } from '@fortawesome/free-regular-svg-icons';
-
 
 @Component({
     selector: 'app-article-comments',
@@ -15,28 +13,28 @@ export class ArticleCommentsComponent implements OnInit {
 
     @Input() article: Article;
 
-    rootComments: Comment[] = [];
-    moreAvailable: boolean;
-
-    faArrowAltCircleDown = faArrowAltCircleDown;
-    private listingPage = 0;
+    rootComments: Comment[];
 
     constructor(private commentService: CommentsService, public authService: AuthService) {}
 
     ngOnInit() {
-        this.showCommentsOfArticle();
+        this.fetchAndShowComments();
 
-        this.commentService.latestRootSubmittedComment.subscribe(comment => {
-            if (comment) {
-                this.rootComments.push(comment);
+        this.commentService.latestSubmittedComment.subscribe(async payload => {
+            if (payload && !payload.parentComment) {
+                this.rootComments = [payload, ...this.rootComments];
             }
         });
     }
 
-    showCommentsOfArticle() {
-        this.commentService.getCommentsForArticle(this.article, { quantity: 10, page: this.listingPage }).then(async it => {
-            this.rootComments = [...this.rootComments, ...it.data];
-            this.moreAvailable = it.moreAvailable;
+    handleDeletion(comment: Comment) {
+        if (comment)
+            this.rootComments = this.rootComments.filter(c => c.uuid !== comment.uuid);
+    }
+
+    private fetchAndShowComments() {
+        this.commentService.getCommentsForArticle(this.article).then(async it => {
+            this.rootComments = it;
 
             // Get promises for children of root comments
             const childrenPromises: Promise<Comment>[] = [];
@@ -53,14 +51,7 @@ export class ArticleCommentsComponent implements OnInit {
             });
             this.rootComments = out;
         });
+
     }
 
-    loadPage() {
-        this.listingPage++;
-        this.showCommentsOfArticle();
-    }
-
-    isLoggedIn(): boolean {
-        return this.authService.userToken !== '';
-    }
 }

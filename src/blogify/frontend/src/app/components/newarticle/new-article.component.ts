@@ -8,7 +8,6 @@ import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, V
 import { HttpClient } from '@angular/common/http';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
-import { ToasterService } from '../../shared/services/toaster/toaster.service';
 
 type Result = 'none' | 'success' | 'error';
 
@@ -40,7 +39,6 @@ export class NewArticleComponent implements OnInit {
     constructor (
         private articleService: ArticleService,
         private authService: AuthService,
-        private toasterService: ToasterService,
         private http: HttpClient,
         private router: Router,
     ) {}
@@ -48,7 +46,7 @@ export class NewArticleComponent implements OnInit {
     async ngOnInit() {
         this.authService.observeIsLoggedIn().subscribe(state => {
             if (state) this.authService.userProfile.then(it => this.user = it);
-            else console.error('[blogifyNewArticle] must be logged in; check links to not allow unauth access to new-article')
+            else console.error('[blogifyNewArticle] must be logged in; check links to not allow unauth access to new-article');
         });
         this.validations = await this.http.get<object>('/api/articles/_validations').toPromise();
     }

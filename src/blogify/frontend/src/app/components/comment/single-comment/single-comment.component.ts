@@ -1,11 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Comment } from '../../../models/Comment';
 import { AuthService } from '../../../shared/auth/auth.service';
 import { CommentsService } from '../../../services/comments/comments.service';
-import { User } from '../../../models/User';
 import { ArticleService } from '../../../services/article/article.service';
-import { faHeart } from '@fortawesome/free-regular-svg-icons';
+import { faCommentAlt, faHeart, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
+import { idOf } from '../../../models/Shadow';
 
 @Component({
   selector: 'app-single-comment',
@@ -16,16 +16,21 @@ export class SingleCommentComponent implements OnInit {
 
     @Input() parent: Comment;
     @Input() comment: Comment;
-    @Input() child: boolean;
 
-    isReady: boolean = false;
+    @Output() deleted: EventEmitter<any> = new EventEmitter<any>();
 
-    replyingEnabled: boolean = false;
-    replyComment: Comment;
-    replyError: string;
+    isReady = false;
 
+    isLoggedInUsersComment = false;
+
+    replyingEnabled = false;
+    isDeleting = false;
+
+    faCommentAlt = faCommentAlt;
     faHeartOutline = faHeart;
     faHeartFilled = faHeartFilled;
+
+    faTrashAlt = faTrashAlt;
 
     constructor (
         private authService: AuthService,
@@ -53,33 +58,46 @@ export class SingleCommentComponent implements OnInit {
             this.comment.article = await this.articleService.getArticleByUUID(this.comment.article);
         }
 
+        // Make sure our children array is not undefined
+
+        if (!this.comment.children) this.comment.children = [];
+
         this.isReady = true;
 
-        // We're ready, so we can populate the dummy reply comment
+        // Handle new comments
 
-        this.replyComment = {
-            commenter: await this.authService.observeIsLoggedIn() ? await this.authService.userProfile : '',
-            article: this.comment.article,
-            likeCount: 0,
-            likedByUser: false,
-            content: '',
-            uuid: ''
-        };
+        this.commentsService.latestSubmittedComment.subscribe(async payload => {
+            if (payload && payload.parentComment) {
+                if (payload.parentComment as unknown as string === this.comment.uuid)
+                    this.comment.children.push(payload);
+            }
+        });
 
+        // Update isLoggedInUsersComment
+
+        this.authService.observeIsLoggedIn().subscribe(async state => {
+            this.isLoggedInUsersComment = state && idOf(this.comment.commenter) === await this.authService.userUUID;
+        });
     }
 
-    async replyToSelf() {
-        // Make sure the user is authenticated
-        if (this.authService.observeIsLoggedIn() && this.replyComment.commenter instanceof User) {
-            await this.commentsService.replyToComment (
-                this.replyComment.content,
-                this.comment.article.uuid,
-                this.replyComment.commenter.uuid,
-                this.comment.uuid
-            );
-        } else {
-            this.replyError = 'You must be logged in to comment.'
-        }
+    handleDeletion(comment: Comment) {
+        if (comment)
+            this.comment.children = this.comment.children.filter(c => c.uuid !== comment.uuid);
+    }
+
+    toggleDeleting = () => this.isDeleting = !this.isDeleting;
+
+    deleteSelf() {
+        if (!this.isDeleting) return;
+
+        this.commentsService
+            .deleteComment(idOf(this.comment))
+            .then(() => {
+                this.deleted.emit();
+            })
+            .catch(() => {
+                console.error(`[blogifyComments] Could not delete ${this.comment.uuid}`);
+            });
     }
 
     toggleLike() {
@@ -89,8 +107,8 @@ export class SingleCommentComponent implements OnInit {
                 this.comment.likedByUser = !this.comment.likedByUser;
                 this.comment.likeCount += (this.comment.likedByUser ? 1 : -1);
             }).catch(() => {
-            console.error(`[blogifyComments] Couldn't like ${this.comment.uuid}` )
-        })
+                console.error(`[blogifyComments] Couldn't like ${this.comment.uuid}` );
+            });
     }
 
 }

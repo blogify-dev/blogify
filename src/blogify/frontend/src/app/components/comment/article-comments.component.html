@@ -1,15 +1,4 @@
-<div *ngIf="rootComments">
-    <div *ngFor="let comment of rootComments">
-        <app-single-comment [comment]="comment"></app-single-comment>
-    </div>
-
-    <div id="comments-main">
-        <span id="next-page" class="clickable hover-positive" (click)="loadPage()" *ngIf="moreAvailable">
-            <fa-icon [icon]="faArrowAltCircleDown" [transform]="{ size: 26, y: 1 }"></fa-icon>
-
-            Load More
-        </span>
-    </div>
-</div>
-
-<app-create-comment *ngIf="isLoggedIn()" [article]="article"></app-create-comment>
+<app-single-comment
+    [comment]="comment" (deleted)="handleDeletion(comment)"
+    *ngFor="let comment of rootComments"
+></app-single-comment>

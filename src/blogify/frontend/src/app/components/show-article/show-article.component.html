@@ -86,18 +86,16 @@
     <markdown id="article-content" data="{{article.content}}" [line]="'6, 10-16'" [lineOffset]="5"></markdown>
 
     <!-- Comments section -->
-    <div class="article-comments">
+    <div id="comments">
 
         <!-- Comments title -->
-        <div class="comments-header">
-            <h2>Comments</h2>
-        </div>
+        <h2 id="comments-header">Comments</h2>
 
         <!-- Article reply box -->
-        <app-create-comment [replying]="true" [article]="article"></app-create-comment>
+        <app-create-comment id="article-reply" [replying]="true" [article]="article"></app-create-comment>
 
         <!-- Comments list -->
-        <app-article-comments [article]="article"></app-article-comments>
+        <app-article-comments id="root-comments" [article]="article"></app-article-comments>
 
     </div>
 

@@ -3,7 +3,8 @@ import { AuthService } from '../../shared/auth/auth.service';
 import { Router } from '@angular/router';
 import { DarkModeService } from '../../services/darkmode/dark-mode.service';
 import { User } from '../../models/User';
-import { faBell, faMoon, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faCaretUp, faMoon, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { NotificationsService } from '../../shared/services/notifications/notifications.service';
 
 @Component({
     selector: 'app-navbar',
@@ -14,6 +15,8 @@ export class NavbarComponent implements OnInit, AfterViewInit {
 
     user: User;
 
+    areNotificationsShowing = false;
+
     faSignOutAlt = faSignOutAlt;
     faBell = faBell;
     faMoon = faMoon;
@@ -22,6 +25,7 @@ export class NavbarComponent implements OnInit, AfterViewInit {
         public authService: AuthService,
         private router: Router,
         private darkModeService: DarkModeService,
+        private notificationsService: NotificationsService
     ) {}
 
     ngOnInit() {
@@ -56,7 +60,10 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     toggleDarkMode() {
         const darkMode = !this.darkModeService.getDarkModeValue();
         this.darkModeService.setDarkMode(darkMode);
+    }
 
+    async toggleNotifications() {
+        this.areNotificationsShowing = !this.areNotificationsShowing;
     }
 
     logout() {

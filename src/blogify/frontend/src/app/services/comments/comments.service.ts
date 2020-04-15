@@ -5,25 +5,25 @@ import { AuthService } from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
 import { Article } from '../../models/Article';
 import { BehaviorSubject } from 'rxjs';
-import { ListingQuery } from '../../models/ListingQuery';
+import { idOf } from '../../models/Shadow';
 
 const commentsEndpoint = '/api/articles/comments';
-
-interface ListingResult { data: Comment[]; moreAvailable: boolean; }
 
 @Injectable({
     providedIn: 'root'
 })
 export class CommentsService {
-    private newRootComment = new BehaviorSubject<Comment>(undefined);
+    private newComment = new BehaviorSubject<Comment>(undefined);
 
     constructor(private httpClient: HttpClient, private authService: AuthService) {}
 
     private async fetchUserObjects(comments: Comment[]): Promise<Comment[]> {
+        // noinspection DuplicatedCode
         const userUUIDs = new Set([...comments
-            .filter (it => typeof it.commenter === 'string')
-            .map    (it => it.commenter as string)]); // Converting to a Set makes sure a single UUID is not fetched more than once
-        const userObjects = await Promise.all (
+            .filter(it => typeof it.commenter === 'string')
+            // Converting to a Set makes sure a single UUID is not fetched more than once
+            .map(it => it.commenter as string)]);
+        const userObjects = await Promise.all(
             [...userUUIDs].map(it => this.authService.fetchUser(it))
         );
         return comments.map(a => {
@@ -43,49 +43,50 @@ export class CommentsService {
                 }),
             };
 
-            // @ts-ignore
             this.httpClient.get<boolean>(`/api/articles/comments/${c.uuid}/like`, httpOptions).toPromise()
                 .then((res: boolean) => {
                     c.likedByUser = res;
-                }).catch(_ => {
+                }).catch(() => {
                 c.likedByUser = null;
             });
             return c;
         }));
     }
 
-    private async prepareCommentData(result: ListingResult): Promise<ListingResult> {
-        const mapped =  this
-            .fetchUserObjects(result.data)
+    private async prepareCommentData(comments: Comment[]): Promise<Comment[]> {
+        return this
+            .fetchUserObjects(comments)
             .then(a => this.authService.userToken ? this.fetchLikeStatus(a, this.authService.userToken) : a);
-
-        return {data: result.data ? await mapped : [], moreAvailable: result.moreAvailable};
     }
 
-    async getCommentsForArticle(article: Article, listing: ListingQuery<Comment>): Promise<ListingResult> {
-        const comments = await this.httpClient.get<ListingResult>(`${commentsEndpoint}/article/${article.uuid}/?quantity=${listing.quantity}&page=${listing.page}`).toPromise();
+    async getCommentsForArticle(article: Article): Promise<Comment[]> {
+        const comments = await this.httpClient.get<Comment[]>(`${commentsEndpoint}/article/${article.uuid}`)
+            .toPromise();
         return this.prepareCommentData(comments);
     }
 
-    // tslint:disable-next-line
+    // tslint:disable-next-line:no-shadowed-variable
     async getCommentByUUID(uuid: string): Promise<Comment> {
         const comment = await this.httpClient.get<Comment>(`${commentsEndpoint}/${uuid}`).toPromise();
+
         comment.commenter = await this.authService.fetchUser(comment.commenter.toString());
+        if (!comment.children) comment.children = [];
+
         return comment;
     }
 
-    async deleteComment(commentUUID: string, userToken: string = this.authService.userToken): Promise<object> {
+    async deleteComment(commentUUID: string): Promise<object> {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${userToken}`
+                Authorization: `Bearer ${this.authService.userToken}`
             })
         };
 
-        return this.httpClient.delete(`${commentsEndpoint}/${commentUUID}`, httpOptions);
+        return this.httpClient.delete(`${commentsEndpoint}/${commentUUID}`, httpOptions).toPromise();
     }
 
-    async createComment (
+    async createComment(
         commentContent: string,
         articleUUID: string,
         userUUID: string,
@@ -98,6 +99,7 @@ export class CommentsService {
             })
         };
 
+        // noinspection JSDeprecatedSymbols
         const comment = {
             uuid: uuid(),
             commenter: userUUID,
@@ -108,34 +110,24 @@ export class CommentsService {
         return await this.httpClient.post<Comment>(`${commentsEndpoint}`, comment, httpOptions).toPromise();
     }
 
-    async replyToComment (
-        commentContent: string,
-        articleUUID: string,
-        userUUID: string,
-        parentCommentUUID: string,
-        userToken: string = this.authService.userToken,
-    ) {
+    async replyToComment(newComment: Comment) {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${userToken}`
+                Authorization: `Bearer ${this.authService.userToken}`
             })
         };
 
         const comment = {
             uuid: uuid(),
-            commenter: userUUID,
-            article: articleUUID,
-            content: commentContent,
-            parentComment: parentCommentUUID
+            commenter: idOf(newComment.commenter),
+            article: idOf(newComment.article),
+            content: newComment.content,
+            parentComment: newComment.parentComment ? idOf(newComment.parentComment) : null
         };
 
-        const res = await this.httpClient.post(`${commentsEndpoint}`, comment, httpOptions).toPromise();
-        if (res == null) {
-            return comment;
-        } else {
-            return undefined;
-        }
+        return await this.httpClient.post(commentsEndpoint, comment, httpOptions).toPromise()
+            .then(res => comment, err => undefined);
     }
 
     async likeComment(comment: Comment, userToken: string): Promise<HttpResponse<object>> {
@@ -148,18 +140,39 @@ export class CommentsService {
             observe: 'response',
         };
 
-        // TypeScript bug with method overloads.
-        // @ts-ignore
-        // noinspection TypeScriptValidateTypes
-        return this.httpClient.post<HttpResponse<object>>(`/api/articles/comments/${comment.uuid}/like`, null, httpOptions).toPromise();
+        return this.httpClient.post<HttpResponse<object>>(`/api/articles/comments/${comment.uuid}/like`,
+            // TypeScript bug with method overloads.
+            // @ts-ignore
+            null, httpOptions).toPromise();
     }
 
     async getChildrenOf(commentUUID: string, depth: number): Promise<Comment> {
-        return  this.httpClient.get<Comment>(`/api/articles/comments/tree/${commentUUID}/?depth=${depth}`).toPromise();
+        return this.httpClient.get<Comment>(`/api/articles/comments/tree/${commentUUID}/?depth=${depth}`).toPromise();
     }
 
-    get latestRootSubmittedComment() {
-        return this.newRootComment.asObservable();
+    async registerSubmittedComment(newCommentWsData: CommentCreatePayload) {
+        this.newComment.next(await this.getCommentByUUID(newCommentWsData.uuid));
     }
 
+    get latestSubmittedComment() {
+        return this.newComment.asObservable();
+    }
+
+}
+
+export interface CommentReplyPayload {
+    newComment: string;
+    onArticle: string;
+    onComment: string | null;
+}
+
+export interface ArticleCommentReplyPayload {
+    newComment: string;
+    onArticle: string;
+}
+
+export interface CommentCreatePayload {
+    uuid: string;
+    article: string;
+    commenter: string;
 }

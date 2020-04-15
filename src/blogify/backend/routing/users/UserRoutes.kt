@@ -1,6 +1,7 @@
 package blogify.backend.routing.users
 
 import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.database.Notifications
 import blogify.backend.database.Users
 import blogify.backend.database.handling.query
 import blogify.backend.pipelines.wrapping.ApplicationContext
@@ -12,48 +13,44 @@ import blogify.backend.routing.handling.deleteResource
 import blogify.backend.routing.handling.deleteUpload
 import blogify.backend.routing.handling.fetchAllResources
 import blogify.backend.routing.handling.fetchResource
-import blogify.backend.pipelines.obtainResource
-import blogify.backend.pipelines.optionalParam
 import blogify.backend.routing.handling.respondExceptionMessage
 import blogify.backend.routing.handling.updateResource
 import blogify.backend.routing.handling.uploadToResource
-import blogify.backend.pipelines.param
-import blogify.backend.pipelines.requestContext
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.persistence.models.Repository
-import blogify.backend.util.toUUID
+import blogify.backend.pipelines.*
+import blogify.backend.util.getOrNull
+import blogify.backend.util.never
 
+import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
 
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
 
 /**
  * Defines the API routes for interacting with [users][User].
  */
-fun Route.users() {
+fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
     route("/users") {
 
         get("/") {
-            requestContext {
+            requestContext(applicationContext) {
                 fetchAllResources<User>()
             }
         }
 
         get("/{uuid}") {
-            requestContext {
+            requestContext(applicationContext) {
                 fetchResource<User>()
             }
         }
 
         delete("/{uuid}") {
-            requestContext {
+            requestContext(applicationContext) {
                 deleteResource<User> (
                     authPredicate = { user, manipulated -> user eqr manipulated }
                 )
@@ -61,7 +58,7 @@ fun Route.users() {
         }
 
         patch("/{uuid}") {
-            requestContext {
+            requestContext(applicationContext) {
                 updateResource<User> (
                     authPredicate = { user, replaced -> user eqr replaced }
                 )
@@ -69,7 +66,7 @@ fun Route.users() {
         }
 
         get("/byUsername/{username}") {
-            requestContext {
+            requestContext(applicationContext) {
                 val username = param("username")
                 val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
@@ -92,7 +89,7 @@ fun Route.users() {
         }
 
         post("/upload/{uuid}") {
-            requestContext {
+            requestContext(applicationContext) {
                 uploadToResource<User> (
                     authPredicate = { user, manipulated -> user eqr manipulated }
                 )
@@ -100,13 +97,13 @@ fun Route.users() {
         }
 
         delete("/upload/{uuid}") {
-            requestContext {
+            requestContext(applicationContext) {
                 deleteUpload<User>(authPredicate = { user, manipulated -> user eqr manipulated })
             }
         }
 
         get("/search") {
-            requestContext {
+            requestContext(applicationContext) {
                 val query = param("q")
 
                 call.respond(Typesense.search<User>(query).asSearchView(this))
@@ -116,7 +113,7 @@ fun Route.users() {
         post("{uuid}/follow") {
             val follows = Users.Follows
 
-            requestContext {
+            requestContext(applicationContext) {
                 val id = param("uuid")
 
                 val following = obtainResource<User>(id.toUUID())
@@ -143,10 +140,32 @@ fun Route.users() {
                             }
                         }
                     }
+                    following.FollowedEvent(subject).send(this)
+
                     call.respond(HttpStatusCode.OK)
                 }
             }
+        }
 
+        route("/me") {
+
+            get("/notifications") {
+                requestContext(applicationContext) {
+                    runAuthenticated { user ->
+                        val count = optionalParam("limit")?.toIntOrNull()?.coerceAtMost(25) ?: 25
+
+                        val notifications = query {
+                            Notifications.select { Notifications.emitter eq user.uuid }
+                                .orderBy(Notifications.timestamp, SortOrder.DESC)
+                                .limit(count)
+                                .map { Notifications.convert(this, it) }
+                                .toList()
+                        }.getOrNull() ?: never
+
+                        call.respond(notifications.takeIf { it.isNotEmpty() } ?: "[]")
+                    }
+                }
+            }
 
         }
 

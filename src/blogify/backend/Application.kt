@@ -7,15 +7,10 @@ import com.andreapivetta.kolor.cyan
 import com.fasterxml.jackson.databind.*
 
 import blogify.backend.config.Configs
+import blogify.backend.database.*
 import blogify.backend.routing.makeArticleRoutes
-import blogify.backend.routing.users.users
-import blogify.backend.database.Database
-import blogify.backend.database.Articles
-import blogify.backend.database.Comments
-import blogify.backend.database.ImageUploadablesMetadata
-import blogify.backend.database.Uploadables
-import blogify.backend.database.Users
-import blogify.backend.routing.auth
+import blogify.backend.routing.users.makeUserRoutes
+import blogify.backend.routing.makeAuthRoutes
 import blogify.backend.database.handling.query
 import blogify.backend.persistence.postgres.PostgresDataStore
 import blogify.backend.pipelines.GenericCallPipeline
@@ -23,12 +18,14 @@ import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
-import blogify.backend.routing.admin.adminSearch
-import blogify.backend.routing.static
+import blogify.backend.routing.admin.makeAdminRoutes
+import blogify.backend.routing.makePushServerRoutes
+import blogify.backend.routing.makeStaticRoutes
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Template
 import blogify.backend.util.ContentTypeSerializer
+import blogify.backend.util.InstantSerializer
 import blogify.backend.util.SinglePageApplication
 import blogify.backend.util.matches
 
@@ -43,12 +40,14 @@ import io.ktor.features.CachingHeaders
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
+import io.ktor.features.HttpsRedirect
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.content.CachingOptions
 import io.ktor.jackson.jackson
 import io.ktor.routing.route
 import io.ktor.routing.routing
+import io.ktor.websocket.WebSockets
 
 import org.jetbrains.exposed.sql.SchemaUtils
 
@@ -110,6 +109,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             blogifyModule.addSerializer(Resource.ResourceIdSerializer)
             blogifyModule.addSerializer(Template.Field.Serializer)
             blogifyModule.addSerializer(ContentTypeSerializer)
+            blogifyModule.addSerializer(InstantSerializer)
 
             registerModule(blogifyModule)
         }
@@ -167,6 +167,13 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         }
     }
 
+    // WebSockets
+
+    install(WebSockets) {
+        timeoutMillis = 30_000
+        pingPeriodMillis = 15_000
+    }
+
     // Initialize database
 
     Database.init()
@@ -184,7 +191,8 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
                 Comments,
                 Comments.Likes,
                 Uploadables,
-                ImageUploadablesMetadata
+                ImageUploadablesMetadata,
+                Notifications
             )
         }
 
@@ -194,17 +202,20 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         Typesense.submitResourceTemplate(User::class._searchTemplate)
 
     }
+
     // Initialize routes
 
     routing {
 
         route("/api") {
-            makeArticleRoutes()
-            users()
-            auth()
-            static()
-            adminSearch()
+            makeArticleRoutes(appContext)
+            makeUserRoutes(appContext)
+            makeAuthRoutes(appContext)
+            makeStaticRoutes(appContext)
+            makeAdminRoutes(appContext)
         }
+
+        makePushServerRoutes()
 
         get("/") {
             call.respondRedirect("/home")

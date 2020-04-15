@@ -51,6 +51,7 @@ dependencies {
     compile("io.ktor:ktor-server-tomcat:$ktor_version")
     compile("ch.qos.logback:logback-classic:$logback_version")
     compile("io.ktor:ktor-server-core:$ktor_version")
+    compile("io.ktor:ktor-websockets:$ktor_version")
     compile("io.ktor:ktor-network-tls:$ktor_version")
     compile("io.ktor:ktor-locations:$ktor_version")
     compile("io.ktor:ktor-auth:$ktor_version")

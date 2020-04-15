@@ -31,7 +31,7 @@
                 class="collapse-on-mobile clickable"
                 id="profile"
                 [user]="user"
-                emSize="2.15"
+                emSize="2.25"
                 sizeRatio="3.75"
                 *ngIf="authService.observeIsLoggedIn() | async"
                 (click)="navigateToProfile()">
@@ -39,18 +39,20 @@
 
             <span class="separator" *ngIf="authService.observeIsLoggedIn() | async"></span>
 
-<!--            <span id="notifications" class="clickable hover-mild" *ngIf="authService.observeIsLoggedIn() | async">-->
-<!--                <fa-icon size="lg" [icon]="faBell" [transform]="{ y: -1, size: 19 }"></fa-icon>-->
-<!--            </span>-->
+            <span id="notifications" class="clickable hover-mild" [ngClass]="this.areNotificationsShowing ? 'mild' : ''" *ngIf="authService.observeIsLoggedIn() | async" (click)="toggleNotifications()">
+                <fa-icon size="lg" [icon]="faBell" [transform]="{ y: 0, size: 16 }"></fa-icon>
+            </span>
+
+            <b-notifications-popover (needsToClose)="this.toggleNotifications()" *ngIf="this.areNotificationsShowing"></b-notifications-popover>
 
             <span id="theme-switch" class="clickable" (click)="toggleDarkMode()">
-                <fa-icon size="lg" [icon]="faMoon" [transform]="{ y: -1, size: 17 }"></fa-icon>
+                <fa-icon size="lg" [icon]="faMoon" [transform]="{ y: 0, size: 14 }"></fa-icon>
             </span>
 
             <span class="separator" *ngIf="authService.observeIsLoggedIn() | async"></span>
 
             <span id="logout" class="clickable hover-negative" *ngIf="authService.observeIsLoggedIn() | async" (click)="logout()">
-                <fa-icon size="lg" [icon]="faSignOutAlt" [transform]="{ y: -1, x: 2, size: 21 }"></fa-icon>
+                <fa-icon size="lg" [icon]="faSignOutAlt" [transform]="{ y: 0, x: 2, size: 17 }"></fa-icon>
             </span>
 
             <span id="login" class="clickable" *ngIf="!(authService.observeIsLoggedIn() | async)" (click)="navigateToLogin()">

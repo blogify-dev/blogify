@@ -76,12 +76,12 @@ data class RegisterCredentials (
 
 }
 
-fun Route.auth() {
+fun Route.makeAuthRoutes(applicationContext: ApplicationContext) {
 
     route("/auth") {
 
         post("/signin") {
-            requestContext {
+            requestContext(applicationContext) {
                 val credentials = call.receive<LoginCredentials>()
                 val matchingCredentials = repository<User>().getMatching(this) { Users.username eq credentials.username }
 
@@ -110,7 +110,7 @@ fun Route.auth() {
         }
 
         get("/{token}") {
-            requestContext {
+            requestContext(applicationContext) {
                 val token = param("token")
                 validateJwt(this, token).fold (
                     success = { call.respond( object { @Suppress("unused") val uuid = it.uuid }) },
@@ -120,7 +120,7 @@ fun Route.auth() {
         }
 
         post("/signup") {
-            requestContext {
+            requestContext(applicationContext) {
                 val credentials = call.receive<RegisterCredentials>()
                 val createdUser = credentials.createUser(this)
                 call.respond(createdUser)

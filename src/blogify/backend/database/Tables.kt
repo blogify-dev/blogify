@@ -2,7 +2,9 @@
 
 package blogify.backend.database
 
+import blogify.backend.appContext
 import blogify.backend.database.handling.query
+import blogify.backend.events.models.Event
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
 import blogify.backend.resources.User
@@ -11,10 +13,8 @@ import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.util.Sr
-import blogify.backend.util.Wrap
-import blogify.backend.util.SrList
-import blogify.backend.util.matches
+import blogify.backend.resources.reflect.sanitize
+import blogify.backend.util.*
 
 import io.ktor.http.ContentType
 
@@ -23,6 +23,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.getOrElse
+import com.github.kittinunf.result.coroutines.map
+import java.time.Instant
 
 import java.util.UUID
 
@@ -124,6 +126,7 @@ object Articles : ResourceTable<Article>() {
 
     override suspend fun update(resource: Article): Boolean {
         return try {
+
             query {
                 this.update(where = { uuid eq resource.uuid }) {
                     it[uuid]      = resource.uuid
@@ -132,13 +135,11 @@ object Articles : ResourceTable<Article>() {
                     it[createdBy] = resource.createdBy.uuid
                     it[content]   = resource.content
                     it[summary]   = resource.summary
-                    it[isPinned]  = resource.isPinned
-
                 }
             }.get()
 
             query {
-                Categories.deleteWhere { Categories.article eq resource.uuid }
+                Categories.deleteWhere { Categories.article eq resource.uuid } == 1
             }.get()
 
             query {
@@ -150,7 +151,6 @@ object Articles : ResourceTable<Article>() {
 
             true
         } catch (e: Exception) {
-            e.printStackTrace()
             false
         }
     }
@@ -169,7 +169,7 @@ object Articles : ResourceTable<Article>() {
             uuid       = source[uuid],
             title      = source[title],
             createdAt  = source[createdAt],
-            createdBy  = requestContext.repository<User>().get(requestContext, source[createdBy]).get(),
+            createdBy  = appContext.repository<User>().get(requestContext, source[createdBy]).get(),
             content    = source[content],
             summary    = source[summary],
             isPinned   = source[isPinned],
@@ -213,7 +213,6 @@ object Users : ResourceTable<User>() {
     val name           = varchar ("name", 255)
     val profilePicture = varchar ("profile_picture", 32).references(Uploadables.fileId, onDelete = SET_NULL, onUpdate = RESTRICT).nullable()
     val coverPicture   = varchar ("cover_picture", 32).references(Uploadables.fileId, onDelete = SET_NULL, onUpdate = RESTRICT).nullable()
-    @Suppress("MemberVisibilityCanBePrivate")
     val isAdmin        = bool    ("is_admin")
 
     init {
@@ -329,9 +328,9 @@ object Comments : ResourceTable<Comment>() {
         Comment (
             uuid          = source[uuid],
             content       = source[content],
-            article       = requestContext.repository<Article>().get(requestContext, source[article]).get(),
-            commenter     = requestContext.repository<User>().get(requestContext, source[commenter]).get(),
-            parentComment = source[parentComment]?.let { requestContext.repository<Comment>().get(requestContext, it).get() }
+            article       = appContext.repository<Article>().get(requestContext, source[article]).get(),
+            commenter     = appContext.repository<User>().get(requestContext, source[commenter]).get(),
+            parentComment = source[parentComment]?.let { appContext.repository<Comment>().get(requestContext, it).get() }
         )
     }
 
@@ -382,6 +381,38 @@ object ImageUploadablesMetadata : Table("image_metadata") {
             source[width],
             source[height]
         )
+    }
+
+}
+
+@Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER")
+object Notifications : Table("notifications") {
+
+    val klass     = text    ("class")
+    val timestamp = integer ("timestamp")
+    val emitter   = uuid    ("emitter").references(Users.uuid, onDelete = CASCADE, onUpdate = CASCADE)
+    val data      = jsonb<Map<String, Any?>>("data")
+
+    suspend fun convert(request: RequestContext, source: ResultRow): Map<String, Any?> {
+         return mutableMapOf (
+             "data"      to source[data],
+             "emitter"   to source[emitter],
+             "timestamp" to Instant.ofEpochSecond(source[timestamp].toLong()),
+             "klass"     to source[klass]
+         ).toMap()
+    }
+
+    suspend fun insert(event: Event): Sr<Event> {
+        return Wrap {
+            query {
+                insert {
+                    it[data]      = event.sanitize()
+                    it[emitter]   = event.emitter.uuid
+                    it[timestamp] = event.timestamp.epochSecond.toInt()
+                    it[klass]     = event::class.qualifiedName ?: never
+                }
+            }
+        }.map { event }
     }
 
 }

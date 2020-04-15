@@ -138,6 +138,11 @@ button {
         padding: .25em .75em;
     }
 
+    &.tiny {
+        padding: .01em .65em;
+        font-size: .75em;
+    }
+
     &.hollow {
         background: none !important;
         color: var(--body-fg);
@@ -172,7 +177,7 @@ button {
             &:hover, &:hover * { color: var(--accent-positive); }
         }
         &.highlight-border {
-            &:hover, &:hover * { border-color: var(--accent-positive); }
+            &:hover { border-color: var(--accent-positive); }
         }
     }
 

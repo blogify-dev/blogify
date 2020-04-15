@@ -1,40 +1,64 @@
 <div class="comment" *ngIf="isReady">
 
-    <div class="comment-user">
+    <div class="header">
         <app-user-display [user]="comment.commenter" info="name" emSize="2.25"></app-user-display>
     </div>
 
-    <div class="comment-content">
+    <div class="body">
         <markdown class="content-text">{{comment.content}}</markdown>
     </div>
 
-    <div class="comment-last-line">
-        <span class="button-reply" (click)="replyingEnabled = !replyingEnabled">Reply</span>
+    <div class="buttons">
+        <!-- Like count - clickable -->
+        <span class="button like-count clickable negative" *ngIf="loggedInObs | async" (click)="toggleLike()">
+            <fa-icon [icon]="this.comment.likedByUser ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 13, y: 0 }"></fa-icon>
+
+            {{this.comment.likeCount}}
+        </span>
+
+        <!-- Like count - non-clickable -->
+        <span class="button like-count negative" *ngIf="!(loggedInObs | async)">
+            <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 13, y: 0 }"></fa-icon>
+
+            {{comment.likeCount}}
+        </span>
 
         <span class="separator"></span>
 
-        <!-- Like count - clickable -->
-        <a class="like-count clickable negative"
-           *ngIf="loggedInObs | async"
-           (click)="toggleLike()"
-        >
-            <fa-icon [icon]="this.comment.likedByUser ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 14 }"></fa-icon>
-            <span>&ensp;{{this.comment.likeCount}}</span>
-        </a>
+        <!-- Reply -->
+        <span class="button reply clickable" (click)="replyingEnabled = !replyingEnabled">
+            <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ size: 13, y: 0 }"></fa-icon>
 
-        <!-- Like count - non-clickable -->
-        <span class="like-count negative" *ngIf="!(loggedInObs | async)">
-            <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 14 }"></fa-icon>
-            <span>&ensp;{{comment.likeCount}}</span>
+            Reply
+        </span>
+
+        <span class="separator" *ngIf="this.isLoggedInUsersComment"></span>
+
+        <span class="button clickable hover-negative"
+              [ngClass]="this.isDeleting ? 'negative' : ''" (click)="toggleDeleting()"
+              *ngIf="this.isLoggedInUsersComment"
+        >
+            <fa-icon [icon]="faTrashAlt"></fa-icon>
+
+            Delete
+        </span>
+
+        <span id="delete-confirmation" class="button" *ngIf="this.isDeleting">
+            Are you sure ?
+            &nbsp;
+            <span class="choice clickable hover-negative" (click)="deleteSelf()">Yes</span>
+            &nbsp;/&nbsp;
+            <span class="choice clickable hover-gray" (click)="toggleDeleting()">No</span>
         </span>
     </div>
 
-    <app-create-comment [replying]="replyingEnabled" [comment]="comment"></app-create-comment>
+    <app-create-comment class="reply" *ngIf="replyingEnabled" [replying]="replyingEnabled" [comment]="comment"></app-create-comment>
 
-    <div *ngIf="comment.children">
-        <div *ngFor="let child of comment.children">
-            <app-single-comment [parent]="comment" [comment]="child"></app-single-comment>
-        </div>
+    <div class="children" *ngIf="comment.children && comment.children.length > 0">
+            <app-single-comment
+                [parent]="comment" [comment]="child" (deleted)="handleDeletion(child)"
+                *ngFor="let child of comment.children"
+            ></app-single-comment>
     </div>
 
 </div>

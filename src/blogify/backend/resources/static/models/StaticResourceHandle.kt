@@ -1,13 +1,8 @@
 package blogify.backend.resources.static.models
 
-import blogify.backend.database.ImageUploadablesMetadata
-import blogify.backend.database.handling.query
-import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.image.ImageMetadata
-import blogify.backend.util.getOrPipelineError
-import com.drew.metadata.Metadata
+
 import io.ktor.http.ContentType
-import org.jetbrains.exposed.sql.select
 
 /**
  * Represents a pointer to an uploaded file (or lack thereof)

@@ -107,7 +107,7 @@ fun RequestContext.optionalParam(name: String): String? = call.parameters[name]
 suspend fun RequestContext.handleAuthentication (
     funcName:  String = "<unspecified>",
     predicate: UserAuthPredicate,
-    block: RequestContextFunction<User?>
+    block:     RequestContextFunction<User?>
 ) {
     if (predicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
         runAuthenticated(predicate, { subject -> block(this@handleAuthentication, subject) })

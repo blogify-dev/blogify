@@ -1,0 +1,29 @@
+<div id="notifications-popover" *ngIf="this.notifications">
+
+    <div id="header">
+        <h2 id="notifications-title">Notifications</h2>
+
+        <span
+            id="clear-all"
+            [ngClass]="this.notifications.length > 0 ? 'clickable hover-negative' : ''"
+            (click)="this.notifications = []"
+        >
+            <fa-icon [icon]="faBan" size="lg" [transform]="{ size: 20, y: -3 }"></fa-icon>
+        </span>
+    </div>
+
+    <div id="body">
+        <b-notification
+            [notification]="notif"
+            (followed)="this.needsToClose.emit()"
+            (dismissed)="this.removeNotif(notif)"
+            *ngFor="let notif of notifications"
+        ></b-notification>
+
+        <span id="no-notifications-text" *ngIf="this.notifications.length < 1">
+            Looks like you do not have any notifications right now !
+        </span>
+    </div>
+
+</div>
+

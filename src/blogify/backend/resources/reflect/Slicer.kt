@@ -5,10 +5,13 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.annotations.Invisible
 import blogify.backend.annotations.Undisplayed
 import blogify.backend.resources.computed.models.ComputedPropertyDelegate
+import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.valid
+import blogify.backend.util.Dto
 
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.jvm.isAccessible
 
 /**
@@ -63,8 +66,8 @@ sealed class SlicedProperty(val name: String) {
  * @author hamza1311, Benjozork
  */
 @Suppress("UNCHECKED_CAST")
-private fun <M : Resource> getPropValueOnInstance(instance: M, propertyName: String): SlicedProperty {
-    return instance.cachedPropMap().map
+private fun <M : Mapped> getPropValueOnInstance(instance: M, propertyName: String, unsafe: Boolean = false): SlicedProperty {
+    return (if (!unsafe) instance.cachedPropMap() else instance.cachedUnsafePropMap()).map
         .entries.firstOrNull { (name, _) -> name == propertyName }
         ?.value?.let { handle ->
             return when (handle) {
@@ -76,13 +79,15 @@ private fun <M : Resource> getPropValueOnInstance(instance: M, propertyName: Str
                     }
                 }
                 is PropMap.PropertyHandle.Computed -> {
-                    handle.property.isAccessible = true
+                    if (instance is Resource) {
+                        handle.property.isAccessible = true
 
-                    val delegate = handle.property.getDelegate(instance) as? ComputedPropertyDelegate<*>
-                        ?: error("no / illegal delegate on @Computed property '${handle.name}' of class '${instance::class.simpleName}'")
+                        val delegate = handle.property.getDelegate(instance) as? ComputedPropertyDelegate<*>
+                                       ?: error("no / illegal delegate on @Computed property '${handle.name}' of class '${instance::class.simpleName}'")
 
-                    val delegateResult = delegate.getValue(instance, handle.property)
-                    SlicedProperty.Value(propertyName, delegateResult)
+                        val delegateResult = delegate.getValue(instance, handle.property)
+                        SlicedProperty.Value(propertyName, delegateResult)
+                    } else error("fatal: there should never a PropertyHandle.Computed on non-resource propMaps")
                 }
                 is PropMap.PropertyHandle.AccessDenied -> SlicedProperty.AccessNotAllowed(handle.name) // Handle is denied
             }
@@ -100,18 +105,20 @@ private fun <M : Resource> getPropValueOnInstance(instance: M, propertyName: Str
  *
  * @author hamza1311, Benjozork
  */
-fun <M : Resource> M.slice(selectedPropertyNames: Set<String>): Map<String, Any?> {
+fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>, unsafe: Boolean = false): Dto {
 
     val selectedPropertiesSanitized = selectedPropertyNames.toMutableSet().apply {
-        removeIf { it == "uuid" || it == "UUID" }
-        add("uuid")
+        if (this@slice::class.isSubclassOf(Resource::class)) {
+            removeIf { it == "uuid" || it == "UUID" }
+            add("uuid")
+        }
     }
 
     val unknownProperties = mutableSetOf<String>()
     val accessDeniedProperties = mutableSetOf<String>()
 
     return selectedPropertiesSanitized.associateWith { propName ->
-        when (val result = getPropValueOnInstance(this, propName)) {
+        when (val result = getPropValueOnInstance(this, propName, unsafe)) {
             is SlicedProperty.Value            -> result.value
             is SlicedProperty.NullableValue    -> result.value
             is SlicedProperty.NotFound         -> unknownProperties += result.name
@@ -137,7 +144,7 @@ fun <M : Resource> M.slice(selectedPropertyNames: Set<String>): Map<String, Any?
  *
  * @author Benjozork
  */
-fun <M : Resource> M.sanitize(excludeNoSearch: Boolean = false, excludeUndisplayed: Boolean = false): Map<String, Any?> {
+fun <M : Mapped> M.sanitize(excludeNoSearch: Boolean = false, excludeUndisplayed: Boolean = false): Dto {
     val sanitizedClassProps = this::class.cachedPropMap().valid()
         .asSequence()
         .filter {

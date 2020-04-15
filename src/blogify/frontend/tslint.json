@@ -7,6 +7,9 @@
                 4
             ]
         },
+        "whitespace": {
+            "options": "check-module"
+        },
         "max-line-length": {
             "options": { "limit": 200 }
         },
@@ -29,14 +32,13 @@
         "component-selector": [
             true,
             "element",
-            "app",
+            "b",
             "kebab-case"
         ],
         "import-blacklist": [
             true,
             "rxjs/Rx"
         ],
-        "no-inferred-empty-object-type": true,
         "interface-name": false,
         "max-classes-per-file": false,
         "member-access": false,

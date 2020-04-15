@@ -6,19 +6,20 @@ import blogify.backend.resources.Article
 import blogify.backend.resources.User
 import blogify.backend.pipelines.requestContext
 import blogify.backend.search.Typesense
+import blogify.backend.util.Dto
 
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 
-fun Route.adminSearch() {
+fun Route.makeAdminRoutes(applicationContext: ApplicationContext) {
 
     route("/admin/search") {
 
         get("/reindex") {
 
-            requestContext {
+            requestContext(applicationContext) {
 
                 val what = call.parameters["what"] ?: error("bruh")
 
@@ -28,7 +29,7 @@ fun Route.adminSearch() {
                         "user" -> Typesense.refreshIndex<User>(this@requestContext)
                         else -> error("Wrong param provided")
                     }.let {
-                        call.respond(mapOf("ts_response" to it.receive<Map<String, Any?>>()))
+                        call.respond(mapOf("ts_response" to it.receive<Dto>()))
                     }
                 }
 

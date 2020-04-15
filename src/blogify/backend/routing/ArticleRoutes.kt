@@ -29,20 +29,22 @@ import blogify.backend.util.toUUID
 import io.ktor.http.HttpStatusCode
 import io.ktor.routing.*
 import io.ktor.response.respond
+
 import org.jetbrains.exposed.sql.*
 
-fun Route.makeArticleRoutes() {
+
+fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
     route("/articles") {
 
         get("/") {
-            requestContext {
+            requestContext(applicationContext) {
                 fetchResourceListing<Article>(orderBy = Articles.isPinned, sortOrder = SortOrder.DESC)
             }
         }
 
         get("/{uuid}") {
-            requestContext {
+            requestContext(applicationContext) {
                 fetchResource<Article>()
             }
         }
@@ -50,7 +52,7 @@ fun Route.makeArticleRoutes() {
         val likes = Articles.Likes
 
         get("/{uuid}/like") {
-            requestContext {
+            requestContext(applicationContext) {
                 val id = param("uuid")
 
                 runAuthenticated { subject ->
@@ -67,7 +69,7 @@ fun Route.makeArticleRoutes() {
         }
 
         post("/{uuid}/like") {
-            requestContext {
+            requestContext(applicationContext) {
                 val id = param("uuid")
 
                 runAuthenticated { subject ->
@@ -114,23 +116,36 @@ fun Route.makeArticleRoutes() {
             }
         }
 
-        get("/forUser/{username}/") {
-            requestContext {
-                val username = param("username")
+        get("/forUser/{username}") {
+            requestContext(applicationContext) {
+                val params = call.parameters
+                val username = params["username"] ?: error("Username is null")
+                val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
 
                 repository<User>().getMatching { Users.username eq username }.fold(
                     success = {
-                        fetchResourceListing<Article>(Articles.uuid, SortOrder.ASC) { Articles.createdBy eq it.single().uuid }
+                        repository<Article>().getMatching { Articles.createdBy eq it.single().uuid }.fold(
+                            success = { articles ->
+                                try {
+                                    selectedPropertyNames?.let { props ->
 
+                                        call.respond(articles.map { it.slice(props) })
+
+                                    } ?: call.respond(articles.map { it.sanitize() })
+                                } catch (bruhMoment: Repository.Exception) {
+                                    call.respondExceptionMessage(bruhMoment)
+                                }
+                            },
+                            failure = { call.respondExceptionMessage(it) }
+                        )
                     },
                     failure = { call.respondExceptionMessage(it) }
                 )
             }
         }
 
-
         delete("/{uuid}") {
-            requestContext {
+            requestContext(applicationContext) {
                 deleteResource<Article> (
                     authPredicate = { user, article -> article.createdBy == user }
                 )
@@ -138,7 +153,7 @@ fun Route.makeArticleRoutes() {
         }
 
         patch("/{uuid}") {
-            requestContext {
+            requestContext(applicationContext) {
                 updateResource<Article> (
                     authPredicate = { user, article -> article.createdBy eqr user }
                 )
@@ -146,7 +161,7 @@ fun Route.makeArticleRoutes() {
         }
 
         post("/") {
-            requestContext {
+            requestContext(applicationContext) {
                 createResource<Article> (
                     authPredicate = { user, article -> article.createdBy eqr user }
                 )
@@ -154,18 +169,26 @@ fun Route.makeArticleRoutes() {
         }
 
         get("/search") {
-            requestContext {
-                search<Article>(optionalParam("byUser")?.toUUID()?.let { mapOf((Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")) to it) } ?: emptyMap())
+            requestContext(applicationContext) {
+                val query = call.parameters["q"]!!
+                val user = call.parameters["byUser"]?.toUUID()
+
+                if (user != null) {
+                    val userHandle = Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")
+                    call.respond(Typesense.search<Article>(query, mapOf(userHandle to user)).asSearchView(this))
+                } else {
+                    call.respond(Typesense.search<Article>(query).asSearchView(this))
+                }
             }
         }
 
         get("_validations") {
-            requestContext {
+            requestContext(applicationContext) {
                 getValidations<Article>()
             }
         }
 
-        articleComments()
+        makeArticleCommentRoutes(applicationContext)
 
     }
 
