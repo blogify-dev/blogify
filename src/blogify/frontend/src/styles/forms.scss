@@ -177,7 +177,7 @@ button {
             &:hover, &:hover * { color: var(--accent-positive); }
         }
         &.highlight-border {
-            &:hover, &:hover * { border-color: var(--accent-positive); }
+            &:hover { border-color: var(--accent-positive); }
         }
     }
 

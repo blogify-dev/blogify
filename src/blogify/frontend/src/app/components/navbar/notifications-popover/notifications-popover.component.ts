@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { NotificationsService } from '../../../shared/services/notifications/notifications.service';
 import { Notification } from '../../../models/Notification';
+import { faBan } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'b-notifications-popover',
@@ -14,6 +15,8 @@ export class NotificationsPopoverComponent implements OnInit {
     constructor (
         private notificationsService: NotificationsService
     ) {}
+
+    faBan = faBan;
 
     notifications: Notification[];
 

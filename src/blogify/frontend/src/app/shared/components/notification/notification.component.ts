@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Notification } from '../../../models/Notification';
 import { ToastRef } from 'ngx-toastr';
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 
 @Component({
     selector: 'b-notification',
@@ -18,7 +18,7 @@ export class NotificationComponent implements OnInit {
     @Output() followed = new EventEmitter<any>();
     @Output() dismissed = new EventEmitter<any>();
 
-    faChevronDown = faChevronDown;
+    faTrashAlt = faTrashAlt;
 
     // @ts-ignore
     get iconIsPfp()  { return this.notification.icon.contentType !== undefined;}
