@@ -32,11 +32,11 @@
             Reply
         </span>
 
-        <span class="separator" *ngIf="this.loggedInObs | async"></span>
+        <span class="separator" *ngIf="this.isLoggedInUsersComment"></span>
 
         <span class="button clickable hover-negative"
               [ngClass]="this.isDeleting ? 'negative' : ''" (click)="toggleDeleting()"
-              *ngIf="this.loggedInObs | async"
+              *ngIf="this.isLoggedInUsersComment"
         >
             <fa-icon [icon]="faTrashAlt"></fa-icon>
 

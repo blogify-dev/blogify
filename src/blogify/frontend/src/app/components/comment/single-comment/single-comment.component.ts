@@ -21,6 +21,8 @@ export class SingleCommentComponent implements OnInit {
 
     isReady = false;
 
+    isLoggedInUsersComment = false;
+
     replyingEnabled = false;
     isDeleting = false;
 
@@ -69,6 +71,12 @@ export class SingleCommentComponent implements OnInit {
                 if (payload.parentComment as unknown as string === this.comment.uuid)
                     this.comment.children.push(payload);
             }
+        });
+
+        // Update isLoggedInUsersComment
+
+        this.authService.observeIsLoggedIn().subscribe(async state => {
+            this.isLoggedInUsersComment = state && idOf(this.comment.commenter) === await this.authService.userUUID;
         });
     }
 
