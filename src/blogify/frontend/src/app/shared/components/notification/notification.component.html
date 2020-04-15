@@ -1,4 +1,4 @@
-<div class="notification" *ngIf="notification" routerLink="{{this.notification.routerLink}}">
+<div class="notification" *ngIf="notification" (click)="navigate()">
 
     <div class="icon">
         <app-profile-picture *ngIf="this.iconIsPfp" [pfpFile]="this.notification.icon" [emSize]="2.25"></app-profile-picture>
@@ -11,7 +11,7 @@
     </div>
 
     <div class="controls">
-        <span class="close clickable hover-negative" (click)="this.toastRef.close()">
+        <span class="close clickable hover-negative" (click)="this.dismissSelf()">
             <fa-icon [icon]="faChevronDown" size="lg" [transform]="{ size: 22 }"></fa-icon>
         </span>
     </div>

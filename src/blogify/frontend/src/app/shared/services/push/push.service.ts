@@ -41,7 +41,7 @@ export class PushService {
                                 }).then();
                             }
                         } else if (parsed.t === 'Notification') {
-                            this.notificationsService.registerNotificationEvent(parsed);
+                            this.notificationsService.registerNotificationPayload(parsed);
                         }
                     }
                 });

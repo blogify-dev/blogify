@@ -32,6 +32,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NotificationComponent } from './shared/components/notification/notification.component';
 import { PushService } from './shared/services/push/push.service';
 import { ToastContainerModule, ToastrModule } from 'ngx-toastr';
+import { NotificationsPopoverComponent } from './components/navbar/notifications-popover/notifications-popover.component';
 
 @NgModule({
     declarations: [
@@ -52,6 +53,7 @@ import { ToastContainerModule, ToastrModule } from 'ngx-toastr';
         FollowsComponent,
         UsersComponent,
         ProfileSlideoverComponent,
+        NotificationsPopoverComponent,
     ],
     imports: [
         BrowserModule,

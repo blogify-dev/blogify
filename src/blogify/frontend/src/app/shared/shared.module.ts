@@ -4,7 +4,7 @@ import { TabHeaderComponent } from './components/tab-header/tab-header.component
 import { ProfileRoutingModule } from '../components/profile/profile/profile-routing.module';
 import { ProfilePictureComponent } from './components/profile-picture/profile-picture.component';
 import { ShowAllArticlesComponent } from './components/show-all-articles/show-all-articles.component';
-import { FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { RelativeTimePipe } from './relative-time/relative-time.pipe';
 import { UserDisplayComponent } from './components/user-display/user-display.component';
 import { DarkThemeDirective } from './directives/dark-theme/dark-theme.directive';
@@ -47,7 +47,8 @@ import { NotificationComponent } from './components/notification/notification.co
         ProfilePictureComponent,
         ShowAllArticlesComponent,
         UserDisplayComponent,
-        ShowAllUsersComponent
+        ShowAllUsersComponent,
+        NotificationComponent
     ]
 })
 export class SharedModule { }

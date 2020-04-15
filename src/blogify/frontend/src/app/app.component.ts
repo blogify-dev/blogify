@@ -30,49 +30,8 @@ export class AppComponent implements OnInit {
     async ngOnInit() {
         this.toastrService.overlayContainer = this.toastContainer;
 
-        const eventClasses = {
-            COMMENT_REPLY: 'blogify.backend.resources.Comment.CommentReplyEvent',
-            ARTICLE_REPLY: 'blogify.backend.resources.Article.CommentReplyEvent',
-        };
+        this.notificationsService.liveNotifications.subscribe(async msg => {
 
-        this.notificationsService.notifications.subscribe(async msg => {
-            if (msg) {
-                const data = msg.d;
-                let notification: Notification;
-
-                if (msg.e === eventClasses.COMMENT_REPLY) {
-                    const payload = data as CommentReplyPayload;
-
-                    const newComment = await this.commentsService.getCommentByUUID(payload.newComment);
-                    const author = await this.authService.fetchUser(idOf(newComment.commenter));
-
-                    notification = {
-                        icon: author.profilePicture,
-                        header: `${author.username} responded to your comment`,
-                        desc: `"${newComment.content.substr(0, 25)}..."`,
-                        routerLink: `/articles/${idOf(newComment.article)}`
-                    };
-                } else if (msg.e === eventClasses.ARTICLE_REPLY) {
-                    const payload = data as ArticleCommentReplyPayload;
-
-                    const newComment = await this.commentsService.getCommentByUUID(payload.newComment);
-                    const author = await this.authService.fetchUser(idOf(newComment.commenter));
-                    const article = await this.articleService.getArticleByUUID(payload.onArticle);
-
-                    notification = {
-                        icon: author.profilePicture,
-                        header: `${author.username} commented on "${article.title.substr(0, 15)}"...`,
-                        desc: `"${newComment.content.substr(0, 25)}"`,
-                        routerLink: `/articles/${idOf(newComment.article)}`
-                    };
-                }
-
-                const toastRef = this.toastrService.show().toastRef;
-                const notificationComponent = toastRef.componentInstance as NotificationComponent;
-
-                notificationComponent.toastRef = toastRef;
-                notificationComponent.notification = notification;
-            }
         });
     }
 }
