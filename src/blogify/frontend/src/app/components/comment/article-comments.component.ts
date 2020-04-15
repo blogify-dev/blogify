@@ -1,8 +1,8 @@
-import {Component, OnInit, Input} from '@angular/core';
-import {CommentsService} from '../../services/comments/comments.service';
-import {Comment} from '../../models/Comment';
-import {Article} from '../../models/Article';
-import {AuthService} from '../../shared/auth/auth.service';
+import { Component, OnInit, Input } from '@angular/core';
+import { CommentsService } from '../../services/comments/comments.service';
+import { Comment } from '../../models/Comment';
+import { Article } from '../../models/Article';
+import { AuthService } from '../../shared/auth/auth.service';
 
 @Component({
     selector: 'app-article-comments',
@@ -27,6 +27,11 @@ export class ArticleCommentsComponent implements OnInit {
         });
     }
 
+    handleDeletion(comment: Comment) {
+        if (comment)
+            this.rootComments = this.rootComments.filter(c => c.uuid !== comment.uuid);
+    }
+
     private fetchAndShowComments() {
         this.commentService.getCommentsForArticle(this.article).then(async it => {
             this.rootComments = it;
@@ -46,5 +51,7 @@ export class ArticleCommentsComponent implements OnInit {
             });
             this.rootComments = out;
         });
+
     }
+
 }

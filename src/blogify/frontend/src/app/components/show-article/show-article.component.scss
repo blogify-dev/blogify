@@ -118,15 +118,18 @@
         margin-bottom: .75em;
     }
 
-    .article-comments {
+    #comments {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        row-gap: 1.95em;
 
-        .comments-header {
-            display:         flex;
-            flex-direction:  row;
-            justify-content: space-between;
-            align-items:     center;
+        margin-top: 1.75em;
+
+        #comments-header {
+            padding: 0;
         }
-
     }
 
 }

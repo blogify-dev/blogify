@@ -1,5 +1,9 @@
 @import '../../../../styles/layouts';
 
+:host {
+    width: 100%;
+}
+
 .comment {
     width: 100%;
 
@@ -7,13 +11,11 @@
     flex-direction:  column;
     justify-content: stretch;
     align-items: flex-start;
-    row-gap: .85em;
+    row-gap: 1.15em;
 
-    padding: .2em 0 0 2.25em;
+    padding: .2em 0 0 2.85em;
 
-    margin-top: 1em;
-
-    border-left: 2px dotted var(--border-color);
+    border-left: 1px solid var(--border-color);
 
     .header {
         display: flex;
@@ -29,14 +31,16 @@
     }
 
     .buttons {
+        width: 100%;
+
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
 
         .separator {
-            margin-left: 1.35em !important;
-            margin-right: 1.35em;
+            margin-left: 1.45em !important;
+            margin-right: 1.45em;
         }
 
         .button {
@@ -50,6 +54,17 @@
                 font-size: 1.55em;
                 font-weight: bold;
             }
+
+            &#delete-confirmation {
+                margin-left: 1em;
+
+                .choice {
+                    &:first-child  { border-bottom: 2px dotted var(--accent-negative); }
+                    &:nth-child(2) { border-bottom: 2px dotted var(--accent-gray); }
+
+                    padding: 1px;
+                }
+            }
         }
 
     }
@@ -60,6 +75,10 @@
 
     .children {
         width: 100%;
+
+        display: flex;
+        flex-direction: column;
+        row-gap: 1.95em;
     }
 
 }

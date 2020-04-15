@@ -12,7 +12,6 @@ import { idOf } from '../../../models/Shadow';
 })
 export class CreateCommentComponent implements OnInit {
 
-    commentContent = '';
     @Input() article: Article;
     @Input() comment: Comment;
     @Input() replying = false;

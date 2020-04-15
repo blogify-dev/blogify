@@ -31,14 +31,34 @@
 
             Reply
         </span>
+
+        <span class="separator" *ngIf="this.loggedInObs | async"></span>
+
+        <span class="button clickable hover-negative"
+              [ngClass]="this.isDeleting ? 'negative' : ''" (click)="toggleDeleting()"
+              *ngIf="this.loggedInObs | async"
+        >
+            <fa-icon [icon]="faTrashAlt"></fa-icon>
+
+            Delete
+        </span>
+
+        <span id="delete-confirmation" class="button" *ngIf="this.isDeleting">
+            Are you sure ?
+            &nbsp;
+            <span class="choice clickable hover-negative" (click)="deleteSelf()">Yes</span>
+            &nbsp;/&nbsp;
+            <span class="choice clickable hover-gray" (click)="toggleDeleting()">No</span>
+        </span>
     </div>
 
     <app-create-comment class="reply" *ngIf="replyingEnabled" [replying]="replyingEnabled" [comment]="comment"></app-create-comment>
 
     <div class="children" *ngIf="comment.children && comment.children.length > 0">
-        <div *ngFor="let child of comment.children">
-            <app-single-comment [parent]="comment" [comment]="child"></app-single-comment>
-        </div>
+            <app-single-comment
+                [parent]="comment" [comment]="child" (deleted)="handleDeletion(child)"
+                *ngFor="let child of comment.children"
+            ></app-single-comment>
     </div>
 
 </div>

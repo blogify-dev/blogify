@@ -75,15 +75,15 @@ export class CommentsService {
         return comment;
     }
 
-    async deleteComment(commentUUID: string, userToken: string = this.authService.userToken): Promise<object> {
+    async deleteComment(commentUUID: string): Promise<object> {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${userToken}`
+                Authorization: `Bearer ${this.authService.userToken}`
             })
         };
 
-        return this.httpClient.delete(`${commentsEndpoint}/${commentUUID}`, httpOptions);
+        return this.httpClient.delete(`${commentsEndpoint}/${commentUUID}`, httpOptions).toPromise();
     }
 
     async createComment(

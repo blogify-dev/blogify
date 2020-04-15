@@ -1,10 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Comment } from '../../../models/Comment';
 import { AuthService } from '../../../shared/auth/auth.service';
 import { CommentsService } from '../../../services/comments/comments.service';
 import { ArticleService } from '../../../services/article/article.service';
-import { faCommentAlt, faHeart } from '@fortawesome/free-regular-svg-icons';
+import { faCommentAlt, faHeart, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
+import { idOf } from '../../../models/Shadow';
 
 @Component({
   selector: 'app-single-comment',
@@ -16,13 +17,18 @@ export class SingleCommentComponent implements OnInit {
     @Input() parent: Comment;
     @Input() comment: Comment;
 
+    @Output() deleted: EventEmitter<any> = new EventEmitter<any>();
+
     isReady = false;
 
     replyingEnabled = false;
+    isDeleting = false;
 
     faCommentAlt = faCommentAlt;
     faHeartOutline = faHeart;
     faHeartFilled = faHeartFilled;
+
+    faTrashAlt = faTrashAlt;
 
     constructor (
         private authService: AuthService,
@@ -64,6 +70,26 @@ export class SingleCommentComponent implements OnInit {
                     this.comment.children.push(payload);
             }
         });
+    }
+
+    handleDeletion(comment: Comment) {
+        if (comment)
+            this.comment.children = this.comment.children.filter(c => c.uuid !== comment.uuid);
+    }
+
+    toggleDeleting = () => this.isDeleting = !this.isDeleting;
+
+    deleteSelf() {
+        if (!this.isDeleting) return;
+
+        this.commentsService
+            .deleteComment(idOf(this.comment))
+            .then(() => {
+                this.deleted.emit();
+            })
+            .catch(() => {
+                console.error(`[blogifyComments] Could not delete ${this.comment.uuid}`);
+            });
     }
 
     toggleLike() {
