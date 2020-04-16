@@ -25,6 +25,8 @@ import blogify.backend.resources.static.models.StaticResourceHandle
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 import java.util.*
 import kotlin.random.Random
@@ -82,7 +84,9 @@ data class User (
     override val targets = setOf(this)
 
     override suspend fun sendEvent(appContext: ApplicationContext, event: Event) {
-        appContext.pushServer.sendMessageToConnected(this, Message.Outgoing.Event(event))
+        GlobalScope.launch {
+            appContext.pushServer.sendMessageToConnected(this@User, Message.Outgoing.Event(event))
+        }
     }
 
     @Computed
