@@ -54,7 +54,7 @@ export class PushService {
         });
 
         timer(3_500).subscribe(_ => {
-            if (this.authenticated) alert('Could not open a streaming channel. Please report the issue to a project maintainer.');
+            if (!this.authenticated) alert('Could not open a streaming channel. Please report the issue to a project maintainer.');
         });
     }
 }
