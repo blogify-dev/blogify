@@ -4,6 +4,7 @@ import { AuthService } from '../../auth/auth.service';
 import { CommentsService } from '../../../services/comments/comments.service';
 import { CommentCreatePayload, EventPayload } from '../../../models/Events';
 import { NotificationsService } from '../notifications/notifications.service';
+import { timer } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -18,7 +19,11 @@ export class PushService {
 
     private authenticated = false;
 
-    constructor(private authService: AuthService, private commentsService: CommentsService, private notificationsService: NotificationsService) {
+    constructor (
+        private authService: AuthService,
+        private commentsService: CommentsService,
+        private notificationsService: NotificationsService
+    ) {
         this.authService.observeIsLoggedIn().subscribe(loggedIn => {
             if (loggedIn) {
                 this.ws.next(this.authService.userToken);
@@ -46,6 +51,10 @@ export class PushService {
                     }
                 });
             }
+        });
+
+        timer(3_500).subscribe(_ => {
+            if (this.authenticated) alert('Could not open a streaming channel. Please report the issue to a project maintainer.');
         });
     }
 }
