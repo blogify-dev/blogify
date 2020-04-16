@@ -4,6 +4,8 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
+import blogify.backend.resources.static.models.StaticResourceHandle
+import blogify.backend.search.models.Template
 import blogify.backend.util.*
 
 import java.util.UUID
@@ -14,10 +16,13 @@ import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
 import com.andreapivetta.kolor.red
+import com.fasterxml.jackson.databind.module.SimpleModule
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 
 import com.github.kittinunf.result.coroutines.mapError
+import io.ktor.http.ContentType
 
 import java.lang.IllegalStateException
 
@@ -33,7 +38,18 @@ private val noExternalFetcherMessage =
 /**
  * This is fine, it's thread safe
  */
-private val objectMapper = jacksonObjectMapper()
+private val objectMapper = jacksonObjectMapper().apply {
+    val instantiatorModule = SimpleModule()
+
+    instantiatorModule.addSerializer(Resource.ResourceIdSerializer)
+    instantiatorModule.addSerializer(Template.Field.Serializer)
+    instantiatorModule.addSerializer(ContentTypeSerializer)
+    instantiatorModule.addSerializer(InstantSerializer)
+
+    instantiatorModule.addDeserializer(ContentType::class.java, ContentTypeDeserializer)
+
+    registerModule(instantiatorModule)
+}
 
 /**
  * Instantiates the class in receiver position using a [Map] of [property handles][PropMap.PropertyHandle] and
@@ -92,19 +108,32 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
                             else -> never
                         }
                     }
+                    parameter.type.isSubtypeOf(StaticResourceHandle::class.createType()) -> { // Special case for SRH, since it's a sealed class
+                        val valueString = objectMapper.writeValueAsString(value)
+                        val valueMap = objectMapper.readValue<Map<String, Any?>>(valueString)
+
+                        parameter to when {
+                            valueMap.containsKey("fileId") -> {
+                                objectMapper.readValue<StaticResourceHandle.Ok>(valueString)
+                            }
+                            valueMap.containsKey("contentType") -> {
+                                objectMapper.readValue<StaticResourceHandle.None>(valueString)
+                            }
+                            else -> never
+                        }
+                    }
                     else -> { // We don't know what it is, we need to extract a JavaType and make Jackson deserialize it
-//                        val baseTypeClass = (parameter.type.classifier as? KClass<*>)?.java
-//                            ?: error("fatal: found non-class base type when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
-//
-//                        val typeParameters = parameter.type.arguments.map {
-//                            (it.type?.classifier as? KClass<*>)?.java
-//                                ?: error("fatal: found non-class type parameter when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
-//                        }.toTypedArray()
-//
-//                        val type = objectMapper.typeFactory.constructParametricType(baseTypeClass, *typeParameters)
-//
-//                        parameter to objectMapper.readValue(objectMapper.writeValueAsString(value).toByteArray(), type)
-                        parameter to value
+                        val baseTypeClass = (parameter.type.classifier as? KClass<*>)?.java
+                            ?: error("fatal: found non-class base type when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
+
+                        val typeParameters = parameter.type.arguments.map {
+                            (it.type?.classifier as? KClass<*>)?.java
+                                ?: error("fatal: found non-class type parameter when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
+                        }.toTypedArray()
+
+                        val type = objectMapper.typeFactory.constructParametricType(baseTypeClass, *typeParameters)
+
+                        parameter to objectMapper.readValue(objectMapper.writeValueAsString(value).toByteArray(), type)
                     }
                 }
             }.toMap().also { map ->
