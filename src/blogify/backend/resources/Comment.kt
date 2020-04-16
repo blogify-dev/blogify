@@ -16,6 +16,7 @@ import blogify.backend.resources.models.UserCreatedResource
 import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
+import java.time.Instant
 
 import java.util.UUID
 
@@ -37,6 +38,8 @@ data class Comment (
     val parentComment: Comment? = null,
 
     val content: String,
+
+    val createdAt: Int = Instant.now().epochSecond.toInt(),
 
     override val uuid: UUID = UUID.randomUUID()
 

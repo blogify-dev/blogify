@@ -30,7 +30,8 @@ export class CreateCommentComponent implements OnInit {
                 likeCount: 0,
                 likedByUser: false,
                 content: '',
-                uuid: ''
+                uuid: '',
+                createdAt: Date.now(),
             };
         });
     }
