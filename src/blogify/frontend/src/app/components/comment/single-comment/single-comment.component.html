@@ -2,6 +2,7 @@
 
     <div class="header">
         <app-user-display [user]="comment.commenter" info="name" emSize="2.25"></app-user-display>
+        <span class="timestamp"> | {{comment.createdAt | relativeTime}}</span>
     </div>
 
     <div class="body">

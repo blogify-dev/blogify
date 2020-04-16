@@ -11,8 +11,9 @@ export class Comment {
         public content: string,
         public likedByUser: boolean | null = null,
         public likeCount: number,
+        public createdAt: number,
         public parentComment?: Shadow<Comment>,
-        public children?: Comment[]
+        public children?: Comment[],
     ) {}
 
 }
