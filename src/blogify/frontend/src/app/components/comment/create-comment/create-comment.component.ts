@@ -16,6 +16,8 @@ export class CreateCommentComponent implements OnInit {
     @Input() comment: Comment;
     @Input() replying = false;
 
+    loggedInObs = this.authService.observeIsLoggedIn();
+
     replyComment: Comment;
     replyError: string;
 
@@ -37,22 +39,14 @@ export class CreateCommentComponent implements OnInit {
     }
 
     async doReply() {
-        // Make sure the user is authenticated
-        if (this.authService.observeIsLoggedIn()) {
-            if (this.comment === undefined) { // Reply to article
-                await this.commentsService.createComment (
-                    this.replyComment.content,
-                    this.article.uuid,
-                    idOf(this.replyComment.commenter)
-                );
-                this.replyComment.content = '';
-            } else { // Reply to comment
-                await this.commentsService.replyToComment(this.replyComment);
-                this.replying = false;
-            }
+        if (this.comment === undefined) { // Reply to article
+            await this.commentsService.createComment(this.replyComment);
 
-        } else {
-            this.replyError = 'You must be logged in to comment.';
+            this.replyComment.content = '';
+        } else { // Reply to comment
+            await this.commentsService.replyToComment(this.replyComment);
+
+            this.replying = false;
         }
     }
 

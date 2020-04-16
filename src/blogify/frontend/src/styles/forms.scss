@@ -120,8 +120,9 @@ button {
 
     // Disabled
 
-    &[disabled] {
+    &.disabled {
         opacity: .6;
+        pointer-events: none;
     }
 
     // Color classes

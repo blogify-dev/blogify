@@ -87,31 +87,7 @@ export class CommentsService {
         return this.httpClient.delete(`${commentsEndpoint}/${commentUUID}`, httpOptions).toPromise();
     }
 
-    async createComment(
-        commentContent: string,
-        articleUUID: string,
-        userUUID: string,
-        userToken: string = this.authService.userToken
-    ): Promise<Comment> {
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${userToken}`
-            })
-        };
-
-        // noinspection JSDeprecatedSymbols
-        const comment = {
-            uuid: uuid(),
-            commenter: userUUID,
-            article: articleUUID,
-            content: commentContent
-        };
-
-        return await this.httpClient.post<Comment>(`${commentsEndpoint}`, comment, httpOptions).toPromise();
-    }
-
-    async replyToComment(newComment: Comment) {
+    async createComment(newComment: Comment): Promise<Comment | undefined> {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
@@ -121,14 +97,34 @@ export class CommentsService {
 
         const comment = {
             uuid: uuid(),
-            commenter: idOf(newComment.commenter),
+            commenter: await this.authService.userUUID,
+            article: idOf(newComment.article),
+            content: newComment.content,
+            parentComment: null
+        };
+
+        return await this.httpClient.post<Comment>(`${commentsEndpoint}`, comment, httpOptions).toPromise()
+            .then(res => comment as Comment, err => undefined);
+    }
+
+    async replyToComment(newComment: Comment): Promise<Comment | undefined> {
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${this.authService.userToken}`
+            })
+        };
+
+        const comment = {
+            uuid: uuid(),
+            commenter: await this.authService.userUUID,
             article: idOf(newComment.article),
             content: newComment.content,
             parentComment: newComment.parentComment ? idOf(newComment.parentComment) : null
         };
 
         return await this.httpClient.post(commentsEndpoint, comment, httpOptions).toPromise()
-            .then(res => comment, err => undefined);
+            .then(res => comment as Comment, err => undefined);
     }
 
     async likeComment(comment: Comment, userToken: string): Promise<HttpResponse<object>> {
