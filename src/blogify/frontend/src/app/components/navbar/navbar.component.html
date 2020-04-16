@@ -31,8 +31,8 @@
                 class="collapse-on-mobile clickable"
                 id="profile"
                 [user]="user"
-                emSize="2.25"
-                sizeRatio="3.75"
+                emSize="1.2"
+                sizeRatio="1.2"
                 *ngIf="authService.observeIsLoggedIn() | async"
                 (click)="navigateToProfile()">
             </app-user-display>

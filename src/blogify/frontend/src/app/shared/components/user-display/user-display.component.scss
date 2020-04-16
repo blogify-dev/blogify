@@ -1,41 +1,40 @@
-@import "../../../../styles/queries";
+@import "src/styles/queries";
 
-:host {
-    display:         inline-flex;
-    flex-direction:  column;
-    justify-content: center;
-    align-items:     center;
-
-    &.collapse-on-mobile .user-display {
-        @media (max-width: $query-desktop) {
-            grid-column-gap: 0;
-            .display-info { display: none; }
-        }
+:host.collapse-on-mobile .user-display {
+    @media (max-width: $query-desktop) {
+        & .display-info { display: none; }
     }
 }
 
 .user-display {
-
-    display: grid;
-    grid-template: 1fr auto / 1fr auto;
-    grid-column-gap: 1em;
-    align-items: center;
-    > * { justify-self: start; }
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    column-gap: .65em;
 
     cursor: pointer;
 
     .display-pfp {
-        grid-row: span 2;
+
     }
 
     .display-info {
-        font-size: 1.75em;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: stretch;
+
+        font-size: inherit;
         line-height: 1.15em;
         font-weight: 600;
-    }
 
-    .display-secondary-info {
-        font-size: .85em;
+        .primary-info {
+            font-size: 1em;
+        }
+
+        .secondary-info {
+            font-size: .7em;
+        }
     }
 
 }

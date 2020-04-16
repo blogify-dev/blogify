@@ -6,12 +6,15 @@
     <app-profile-picture
         class="display-pfp"
         [pfpFile]="user.profilePicture"
-        emSize="{{emSize}}"
+        emSize="{{emSize * sizeRatio}}"
         [displayedVertically]="displayedVertically"
     >
     </app-profile-picture>
 
-    <span class="display-info">{{infoText}}</span>
-    <span class="display-secondary-info" *ngIf="showSecondaryInfo">{{secondaryInfoText}}</span>
+    <span class="display-info">
+        <span class="primary-info">{{infoText}}</span>
+
+        <span class="secondary-info" *ngIf="showSecondaryInfo">{{secondaryInfoText}}</span>
+    </span>
 
 </span>

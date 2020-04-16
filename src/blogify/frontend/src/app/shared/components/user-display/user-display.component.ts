@@ -12,7 +12,7 @@ export class UserDisplayComponent implements OnInit, OnChanges {
     @Input() info: 'username' | 'name' = 'username';
     @Input() showSecondaryInfo: boolean;
     @Input() emSize = 3;
-    @Input() sizeRatio = 2.4;
+    @Input() sizeRatio = 0.75;
     @Input() displayedVertically = false;
 
     infoText: string;

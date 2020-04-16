@@ -1,11 +1,11 @@
-<div class="article" [style.border]="this.article.isPinned ? '2px solid var(--accent-positive)' : ''">
+<div class="article" [style.border]="this.article.isPinned ? '1px solid var(--accent-positive)' : ''">
 
     <div class="first-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
         <!-- Title -->
-        <h1 class="title">{{article.title}}</h1>
+        <h1 class="title" [style.color]="this.article.isPinned ? 'var(--accent-positive)' : ''">{{article.title}}</h1>
 
         <!-- Author -->
-        <app-user-display class="author" [user]="article.createdBy" emSize="2.35"></app-user-display>
+        <app-user-display class="author" [user]="article.createdBy" emSize="1.5" sizeRatio="0.85"></app-user-display>
     </div>
 
     <div class="second-line clickable no-highlight" routerLink="/article/{{article.uuid}}">

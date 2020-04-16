@@ -174,10 +174,10 @@ button {
 
     &:not(.no-highlight) {
         &:not(.highlight-border) {
-            &:hover, &:hover * { color: var(--accent-positive); }
+            &:hover, &:hover * { color: var(--accent-neutral); }
         }
         &.highlight-border {
-            &:hover { border-color: var(--accent-positive); }
+            &:hover { border-color: var(--accent-neutral); }
         }
     }
 

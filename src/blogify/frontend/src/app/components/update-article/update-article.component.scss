@@ -6,6 +6,8 @@
 
     @include pageContainer(true, 80%);
 
+    margin-top: -3em;
+
     display:         flex;
     flex-direction:  column;
     justify-content: stretch;
