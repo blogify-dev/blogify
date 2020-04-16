@@ -287,6 +287,7 @@ object Comments : ResourceTable<Comment>() {
     val article       = uuid ("article").references(Articles.uuid, onDelete = CASCADE)
     val content       = text ("content")
     val parentComment = uuid ("parent_comment").references(uuid, onDelete = CASCADE).nullable()
+    val createdAt     = integer("created_at")
 
     override val authorColumn = commenter
 
@@ -307,6 +308,7 @@ object Comments : ResourceTable<Comment>() {
                     it[article]       = resource.article.uuid
                     it[content]       = resource.content
                     it[parentComment] = resource.parentComment?.uuid
+                    it[createdAt]     = resource.createdAt
                 }
             }
             return@Wrap resource
@@ -331,7 +333,8 @@ object Comments : ResourceTable<Comment>() {
             content       = source[content],
             article       = appContext.repository<Article>().get(requestContext, source[article]).get(),
             commenter     = appContext.repository<User>().get(requestContext, source[commenter]).get(),
-            parentComment = source[parentComment]?.let { appContext.repository<Comment>().get(requestContext, it).get() }
+            parentComment = source[parentComment]?.let { appContext.repository<Comment>().get(requestContext, it).get() },
+            createdAt     = source[createdAt]
         )
     }
 
