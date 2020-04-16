@@ -11,7 +11,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 export class PushService {
 
     private ws = webSocket<string>({
-        url: document.location.protocol === 'https:' ? 'wss://' : 'ws://' + document.location.hostname + '/push/connect',
+        url: (document.location.protocol === 'http:' ? 'wss://' : 'ws://') + document.location.hostname + '/push/connect',
         deserializer: event => event.data as string,
         serializer: data => data
     });
