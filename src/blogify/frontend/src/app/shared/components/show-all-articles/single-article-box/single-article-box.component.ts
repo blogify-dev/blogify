@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Article } from '../../../../models/Article';
 import { faHeart, faCommentAlt, faClipboard } from '@fortawesome/free-regular-svg-icons';
-import { faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartFilled, faThumbtack } from '@fortawesome/free-solid-svg-icons';
 import { ClipboardService } from 'ngx-clipboard';
 import { AuthService } from '../../../auth/auth.service';
 import { ArticleService } from '../../../../services/article/article.service';
@@ -14,6 +14,8 @@ import { ArticleService } from '../../../../services/article/article.service';
 export class SingleArticleBoxComponent implements OnInit {
 
     @Input() article: Article;
+
+    faThumbtack = faThumbtack;
 
     faHeartOutline = faHeart;
     faHeartFilled = faHeartFilled;

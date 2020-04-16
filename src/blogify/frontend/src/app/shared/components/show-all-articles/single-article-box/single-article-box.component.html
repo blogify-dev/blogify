@@ -1,6 +1,12 @@
-<div class="article" [style.border]="this.article.isPinned ? '1px solid var(--accent-positive)' : ''">
+<div class="article">
 
     <div class="first-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
+        <fa-icon
+            [icon]="faThumbtack" size="2x" [transform]="{ size: 12, y: 1, rotate: 45 }"
+            *ngIf="this.article.isPinned"
+            style="margin-right: 1em; color: var(--accent-positive)"
+        ></fa-icon>
+
         <!-- Title -->
         <h1 class="title" [style.color]="this.article.isPinned ? 'var(--accent-positive)' : ''">{{article.title}}</h1>
 
