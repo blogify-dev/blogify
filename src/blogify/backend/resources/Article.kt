@@ -30,12 +30,6 @@ import java.util.UUID
  * @property summary    The summary of the article.
  * @property categories The [categories][Article.Category] of the article.
  */
-@JsonIdentityInfo (
-    scope     = Article::class,
-    resolver  = Resource.ObjectResolver::class,
-    generator = ObjectIdGenerators.PropertyGenerator::class,
-    property  = "uuid"
-)
 @SqlTable(Articles::class)
 data class Article (
 

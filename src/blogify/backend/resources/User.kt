@@ -31,12 +31,6 @@ import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.random.Random
 
-@JsonIdentityInfo (
-    scope     = User::class,
-    resolver  = Resource.ObjectResolver::class,
-    generator = ObjectIdGenerators.PropertyGenerator::class,
-    property  = "uuid"
-)
 @SqlTable(Users::class)
 data class User (
     @QueryByField

@@ -20,21 +20,12 @@ import java.time.Instant
 
 import java.util.UUID
 
-@JsonIdentityInfo (
-    scope = Comment::class,
-    resolver = Resource.ObjectResolver::class,
-    generator = ObjectIdGenerators.PropertyGenerator::class,
-    property = "uuid"
-)
 @SqlTable(Comments::class)
 data class Comment (
-    @JsonIdentityReference(alwaysAsId = true)
     val commenter: User,
 
-    @JsonIdentityReference(alwaysAsId = true)
     val article: Article,
 
-    @JsonIdentityReference(alwaysAsId = true)
     val parentComment: Comment? = null,
 
     val content: String,

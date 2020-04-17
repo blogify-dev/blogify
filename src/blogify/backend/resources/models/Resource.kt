@@ -29,7 +29,7 @@ import java.util.*
 
 abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : Mapped(), EventSource, EventEmitter, Identified {
 
-    object ObjectResolver : ObjectIdResolver {
+    object ObjectResolver {
 
         object FakeApplicationCall : ApplicationCall {
 
@@ -47,38 +47,6 @@ abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : Mapped(),
         }
 
         val FakeRequestContext = RequestContext(appContext, GlobalScope, FakeApplicationCall, enableCaching = false)
-
-        override fun resolveId(id: ObjectIdGenerator.IdKey?): Any? {
-
-            val uuid = id?.key as UUID
-
-            fun genException(scope: Class<*>, ex: Exception)
-                    = IllegalStateException("exception during resource (type: ${scope.simpleName}) resolve with UUID $uuid : ${ex.message}", ex)
-
-            return runBlocking {
-
-                try {
-                    @Suppress("UNCHECKED_CAST")
-                    FakeRequestContext.repository(id.scope.kotlin as KClass<Resource>).get(id = uuid).get()
-                } catch (e: Exception) {
-                    throw genException(id.scope, e)
-                }
-
-            }
-
-        }
-
-        override fun newForDeserialization(context: Any?): ObjectIdResolver {
-           return this
-        }
-
-        override fun bindItem(id: ObjectIdGenerator.IdKey?, pojo: Any?) {
-            return
-        }
-
-        override fun canUseFor(resolverType: ObjectIdResolver?): Boolean {
-            return resolverType!!::class == this::class
-        }
 
     }
 
