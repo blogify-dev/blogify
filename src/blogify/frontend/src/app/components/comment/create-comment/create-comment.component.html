@@ -5,7 +5,7 @@
 
     <div class="reply-submit">
         <button
-            class="submit-button positive rounded"
+            class="submit-button rounded"
             [ngClass]="!(loggedInObs | async) ? 'disabled' : ''"
             (click)="doReply()"
         >Submit</button>
