@@ -31,9 +31,6 @@ import blogify.backend.database.Uploadables
 import blogify.backend.database.handling.query
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.cachedPropMap
-import blogify.backend.resources.reflect.sanitize
-import blogify.backend.resources.reflect.slice
 import blogify.backend.resources.static.file.StaticFileHandler
 import blogify.backend.resources.static.models.StaticData
 import blogify.backend.resources.static.models.StaticResourceHandle
@@ -46,7 +43,6 @@ import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
-import blogify.backend.resources.reflect.verify
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.pipelines.obtainResource
 import blogify.backend.pipelines.obtainResources
@@ -54,19 +50,11 @@ import blogify.backend.pipelines.handleAuthentication
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.pipelineError
-import blogify.backend.resources.models.UserCreatedResource
 import blogify.backend.resources.Article
+import blogify.backend.resources.reflect.*
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
-import blogify.backend.util.SrList
-import blogify.backend.util.filterThenMapValues
-import blogify.backend.util.getOrPipelineError
-import blogify.backend.util.letCatchingOrNull
-import blogify.backend.util.matches
-import blogify.backend.util.reason
-import blogify.backend.util.reasons
-import blogify.backend.util.short
-import blogify.backend.util.toUUID
+import blogify.backend.util.*
 
 import io.ktor.application.ApplicationCall
 import io.ktor.http.HttpStatusCode
@@ -540,7 +528,15 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
 ) {
     try {
 
-        val received = call.receive<R>() // Receive a resource from the request body
+        val received = call.receive<Dto>() // Receive a resource from the request body
+            .mappedByHandles(R::class, false)
+            .getOrPipelineError(HttpStatusCode.BadRequest, "bad DTO format")
+            .let {
+                R::class.doInstantiate (
+                    it,
+                    externalFetcher = { klass, id -> this.repository(klass).get(this, id) }
+                )
+            }.getOrPipelineError(HttpStatusCode.BadRequest, "could not instantiate resource")
 
         val firstInvalidValue = received.verify().entries.firstOrNull { !it.value }
         if (firstInvalidValue != null) { // Check for any invalid data
