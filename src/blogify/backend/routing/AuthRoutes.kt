@@ -113,7 +113,11 @@ fun Route.makeAuthRoutes(applicationContext: ApplicationContext) {
             requestContext(applicationContext) {
                 val credentials = call.receive<RegisterCredentials>()
                 val createdUser = credentials.createUser(this)
-                call.respond(createdUser)
+
+                call.respond(@Suppress("unused") object {
+                    val user  = createdUser
+                    val token = generateJWT(createdUser)
+                })
             }
         }
 

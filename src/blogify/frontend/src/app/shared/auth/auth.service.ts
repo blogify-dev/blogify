@@ -98,7 +98,8 @@ export class AuthService {
     }
 
     async register(credentials: RegisterCredentials): Promise<User> {
-        return this.httpClient.post<User>('/api/auth/signup', credentials).toPromise();
+        const resp = await this.httpClient.post<SignupPayload>('/api/auth/signup', credentials).toPromise();
+        return await this.login(resp.token)
     }
 
     observeIsLoggedIn(): Observable<boolean> {
@@ -156,4 +157,9 @@ interface UserToken {
 
 interface UserUUID {
     uuid: string;
+}
+
+interface SignupPayload {
+    user: User;
+    token: string
 }
