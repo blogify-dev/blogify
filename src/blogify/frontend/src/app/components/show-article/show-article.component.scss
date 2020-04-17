@@ -1,5 +1,5 @@
-@import "../../../styles/mixins";
-@import "../../../styles/layouts";
+@import "src/styles/mixins";
+@import "src/styles/layouts";
 
 .container-article {
     @include pageContainer(true, 80%);
@@ -26,9 +26,8 @@
             }
 
             &:not(.article-no-tags) > * { // Tags themselves
-
-                margin:    0     .45rem 0 0;
-                padding:  .25rem .75rem;
+                margin: 0 .5em 0 0;
+                padding: 0.25em 0.85em;
 
                 border-radius: $std-border-radius;
 
@@ -145,7 +144,7 @@
         flex-direction: column;
         justify-content: flex-start;
         align-items: stretch;
-        row-gap: 1.95em;
+        row-gap: 2.15em;
 
         margin-top: 1.75em;
 

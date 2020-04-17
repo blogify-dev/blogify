@@ -97,7 +97,7 @@
     }
 
     #categories-row {
-        font-size: 1.15rem;
+        font-size: 1.35rem;
 
         justify-content: flex-start;
         flex-wrap: wrap;
@@ -111,8 +111,8 @@
             width: 8em;
             flex-grow: 0;
 
-            &:not(:first-child):not(.existing) { margin-left: .25rem; }
-            padding: .25rem .75rem;
+            &:not(:first-child):not(.existing) { margin-left: .45em; }
+            padding: 0.25em 0.85em;
 
             border-radius: .5em;
 
