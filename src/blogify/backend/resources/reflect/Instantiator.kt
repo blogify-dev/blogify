@@ -1,6 +1,8 @@
 package blogify.backend.resources.reflect
 
 import blogify.backend.resources.models.Resource
+import blogify.backend.resources.reflect.extensions.isPrimitive
+import blogify.backend.resources.reflect.extensions.subTypeOf
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.resources.reflect.models.ext.ok
@@ -15,16 +17,17 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
-import com.andreapivetta.kolor.red
 import com.fasterxml.jackson.databind.module.SimpleModule
-
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 
-import com.github.kittinunf.result.coroutines.mapError
 import io.ktor.http.ContentType
 
+import com.github.kittinunf.result.coroutines.mapError
+
 import java.lang.IllegalStateException
+
+import com.andreapivetta.kolor.red
 
 //suspend inline fun <reified TMapped : Resource> KClass<TMapped>.from(dto: Dto, requestContext: RequestContext)
 //        = this.doInstantiate(dto) { requestContext.repository<TMapped>().get(requestContext, it) }
@@ -87,28 +90,39 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
             .withoutNullValues() // Drop properties not in our ctor
             // Then map it to the given value in params
             .map { (it.value to it.key) to params[it.key] }
-            .map { (parameterAndHandle ,value) -> // Do some known obvious conversions
+            .map { (parameterAndHandle, value) -> // Do some known obvious conversions
                 val (parameter, handle) = parameterAndHandle
+
+                if (value == null) {
+                    if (parameter.type.isMarkedNullable)
+                        return@map parameter to null
+                    else error("fatal: null value provided for non-nullable type of parameter ${parameter.name}")
+                }
 
                 when {
                     handle in externallyProvided -> { // Do not deserialize, it's provided !
                         parameter to value
                     }
-                    parameter.type.isSubtypeOf(Resource::class.createType()) -> { // KType of property is subtype of Resource
+                    parameter.type subTypeOf Resource::class -> { // KType of property is subtype of Resource
                         @Suppress("UNCHECKED_CAST")
                         val keyResourceType = parameter.type.classifier as KClass<Resource>
-                        val valueUUID = (value as String).toUUID()
+
+                        val valueUUID = when (value) {
+                            is String -> value.toUUID()
+                            is UUID -> value
+                            else -> never
+                        }
 
                         parameter to externalFetcher(keyResourceType, valueUUID).get()
                     }
-                    parameter.type.isSubtypeOf(UUID::class.createType()) -> { // KType of property is subtype of UUID
+                    parameter.type subTypeOf UUID::class -> { // KType of property is subtype of UUID
                         parameter to when (value) {
                             is String -> value.toUUID()
                             is UUID   -> value
                             else -> never
                         }
                     }
-                    parameter.type.isSubtypeOf(StaticResourceHandle::class.createType()) -> { // Special case for SRH, since it's a sealed class
+                    parameter.type subTypeOf StaticResourceHandle::class -> { // Special case for SRH, since it's a sealed class
                         val valueString = objectMapper.writeValueAsString(value)
                         val valueMap = objectMapper.readValue<Map<String, Any?>>(valueString)
 
@@ -122,7 +136,10 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
                             else -> never
                         }
                     }
-                    else -> { // We don't know what it is, we need to extract a JavaType and make Jackson deserialize it
+                    parameter.type.isPrimitive() -> { // KType is primitive
+                        parameter to value
+                    }
+                    else -> { // It's some other type, so we need to extract a JavaType from the parameter and make Jackson deserialize it
                         val baseTypeClass = (parameter.type.classifier as? KClass<*>)?.java
                             ?: error("fatal: found non-class base type when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
 
@@ -137,7 +154,8 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
                     }
                 }
             }.toMap().also { map ->
-                val missingParams = targetCtor.parameters subtract map.keys
+                val missingParams = targetCtor.parameters.filterNot { it.isOptional } subtract map.keys
+
                 if (missingParams.isNotEmpty())
                     throw MissingArgumentsException(*missingParams.toTypedArray())
             }
