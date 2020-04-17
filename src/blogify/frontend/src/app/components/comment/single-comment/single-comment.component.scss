@@ -23,11 +23,15 @@
         justify-content: flex-start;
         align-items: center;
 
-        .user { font-size: 1.25em; }
+        font-size: 1.25em;
+
         .timestamp {
-            margin-left: 0.5em;
-            font-size: 1.25em;
-            margin-top: 1px;
+            filter: brightness(65%);
+
+            font-size: 1.2em;
+
+            margin-left: 1em;
+            margin-top: 3px;
         }
     }
 
