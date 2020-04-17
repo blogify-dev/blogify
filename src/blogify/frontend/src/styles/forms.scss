@@ -109,7 +109,7 @@ button {
 
     cursor: pointer;
 
-    color: black;
+    color: var(--theme);
     background: var(--accent-neutral);
 
     border: 1px solid transparent;
@@ -127,7 +127,7 @@ button {
 
     // Color classes
 
-    &.neutral  { color: black; background-color: var(--accent-neutral) }
+    &.neutral  { color: var(--theme); background-color: var(--accent-neutral) }
     &.positive { color: black; background-color: var(--accent-positive); }
     &.mild     { color: black; background-color: var(--accent-mild); }
     &.negative { color: black; background-color: var(--accent-negative); }
