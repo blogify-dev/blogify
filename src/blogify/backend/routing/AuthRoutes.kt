@@ -109,16 +109,6 @@ fun Route.makeAuthRoutes(applicationContext: ApplicationContext) {
             }
         }
 
-        get("/{token}") {
-            requestContext(applicationContext) {
-                val token = param("token")
-                validateJwt(this, token).fold (
-                    success = { call.respond( object { @Suppress("unused") val uuid = it.uuid }) },
-                    failure = { call.respondExceptionMessage(Repository.Exception(BException(it))) }
-                )
-            }
-        }
-
         post("/signup") {
             requestContext(applicationContext) {
                 val credentials = call.receive<RegisterCredentials>()
