@@ -6,38 +6,32 @@ Please try to only use these colors in all other files. This ensures consistency
 
 #parent {
 
-    --body-fg: rgb(70, 70, 60);
+    --body-fg: rgb(80, 80, 80);
     --body-bg: rgb(236, 236, 236);
-    --body-ct: rgb(215, 215, 215);
+    --body-ct: rgb(217, 217, 217);
 
-    --header-fg: rgb(70, 70, 70);
-    --header-bg: rgb(238, 238, 238);
+    --header-fg: rgb(80, 80, 80);
+    --header-bg: rgb(240, 240, 240);
     --header-ct: rgb(200, 200, 200);
 
-    --card-fg: rgb(70, 70, 70);
-    --card-bg: rgb(238, 238, 238);
+    --card-fg: rgb(80, 80, 80);
+    --card-bg: rgb(239, 239, 239);
     --card-ct: rgb(230, 230, 230);
 
     --border-color: rgb(200, 200, 200);
 
-    --accent-mild:     hsl(41,  47%, 66%);
-    --accent-negative: hsl(8,   42%, 64%);
-    --accent-neutral: hsl(175,  41%, 60%);
-    --accent-positive: hsl(158, 49%, 54%);
+    --accent-mild: hsl(47, 66%, 60%);
+    --accent-negative: hsl(8, 44%, 54%);
+    --accent-neutral: hsl(216, 52%, 50%);
+    --accent-positive: hsl(136, 62%, 45%);
     --accent-gray:     hsl(240,  1%, 57%);
-
-    --toast-mild:     hsl(41,  33%, 45%);
-    --toast-negative: hsl(8,   36%, 45%);
-    --toast-neutral:  hsl(175, 41%, 45%);
-    --toast-positive: hsl(158, 49%, 45%);
-    --toast-gray:     hsl(240,  1%, 30%);
 
     --logo-filter: brightness(0) contrast(60%);
 
     &[data-theme="dark"] {
         --body-fg: rgb(252, 252, 252);
         --body-bg: rgb(35, 35, 35);
-        --body-ct: rgb(25, 25, 25);
+        --body-ct: rgb(46, 46, 46);
 
         --header-fg: rgb(245, 245, 245);
         --header-bg: rgb(50, 50, 50);

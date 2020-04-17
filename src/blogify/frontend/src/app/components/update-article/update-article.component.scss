@@ -1,12 +1,10 @@
-@import "../../../styles/forms";
-@import "../../../styles/mixins";
-@import "../../../styles/queries";
+@import "src/styles/forms";
+@import "src/styles/mixins";
+@import "src/styles/queries";
 
 #update-article {
 
     @include pageContainer(true, 80%);
-
-    margin-top: -3em;
 
     display:         flex;
     flex-direction:  column;
@@ -133,8 +131,7 @@
 
             & span { font-size: 1.15em; }
 
-            background-color: var(--header-bg);
-            border-color: var(--header-bg);
+            background-color: var(--body-ct);
         }
 
         #category-add {

@@ -1,38 +1,69 @@
-@import "../../../styles/mixins";
-@import "../../../styles/queries";
+@import "src/styles/mixins";
+@import "src/styles/layouts";
+@import "src/styles/queries";
 
 #new-article {
 
-    @include pageContainer;
+    @include pageContainer(true, 80%);
 
     display:         flex;
     flex-direction:  column;
     justify-content: stretch;
-    align-items:     flex-start;
+    align-items:     center;
 
     #title-row {
         font-size: 2.5rem;
 
+        #title-input {
+            font-weight: bold;
+
+            padding: .15em .45em;
+
+            flex-grow: 1;
+
+            border: none;
+
+            &.ng-invalid.ng-touched {
+                border: 1px solid var(--accent-negative);
+
+                border-bottom-left-radius:  0;
+                border-bottom-right-radius: 0;
+            }
+        }
+
+        column-gap: .75em;
+
         padding-bottom: 0;
         padding-top: 0;
-    }
+        padding-right: .9rem;
 
-    #author-row {
-        padding: .4em 0;
+        background-color: var(--card-bg);
+
+        border-top-left-radius:  $std-border-radius;
+        border-top-right-radius: $std-border-radius;
+        border: 1px solid var(--border-color);
     }
 
     #summary-row {
         font-size: 1.3rem;
+
+        margin-top: 0 !important;
+
+        & > #summary-input { border-top-left-radius: 0; border-top-right-radius: 0; }
     }
 
-    #content-row > textarea {
-        &::placeholder {
-            font-size: 1.3rem;
-            font-weight: bold;
-        }
+    #content-row {
+        margin-top: 2.9em;
 
-        font-size: 1.25em;
-        font-weight: normal;
+        textarea {
+            &::placeholder {
+                font-size: 1.3rem;
+                font-weight: bold;
+            }
+
+            font-size: 1.25em;
+            font-weight: normal;
+        }
     }
 
     #categories-row {
@@ -66,8 +97,7 @@
 
             & span { font-size: 1.25em; }
 
-            background-color: var(--header-bg);
-            border-color: var(--header-bg);
+            background-color: var(--body-ct);
         }
 
         #category-add {

@@ -12,15 +12,13 @@
     </div>
 
     <span class="data-row" id="title-row">
-        <input [formControl]="formTitle" placeholder="Title">
+        <input id="title-input" [formControl]="formTitle" placeholder="Title" />
+
+        <app-user-display info="username" [user]="user" emSize=".95" sizeRatio="1.25"></app-user-display>
     </span>
 
     <span class="data-row" id="summary-row">
         <input [formControl]="formSummary" placeholder="Summary">
-    </span>
-
-    <span class="data-row" id="author-row">
-        <app-user-display info="username" [user]="user" emSize="2.75"></app-user-display>
     </span>
 
     <span class="data-row" id="content-row">

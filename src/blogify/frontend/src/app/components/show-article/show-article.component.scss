@@ -32,7 +32,7 @@
 
                 border-radius: $std-border-radius;
 
-                background-color: var(--header-bg);
+                background-color: var(--body-ct);
                 &:first-child { margin-left: 0; }
                 &:last-child  { margin-right: 0; }
             }

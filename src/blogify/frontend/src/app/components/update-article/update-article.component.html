@@ -1,5 +1,5 @@
 <!--suppress HtmlFormInputWithoutLabel -->
-<div id="update-article" *ngIf="user != undefined" [formGroup]="form">
+<div id="update-article" *ngIf="this.user && this.article" [formGroup]="form">
 
     <div class="data-row" id="categories-row" formArrayName="categories">
 
