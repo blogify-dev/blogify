@@ -10,12 +10,8 @@ import blogify.backend.events.models.EventSource
 import blogify.backend.events.models.EventType
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
-import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.UserCreatedResource
 
-import com.fasterxml.jackson.annotation.JsonIdentityReference
-import com.fasterxml.jackson.annotation.JsonIdentityInfo
-import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import java.time.Instant
 
 import java.util.UUID

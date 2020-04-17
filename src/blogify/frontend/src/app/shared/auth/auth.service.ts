@@ -1,6 +1,6 @@
 /* tslint:disable:variable-name */
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StaticFile } from '../../models/Static';
@@ -69,7 +69,7 @@ export class AuthService {
     async login(creds: LoginCredentials | string): Promise<User> {
         const token = (typeof creds === 'string') ? creds :
             (await this.httpClient.post<UserToken>('/api/auth/signin', creds, {responseType: 'json'})
-                .toPromise()).token
+                .toPromise()).token;
 
         const httpOptions = {
             headers: new HttpHeaders({
@@ -99,7 +99,8 @@ export class AuthService {
 
     async register(credentials: RegisterCredentials): Promise<User> {
         const resp = await this.httpClient.post<SignupPayload>('/api/auth/signup', credentials).toPromise();
-        return await this.login(resp.token)
+
+        return await this.login(resp.token);
     }
 
     observeIsLoggedIn(): Observable<boolean> {
@@ -161,5 +162,5 @@ interface UserUUID {
 
 interface SignupPayload {
     user: User;
-    token: string
+    token: string;
 }
