@@ -1,6 +1,6 @@
 /* tslint:disable:variable-name */
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StaticFile } from '../../models/Static';
@@ -51,12 +51,8 @@ export class AuthService {
     private currentUser_ = new BehaviorSubject(this.dummyUser);
     private loginObservable_ = new BehaviorSubject<boolean>(false);
 
-    private static attemptFindLocalToken(): string | null {
-        return localStorage.getItem('userToken');
-    }
-
     private attemptRestoreLogin() {
-        const token = AuthService.attemptFindLocalToken();
+        const token = this.userToken;
         if (token == null) {
             console.info('[blogifyAuth] No stored token');
         } else {
@@ -70,40 +66,28 @@ export class AuthService {
         }
     }
 
-    async login(creds: LoginCredentials | string): Promise<UserToken> {
+    async login(creds: LoginCredentials | string): Promise<User> {
+        const token = (typeof creds === 'string') ? creds :
+            (await this.httpClient.post<UserToken>('/api/auth/signin', creds, {responseType: 'json'})
+                .toPromise()).token
 
-        let token: Observable<UserToken>;
-        let it: UserToken;
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            }),
+        };
 
-        if (typeof creds !== 'string') { // user / password
-            token = this.httpClient.post<UserToken>('/api/auth/signin', creds, { responseType: 'json' });
-            it = await token.toPromise();
+        const user = await this.httpClient.get<User>('/api/users/me/', httpOptions).toPromise();
 
-            localStorage.setItem('userToken', it.token);
-        } else { // token
-            it = { token: creds };
-        }
+        // We have reached a point where `token` is valid so we populate the cache with it
+        localStorage.setItem('userToken', token);
 
-        const uuid = await this.getUserUUIDFromToken(it.token);
-
-        // Fix JS bullshit
-        const fetchedUserObj: User = await this.fetchUser(uuid);
-        const fetchedUser = new User (
-            fetchedUserObj.uuid,
-            fetchedUserObj.username,
-            fetchedUserObj.name,
-            fetchedUserObj.email,
-            fetchedUserObj.followers,
-            fetchedUserObj.isAdmin,
-            fetchedUserObj.profilePicture,
-            fetchedUserObj.coverPicture,
-        );
-
-        this.currentUser_.next(fetchedUser);
-        this.currentUserUuid_.next(fetchedUser.uuid);
+        this.currentUser_.next(user);
+        this.currentUserUuid_.next(user.uuid);
         this.loginObservable_.next(true);
 
-        return it;
+        return user;
     }
 
     logout() {
@@ -114,11 +98,12 @@ export class AuthService {
     }
 
     async register(credentials: RegisterCredentials): Promise<User> {
-        return this.httpClient.post<User>('/api/auth/signup', credentials).toPromise();
+        const resp = await this.httpClient.post<SignupPayload>('/api/auth/signup', credentials).toPromise();
+        return await this.login(resp.token)
     }
 
     observeIsLoggedIn(): Observable<boolean> {
-        return this.loginObservable_;
+        return this.loginObservable_.asObservable();
     }
 
     private async getUserUUIDFromToken(token: string): Promise<string> {
@@ -172,4 +157,9 @@ interface UserToken {
 
 interface UserUUID {
     uuid: string;
+}
+
+interface SignupPayload {
+    user: User;
+    token: string
 }

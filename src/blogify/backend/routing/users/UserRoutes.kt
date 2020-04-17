@@ -23,6 +23,7 @@ import blogify.backend.pipelines.*
 import blogify.backend.util.getOrNull
 import blogify.backend.util.never
 import blogify.backend.util.toUUID
+import com.andreapivetta.kolor.magenta
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
@@ -149,6 +150,14 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
         }
 
         route("/me") {
+            get {
+                requestContext(applicationContext) {
+                    runAuthenticated { user ->
+                        call.respond(optionalParam("fields")?.split(",")?.toSet()?.let { user.slice(it) }
+                                ?: user.sanitize(excludeUndisplayed = true))
+                    }
+                }
+            }
 
             get("/notifications") {
                 requestContext(applicationContext) {
