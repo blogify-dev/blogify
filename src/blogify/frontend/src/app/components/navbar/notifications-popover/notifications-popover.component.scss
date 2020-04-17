@@ -6,12 +6,19 @@
 
     top: 6.5em;
     right: 1.25em;
+
+    @media (max-width: $query-desktop) {
+        top: 5.5em;
+        right: 0;
+    }
 }
 
 #notifications-popover {
-    width: 100vw;
-    @media (min-width: $query-desktop) {
-        width: 27vw;
+    width: 27vw;
+
+    @media (max-width: $query-desktop) {
+        width: 100vw;
+        box-shadow: none;
     }
 
     display: flex;
