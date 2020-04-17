@@ -18,7 +18,7 @@
         <div id="title-row">
             <h1 id="title">{{article.title}}</h1>
 
-            <app-user-display id="user" [user]="article.createdBy" emSize="1.7"></app-user-display>
+            <app-user-display id="user" class="clickable" [user]="article.createdBy" emSize="1.7"></app-user-display>
         </div>
 
         <!-- Summary -->
@@ -53,14 +53,14 @@
 
             <div id="icons-right">
                 <!-- Share button -->
-                <a id="button-share" class="clickable hover-positive" (click)="copyUrlToClipboard()">
+                <a id="button-share" class="clickable" (click)="copyUrlToClipboard()">
                     <fa-icon [icon]="faCopy" size="2x" [transform]="{ size: 13, y: 0 }"></fa-icon>
                 </a>
 
                 <span class="separator" *ngIf="loggedInObs | async"></span>
 
                 <!-- Update button -->
-                <a id="button-update" class="clickable hover-positive" routerLink="/article/update/{{article.uuid}}" *ngIf="isLoggedInUsersArticle">
+                <a id="button-update" class="clickable" routerLink="/article/update/{{article.uuid}}" *ngIf="isLoggedInUsersArticle">
                     <fa-icon [icon]="faEdit" size="2x" [transform]="{ size: 13, y: 0 }"></fa-icon>
                 </a>
 
