@@ -5,8 +5,7 @@ import { ArticleService } from '../../../services/article/article.service';
 import { AuthService } from '../../auth/auth.service';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { StaticContentService } from '../../../services/static/static-content.service';
-import { faArrowLeft, faPencilAlt, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { faArrowAltCircleDown } from '@fortawesome/free-regular-svg-icons';
+import { faArrowDown, faArrowLeft, faPencilAlt, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { User } from '../../../models/User';
 import { Shadow } from '../../../models/Shadow';
 
@@ -27,7 +26,7 @@ export class ShowAllArticlesComponent implements OnInit {
     faPencil = faPencilAlt;
     faArrowLeft = faArrowLeft;
     faTimes = faTimes;
-    faArrowAltCircleDown = faArrowAltCircleDown;
+    faArrowDown = faArrowDown;
 
     @Input() title = 'Articles';
     @Input() listingQuery: ListingQuery<Article> & { byUser?: Shadow<User> } = new ListingQuery(10, 0, this.REQUIRED_FIELDS);

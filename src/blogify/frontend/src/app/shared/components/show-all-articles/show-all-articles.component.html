@@ -45,7 +45,7 @@
         <app-single-article-box *ngFor="let article of articles" [article]="article"></app-single-article-box>
 
         <span id="next-page" class="clickable" (click)="loadPage()" *ngIf="moreAvailable">
-            <fa-icon [icon]="faArrowAltCircleDown" [transform]="{ size: 22, y: 1 }"></fa-icon>
+            <fa-icon [icon]="faArrowDown" [transform]="{ size: 18, y: 1 }"></fa-icon>
 
             Load More
         </span>
