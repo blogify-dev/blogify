@@ -7,7 +7,6 @@ import { Notification } from '../../../models/Notification';
 import { ArticleCommentReplyPayload, CommentReplyPayload, CommentsService } from '../../../services/comments/comments.service';
 import { idOf } from '../../../models/Shadow';
 import { ArticleService } from '../../../services/article/article.service';
-import { concatAll, concatMap, map, merge, mergeMap } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
@@ -54,7 +53,7 @@ export class NotificationsService {
 
                 const newComment = await this.commentsService.getCommentByUUID(payload.newComment);
                 const author = await this.authService.fetchUser(idOf(newComment.commenter));
-                const article = await this.articleService.getArticleByUUID(payload.onArticle);
+                const article = await this.articleService.fetchOrGetArticle(payload.onArticle);
 
                 notification = {
                     icon: author.profilePicture,

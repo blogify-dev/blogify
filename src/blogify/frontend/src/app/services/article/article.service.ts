@@ -7,6 +7,8 @@ import * as uuid from 'uuid/v4';
 import { User } from '../../models/User';
 import { SearchView } from '../../models/SearchView';
 import { idOf, Shadow } from '../../models/Shadow';
+import {StateService} from "../../shared/services/state/state.service";
+import {UserService} from "../../shared/services/user-service/user.service";
 
 interface ListingResult { data: Article[]; moreAvailable: boolean; }
 
@@ -15,14 +17,17 @@ interface ListingResult { data: Article[]; moreAvailable: boolean; }
 })
 export class ArticleService {
 
-    constructor(private httpClient: HttpClient, private authService: AuthService) {}
+    constructor(private httpClient: HttpClient,
+                private authService: AuthService,
+                private state: StateService,
+                private userService: UserService) {    }
 
     private async fetchUserObjects(articles: Article[]): Promise<Article[]> {
         const userUUIDs = new Set([...articles
             .filter (it => typeof it.createdBy === 'string')
             .map    (it => it.createdBy as string)]); // Converting to a Set makes sure a single UUID is not fetched more than once
         const userObjects = await Promise.all (
-            [...userUUIDs].map(it => this.authService.fetchUser(it))
+            [...userUUIDs].map(it => this.userService.fetchOrGetUser(it))
         );
         return articles.map(a => {
             a.createdBy = userObjects
@@ -53,31 +58,44 @@ export class ArticleService {
     }
 
     private async prepareArticleData(articles: Article[]): Promise<Article[]> {
-        return this
-            .fetchUserObjects(articles)
+        const out = []
+        const toFetch = []
+        articles.forEach(article => {
+            const fromCache = this.state.getArticle(article.uuid)
+            if (fromCache === null)
+                toFetch.push(article)
+            else
+                out.push(fromCache)
+        })
+        const fetched = await this
+            .fetchUserObjects(toFetch)
             .then(a => this.authService.userToken ? this.fetchLikeStatus(a, this.authService.userToken) : a);
-    }
-
-    async getAllArticles(fields: string[] = [], amount: number = 25): Promise<Article[]> {
-        const articlesObs = this.httpClient.get<Article[]>(`/api/articles/?fields=${fields.join(',')}&amount=${amount}`);
-        const articles = await articlesObs.toPromise();
-
-        return this.prepareArticleData(articles);
+        fetched.forEach(it => {
+            this.state.cacheArticle(it)
+            out.push(it)
+        })
+        return out
     }
 
     async getArticlesByListing(listing: ListingQuery<Article>): Promise<ListingResult> {
         const listingObservable = this.httpClient.get<ListingResult>(`/api/articles/?quantity=${listing.quantity}&page=${listing.page}`);
         const result = await listingObservable.toPromise();
+        const prepared = await this.prepareArticleData(result.data);
+        prepared.forEach(article => this.state.cacheArticle(article))
 
-        return { data: await this.prepareArticleData(result.data), moreAvailable: result.moreAvailable };
+        return { data: prepared, moreAvailable: result.moreAvailable };
     }
 
-    async getArticleByUUID(articleUuid: string, fields: (keyof Article)[] = []): Promise<Article> {
-
-        const actualFieldsString: string = fields.length === 0 ? '' : `?fields=${fields.join(',')}`;
-
-        const article =  await this.httpClient.get<Article>(`/api/articles/${articleUuid}${actualFieldsString}`).toPromise();
-        article.createdBy = await this.authService.fetchUser(article.createdBy.toString());
+    async fetchOrGetArticle(articleUuid: string): Promise<Article> {
+        const cached = this.state.getArticle(articleUuid)
+        if (cached) {
+            console.log(`[article ${articleUuid}]: returning from cache`)
+            return cached
+        }
+        const article =  await this.httpClient.get<Article>(`/api/articles/${articleUuid}`).toPromise();
+        article.createdBy = await this.userService.fetchOrGetUser(article.createdBy.toString())
+        console.log(`[article ${articleUuid}]: fetched`)
+        this.state.cacheArticle(article)
         return article;
     }
 

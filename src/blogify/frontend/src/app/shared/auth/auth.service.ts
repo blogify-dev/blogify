@@ -6,6 +6,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { StaticFile } from '../../models/Static';
 import { StaticContentService } from '../../services/static/static-content.service';
 import { SearchView } from '../../models/SearchView';
+import {StateService} from "../services/state/state.service";
+import {UserService} from "../services/user-service/user.service";
 
 @Injectable({
     providedIn: 'root'
@@ -15,6 +17,8 @@ export class AuthService {
     constructor (
         private httpClient: HttpClient,
         private staticContentService: StaticContentService,
+        private stateService: StateService,
+        private userService: UserService,
     ) {
         this.attemptRestoreLogin();
     }
@@ -114,14 +118,22 @@ export class AuthService {
     }
 
     async fetchUser(uuid: string): Promise<User> {
-        return this.httpClient.get<User>(`/api/users/${uuid}`).toPromise();
+        const cached = this.stateService.getUser(uuid)
+        if (cached) {
+            console.log(`[user ${uuid}]: returning from cache`)
+            return cached
+        }
+        const fetched = await this.httpClient.get<User>(`/api/users/${uuid}`).toPromise();
+        this.stateService.cacheUser(fetched)
+        console.log(`[user ${uuid}]: fetching`)
+        return fetched
     }
 
     private async getUser(): Promise<User> {
         if (this.currentUser_.getValue().uuid !== '') {
             return this.currentUser_.getValue();
         } else {
-            return this.fetchUser(await this.userUUID);
+            return this.userService.fetchOrGetUser(await this.userUUID);
         }
     }
 
@@ -147,7 +159,7 @@ export class AuthService {
     }
 
     async fillUsersFromUUIDs(uuids: string[]): Promise<User[]> {
-        return Promise.all(uuids.map(it => this.fetchUser(it)));
+        return Promise.all(uuids.map(it => this.userService.fetchOrGetUser(it)));
     }
 
 }

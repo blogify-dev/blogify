@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Comment } from '../../../models/Comment';
 import { AuthService } from '../../../shared/auth/auth.service';
-import { CommentsService, CommentTreeListing } from '../../../services/comments/comments.service';
+import { CommentsService} from '../../../services/comments/comments.service';
 import { ArticleService } from '../../../services/article/article.service';
 import { faCommentAlt, faHeart, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
-import { faArrowCircleDown, faArrowDown, faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
 import { idOf } from '../../../models/Shadow';
 import { ListingQuery } from '../../../models/ListingQuery';
+import {UserService} from "../../../shared/services/user-service/user.service";
 
 @Component({
   selector: 'app-single-comment',
@@ -39,6 +40,7 @@ export class SingleCommentComponent implements OnInit {
         private authService: AuthService,
         private commentsService: CommentsService,
         private articleService: ArticleService,
+        private userService: UserService
     ) {}
 
     /**
@@ -61,7 +63,7 @@ export class SingleCommentComponent implements OnInit {
         if (this.parent && this.parent.commenter === this.comment.commenter) {
             this.comment.commenter = this.parent.commenter;
         } else if (typeof this.comment.commenter === 'string') {
-            this.comment.commenter = await this.authService.fetchUser(this.comment.commenter);
+            this.comment.commenter = await this.userService.fetchOrGetUser(this.comment.commenter);
         }
 
         // Article is always the same as parent
@@ -69,7 +71,7 @@ export class SingleCommentComponent implements OnInit {
         if (this.parent) {
             this.comment.article = this.parent.article;
         } else if (typeof this.comment.article === 'string') {
-            this.comment.article = await this.articleService.getArticleByUUID(this.comment.article);
+            this.comment.article = await this.articleService.fetchOrGetArticle(this.comment.article);
         }
 
         // Make sure our children array is not undefined

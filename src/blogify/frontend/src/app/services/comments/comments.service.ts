@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ListingQuery } from '../../models/ListingQuery';
 import { idOf, Shadow } from '../../models/Shadow';
 import { Comment } from '../../models/Comment';
 import { Article } from '../../models/Article';
 import { BehaviorSubject } from 'rxjs';
 import { AuthService } from '../../shared/auth/auth.service';
+import {UserService} from "../../shared/services/user-service/user.service";
 
 @Injectable({
     providedIn: 'root'
@@ -14,7 +15,8 @@ export class CommentsService {
 
     private commentsFromServer = new BehaviorSubject<Comment>(undefined);
 
-    constructor(private httpClient: HttpClient, private authService: AuthService) {}
+    constructor(private httpClient: HttpClient, private authService: AuthService,        private userService: UserService,
+    ) {}
 
     private readonly ENDPOINT = '/api/articles/comments';
 
@@ -49,7 +51,7 @@ export class CommentsService {
     async getCommentByUUID(uuid: string): Promise<Comment> {
         const comment = await this.httpClient.get<Comment>(`${this.ENDPOINT}/${uuid}`).toPromise();
 
-        comment.commenter = await this.authService.fetchUser(comment.commenter.toString());
+        comment.commenter = await this.userService.fetchOrGetUser(comment.commenter.toString());
         if (!comment.children) comment.children = { data: [], moreAvailable: false };
 
         return comment;
