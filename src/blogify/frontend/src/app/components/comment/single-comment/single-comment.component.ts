@@ -48,11 +48,9 @@ export class SingleCommentComponent implements OnInit {
         ['uuid', 'commenter', 'article', 'content', 'likeCount', 'createdAt', 'parentComment'];
 
     /**
-     * Use this listing for loading comments
+     * Use this listing for loading child comments. Page 0 is fine since we only load page 1 and further with it and never pagee 0
      */
     listingQuery = { ...(new ListingQuery<Comment>(10, 0, this.REQUIRED_FIELDS)), depth: 9 };
-
-    treeListing: CommentTreeListing;
 
     loggedInObs = this.authService.observeIsLoggedIn();
 
