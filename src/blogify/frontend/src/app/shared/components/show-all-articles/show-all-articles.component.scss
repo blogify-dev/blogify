@@ -28,8 +28,6 @@
             flex-grow: 1;
             font-size: 1.25em;
 
-            margin-right: 1.6em;
-
             &#header-search-pad {
                 @media (min-width: 0) and (max-width: $search-icon-break) {
                     display: none;
@@ -39,7 +37,6 @@
 
         #header-search-icon {
             margin-left: auto;
-            margin-right: 2.4em;
 
             @media (min-width: $search-icon-break) {
                 display: none;
@@ -47,6 +44,7 @@
         }
 
         #header-create-btn {
+            margin-left: 1.75em;
             margin-right: 1em;
 
             cursor: pointer;
