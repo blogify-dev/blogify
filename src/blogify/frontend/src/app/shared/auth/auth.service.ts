@@ -6,8 +6,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { StaticFile } from '../../models/Static';
 import { StaticContentService } from '../../services/static/static-content.service';
 import { SearchView } from '../../models/SearchView';
-import {StateService} from "../services/state/state.service";
-import {UserService} from "../services/user-service/user.service";
+import { StateService } from '../services/state/state.service';
+import { UserService } from '../services/user-service/user.service';
 
 @Injectable({
     providedIn: 'root'
@@ -83,6 +83,7 @@ export class AuthService {
         };
 
         const user = await this.httpClient.get<User>('/api/users/me/', httpOptions).toPromise();
+        this.stateService.cacheUser(user);
 
         // We have reached a point where `token` is valid so we populate the cache with it
         localStorage.setItem('userToken', token);
@@ -117,23 +118,11 @@ export class AuthService {
         return uuid.uuid;
     }
 
-    async fetchUser(uuid: string): Promise<User> {
-        const cached = this.stateService.getUser(uuid)
-        if (cached) {
-            console.log(`[user ${uuid}]: returning from cache`)
-            return cached
-        }
-        const fetched = await this.httpClient.get<User>(`/api/users/${uuid}`).toPromise();
-        this.stateService.cacheUser(fetched)
-        console.log(`[user ${uuid}]: fetching`)
-        return fetched
-    }
-
     private async getUser(): Promise<User> {
         if (this.currentUser_.getValue().uuid !== '') {
             return this.currentUser_.getValue();
         } else {
-            return this.userService.fetchOrGetUser(await this.userUUID);
+            return this.userService.getUser(await this.userUUID);
         }
     }
 
@@ -159,7 +148,7 @@ export class AuthService {
     }
 
     async fillUsersFromUUIDs(uuids: string[]): Promise<User[]> {
-        return Promise.all(uuids.map(it => this.userService.fetchOrGetUser(it)));
+        return Promise.all(uuids.map(it => this.userService.getUser(it)));
     }
 
 }
