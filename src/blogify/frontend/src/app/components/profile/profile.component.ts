@@ -15,34 +15,19 @@ import { MainProfileComponent } from './profile/main/main-profile.component';
 })
 export class ProfileComponent implements OnInit, OnDestroy {
 
-    profileTabs: TabList = [
-        new Tab('Overview', '/overview'),
-        new Tab('Settings', '/settings'),
-        new Tab('Chat', '/chat')
-    ];
-
     routeMapSubscription: Subscription;
     user: User;
-    articles: Article[];
 
     constructor (
         private activatedRoute: ActivatedRoute,
         private authService: AuthService,
-        private articleService: ArticleService,
     ) {}
 
     async ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
-
             const username = map.get('username');
 
             this.user = await this.authService.getByUsername(username);
-
-            this.articleService.getArticleByForUser(username,
-                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
-            ).then(it => {
-                this.articles = it;
-            });
         });
     }
 

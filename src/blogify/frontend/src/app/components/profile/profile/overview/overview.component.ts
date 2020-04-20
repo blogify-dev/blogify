@@ -5,6 +5,7 @@ import { ArticleService } from '../../../../services/article/article.service';
 import { AuthService } from '../../../../shared/auth/auth.service';
 import { ActivatedRoute, Params } from '@angular/router';
 import { User } from '../../../../models/User';
+import { Shadow } from '../../../../models/Shadow';
 
 @Component({
     selector: 'app-overview',
@@ -14,7 +15,7 @@ import { User } from '../../../../models/User';
 export class OverviewComponent implements OnInit {
 
     forUser: User;
-    listing: ListingQuery<Article>;
+    listing: ListingQuery<Article> & { byUser?: Shadow<User> };
 
     constructor (
         private articleService: ArticleService,
@@ -28,7 +29,7 @@ export class OverviewComponent implements OnInit {
 
             this.authService.getByUsername(username).then(user => {{
                 this.forUser = user;
-                this.listing = new ListingQuery(15, 0);
+                this.listing = { ...new ListingQuery(15, 0), byUser: this.forUser };
             }});
         });
     }

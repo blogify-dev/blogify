@@ -6,6 +6,7 @@ import { AuthService } from '../../shared/auth/auth.service';
 import * as uuid from 'uuid/v4';
 import { User } from '../../models/User';
 import { SearchView } from '../../models/SearchView';
+import { idOf, Shadow } from '../../models/Shadow';
 
 interface ListingResult { data: Article[]; moreAvailable: boolean; }
 
@@ -64,7 +65,7 @@ export class ArticleService {
         return this.prepareArticleData(articles);
     }
 
-    async getArticlesByListing(fields: (keyof Article)[] = [], listing: ListingQuery<Article>): Promise<ListingResult> {
+    async getArticlesByListing(listing: ListingQuery<Article>): Promise<ListingResult> {
         const listingObservable = this.httpClient.get<ListingResult>(`/api/articles/?quantity=${listing.quantity}&page=${listing.page}`);
         const result = await listingObservable.toPromise();
 
@@ -80,9 +81,11 @@ export class ArticleService {
         return article;
     }
 
-    async getArticleByForUser(username: string, fields: (keyof Article)[] = []): Promise<Article[]> {
-        const articles = await this.httpClient.get<Article[]>(`/api/articles/forUser/${username}?fields=${fields.join(',')}`).toPromise();
-        return this.prepareArticleData(articles);
+    async getArticleByListingForUser(listing: ListingQuery<Article> & { byUser?: Shadow<User> }): Promise<ListingResult> {
+        const listingObservable = this.httpClient.get<ListingResult>(`/api/articles/user/${idOf(listing.byUser)}/?quantity=${listing.quantity}&page=${listing.page}`);
+        const result = await listingObservable.toPromise();
+
+        return { data: await this.prepareArticleData(result.data), moreAvailable: result.moreAvailable };
     }
 
     async createNewArticle(article: Article, userToken: string = this.authService.userToken): Promise<any> {

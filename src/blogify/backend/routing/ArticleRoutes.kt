@@ -9,17 +9,13 @@ import blogify.backend.database.handling.query
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.models.eqr
-import blogify.backend.resources.reflect.cachedPropMap
-import blogify.backend.resources.reflect.models.ext.ok
-import blogify.backend.resources.reflect.sanitize
-import blogify.backend.resources.reflect.slice
 import blogify.backend.pipelines.obtainResource
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.requestContext
-import blogify.backend.resources.User
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
-import blogify.backend.persistence.models.Repository
+import blogify.backend.pipelines.queryUuid
+import blogify.backend.resources.reflect.extensions.okHandle
 import blogify.backend.routing.handling.*
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
@@ -38,6 +34,20 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         get("/") {
             requestContext(applicationContext) {
                 fetchResourceListing<Article>(orderBy = Articles.isPinned, sortOrder = SortOrder.DESC)
+            }
+        }
+
+        get("/user/{uuid}") {
+            requestContext(applicationContext) {
+                val id by queryUuid
+
+                fetchResourceListing<Article> (
+                    orderBy = Articles.isPinned,
+                    sortOrder = SortOrder.DESC,
+                    selectCondition = {
+                        Articles.createdBy eq id
+                    }
+                )
             }
         }
 
@@ -114,34 +124,6 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
             }
         }
 
-        get("/forUser/{username}") {
-            requestContext(applicationContext) {
-                val params = call.parameters
-                val username = params["username"] ?: error("Username is null")
-                val selectedPropertyNames = params["fields"]?.split(",")?.toSet()
-
-                repository<User>().getMatching { Users.username eq username }.fold(
-                    success = {
-                        repository<Article>().getMatching { Articles.createdBy eq it.single().uuid }.fold(
-                            success = { articles ->
-                                try {
-                                    selectedPropertyNames?.let { props ->
-
-                                        call.respond(articles.map { it.slice(props) })
-
-                                    } ?: call.respond(articles.map { it.sanitize() })
-                                } catch (bruhMoment: Repository.Exception) {
-                                    call.respondExceptionMessage(bruhMoment)
-                                }
-                            },
-                            failure = { call.respondExceptionMessage(it) }
-                        )
-                    },
-                    failure = { call.respondExceptionMessage(it) }
-                )
-            }
-        }
-
         delete("/{uuid}") {
             requestContext(applicationContext) {
                 deleteResource<Article> (
@@ -172,7 +154,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
                 val user = call.parameters["byUser"]?.toUUID()
 
                 if (user != null) {
-                    val userHandle = Article::class.cachedPropMap().ok()["createdBy"] ?: error("a")
+                    val userHandle = Article::createdBy.okHandle ?: error("a")
                     call.respond(Typesense.search<Article>(query, mapOf(userHandle to user)).asSearchView(this))
                 } else {
                     call.respond(Typesense.search<Article>(query).asSearchView(this))

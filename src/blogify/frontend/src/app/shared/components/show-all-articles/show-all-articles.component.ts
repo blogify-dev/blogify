@@ -7,6 +7,8 @@ import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { StaticContentService } from '../../../services/static/static-content.service';
 import { faArrowLeft, faPencilAlt, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { faArrowAltCircleDown } from '@fortawesome/free-regular-svg-icons';
+import { User } from '../../../models/User';
+import { Shadow } from '../../../models/Shadow';
 
 @Component({
     selector: 'app-show-all-articles',
@@ -15,6 +17,12 @@ import { faArrowAltCircleDown } from '@fortawesome/free-regular-svg-icons';
 })
 export class ShowAllArticlesComponent implements OnInit {
 
+    /**
+     * Stores the properties of {@link Article} that are needed for display in this component
+     */
+    private readonly REQUIRED_FIELDS: (keyof Article)[] =
+        ['title', 'summary', 'createdAt', 'createdBy', 'categories', 'likeCount', 'commentCount'];
+
     faSearch = faSearch;
     faPencil = faPencilAlt;
     faArrowLeft = faArrowLeft;
@@ -22,7 +30,7 @@ export class ShowAllArticlesComponent implements OnInit {
     faArrowAltCircleDown = faArrowAltCircleDown;
 
     @Input() title = 'Articles';
-    @Input() listingQuery = new ListingQuery(10, 0);
+    @Input() listingQuery: ListingQuery<Article> & { byUser?: Shadow<User> } = new ListingQuery(10, 0, this.REQUIRED_FIELDS);
     @Input() noContentMessage = 'Nothing to see here !';
     @Input() noResultsMessage = 'No search results :(';
     @Input() allowCreate = true;
@@ -45,12 +53,6 @@ export class ShowAllArticlesComponent implements OnInit {
         private router: Router,
     ) {}
 
-    /**
-     * Stores the properties of {@link Article} that are needed for display in this component
-     */
-    private readonly REQUIRED_FIELDS: (keyof Article)[] =
-        ['title', 'summary', 'createdAt', 'createdBy', 'categories', 'likeCount', 'commentCount'];
-
     ngOnInit() {
         this.activatedRoute.url.subscribe((it: UrlSegment[]) => {
             const isSearching = it[it.length - 1].parameters.search !== undefined;
@@ -66,8 +68,12 @@ export class ShowAllArticlesComponent implements OnInit {
                 // noinspection JSIgnoredPromiseFromCall
                 this.stopSearch();
 
-                this.articleService.getArticlesByListing(this.REQUIRED_FIELDS, this.listingQuery)
-                    .then(result => ({ data: this.articles, moreAvailable: this.moreAvailable } = result));
+                if (this.listingQuery.byUser)
+                    this.articleService.getArticleByListingForUser(this.listingQuery)
+                        .then(result => ({ data: this.articles, moreAvailable: this.moreAvailable } = result));
+                 else
+                    this.articleService.getArticlesByListing(this.listingQuery)
+                        .then(result => ({ data: this.articles, moreAvailable: this.moreAvailable } = result));
             }
         });
     }
@@ -75,11 +81,18 @@ export class ShowAllArticlesComponent implements OnInit {
     loadPage() {
         this.listingQuery.page++;
 
-        this.articleService.getArticlesByListing(this.REQUIRED_FIELDS, this.listingQuery)
-            .then(result => {
-                this.articles.push(...result.data);
-                this.moreAvailable = result.moreAvailable;
-            });
+        if (this.listingQuery.byUser)
+            this.articleService.getArticleByListingForUser(this.listingQuery)
+                .then(result => {
+                    this.articles.push(...result.data);
+                    this.moreAvailable = result.moreAvailable;
+                });
+        else
+            this.articleService.getArticlesByListing(this.listingQuery)
+                .then(result => {
+                    this.articles.push(...result.data);
+                    this.moreAvailable = result.moreAvailable;
+                });
     }
 
     async navigateToSearch() {
