@@ -69,10 +69,10 @@ export class ShowAllArticlesComponent implements OnInit {
                 this.stopSearch();
 
                 if (this.listingQuery.byUser)
-                    this.articleService.getArticleByListingForUser(this.listingQuery)
+                    this.articleService.queryArticleListingForUser(this.listingQuery)
                         .then(result => ({ data: this.articles, moreAvailable: this.moreAvailable } = result));
                  else
-                    this.articleService.getArticlesByListing(this.listingQuery)
+                    this.articleService.queryArticleListing(this.listingQuery)
                         .then(result => ({ data: this.articles, moreAvailable: this.moreAvailable } = result));
             }
         });
@@ -82,13 +82,13 @@ export class ShowAllArticlesComponent implements OnInit {
         this.listingQuery.page++;
 
         if (this.listingQuery.byUser)
-            this.articleService.getArticleByListingForUser(this.listingQuery)
+            this.articleService.queryArticleListingForUser(this.listingQuery)
                 .then(result => {
                     this.articles.push(...result.data);
                     this.moreAvailable = result.moreAvailable;
                 });
         else
-            this.articleService.getArticlesByListing(this.listingQuery)
+            this.articleService.queryArticleListing(this.listingQuery)
                 .then(result => {
                     this.articles.push(...result.data);
                     this.moreAvailable = result.moreAvailable;

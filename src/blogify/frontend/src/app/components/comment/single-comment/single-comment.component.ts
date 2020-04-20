@@ -63,7 +63,7 @@ export class SingleCommentComponent implements OnInit {
         if (this.parent && this.parent.commenter === this.comment.commenter) {
             this.comment.commenter = this.parent.commenter;
         } else if (typeof this.comment.commenter === 'string') {
-            this.comment.commenter = await this.userService.fetchOrGetUser(this.comment.commenter);
+            this.comment.commenter = await this.userService.getUser(this.comment.commenter);
         }
 
         // Article is always the same as parent
@@ -71,7 +71,7 @@ export class SingleCommentComponent implements OnInit {
         if (this.parent) {
             this.comment.article = this.parent.article;
         } else if (typeof this.comment.article === 'string') {
-            this.comment.article = await this.articleService.fetchOrGetArticle(this.comment.article);
+            this.comment.article = await this.articleService.getArticle(this.comment.article);
         }
 
         // Make sure our children array is not undefined

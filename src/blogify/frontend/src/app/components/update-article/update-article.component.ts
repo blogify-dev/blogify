@@ -57,7 +57,7 @@ export class UpdateArticleComponent implements OnInit {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const articleUUID = map.get('uuid');
 
-            this.article = await this.articleService.fetchOrGetArticle (articleUUID,);
+            this.article = await this.articleService.getArticle (articleUUID,);
 
             this.article.categories.forEach((cat: Category) => this.formCategories.push(new FormControl(cat.name)));
 

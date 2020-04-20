@@ -46,26 +46,23 @@ export class ShowArticleComponent implements OnInit {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const articleUUID = map.get('uuid');
 
-            this.article = await this.articleService.fetchOrGetArticle (articleUUID,);
+            this.article = await this.articleService.getArticle(articleUUID);
 
             this.authService.observeIsLoggedIn().subscribe(async state => {
                 if (state) {
                     this.isLoggedInUsersArticle = idOf(this.article.createdBy) === await this.authService.userUUID;
-                    this.isAdmin = (await this.userService.fetchOrGetUser(idOf(this.article.createdBy))).isAdmin;
+                    this.isAdmin = (await this.userService.getUser(idOf(this.article.createdBy))).isAdmin;
                 }
             });
         });
     }
 
     toggleLike() {
-        this.articleService
-            .likeArticle(this.article, this.authService.userToken)
+        this.articleService.likeArticle(this.article)
             .then(() => {
                 this.article.likedByUser = !this.article.likedByUser;
                 this.article.likeCount += (this.article.likedByUser ? 1 : -1);
-            }).catch(() => {
-            console.error(`[blogifyArticles] Couldn't like ${this.article.uuid}` );
-        });
+            }).catch(() => console.error(`[blogifyArticles] Couldn't like ${this.article.uuid}`));
     }
 
     togglePin() {
@@ -75,8 +72,9 @@ export class ShowArticleComponent implements OnInit {
     }
 
     deleteArticle() {
-        this.articleService.deleteArticle(this.article.uuid).then(() => {});
-        this.router.navigateByUrl('/home').then(() => {});
+        this.articleService.deleteArticle(this.article.uuid)
+            .then(_ => this.router.navigateByUrl('/home'))
+            .catch(_ => console.error(`[blogifyArticles] could not delete ${this.article.uuid}\``));
     }
 
     copyUrlToClipboard() {

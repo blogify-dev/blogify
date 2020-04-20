@@ -51,7 +51,7 @@ export class CommentsService {
     async getCommentByUUID(uuid: string): Promise<Comment> {
         const comment = await this.httpClient.get<Comment>(`${this.ENDPOINT}/${uuid}`).toPromise();
 
-        comment.commenter = await this.userService.fetchOrGetUser(comment.commenter.toString());
+        comment.commenter = await this.userService.getUser(comment.commenter.toString());
         if (!comment.children) comment.children = { data: [], moreAvailable: false };
 
         return comment;

@@ -7,6 +7,7 @@ import { Notification } from '../../../models/Notification';
 import { ArticleCommentReplyPayload, CommentReplyPayload, CommentsService } from '../../../services/comments/comments.service';
 import { idOf } from '../../../models/Shadow';
 import { ArticleService } from '../../../services/article/article.service';
+import { UserService } from '../user-service/user.service';
 
 @Injectable({
     providedIn: 'root'
@@ -16,6 +17,7 @@ export class NotificationsService {
     constructor (
         private httpClient: HttpClient,
         private authService: AuthService,
+        private userService: UserService,
         private articleService: ArticleService,
         private commentsService: CommentsService
     ) {}
@@ -40,7 +42,7 @@ export class NotificationsService {
                 const payload = data as CommentReplyPayload;
 
                 const newComment = await this.commentsService.getCommentByUUID(payload.newComment);
-                const author = await this.authService.fetchUser(idOf(newComment.commenter));
+                const author = await this.userService.getUser(idOf(newComment.commenter));
 
                 notification = {
                     icon: author.profilePicture,
@@ -52,8 +54,8 @@ export class NotificationsService {
                 const payload = data as ArticleCommentReplyPayload;
 
                 const newComment = await this.commentsService.getCommentByUUID(payload.newComment);
-                const author = await this.authService.fetchUser(idOf(newComment.commenter));
-                const article = await this.articleService.fetchOrGetArticle(payload.onArticle);
+                const author = await this.userService.getUser(idOf(newComment.commenter));
+                const article = await this.articleService.getArticle(payload.onArticle);
 
                 notification = {
                     icon: author.profilePicture,
