@@ -1,7 +1,6 @@
 package blogify.backend.pipelines
 
 import blogify.backend.annotations.PipelinesDsl
-import blogify.backend.applicationContext
 import blogify.backend.auth.handling.UserAuthPredicate
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.pipelines.wrapping.ApplicationContext
@@ -11,15 +10,18 @@ import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.routing.handling.defaultResourceLessPredicateLambda
 import blogify.backend.routing.handling.logUnusedAuth
-import blogify.backend.util.MapCache
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
+import blogify.backend.util.toUUIDOrNull
 
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.pipeline.PipelineContext
 import io.ktor.response.respond
+
+import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
 
 import com.andreapivetta.kolor.red
 
@@ -93,7 +95,16 @@ fun RequestContext.param(name: String) = call.parameters[name] ?: pipelineError(
  * Returns a query parameter that may or may not exist
  */
 @PipelinesDsl
-fun RequestContext.optionalParam(name: String): String? = call.parameters[name]
+fun RequestContext.optionalParam(name: String): String? =
+    call.parameters[name]
+
+@Suppress("CAST_NEVER_SUCCEEDS")
+@PipelinesDsl
+inline val RequestContext.queryUuid get() = object : ReadOnlyProperty<Nothing?, UUID> {
+    override fun getValue(thisRef: Nothing?, property: KProperty<*>) =
+        param("uuid").toUUIDOrNull()
+            ?: pipelineError(HttpStatusCode.BadRequest, "mandatory 'uuid' parameter not found or in the wrong format")
+}
 
 /**
  * A default [RequestContext] that handles client authentication.
