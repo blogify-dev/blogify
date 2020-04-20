@@ -3,25 +3,25 @@ package blogify.backend.routing
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Comments
 import blogify.backend.database.handling.query
+import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Comment
 import blogify.backend.resources.models.eqr
-import blogify.backend.pipelines.obtainResource
-import blogify.backend.pipelines.optionalParam
-import blogify.backend.pipelines.param
-import blogify.backend.pipelines.requestContext
+import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.resources.reflect.sanitize
+import blogify.backend.resources.reflect.slice
 import blogify.backend.routing.handling.*
-import blogify.backend.util.expandCommentNode
-import blogify.backend.util.getOrPipelineError
-import blogify.backend.util.reason
-import blogify.backend.util.toUUID
+import blogify.backend.util.*
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
 
-import org.jetbrains.exposed.sql.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 
+import org.jetbrains.exposed.sql.*
 
 fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
 
@@ -74,15 +74,59 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
             }
         }
 
-        get("/tree/{uuid}") {
+        fun expandCommentNodeAsync(request: RequestContext, comment: Comment, fields: Set<String>?, quantity: Int, page: Int, depth: Int): Deferred<Dto> {
+            return GlobalScope.async { // We use async because inlining a suspending local function crashes the compiler
+                val rootDto = fields?.let { comment.slice(it) } ?: comment.sanitize()
+                val result = request.repository<Comment>().queryListing(request, { Comments.parentComment eq comment.uuid }, quantity, page, Comments.createdAt, SortOrder.DESC)
+                    .getOrPipelineError(HttpStatusCode.InternalServerError, "error while expanding listing node")
+
+                val children = if (depth > 0)
+                    result.first.map { expandCommentNodeAsync(request, it, fields, quantity, page, depth - 1).await() } to result.second
+                else (fields?.let {
+                    result.first.map { it.slice(fields) }
+                } ?: result.first.map { it.sanitize() }) to result.second
+
+                return@async rootDto + ("children" to object { val data = children.first; val moreAvailable = children.second })
+            }
+        }
+
+        get("/tree/comment/{uuid}") {
             requestContext(applicationContext) {
                 val repo = repository<Comment>()
 
-                val id      = param("uuid").toUUID()
-                val fetched = repo.get(this, id)
-                val depth   = optionalParam("depth")?.toIntOrNull() ?: 5
+                val commentId by queryUuid
 
-                call.respond(expandCommentNode(this, repository = repo, rootNode = fetched.get(), depth = depth))
+                val quantity = optionalParam("quantity")?.toIntOrNull()?.coerceAtMost(25) ?: 15
+                val page     = optionalParam("page")?.toIntOrNull() ?: 0
+                val depth    = optionalParam("depth")?.toIntOrNull()?.coerceAtMost(5) ?: 4
+                val fields   = optionalParam("fields")?.split(',')?.toSet()
+
+                val root = repo.get(this, commentId)
+                    .getOrPipelineError(HttpStatusCode.InternalServerError, "error while querying listing")
+
+                val expandedComments = expandCommentNodeAsync(this, root, fields, quantity, page, depth - 1).await()
+
+                call.respond(expandedComments)
+            }
+        }
+
+        get("/tree/article/{uuid}") {
+            requestContext(applicationContext) {
+                val repo = repository<Comment>()
+
+                val articleId by queryUuid
+
+                val quantity = optionalParam("quantity")?.toIntOrNull()?.coerceAtMost(25) ?: 15
+                val page     = optionalParam("page")?.toIntOrNull() ?: 0
+                val depth    = optionalParam("depth")?.toIntOrNull()?.coerceAtMost(5) ?: 4
+                val fields   = optionalParam("fields")?.split(',')?.toSet()
+
+                val root = repo.queryListing(this, { (Comments.article eq articleId) and Comments.parentComment.isNull() }, quantity, page, Comments.createdAt, SortOrder.DESC)
+                    .getOrPipelineError(HttpStatusCode.InternalServerError, "error while querying listing")
+
+                val expandedComments = root.first.map { expandCommentNodeAsync(this, it, fields, quantity, 0, depth - 1).await() }
+
+                call.respond(object { val data = expandedComments; val moreAvailable = root.second })
             }
         }
 
