@@ -125,14 +125,14 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
                         val valueMap = objectMapper.readValue<Map<String, Any?>>(valueString)
 
                         parameter to when {
+                            valueMap.containsKey("metadata") -> {
+                                objectMapper.readValue<StaticResourceHandle.Ok.Image>(valueString)
+                            }
                             valueMap.containsKey("fileId") -> {
                                 objectMapper.readValue<StaticResourceHandle.Ok>(valueString)
                             }
                             valueMap.containsKey("contentType") -> {
                                 objectMapper.readValue<StaticResourceHandle.None>(valueString)
-                            }
-                            valueMap.containsKey("metadata") -> {
-                                objectMapper.readValue<StaticResourceHandle.Ok.Image>(valueString)
                             }
                             else -> never
                         }
