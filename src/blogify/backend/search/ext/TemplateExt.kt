@@ -4,7 +4,7 @@ import blogify.backend.annotations.search.QueryByField
 import blogify.backend.annotations.search.SearchDefaultSort
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.cachedPropMap
-import blogify.backend.resources.reflect.models.ext.ok
+import blogify.backend.resources.reflect.models.extensions.ok
 import blogify.backend.search.models.Template
 
 import kotlin.reflect.KClass
