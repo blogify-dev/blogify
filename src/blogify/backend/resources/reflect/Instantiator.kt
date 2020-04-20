@@ -131,6 +131,9 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
                             valueMap.containsKey("contentType") -> {
                                 objectMapper.readValue<StaticResourceHandle.None>(valueString)
                             }
+                            valueMap.containsKey("metadata") -> {
+                                objectMapper.readValue<StaticResourceHandle.Ok.Image>(valueString)
+                            }
                             else -> never
                         }
                     }
