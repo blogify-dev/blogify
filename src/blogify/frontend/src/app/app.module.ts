@@ -33,6 +33,7 @@ import { NotificationComponent } from './shared/components/notification/notifica
 import { PushService } from './shared/services/push/push.service';
 import { ToastContainerModule, ToastrModule } from 'ngx-toastr';
 import { NotificationsPopoverComponent } from './components/navbar/notifications-popover/notifications-popover.component';
+import {WindowRef} from "./shared/utils/windowRef";
 
 @NgModule({
     declarations: [
@@ -78,7 +79,7 @@ import { NotificationsPopoverComponent } from './components/navbar/notifications
         }),
         ToastContainerModule
     ],
-    providers: [],
+    providers: [WindowRef],
     exports: [],
     bootstrap: [AppComponent]
 })

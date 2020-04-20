@@ -1,17 +1,16 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { AuthService } from '../../shared/auth/auth.service';
 import { Router } from '@angular/router';
-import { DarkModeService } from '../../services/darkmode/dark-mode.service';
 import { User } from '../../models/User';
-import { faBell, faCaretUp, faMoon, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
-import { NotificationsService } from '../../shared/services/notifications/notifications.service';
+import { faBell, faMoon, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { ThemeService } from "../../services/theme/theme.service";
 
 @Component({
     selector: 'app-navbar',
     templateUrl: './navbar.component.html',
     styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit, AfterViewInit {
+export class NavbarComponent implements OnInit {
 
     user: User;
 
@@ -24,8 +23,7 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     constructor (
         public authService: AuthService,
         private router: Router,
-        private darkModeService: DarkModeService,
-        private notificationsService: NotificationsService
+        private themeService: ThemeService,
     ) {}
 
     ngOnInit() {
@@ -36,12 +34,6 @@ export class NavbarComponent implements OnInit, AfterViewInit {
                 this.user = undefined;
             }
         });
-    }
-
-    ngAfterViewInit() {
-        if (window.matchMedia('prefers-color-scheme: dark')) {
-            this.darkModeService.setDarkMode(true);
-        }
     }
 
     async navigateToLogin() {
@@ -58,11 +50,10 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     }
 
     toggleDarkMode() {
-        const darkMode = !this.darkModeService.getDarkModeValue();
-        this.darkModeService.setDarkMode(darkMode);
+        this.themeService.toggleTheme();
     }
 
-    async toggleNotifications() {
+    toggleNotifications() {
         this.areNotificationsShowing = !this.areNotificationsShowing;
     }
 
