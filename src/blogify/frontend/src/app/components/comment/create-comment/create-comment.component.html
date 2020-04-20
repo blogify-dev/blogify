@@ -1,6 +1,6 @@
 <!--suppress HtmlFormInputWithoutLabel -->
 
-<div class="comment-reply" *ngIf="replying && replyComment != undefined">
+<div class="comment-reply" *ngIf="replyComment != undefined">
     <textarea rows="4" [(ngModel)]="replyComment.content" type="text" class="reply-text" placeholder="Type your response ..."></textarea>
 
     <div class="reply-submit">

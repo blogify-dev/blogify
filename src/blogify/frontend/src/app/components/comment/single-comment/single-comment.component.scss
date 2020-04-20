@@ -90,4 +90,14 @@
         row-gap: 1.95em;
     }
 
+    .next-page {
+        display: flex;
+        align-items: center;
+
+        column-gap: .75em;
+
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+
 }

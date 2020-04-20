@@ -22,7 +22,7 @@ export class ShowAllArticlesComponent implements OnInit {
     faArrowAltCircleDown = faArrowAltCircleDown;
 
     @Input() title = 'Articles';
-    @Input() listing = new ListingQuery<Article>(10, 0);
+    @Input() listingQuery = new ListingQuery(10, 0);
     @Input() noContentMessage = 'Nothing to see here !';
     @Input() noResultsMessage = 'No search results :(';
     @Input() allowCreate = true;
@@ -62,20 +62,20 @@ export class ShowAllArticlesComponent implements OnInit {
                     // noinspection JSIgnoredPromiseFromCall
                     this.startSearch();
                 }
-            } else { // We are in a regular listing
+            } else { // We are in a regular listingl
                 // noinspection JSIgnoredPromiseFromCall
                 this.stopSearch();
 
-                this.articleService.getArticlesByListing(this.REQUIRED_FIELDS, this.listing)
+                this.articleService.getArticlesByListing(this.REQUIRED_FIELDS, this.listingQuery)
                     .then(result => ({ data: this.articles, moreAvailable: this.moreAvailable } = result));
             }
         });
     }
 
     loadPage() {
-        this.listing.page++;
+        this.listingQuery.page++;
 
-        this.articleService.getArticlesByListing(this.REQUIRED_FIELDS, this.listing)
+        this.articleService.getArticlesByListing(this.REQUIRED_FIELDS, this.listingQuery)
             .then(result => {
                 this.articles.push(...result.data);
                 this.moreAvailable = result.moreAvailable;

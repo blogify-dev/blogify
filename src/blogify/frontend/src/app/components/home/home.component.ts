@@ -11,7 +11,7 @@ export class HomeComponent implements OnInit {
 
     title = 'blogify';
 
-    listing = new ListingQuery<Article>(15, 0);
+    listing = new ListingQuery(15, 0);
 
     constructor() {}
 

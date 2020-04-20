@@ -1,6 +1,7 @@
 import { User } from './User';
 import { Article } from './Article';
 import { Shadow } from './Shadow';
+import { CommentTreeListing } from '../services/comments/comments.service';
 
 export class Comment {
 
@@ -13,7 +14,7 @@ export class Comment {
         public likeCount: number,
         public createdAt: number,
         public parentComment?: Shadow<Comment>,
-        public children?: Comment[],
+        public children?: CommentTreeListing,
     ) {}
 
 }

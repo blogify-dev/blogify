@@ -1,8 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { CommentsService } from '../../services/comments/comments.service';
+import { Component, Input, OnInit } from '@angular/core';
+import { CommentsService, CommentTreeListing } from '../../services/comments/comments.service';
 import { Comment } from '../../models/Comment';
 import { Article } from '../../models/Article';
-import { AuthService } from '../../shared/auth/auth.service';
+import { ListingQuery } from '../../models/ListingQuery';
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-article-comments',
@@ -11,47 +12,44 @@ import { AuthService } from '../../shared/auth/auth.service';
 })
 export class ArticleCommentsComponent implements OnInit {
 
+    constructor (private commentsService: CommentsService) {}
+
+    faArrowDown = faArrowDown;
+
     @Input() article: Article;
 
-    rootComments: Comment[];
+    /**
+     * Stores the properties of {@link Article} that are needed for display in this component
+     */
+    private readonly REQUIRED_FIELDS: (keyof Comment)[] =
+        ['uuid', 'commenter', 'article', 'content', 'likeCount', 'createdAt', 'parentComment'];
 
-    constructor(private commentService: CommentsService, public authService: AuthService) {}
+    /**
+     * Use this listing for loading comments
+     */
+    listingQuery = { ...(new ListingQuery<Comment>(10, -1, this.REQUIRED_FIELDS)), depth: 9 };
+
+    treeListing: CommentTreeListing;
 
     ngOnInit() {
-        this.fetchAndShowComments();
+        this.loadPage();
 
-        this.commentService.latestSubmittedComment.subscribe(async payload => {
+        this.commentsService.newCommentsFromServer.subscribe(async payload => {
             if (payload && !payload.parentComment) {
-                this.rootComments = [payload, ...this.rootComments];
+                this.treeListing.data = [payload, ...this.treeListing.data];
             }
         });
     }
 
-    handleDeletion(comment: Comment) {
-        if (comment)
-            this.rootComments = this.rootComments.filter(c => c.uuid !== comment.uuid);
+    loadPage() {
+        this.listingQuery.page++;
+
+        this.commentsService.commentTreeForArticle(this.article, this.listingQuery)
+            .then(async listing => this.treeListing = { data: [...this.treeListing?.data ?? [], ...listing.data], moreAvailable: listing.moreAvailable });
     }
 
-    private fetchAndShowComments() {
-        this.commentService.getCommentsForArticle(this.article).then(async it => {
-            this.rootComments = it;
-
-            // Get promises for children of root comments
-            const childrenPromises: Promise<Comment>[] = [];
-            this.rootComments.forEach(comment => {
-                childrenPromises.push(this.commentService.getChildrenOf(comment.uuid, 5));
-            });
-            const children = await Promise.all(childrenPromises);
-
-            // Apply children to every root comment
-            const out = [];
-            this.rootComments.forEach((comment, index) => {
-                comment.children = children[index].children;
-                out.push(comment);
-            });
-            this.rootComments = out;
-        });
-
+    handleDeletion(comment: Comment) {
+        this.treeListing.data.splice(this.treeListing.data.indexOf(comment), 1);
     }
 
 }

@@ -43,7 +43,7 @@ export class PushService {
                             if (parsed.e === 'blogify.backend.resources.Comment.CommentCreateEvent') {
                                 const data = parsed.d as CommentCreatePayload;
 
-                                this.commentsService.registerSubmittedComment({
+                                this.commentsService.registerCommentFromServer({
                                     article: data.article,
                                     commenter: data.commenter,
                                     uuid: data.comment

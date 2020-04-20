@@ -54,13 +54,19 @@
         </span>
     </div>
 
-    <app-create-comment class="reply" *ngIf="replyingEnabled" [replying]="replyingEnabled" [comment]="comment"></app-create-comment>
+    <app-create-comment class="reply" *ngIf="replyingEnabled" (replied)="this.replyingEnabled = !this.replyingEnabled" [comment]="comment"></app-create-comment>
 
-    <div class="children" *ngIf="comment.children && comment.children.length > 0">
+    <div class="children" *ngIf="this.comment.children.data.length > 0">
             <app-single-comment
                 [parent]="comment" [comment]="child" (deleted)="handleDeletion(child)"
-                *ngFor="let child of comment.children"
+                *ngFor="let child of comment.children.data"
             ></app-single-comment>
     </div>
+
+    <span class="next-page clickable" (click)="loadPage()" *ngIf="this.comment.children.moreAvailable">
+        <fa-icon [icon]="faArrowDown" [transform]="{ size: 18, y: 1, x: -6 }"></fa-icon>
+
+        Load More
+    </span>
 
 </div>

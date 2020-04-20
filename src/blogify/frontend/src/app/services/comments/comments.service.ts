@@ -1,160 +1,95 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { ListingQuery } from '../../models/ListingQuery';
+import { idOf, Shadow } from '../../models/Shadow';
 import { Comment } from '../../models/Comment';
-import { AuthService } from '../../shared/auth/auth.service';
-import * as uuid from 'uuid/v4';
 import { Article } from '../../models/Article';
 import { BehaviorSubject } from 'rxjs';
-import { idOf } from '../../models/Shadow';
-
-const commentsEndpoint = '/api/articles/comments';
+import { AuthService } from '../../shared/auth/auth.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CommentsService {
-    private newComment = new BehaviorSubject<Comment>(undefined);
+
+    private commentsFromServer = new BehaviorSubject<Comment>(undefined);
 
     constructor(private httpClient: HttpClient, private authService: AuthService) {}
 
-    private async fetchUserObjects(comments: Comment[]): Promise<Comment[]> {
-        // noinspection DuplicatedCode
-        const userUUIDs = new Set([...comments
-            .filter(it => typeof it.commenter === 'string')
-            // Converting to a Set makes sure a single UUID is not fetched more than once
-            .map(it => it.commenter as string)]);
-        const userObjects = await Promise.all(
-            [...userUUIDs].map(it => this.authService.fetchUser(it))
-        );
-        return comments.map(a => {
-            a.commenter = userObjects
-                .find(u => u.uuid === a.commenter as string);
-            return a;
-        });
+    private readonly ENDPOINT = '/api/articles/comments';
+
+    private readonly AUTH_HTTP_OPTIONS = () => {
+        return { headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.authService.userToken}`
+        })};
     }
 
-    private async fetchLikeStatus(comments: Comment[], userToken: string): Promise<Comment[]> {
-        return Promise.all(comments.map(async c => {
-
-            const httpOptions = {
-                headers: new HttpHeaders({
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${userToken}`
-                }),
-            };
-
-            this.httpClient.get<boolean>(`/api/articles/comments/${c.uuid}/like`, httpOptions).toPromise()
-                .then((res: boolean) => {
-                    c.likedByUser = res;
-                }).catch(() => {
-                c.likedByUser = null;
-            });
-            return c;
-        }));
+    async commentTreeForArticle(article: Shadow<Article>, query: ListingQuery<Comment> & { depth: number }): Promise<CommentTreeListing> {
+        return this.httpClient.get<CommentTreeListing> (
+            `/api/articles/comments/tree/article/${idOf(article)}` +
+            `?quantity=${query.quantity}` +
+            `&page=${query.page}` +
+            `&depth=${query.depth}` +
+            (query.fields ? `&fields=${query.fields.join(',')}` : '')
+        ).toPromise();
     }
 
-    private async prepareCommentData(comments: Comment[]): Promise<Comment[]> {
-        return this
-            .fetchUserObjects(comments)
-            .then(a => this.authService.userToken ? this.fetchLikeStatus(a, this.authService.userToken) : a);
-    }
-
-    async getCommentsForArticle(article: Article): Promise<Comment[]> {
-        const comments = await this.httpClient.get<object>(`${commentsEndpoint}/article/${article.uuid}?quantity=35&page=0`)
-            .toPromise();
-        // @ts-ignore
-        return this.prepareCommentData(comments.data);
+    async commentTreeForComment(comment: Shadow<Comment>, query: ListingQuery<Comment> & { depth: number }): Promise<Comment> {
+        return this.httpClient.get<Comment> (
+            `/api/articles/comments/tree/comment/${idOf(comment)}` +
+            `?quantity=${query.quantity}` +
+            `&page=${query.page}` +
+            `&depth=${query.depth}` +
+            (query.fields ? `&fields=${query.fields.join(',')}` : '')
+        ).toPromise();
     }
 
     // tslint:disable-next-line:no-shadowed-variable
     async getCommentByUUID(uuid: string): Promise<Comment> {
-        const comment = await this.httpClient.get<Comment>(`${commentsEndpoint}/${uuid}`).toPromise();
+        const comment = await this.httpClient.get<Comment>(`${this.ENDPOINT}/${uuid}`).toPromise();
 
         comment.commenter = await this.authService.fetchUser(comment.commenter.toString());
-        if (!comment.children) comment.children = [];
+        if (!comment.children) comment.children = { data: [], moreAvailable: false };
 
         return comment;
     }
 
-    async deleteComment(commentUUID: string): Promise<object> {
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.userToken}`
-            })
-        };
-
-        return this.httpClient.delete(`${commentsEndpoint}/${commentUUID}`, httpOptions).toPromise();
-    }
-
     async createComment(newComment: Comment): Promise<Comment | undefined> {
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.userToken}`
-            })
-        };
-
         const comment = {
-            uuid: uuid(),
             commenter: await this.authService.userUUID,
             article: idOf(newComment.article),
             content: newComment.content,
-            parentComment: null
+            parentComment: idOf(newComment.parentComment)
         };
 
-        return await this.httpClient.post<Comment>(`${commentsEndpoint}`, comment, httpOptions).toPromise()
+        return await this.httpClient.post<Comment>(`${this.ENDPOINT}`, comment, this.AUTH_HTTP_OPTIONS()).toPromise()
             .then(res => comment as Comment, err => undefined);
     }
 
-    async replyToComment(newComment: Comment): Promise<Comment | undefined> {
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.userToken}`
-            })
-        };
-
-        const comment = {
-            uuid: uuid(),
-            commenter: await this.authService.userUUID,
-            article: idOf(newComment.article),
-            content: newComment.content,
-            parentComment: newComment.parentComment ? idOf(newComment.parentComment) : null
-        };
-
-        return await this.httpClient.post(commentsEndpoint, comment, httpOptions).toPromise()
-            .then(res => comment as Comment, err => undefined);
+    async deleteComment(commentUUID: string): Promise<object> {
+        return this.httpClient.delete(`${this.ENDPOINT}/${commentUUID}`, this.AUTH_HTTP_OPTIONS()).toPromise();
     }
 
-    async likeComment(comment: Comment, userToken: string): Promise<HttpResponse<object>> {
-
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${userToken}`
-            }),
-            observe: 'response',
-        };
-
-        return this.httpClient.post<HttpResponse<object>>(`/api/articles/comments/${comment.uuid}/like`,
-            // TypeScript bug with method overloads.
-            // @ts-ignore
-            null, httpOptions).toPromise();
+    async toggleLike(comment: Comment): Promise<boolean> {
+        return this.httpClient.post<string>(`/api/articles/comments/${comment.uuid}/like`, null, this.AUTH_HTTP_OPTIONS()).toPromise()
+            .then(_ => true);
     }
 
-    async getChildrenOf(commentUUID: string, depth: number): Promise<Comment> {
-        return this.httpClient.get<Comment>(`/api/articles/comments/tree/${commentUUID}/?depth=${depth}`).toPromise();
+    async registerCommentFromServer(newCommentWsData: CommentCreatePayload) {
+        this.commentsFromServer.next(await this.getCommentByUUID(newCommentWsData.uuid));
     }
 
-    async registerSubmittedComment(newCommentWsData: CommentCreatePayload) {
-        this.newComment.next(await this.getCommentByUUID(newCommentWsData.uuid));
+    get newCommentsFromServer() {
+        return this.commentsFromServer.asObservable();
     }
 
-    get latestSubmittedComment() {
-        return this.newComment.asObservable();
-    }
+}
 
+// /tree/article/<id> uses this one -v
+export interface CommentTreeListing {
+    data: Comment[];
+    moreAvailable: boolean;
 }
 
 export interface CommentReplyPayload {
