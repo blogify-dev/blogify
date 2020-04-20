@@ -5,6 +5,7 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { AuthService } from '../../../../shared/auth/auth.service';
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { HttpResponse } from '@angular/common/http';
+import { faUserMinus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-main-profile',
@@ -18,6 +19,9 @@ export class MainProfileComponent implements OnInit {
     isLoggedIn = false;
     isSelf = false;
     alreadyFollowed = false;
+
+    faUserPlus = faUserPlus;
+    faUserMinus = faUserMinus;
 
     baseTabs: TabList = [
         new Tab('Overview', 'overview'),

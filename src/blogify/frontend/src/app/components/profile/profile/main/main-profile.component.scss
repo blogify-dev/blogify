@@ -9,11 +9,16 @@
 
         //height: 10rem;
         display: flex;
+        align-items: center;
+
         flex-wrap: wrap;
         gap: 1.15rem;
 
         .separator {
-            margin-left: 1.75rem !important;
+            margin: .75em 0;
+
+            margin-left: 1.15rem !important;
+            margin-right: .85em !important;
         }
 
         #header-follow-button {

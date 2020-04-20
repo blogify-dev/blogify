@@ -6,6 +6,7 @@ import { MainProfileComponent } from './main/main-profile.component';
 import { OverviewComponent } from './overview/overview.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { CoverPictureComponent } from './cover-picture/cover-picture.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
     declarations: [
@@ -20,7 +21,8 @@ import { CoverPictureComponent } from './cover-picture/cover-picture.component';
     imports: [
         CommonModule,
         SharedModule,
-        ProfileRoutingModule
+        ProfileRoutingModule,
+        FontAwesomeModule
     ]
 })
 
