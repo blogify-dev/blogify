@@ -20,7 +20,6 @@ import blogify.backend.resources.User
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.persistence.models.Repository
-import blogify.backend.pipelines.optionalParam
 import blogify.backend.routing.handling.*
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
@@ -31,7 +30,6 @@ import io.ktor.routing.*
 import io.ktor.response.respond
 
 import org.jetbrains.exposed.sql.*
-
 
 fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
