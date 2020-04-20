@@ -144,7 +144,7 @@ suspend inline fun <reified R : Resource> RequestContext.fetchAllResources() {
 }
 
 @BlogifyDsl
-suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing(
+suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing (
     orderBy: Column<*>,
     sortOrder: SortOrder,
     noinline selectCondition: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }
