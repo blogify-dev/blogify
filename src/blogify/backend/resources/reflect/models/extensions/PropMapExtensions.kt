@@ -1,4 +1,4 @@
-package blogify.backend.resources.reflect.models.ext
+package blogify.backend.resources.reflect.models.extensions
 
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.util.filterThenMapValues

@@ -5,8 +5,8 @@ import blogify.backend.annotations.check
 import blogify.backend.events.models.EventTarget
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.models.ext.ok
-import blogify.backend.resources.reflect.models.ext.valid
+import blogify.backend.resources.reflect.models.extensions.ok
+import blogify.backend.resources.reflect.models.extensions.valid
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

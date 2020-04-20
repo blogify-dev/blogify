@@ -2,7 +2,7 @@ package blogify.backend.resources.reflect
 
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.resources.reflect.models.ext.ok
+import blogify.backend.resources.reflect.models.extensions.ok
 import blogify.backend.util.filterThenMapValues
 
 /**

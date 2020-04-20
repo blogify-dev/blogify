@@ -5,7 +5,7 @@ import blogify.backend.resources.reflect.extensions.isPrimitive
 import blogify.backend.resources.reflect.extensions.subTypeOf
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.resources.reflect.models.ext.ok
+import blogify.backend.resources.reflect.models.extensions.ok
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.search.models.Template
 import blogify.backend.util.*
@@ -14,8 +14,6 @@ import java.util.UUID
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
-import kotlin.reflect.full.createType
-import kotlin.reflect.full.isSubtypeOf
 
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

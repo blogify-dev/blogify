@@ -4,11 +4,10 @@ import blogify.backend.annotations.search.NoSearch
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.cachedPropMap
-import blogify.backend.resources.reflect.models.ext.ok
+import blogify.backend.resources.reflect.models.extensions.ok
 import blogify.backend.search.models.Template
 import blogify.backend.util.filterThenMapValues
 
-import com.andreapivetta.kolor.green
 import kotlin.reflect.KClass
 
 import kotlin.reflect.full.findAnnotation

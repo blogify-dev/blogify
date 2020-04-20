@@ -3,7 +3,7 @@ package blogify.backend.resources.reflect
 import blogify.backend.annotations.Invisible
 import blogify.backend.events.models.EventTarget
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.models.ext.ok
+import blogify.backend.resources.reflect.models.extensions.ok
 import blogify.backend.util.Sr
 
 import kotlinx.coroutines.runBlocking

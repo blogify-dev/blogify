@@ -42,7 +42,7 @@ import blogify.backend.database.ImageUploadablesMetadata
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.resources.reflect.models.ext.ok
+import blogify.backend.resources.reflect.models.extensions.ok
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.pipelines.obtainResource
 import blogify.backend.pipelines.obtainResources

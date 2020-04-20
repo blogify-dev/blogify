@@ -7,7 +7,7 @@ import blogify.backend.annotations.Undisplayed
 import blogify.backend.resources.computed.models.ComputedPropertyDelegate
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.resources.reflect.models.ext.valid
+import blogify.backend.resources.reflect.models.extensions.valid
 import blogify.backend.util.Dto
 
 import kotlin.reflect.full.findAnnotation
