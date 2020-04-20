@@ -27,7 +27,7 @@ export class ArticleCommentsComponent implements OnInit {
     /**
      * Use this listing for loading comments
      */
-    listingQuery = { ...(new ListingQuery<Comment>(10, -1, this.REQUIRED_FIELDS)), depth: 9 };
+    listingQuery = { ...(new ListingQuery<Comment>(7, -1, this.REQUIRED_FIELDS)), depth: 5 };
 
     treeListing: CommentTreeListing;
 

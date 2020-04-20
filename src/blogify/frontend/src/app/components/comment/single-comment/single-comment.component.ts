@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Comment } from '../../../models/Comment';
 import { AuthService } from '../../../shared/auth/auth.service';
-import { CommentsService} from '../../../services/comments/comments.service';
+import { CommentsService } from '../../../services/comments/comments.service';
 import { ArticleService } from '../../../services/article/article.service';
 import { faCommentAlt, faHeart, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { faArrowDown, faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
 import { idOf } from '../../../models/Shadow';
 import { ListingQuery } from '../../../models/ListingQuery';
-import {UserService} from "../../../shared/services/user-service/user.service";
+import { UserService } from '../../../shared/services/user-service/user.service';
 
 @Component({
   selector: 'app-single-comment',
@@ -52,7 +52,7 @@ export class SingleCommentComponent implements OnInit {
     /**
      * Use this listing for loading child comments. Page 0 is fine since we only load page 1 and further with it and never pagee 0
      */
-    listingQuery = { ...(new ListingQuery<Comment>(10, 0, this.REQUIRED_FIELDS)), depth: 9 };
+    listingQuery = { ...(new ListingQuery<Comment>(5, 0, this.REQUIRED_FIELDS)), depth: 9 };
 
     loggedInObs = this.authService.observeIsLoggedIn();
 
