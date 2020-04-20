@@ -51,11 +51,11 @@ abstract class ResourceTable< R: Resource> : Table() {
 
         if (authorColumn == null)
             error("fatal: tried to query listing but author column was not set on table".red())
-        println("orderBy: $orderBy")
-        println("sortOrder: $sortOrder")
+
         query {
-            this.select(selectCondition) //    v-- We add one to check if we reached the end
+            this.select(selectCondition)
                 .orderBy(orderBy, sortOrder)
+                //               v-- We add one to check if we reached the end
                 .limit(quantity + 1, (page * quantity).toLong())
                 .toList()
         }.get().let { results ->
