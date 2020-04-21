@@ -5,7 +5,7 @@ import { idOf, Shadow } from '../../models/Shadow';
 import { Comment } from '../../models/Comment';
 import { Article } from '../../models/Article';
 import { BehaviorSubject } from 'rxjs';
-import { AuthService } from '../../shared/auth/auth.service';
+import { AuthService } from '../../shared/services/auth/auth.service';
 import {UserService} from "../../shared/services/user-service/user.service";
 
 @Injectable({
@@ -66,7 +66,7 @@ export class CommentsService {
         };
 
         return await this.httpClient.post<Comment>(`${this.ENDPOINT}`, comment, this.AUTH_HTTP_OPTIONS()).toPromise()
-            .then(res => comment as Comment, err => undefined);
+            .then(() => comment as Comment, () => undefined);
     }
 
     async deleteComment(commentUUID: string): Promise<object> {

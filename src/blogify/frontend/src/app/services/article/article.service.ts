@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Article } from '../../models/Article';
 import { ListingQuery } from '../../models/ListingQuery';
-import { AuthService } from '../../shared/auth/auth.service';
+import { AuthService } from '../../shared/services/auth/auth.service';
 import { User } from '../../models/User';
 import { SearchView } from '../../models/SearchView';
 import { idOf, Shadow } from '../../models/Shadow';

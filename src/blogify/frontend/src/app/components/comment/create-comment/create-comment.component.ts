@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Article } from '../../../models/Article';
 import { CommentsService } from '../../../services/comments/comments.service';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../shared/services/auth/auth.service';
 import { Comment } from '../../../models/Comment';
 import { idOf } from '../../../models/Shadow';
 

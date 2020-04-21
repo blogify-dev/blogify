@@ -3,7 +3,7 @@ import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
 import { User } from '../../models/User';
 import { StaticFile } from '../../models/Static';
-import { AuthService } from '../../shared/auth/auth.service';
+import { AuthService } from '../../shared/services/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';

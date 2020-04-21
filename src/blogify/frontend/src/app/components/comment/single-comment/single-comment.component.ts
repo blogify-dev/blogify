@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Comment } from '../../../models/Comment';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../shared/services/auth/auth.service';
 import { CommentsService } from '../../../services/comments/comments.service';
 import { ArticleService } from '../../../services/article/article.service';
 import { faCommentAlt, faHeart, faTrashAlt } from '@fortawesome/free-regular-svg-icons';

@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../../shared/auth/auth.service';
+import { AuthService } from '../../shared/services/auth/auth.service';
 import { faHeart as faHeartFilled, faThumbtack } from '@fortawesome/free-solid-svg-icons';
 import { faClipboard, faEdit, faHeart, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { ClipboardService } from 'ngx-clipboard';

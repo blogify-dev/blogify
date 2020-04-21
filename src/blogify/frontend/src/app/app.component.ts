@@ -1,9 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { AuthService } from './shared/auth/auth.service';
+import { AuthService } from './shared/services/auth/auth.service';
 import { NotificationComponent } from './shared/components/notification/notification.component';
-import { Notification } from './models/Notification';
-import { ArticleCommentReplyPayload, CommentReplyPayload, CommentsService } from './services/comments/comments.service';
-import { idOf } from './models/Shadow';
+import { CommentsService } from './services/comments/comments.service';
 import { ArticleService } from './services/article/article.service';
 import { NotificationsService } from './shared/services/notifications/notifications.service';
 import { ToastContainerDirective, ToastrService } from 'ngx-toastr';

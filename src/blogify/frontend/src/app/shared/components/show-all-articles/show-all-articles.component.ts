@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Article } from '../../../models/Article';
 import { ListingQuery } from '../../../models/ListingQuery';
 import { ArticleService } from '../../../services/article/article.service';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../../services/auth/auth.service';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { StaticContentService } from '../../../services/static/static-content.service';
 import { faArrowLeft, faPencilAlt, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';

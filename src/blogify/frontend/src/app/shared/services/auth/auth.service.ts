@@ -3,9 +3,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { StaticFile } from '../../models/Static';
-import { StaticContentService } from '../../services/static/static-content.service';
-import { StateService } from '../services/state/state.service';
+import { StaticContentService } from "../../../services/static/static-content.service";
+import { StateService } from "../state/state.service";
+import { StaticFile } from "../../../models/Static";
 
 const USER_TOKEN_KEY = 'userToken';
 const KEEP_LOGGED_IN = 'keepLoggedIn'

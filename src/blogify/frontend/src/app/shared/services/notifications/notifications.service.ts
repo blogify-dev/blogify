@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { EventPayload } from '../../../models/Events';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../auth/auth.service';
 import { Notification } from '../../../models/Notification';
 import { ArticleCommentReplyPayload, CommentReplyPayload, CommentsService } from '../../../services/comments/comments.service';
 import { idOf } from '../../../models/Shadow';

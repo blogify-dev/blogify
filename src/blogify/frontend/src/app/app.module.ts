@@ -34,7 +34,7 @@ import { PushService } from './shared/services/push/push.service';
 import { ToastContainerModule, ToastrModule } from 'ngx-toastr';
 import { NotificationsPopoverComponent } from './components/navbar/notifications-popover/notifications-popover.component';
 import {WindowRef} from "./shared/utils/windowRef";
-import {AuthService} from "./shared/auth/auth.service";
+import {AuthService} from "./shared/services/auth/auth.service";
 
 @NgModule({
     declarations: [

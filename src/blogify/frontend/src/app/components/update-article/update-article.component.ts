@@ -7,7 +7,7 @@ import { Subscription } from 'rxjs';
 import { Article, Category } from '../../models/Article';
 import { User } from '../../models/User';
 import { ArticleService } from '../../services/article/article.service';
-import { AuthService } from '../../shared/auth/auth.service';
+import { AuthService } from '../../shared/services/auth/auth.service';
 
 type Result = 'none' | 'success' | 'error';
 
