@@ -8,6 +8,7 @@ import { StaticContentService } from '../../services/static/static-content.servi
 import { StateService } from '../services/state/state.service';
 
 const USER_TOKEN_KEY = 'userToken';
+const KEEP_LOGGED_IN = 'keepLoggedIn'
 
 @Injectable({
     providedIn: 'root'
@@ -45,10 +46,15 @@ export class AuthService {
         return this.currentUserSubject.value
     }
 
-    async login(creds: LoginCredentials | string): Promise<User> {
-        const token = (typeof creds === 'string') ? creds :
-            (await this.httpClient.post<UserToken>('/api/auth/signin', creds, {responseType: 'json'})
+    async login(creds: LoginCredentials | string, keepLoggedIn = false): Promise<User> {
+        const signin = async (): Promise<string> => {
+            localStorage.setItem(KEEP_LOGGED_IN, `${keepLoggedIn}`);
+            return (await this.httpClient.post<UserToken>('/api/auth/signin', creds, {responseType: 'json'})
                 .toPromise()).token;
+        }
+
+        const token = (typeof creds === 'string') ? creds : (await signin())
+
 
         const httpOptions = {
             headers: new HttpHeaders({
@@ -60,8 +66,11 @@ export class AuthService {
         const user = await this.httpClient.get<User>('/api/users/me/', httpOptions).toPromise();
         this.stateService.cacheUser(user);
 
-        // We have reached a point where `token` is valid so we populate the cache with it
-        localStorage.setItem('userToken', token);
+        const shouldKeepLoggedIn = localStorage.getItem(KEEP_LOGGED_IN) === 'true'
+        if (shouldKeepLoggedIn) {
+            // We have reached a point where `token` is valid so we populate the cache with it
+            localStorage.setItem('userToken', token);
+        }
 
         this.currentUserSubject.next({ ...user, token: token })
         this.isLoggedInSubject.next(true)

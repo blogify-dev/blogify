@@ -12,6 +12,7 @@ export class LoginComponent implements OnInit {
 
     registerCredentials: RegisterCredentials = { name: '', username: '', password: '', email: '' };
     loginCredentials: LoginCredentials = { username: '', password: '' };
+    keepLoggedIn = false;
 
     user: User;
     private redirectTo: string;
@@ -26,7 +27,7 @@ export class LoginComponent implements OnInit {
     }
 
     async login() {
-        this.authService.login(this.loginCredentials)
+        this.authService.login(this.loginCredentials, this.keepLoggedIn)
             .then(async () => {
                 this.user = await this.authService.currentUser;
 
