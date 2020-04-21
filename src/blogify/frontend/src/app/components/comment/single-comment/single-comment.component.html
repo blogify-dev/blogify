@@ -28,7 +28,7 @@
         <span class="separator"></span>
 
         <!-- Reply -->
-        <span class="button reply clickable" (click)="replyingEnabled = !replyingEnabled">
+        <span class="button reply clickable" [ngClass]="replyingEnabled ? 'neutral' : ''" (click)="replyingEnabled = !replyingEnabled">
             <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ size: 13, y: 0 }"></fa-icon>
 
             Reply
