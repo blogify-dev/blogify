@@ -19,7 +19,7 @@ export class ArticleCommentsComponent implements OnInit {
     @Input() article: Article;
 
     /**
-     * Stores the properties of {@link Article} that are needed for display in this component
+     * Stores the properties of {@link Comment} that are needed for display in this component
      */
     private readonly REQUIRED_FIELDS: (keyof Comment)[] =
         ['uuid', 'commenter', 'article', 'content', 'likeCount', 'createdAt', 'parentComment'];
