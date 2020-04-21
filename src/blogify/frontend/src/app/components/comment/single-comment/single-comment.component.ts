@@ -93,7 +93,7 @@ export class SingleCommentComponent implements OnInit {
         // Update isLoggedInUsersComment
 
         this.authService.observeIsLoggedIn().subscribe(async state => {
-            this.isLoggedInUsersComment = state && idOf(this.comment.commenter) === await this.authService.userUUID;
+            this.isLoggedInUsersComment = state && idOf(this.comment.commenter) === this.authService.currentUser.uuid;
         });
     }
 

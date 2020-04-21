@@ -70,7 +70,7 @@ export class UpdateArticleComponent implements OnInit {
         });
 
         this.authService.observeIsLoggedIn().subscribe(state => {
-            if (state) this.authService.userProfile.then(it => this.user = it);
+            if (state) this.user = this.authService.currentUser;
             else console.error('[blogifyNewArticle] must be logged in; check links to not allow unauth access to new-article');
         });
 

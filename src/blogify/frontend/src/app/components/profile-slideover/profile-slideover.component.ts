@@ -22,8 +22,8 @@ export class ProfileSlideoverComponent implements OnInit {
         public authService: AuthService
     ) {}
 
-    async ngOnInit() {
-        this.user = await this.authService.userProfile;
+    ngOnInit() {
+        this.user = this.authService.currentUser;
     }
 
 }

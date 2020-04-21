@@ -77,7 +77,7 @@ export class NotificationsService {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.userToken}`
+                Authorization: `Bearer ${this.authService.currentUser.token}`
             }),
         };
 

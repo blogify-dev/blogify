@@ -29,7 +29,7 @@ export class NavbarComponent implements OnInit {
     ngOnInit() {
         this.authService.observeIsLoggedIn().subscribe(async value => {
             if (value) {
-                this.user = await this.authService.userProfile;
+                this.user = await this.authService.currentUser;
             } else {
                 this.user = undefined;
             }
@@ -43,10 +43,10 @@ export class NavbarComponent implements OnInit {
     }
 
     async navigateToProfile() {
-        await this.authService.userProfile.then(it => {
-            const url = `/profile/${it.username}`;
-            this.router.navigateByUrl(url);
-        });
+        const it = await this.authService.currentUser
+        const url = `/profile/${it.username}`;
+        await this.router.navigateByUrl(url);
+
     }
 
     toggleDarkMode() {

@@ -23,7 +23,7 @@ export class CommentsService {
     private readonly AUTH_HTTP_OPTIONS = () => {
         return { headers: new HttpHeaders({
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.authService.userToken}`
+            Authorization: `Bearer ${this.authService.currentUser.token}`
         })};
     }
 
@@ -59,7 +59,7 @@ export class CommentsService {
 
     async createComment(newComment: Comment): Promise<Comment | undefined> {
         const comment = {
-            commenter: await this.authService.userUUID,
+            commenter: this.authService.currentUser.uuid,
             article: idOf(newComment.article),
             content: newComment.content,
             parentComment: idOf(newComment.parentComment)

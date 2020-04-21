@@ -1,12 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AuthService } from 'src/app/shared/auth/auth.service';
 import { User } from 'src/app/models/User';
-import { Article } from '../../models/Article';
-import { ArticleService } from '../../services/article/article.service';
-import { Tab, TabList } from '../../shared/components/tab-header/tab-header.component';
-import { MainProfileComponent } from './profile/main/main-profile.component';
+import { UserService } from "../../shared/services/user-service/user.service";
 
 @Component({
     selector: 'app-profile',
@@ -20,14 +16,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     constructor (
         private activatedRoute: ActivatedRoute,
-        private authService: AuthService,
+        private userService: UserService,
     ) {}
 
     async ngOnInit() {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const username = map.get('username');
 
-            this.user = await this.authService.getByUsername(username);
+            this.user = await this.userService.getByUsername(username);
         });
     }
 

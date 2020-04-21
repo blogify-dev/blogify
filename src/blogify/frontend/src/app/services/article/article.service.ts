@@ -31,10 +31,16 @@ export class ArticleService {
     }
 
     private async fetchLikeStatus(articles: Article[]): Promise<Article[]> {
+        if (this.authService.currentUser === null) {
+            return articles.map(article => {
+                article.likedByUser = false
+                return article
+            })
+        }
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.userToken}`
+                Authorization: `Bearer ${this.authService.currentUser.token}`
             }),
         };
 
@@ -89,37 +95,34 @@ export class ArticleService {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.userToken}`
+                Authorization: `Bearer ${this.authService.currentUser.token}`
             })
         };
 
-        return this.authService.userUUID.then(userUuid => {
-            const newArticle: Article = { ...article, createdBy: userUuid };
 
-            return this.httpClient.post<any>(`/api/articles/`, newArticle, httpOptions).toPromise();
-        });
+        const newArticle: Article = { ...article, createdBy: this.authService.currentUser.uuid };
+
+        return this.httpClient.post<any>(`/api/articles/`, newArticle, httpOptions).toPromise();
     }
 
     updateArticle(article: Article): Promise<Article> {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.userToken}`
+                Authorization: `Bearer ${this.authService.currentUser.token}`
             })
         };
 
-        return this.authService.userUUID.then(userUuid => {
-            const newArticle: Article = { ...article, createdBy: userUuid };
+        const newArticle: Article = { ...article, createdBy: this.authService.currentUser.uuid };
 
-            return this.httpClient.patch<any>(`/api/articles/${article.uuid}`, newArticle, httpOptions).toPromise();
-        });
+        return this.httpClient.patch<any>(`/api/articles/${article.uuid}`, newArticle, httpOptions).toPromise();
     }
 
     deleteArticle(articleUuid: string): Promise<any> {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.userToken}`
+                Authorization: `Bearer ${this.authService.currentUser.token}`
             })
         };
         return this.httpClient.delete<any>(`/api/articles/${articleUuid}`, httpOptions).toPromise();
@@ -143,7 +146,7 @@ export class ArticleService {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.userToken}`
+                Authorization: `Bearer ${this.authService.currentUser.token}`
             }),
             observe: 'response',
         };
@@ -158,7 +161,7 @@ export class ArticleService {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.userToken}`
+                Authorization: `Bearer ${this.authService.currentUser.token}`
             })
         };
 

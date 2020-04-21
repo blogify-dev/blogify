@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Article } from '../../../../models/Article';
 import { ListingQuery } from '../../../../models/ListingQuery';
 import { ArticleService } from '../../../../services/article/article.service';
-import { AuthService } from '../../../../shared/auth/auth.service';
 import { ActivatedRoute, Params } from '@angular/router';
 import { User } from '../../../../models/User';
 import { Shadow } from '../../../../models/Shadow';
+import {UserService} from "../../../../shared/services/user-service/user.service";
 
 @Component({
     selector: 'app-overview',
@@ -19,7 +19,7 @@ export class OverviewComponent implements OnInit {
 
     constructor (
         private articleService: ArticleService,
-        private authService: AuthService,
+        private userService: UserService,
         private route: ActivatedRoute
     ) {}
 
@@ -27,7 +27,7 @@ export class OverviewComponent implements OnInit {
         this.route.parent.params.subscribe((params: Params) => {
             const username = params.username;
 
-            this.authService.getByUsername(username).then(user => {{
+            this.userService.getByUsername(username).then(user => {{
                 this.forUser = user;
                 this.listing = { ...new ListingQuery(15, 0), byUser: this.forUser };
             }});

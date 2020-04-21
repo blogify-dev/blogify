@@ -28,8 +28,7 @@ export class LoginComponent implements OnInit {
     async login() {
         this.authService.login(this.loginCredentials)
             .then(async () => {
-                await this.authService.userUUID;
-                this.user = await this.authService.userProfile;
+                this.user = await this.authService.currentUser;
 
                 if (this.redirectTo) {
                     await this.router.navigateByUrl(this.redirectTo);

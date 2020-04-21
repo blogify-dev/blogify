@@ -34,6 +34,7 @@ import { PushService } from './shared/services/push/push.service';
 import { ToastContainerModule, ToastrModule } from 'ngx-toastr';
 import { NotificationsPopoverComponent } from './components/navbar/notifications-popover/notifications-popover.component';
 import {WindowRef} from "./shared/utils/windowRef";
+import {AuthService} from "./shared/auth/auth.service";
 
 @NgModule({
     declarations: [
@@ -85,5 +86,7 @@ import {WindowRef} from "./shared/utils/windowRef";
 })
 export class AppModule {
     // noinspection JSUnusedLocalSymbols
-    constructor(private pushService: PushService) {}
+    constructor(private pushService: PushService, private authService: AuthService) {
+        this.authService.setupAndPopulateCache()
+    }
 }

@@ -35,7 +35,7 @@ export class SingleArticleBoxComponent implements OnInit {
 
     toggleLike() {
         this.articleService
-            .likeArticle(this.article, this.authService.userToken)
+            .likeArticle(this.article)
             .then(() => {
                 this.article.likedByUser = !this.article.likedByUser;
                 this.article.likeCount += (this.article.likedByUser ? 1 : -1);
