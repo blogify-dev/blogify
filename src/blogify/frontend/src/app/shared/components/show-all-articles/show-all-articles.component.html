@@ -2,7 +2,7 @@
 
     <div id="articles-header">
         <!-- Back arrow, if necessary -->
-        <a id="header-search-back" (click)="stopSearch()" *ngIf="showingSearchResults">
+        <a class="clickable hover-neutral" id="header-search-back" (click)="stopSearch()" *ngIf="showingSearchResults">
             <fa-icon [icon]="faArrowLeft" size="2x"></fa-icon>
         </a>
 
@@ -29,7 +29,7 @@
                (focusout)="setShowSearchBar(false)">
 
         <!-- Search icon -->
-        <a id="header-search-icon" *ngIf="!showingMobileSearchBar" (click)="setShowSearchBar(true)">
+        <a class="clickable hover-neutral" id="header-search-icon" *ngIf="!showingMobileSearchBar" (click)="setShowSearchBar(true)">
             <fa-icon [icon]="faSearch" size="2x"></fa-icon>
         </a>
 
