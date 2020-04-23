@@ -4,11 +4,11 @@ package blogify.backend.database
 
 import blogify.backend.appContext
 import blogify.backend.database.handling.query
+import blogify.backend.database.models.ResourceTable
 import blogify.backend.events.models.Event
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
 import blogify.backend.resources.User
-import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.persistence.models.Repository
@@ -16,79 +16,19 @@ import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.sanitize
 import blogify.backend.util.*
 
-import io.ktor.http.ContentType
-
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.ReferenceOption.*
 import org.jetbrains.exposed.sql.transactions.transaction
+
+import io.ktor.http.ContentType
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.getOrElse
 import com.github.kittinunf.result.coroutines.map
+
 import java.time.Instant
 
-import java.util.UUID
-
-import com.andreapivetta.kolor.red
-import org.jetbrains.exposed.sql.*
-
-abstract class ResourceTable< R: Resource> : Table() {
-
-    open val authorColumn: Column<UUID>? = null
-
-    suspend fun obtainAll(requestContext: RequestContext, limit: Int): SrList<R> = Wrap {
-        query { this.selectAll().limit(limit).toSet() }.get()
-            .map { this.convert(requestContext, it).get() }
-    }
-
-    suspend fun obtainListing(
-        requestContext: RequestContext,
-        selectCondition: SqlExpressionBuilder.() -> Op<Boolean>,
-        quantity: Int,
-        page: Int,
-        orderBy: Column<*>,
-        sortOrder: SortOrder = SortOrder.ASC
-    ): Sr<Pair<List<R>, Boolean>> = Wrap {
-
-        if (authorColumn == null)
-            error("fatal: tried to query listing but author column was not set on table".red())
-
-        query {
-            this.select(selectCondition)
-                .orderBy(orderBy, sortOrder)
-                //               v-- We add one to check if we reached the end
-                .limit(quantity + 1, (page * quantity).toLong())
-                .toList()
-        }.get().let { results ->
-            results.take(quantity).map { this.convert(requestContext, it).get() } to (results.size - 1 == quantity)
-        }
-    }
-
-    suspend fun obtain(requestContext: RequestContext, id: UUID): Sr<R> = Wrap {
-        query { this.select { uuid eq id }.single() }.get()
-            .let { this.convert(requestContext, it).get() }
-    }
-
-    abstract suspend fun convert(requestContext: RequestContext, source: ResultRow): Sr<R>
-
-    abstract suspend fun insert(resource: R): Sr<R>
-
-    abstract suspend fun update(resource: R): Boolean
-
-    open suspend fun delete(resource: R): Sr<Boolean> = Wrap {
-        query {
-            this.deleteWhere { uuid eq resource.uuid }
-        }
-
-        true
-    }
-
-    val uuid = uuid("uuid")
-
-    override val primaryKey = PrimaryKey(uuid)
-
-}
-
-object Articles : ResourceTable<Article>() {
+object Articles : ResourceTable.UserCreated<Article>() {
 
     val title      = varchar ("title", 512)
     val createdAt  = integer ("created_at")
@@ -281,7 +221,7 @@ object Users : ResourceTable<User>() {
 
 }
 
-object Comments : ResourceTable<Comment>() {
+object Comments : ResourceTable.UserCreated<Comment>() {
 
     val commenter     = uuid ("commenter").references(Users.uuid, onDelete = SET_NULL)
     val article       = uuid ("article").references(Articles.uuid, onDelete = CASCADE)

@@ -1,6 +1,6 @@
 package blogify.backend.persistence.postgres
 
-import blogify.backend.database.ResourceTable
+import blogify.backend.database.models.ResourceTable
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.models.PropMap
 import blogify.backend.persistence.models.Repository
@@ -11,14 +11,14 @@ import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
 import blogify.backend.util.getOrPipelineError
 
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
+
 import io.ktor.http.HttpStatusCode
 
 import com.github.kittinunf.result.coroutines.map
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.sql.*
-
-import org.jetbrains.exposed.sql.transactions.transaction
 
 import java.util.*
 
@@ -27,7 +27,7 @@ open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repos
     override suspend fun getAll(request: RequestContext, limit: Int): SrList<R>
             = this.table.obtainAll(request, limit)
 
-    override suspend fun queryListing(
+    override suspend fun queryListing (
         request: RequestContext,
         selectCondition: SqlExpressionBuilder.() -> Op<Boolean>,
         quantity: Int,

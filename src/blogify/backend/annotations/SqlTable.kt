@@ -1,6 +1,6 @@
 package blogify.backend.annotations
 
-import blogify.backend.database.ResourceTable
+import blogify.backend.database.models.ResourceTable
 import blogify.backend.resources.models.Resource
 
 import kotlin.reflect.KClass
