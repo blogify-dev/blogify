@@ -106,6 +106,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
             // since those don't use Jackson for root serialization.
 
             val blogifyModule = SimpleModule()
+
             blogifyModule.addSerializer(Resource.ResourceIdSerializer)
             blogifyModule.addSerializer(Template.Field.Serializer)
             blogifyModule.addSerializer(ContentTypeSerializer)
