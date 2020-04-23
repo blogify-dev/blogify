@@ -1,16 +1,14 @@
 @import "../../../styles/fonts";
 @import "../../../styles/colours";
 @import "../../../styles/mixins";
+@import "src/styles/layouts";
 
 :host {
     z-index: 100;
 }
 
 nav {
-    $box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.10);
-    -webkit-box-shadow: $box-shadow;
-    -moz-box-shadow: $box-shadow;
-    box-shadow: $box-shadow;;
+    box-shadow: var(--std-box-shadow);
 
     #navbar-list {
 

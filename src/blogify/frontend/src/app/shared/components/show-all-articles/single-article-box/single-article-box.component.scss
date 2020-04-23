@@ -18,9 +18,7 @@
     border: 1px dotted transparent;
     border-radius: $std-border-radius;
 
-    -webkit-box-shadow: $std-box-shadow;
-    -moz-box-shadow: $std-box-shadow;
-    box-shadow: $std-box-shadow;
+    box-shadow: var(--std-box-shadow);
 
     padding: 1.4em 1.6em;
 

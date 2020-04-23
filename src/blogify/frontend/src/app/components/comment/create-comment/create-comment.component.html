@@ -9,7 +9,7 @@
             [ngClass]="!(loggedInObs | async) ? 'disabled' : ''"
             (click)="doReply()"
         >Submit</button>
-<!--        <button class="draft-button positive hollow rounded">Save draft</button>-->
+        <button class="draft-button hollow rounded">Save draft</button>
 
         <span class="submit-error-container" *ngIf="replyError !== ''">{{replyError}}</span>
     </div>

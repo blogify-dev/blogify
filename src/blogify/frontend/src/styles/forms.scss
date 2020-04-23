@@ -112,7 +112,7 @@ button {
     color: var(--theme);
     background: var(--accent-neutral);
 
-    border: 1px solid transparent;
+    border: 1px solid var(--accent-neutral);
     border-radius: $std-border-radius;
 
     font-size: 1.25em;
@@ -133,6 +133,11 @@ button {
     &.negative { color: black; background-color: var(--accent-negative); }
     &.gray     { color: black; background-color: var(--accent-gray); }
 
+
+    &:not(.hollow) {
+        border-color: transparent;
+    }
+
     // Shape classes
 
     &.small {
@@ -146,8 +151,10 @@ button {
 
     &.hollow {
         background: none !important;
-        color: var(--body-fg);
-        border: 1px solid var(--body-fg);
+        color: var(--accent-neutral);
+        border-width: 1px;
+        border-style: solid;
+
         &.rounded { border-radius: 1.25em !important; }
 
         &.neutral  { color: var(--accent-neutral);  border-color: var(--accent-neutral) }

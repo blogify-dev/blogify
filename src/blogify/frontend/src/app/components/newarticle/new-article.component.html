@@ -29,7 +29,7 @@
         <span [className]="result.status" id="submit-result-container">{{result.message}}</span>
 
          <button [disabled]="!form.valid" class="positive rounded hollow" (click)="createNewArticle()">Save Draft</button>
-         <button [disabled]="!form.valid" class="positive rounded" (click)="createNewArticle()">Submit</button>
+         <button [disabled]="!form.valid" class="positive rounded" style="color: var(--theme)" (click)="createNewArticle()">Submit</button>
     </span>
 
 </div>
