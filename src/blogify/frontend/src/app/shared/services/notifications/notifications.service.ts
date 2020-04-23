@@ -80,7 +80,7 @@ export class NotificationsService {
             }),
         };
 
-        return this.httpClient.get<NotificationsPayload[]>('/api/users/me/notifications', httpOptions).toPromise()
+        return this.httpClient.get<NotificationsPayload[]>('/api/users/me/notifications?limit=5', httpOptions).toPromise()
             .then(payloads => Promise.all ( payloads.map ( async p =>
                 this.convertPayloadToNotification({ e: p.klass, d: p.data, t: 'Notification' })
             ))).then(notifs => notifs.filter(n => n));
