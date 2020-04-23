@@ -20,12 +20,8 @@ import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.*
-import blogify.backend.util.getOrNull
-import blogify.backend.util.never
-import blogify.backend.util.toUUID
-import com.andreapivetta.kolor.magenta
+import blogify.backend.util.assertGet
 
-import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
@@ -92,9 +88,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
         post("/upload/{uuid}") {
             requestContext(applicationContext) {
-                uploadToResource<User> (
-                    authPredicate = { user, manipulated -> user eqr manipulated }
-                )
+                uploadToResource<User>(authPredicate = { user, manipulated -> user eqr manipulated })
             }
         }
 
@@ -112,13 +106,14 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
             }
         }
 
+        @Suppress("RemoveRedundantQualifierName")
         post("{uuid}/follow") {
             val follows = Users.Follows
 
             requestContext(applicationContext) {
-                val id = param("uuid")
+                val id by queryUuid
 
-                val following = obtainResource<User>(id.toUUID())
+                val following = obtainResource<User>(id)
 
                 runAuthenticated { subject ->
 
@@ -150,6 +145,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
         }
 
         route("/me") {
+
             get {
                 requestContext(applicationContext) {
                     runAuthenticated { user ->
@@ -170,7 +166,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
                                 .limit(count)
                                 .map { Notifications.convert(this, it) }
                                 .toList()
-                        }.getOrNull() ?: never
+                        }.assertGet()
 
                         call.respond(notifications.takeIf { it.isNotEmpty() } ?: "[]")
                     }

@@ -4,26 +4,21 @@ package blogify.backend.routing
 
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.database.Articles
-import blogify.backend.database.Users
 import blogify.backend.database.handling.query
+import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.models.eqr
-import blogify.backend.pipelines.obtainResource
-import blogify.backend.pipelines.param
-import blogify.backend.pipelines.requestContext
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
-import blogify.backend.pipelines.queryUuid
 import blogify.backend.resources.reflect.extensions.okHandle
 import blogify.backend.routing.handling.*
-import blogify.backend.util.getOrPipelineError
-import blogify.backend.util.reason
-import blogify.backend.util.toUUID
+import blogify.backend.util.*
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.routing.*
 import io.ktor.response.respond
+import io.ktor.routing.optionalParam
 
 import org.jetbrains.exposed.sql.*
 
@@ -78,16 +73,17 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
         post("/{uuid}/like") {
             requestContext(applicationContext) {
-                val id = param("uuid")
+                val id by queryUuid
 
                 runAuthenticated { subject ->
-                    val articleToLike = obtainResource<Article>(id.toUUID())
+                    val articleToLike = obtainResource<Article>(id)
 
                     // Figure whether the article was already liked by the user
                     val alreadyLiked = query {
                         likes.select {
-                            (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid) }.count().toInt()
-                    }.getOrPipelineError() == 1
+                            (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid)
+                        }.count().toInt()
+                    }.assertGet() == 1
 
                     if (!alreadyLiked) { // Add a like if none were present
                         query {
@@ -113,8 +109,8 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
         post("/{uuid}/pin") {
             requestContext(applicationContext) {
-                val id = param("uuid")
-                val article = repository<Article>().get(this, id.toUUID()).get()
+                val id by queryUuid
+                val article = obtainResource<Article>(id)
 
                 runAuthenticated(predicate = { it.isAdmin }) {
                     Articles.update(article.copy(isPinned = !article.isPinned)).also {
@@ -150,8 +146,8 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
         get("/search") {
             requestContext(applicationContext) {
-                val query = call.parameters["q"]!!
-                val user = call.parameters["byUser"]?.toUUID()
+                val query = param("q")
+                val user = optionalParam("byUser")?.toUUID()
 
                 if (user != null) {
                     val userHandle = Article::createdBy.okHandle ?: error("a")

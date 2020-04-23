@@ -41,7 +41,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
 
         get("/article/{uuid}") {
             requestContext(applicationContext) {
-                val articleId = param("uuid").toUUID()
+                val articleId by queryUuid
 
                 fetchResourceListing<Comment>(
                     Comments.uuid,
@@ -134,10 +134,10 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
 
         get("/{uuid}/like") {
             requestContext(applicationContext) {
-                val id = param("uuid")
+                val id by queryUuid
 
                 runAuthenticated { subject ->
-                    val comment = this.obtainResource<Comment>(id.toUUID())
+                    val comment = obtainResource<Comment>(id)
 
                     val liked = query {
                         likes.select {
@@ -152,11 +152,10 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         post("/{uuid}/like") {
 
             requestContext(applicationContext) {
-                val id = param("uuid")
+                val id by queryUuid
 
                 runAuthenticated { subject ->
-                    val commentToLike = repository<Comment>().get(this, id.toUUID())
-                        .getOrPipelineError(HttpStatusCode.NotFound, "couldn't fetch comment")
+                    val commentToLike = obtainResource<Comment>(id)
 
                     // Figure whether the article was already liked by the user
                     val alreadyLiked = query {

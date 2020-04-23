@@ -149,26 +149,20 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing (
     sortOrder: SortOrder,
     noinline selectCondition: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }
 ) {
-
     val repo = repository<R>()
     val quantity = param("quantity").toIntOrNull() ?: 15
     val page = param("page").toIntOrNull() ?: 0
     val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
-    repo.queryListing(this, selectCondition, quantity, page, orderBy, sortOrder).fold (
-        success = { (articles, moreAvailable) ->
-            @Suppress("unused")
-            val obj = object {
-                val data = articles.map {
-                    selectedPropertyNames?.let { props -> it.slice(props) } ?: it.sanitize()
-                }
-                val moreAvailable = moreAvailable
-            }
-            call.respond(obj)
-        },
-        failure = call::respondExceptionMessage
-    )
+    val results = repo.queryListing(this, selectCondition, quantity, page, orderBy, sortOrder)
+        .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't query listing")
 
+    call.respond(object {
+        val data = results.first.map {
+            selectedPropertyNames?.let { props -> it.slice(props) } ?: it.sanitize()
+        }
+        val moreAvailable = results.second
+    })
 }
 
 /**
