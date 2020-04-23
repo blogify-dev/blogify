@@ -1,4 +1,4 @@
-@import "../../../../../styles/mixins";
+@import "src/styles/mixins";
 
 #main-container {
     @include pageContainer;
@@ -7,33 +7,31 @@
 
         margin-bottom: 1em;
 
-        //height: 10rem;
         display: flex;
+        justify-content: space-between;
         align-items: center;
-
         flex-wrap: wrap;
         gap: 1.15rem;
 
         .separator {
-            margin: .75em 0;
+            margin: 0.5em 0;
 
-            margin-left: 1.15rem !important;
-            margin-right: .85em !important;
+            margin-left: 1.65rem !important;
+            margin-right: 1.35em !important;
         }
 
-        #header-follow-button {
-            align-self: center;
+        #right-area {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
 
-            margin-left: 1.75rem;
-            margin-right: auto;
-        }
+            #flexible-space {
+                flex-grow: 10;
+            }
 
-        #flexible-space {
-            flex-grow: 10;
-        }
-
-        #header-tabs {
-            justify-self: end;
+            #header-tabs {
+                justify-self: end;
+            }
         }
 
     }

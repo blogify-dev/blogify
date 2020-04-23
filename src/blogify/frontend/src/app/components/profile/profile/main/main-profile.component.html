@@ -14,18 +14,20 @@
 
             <span id="flexible-space"></span>
 
-            <app-tab-header id="header-tabs" [tabs]="finalTabs"></app-tab-header>
+            <div id="right-area">
+                <app-tab-header id="header-tabs" [tabs]="finalTabs"></app-tab-header>
 
-            <ng-container *ngIf="this.isLoggedIn && !this.isSelf">
-                <span class="separator"></span>
+                <ng-container *ngIf="this.isLoggedIn && !this.isSelf">
+                    <span class="separator"></span>
 
-                <fa-icon
-                    [ngClass]="'clickable' + (this.alreadyFollowed ? ' negative' : ' hover-positive')"
-                    [icon]="this.alreadyFollowed ? faUserMinus : faUserPlus"
-                    size="2x"
-                    [transform]="{ size: 15, y: 0 }"
-                    (click)="this.toggleFollow()"></fa-icon>
-            </ng-container>
+                    <fa-icon
+                        [ngClass]="'clickable' + (this.alreadyFollowed ? ' neutral hover-negative' : ' hover-positive')"
+                        [icon]="this.alreadyFollowed ? faUserMinus : faUserPlus"
+                        size="2x"
+                        [transform]="{ size: 15, y: 0 }"
+                        (click)="this.toggleFollow()"></fa-icon>
+                </ng-container>
+            </div>
         </div>
 
         <router-outlet></router-outlet>
