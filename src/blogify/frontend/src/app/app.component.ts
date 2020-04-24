@@ -1,18 +1,19 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { AuthService } from './shared/services/auth/auth.service';
-import { NotificationComponent } from './shared/components/notification/notification.component';
-import { CommentsService } from './services/comments/comments.service';
-import { ArticleService } from './services/article/article.service';
-import { NotificationsService } from './shared/services/notifications/notifications.service';
-import { ToastContainerDirective, ToastrService } from 'ngx-toastr';
+import { Component, OnInit } from '@angular/core'
+import { AuthService } from './shared/services/auth/auth.service'
+import { CommentsService } from './services/comments/comments.service'
+import { ArticleService } from './services/article/article.service'
+import { NotificationsService } from './shared/services/notifications/notifications.service'
+import { ToastrService } from 'ngx-toastr'
+import { StaticContentService } from './services/static/static-content.service'
+import { Router } from '@angular/router'
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss']
+    styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-    color = 'dark';
+    color = 'dark'
 
     constructor (
         public authService: AuthService,
@@ -20,20 +21,21 @@ export class AppComponent implements OnInit {
         private articleService: ArticleService,
         private toastrService: ToastrService,
         private notificationsService: NotificationsService,
+        private staticContentService: StaticContentService,
+        private router: Router
     ) {}
 
-    @ViewChild(ToastContainerDirective, {static: true})
-    toastContainer: ToastContainerDirective;
-
     async ngOnInit() {
-        this.toastrService.overlayContainer = this.toastContainer;
-
-        this.notificationsService.liveNotifications.subscribe(async msg => {
-            const toastRef = this.toastrService.show().toastRef;
-            const componentInstance = toastRef.componentInstance as NotificationComponent;
-
-            componentInstance.toastRef = toastRef;
-            componentInstance.notification = msg;
-        });
+        this.notificationsService.liveNotifications.subscribe(async (msg) => {
+            new Notification(msg.header, {
+                icon:
+                    // @ts-ignore
+                    msg.icon.contentType !== undefined ? this.staticContentService.urlFor(msg.icon)
+                        : undefined,
+                body: msg.desc,
+            }).addEventListener('click', () => {
+                this.router.navigateByUrl(msg.routerLink)
+            })
+        })
     }
 }
