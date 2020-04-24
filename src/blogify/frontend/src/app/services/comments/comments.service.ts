@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ListingQuery } from '../../models/ListingQuery';
 import { idOf, Shadow } from '../../models/Shadow';
 import { Comment } from '../../models/Comment';
 import { Article } from '../../models/Article';
 import { BehaviorSubject } from 'rxjs';
-import { AuthService } from '../../shared/auth/auth.service';
+import { AuthService } from '../../shared/services/auth/auth.service';
+import {UserService} from "../../shared/services/user-service/user.service";
 
 @Injectable({
     providedIn: 'root'
@@ -14,14 +15,15 @@ export class CommentsService {
 
     private commentsFromServer = new BehaviorSubject<Comment>(undefined);
 
-    constructor(private httpClient: HttpClient, private authService: AuthService) {}
+    constructor(private httpClient: HttpClient, private authService: AuthService,        private userService: UserService,
+    ) {}
 
     private readonly ENDPOINT = '/api/articles/comments';
 
     private readonly AUTH_HTTP_OPTIONS = () => {
         return { headers: new HttpHeaders({
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.authService.userToken}`
+            Authorization: `Bearer ${this.authService.currentUser.token}`
         })};
     }
 
@@ -49,7 +51,7 @@ export class CommentsService {
     async getCommentByUUID(uuid: string): Promise<Comment> {
         const comment = await this.httpClient.get<Comment>(`${this.ENDPOINT}/${uuid}`).toPromise();
 
-        comment.commenter = await this.authService.fetchUser(comment.commenter.toString());
+        comment.commenter = await this.userService.getUser(comment.commenter.toString());
         if (!comment.children) comment.children = { data: [], moreAvailable: false };
 
         return comment;
@@ -57,14 +59,14 @@ export class CommentsService {
 
     async createComment(newComment: Comment): Promise<Comment | undefined> {
         const comment = {
-            commenter: await this.authService.userUUID,
+            commenter: this.authService.currentUser.uuid,
             article: idOf(newComment.article),
             content: newComment.content,
             parentComment: idOf(newComment.parentComment)
         };
 
         return await this.httpClient.post<Comment>(`${this.ENDPOINT}`, comment, this.AUTH_HTTP_OPTIONS()).toPromise()
-            .then(res => comment as Comment, err => undefined);
+            .then(() => comment as Comment, () => undefined);
     }
 
     async deleteComment(commentUUID: string): Promise<object> {

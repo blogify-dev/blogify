@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Tab, TabList } from '../../../../shared/components/tab-header/tab-header.component';
 import { User } from '../../../../models/User';
 import { ActivatedRoute, Params } from '@angular/router';
-import { AuthService } from '../../../../shared/auth/auth.service';
+import { AuthService } from '../../../../shared/services/auth/auth.service';
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { HttpResponse } from '@angular/common/http';
 import { faUserMinus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
@@ -51,23 +51,20 @@ export class MainProfileComponent implements OnInit {
             const username = params.username;
 
             // Set the correct profile data
-            this.user = await this.authService.getByUsername(username);
+            this.user = await this.userService.getByUsername(username);
 
             this.authService.observeIsLoggedIn().subscribe(async loggedIn => {
                 if (!loggedIn) return;
 
-                this.authService.userProfile.then(u => {
-                    this.alreadyFollowed
-                        = this.user.followers.findIndex(it => it === u.uuid) !== -1;
-                }).catch(error => {
-                    alert('[blogifyProfiles] Error while fetching logged in profile: ' + error);
-                });
+                this.alreadyFollowed
+                    = this.user.followers.findIndex(it => it === this.authService.currentUser.uuid) !== -1;
+
             });
 
             // This second listener must always be called at least once after user variable is initialized,
             // so it needs to be created here. We update the tabs as well.
             this.authService.observeIsLoggedIn().subscribe(async value => {
-                this.isSelf = value && this.user.uuid === (await this.authService.userProfile).uuid;
+                this.isSelf = value && this.user.uuid === this.authService.currentUser.uuid;
                 this.updateTabs();
             });
         });
@@ -88,7 +85,7 @@ export class MainProfileComponent implements OnInit {
      * Toggle the follow state and update UI accordingly
      */
     toggleFollow() {
-        this.userService.toggleFollowUser(this.user, this.authService.userToken)
+        this.userService.toggleFollowUser(this.user, this.authService.currentUser.token)
             .then((r: HttpResponse<object>) => {
                 if (r.status === 200) this.alreadyFollowed = !this.alreadyFollowed;
             }).catch(e => {

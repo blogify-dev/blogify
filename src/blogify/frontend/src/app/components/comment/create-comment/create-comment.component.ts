@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Article } from '../../../models/Article';
 import { CommentsService } from '../../../services/comments/comments.service';
-import { AuthService } from '../../../shared/auth/auth.service';
+import { AuthService } from '../../../shared/services/auth/auth.service';
 import { Comment } from '../../../models/Comment';
 import { idOf } from '../../../models/Shadow';
 
@@ -27,7 +27,7 @@ export class CreateCommentComponent implements OnInit {
     async ngOnInit() {
         this.authService.observeIsLoggedIn().subscribe(async loggedIn => {
             this.replyComment = {
-                commenter: loggedIn ? (await this.authService.userProfile).uuid : '',
+                commenter: loggedIn ? this.authService.currentUser.uuid : '',
                 article: this.comment === undefined ? this.article.uuid : idOf(this.comment.article),
                 parentComment: this.comment ? this.comment.uuid : undefined,
                 likeCount: 0,

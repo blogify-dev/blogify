@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Comment } from '../../../models/Comment';
-import { AuthService } from '../../../shared/auth/auth.service';
-import { CommentsService, CommentTreeListing } from '../../../services/comments/comments.service';
+import { AuthService } from '../../../shared/services/auth/auth.service';
+import { CommentsService } from '../../../services/comments/comments.service';
 import { ArticleService } from '../../../services/article/article.service';
 import { faCommentAlt, faHeart, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
-import { faArrowCircleDown, faArrowDown, faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
 import { idOf } from '../../../models/Shadow';
 import { ListingQuery } from '../../../models/ListingQuery';
+import { UserService } from '../../../shared/services/user-service/user.service';
 
 @Component({
   selector: 'app-single-comment',
@@ -39,6 +40,7 @@ export class SingleCommentComponent implements OnInit {
         private authService: AuthService,
         private commentsService: CommentsService,
         private articleService: ArticleService,
+        private userService: UserService
     ) {}
 
     /**
@@ -50,7 +52,7 @@ export class SingleCommentComponent implements OnInit {
     /**
      * Use this listing for loading child comments. Page 0 is fine since we only load page 1 and further with it and never pagee 0
      */
-    listingQuery = { ...(new ListingQuery<Comment>(10, 0, this.REQUIRED_FIELDS)), depth: 9 };
+    listingQuery = { ...(new ListingQuery<Comment>(5, 0, this.REQUIRED_FIELDS)), depth: 9 };
 
     loggedInObs = this.authService.observeIsLoggedIn();
 
@@ -61,7 +63,7 @@ export class SingleCommentComponent implements OnInit {
         if (this.parent && this.parent.commenter === this.comment.commenter) {
             this.comment.commenter = this.parent.commenter;
         } else if (typeof this.comment.commenter === 'string') {
-            this.comment.commenter = await this.authService.fetchUser(this.comment.commenter);
+            this.comment.commenter = await this.userService.getUser(this.comment.commenter);
         }
 
         // Article is always the same as parent
@@ -69,7 +71,7 @@ export class SingleCommentComponent implements OnInit {
         if (this.parent) {
             this.comment.article = this.parent.article;
         } else if (typeof this.comment.article === 'string') {
-            this.comment.article = await this.articleService.getArticleByUUID(this.comment.article);
+            this.comment.article = await this.articleService.getArticle(this.comment.article);
         }
 
         // Make sure our children array is not undefined
@@ -91,7 +93,7 @@ export class SingleCommentComponent implements OnInit {
         // Update isLoggedInUsersComment
 
         this.authService.observeIsLoggedIn().subscribe(async state => {
-            this.isLoggedInUsersComment = state && idOf(this.comment.commenter) === await this.authService.userUUID;
+            this.isLoggedInUsersComment = state && idOf(this.comment.commenter) === this.authService.currentUser.uuid;
         });
     }
 

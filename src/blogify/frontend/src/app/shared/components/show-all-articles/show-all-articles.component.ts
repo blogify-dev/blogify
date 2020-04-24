@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Article } from '../../../models/Article';
 import { ListingQuery } from '../../../models/ListingQuery';
 import { ArticleService } from '../../../services/article/article.service';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../../services/auth/auth.service';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { StaticContentService } from '../../../services/static/static-content.service';
 import { faArrowDown, faArrowLeft, faPencilAlt, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -68,10 +68,10 @@ export class ShowAllArticlesComponent implements OnInit {
                 this.stopSearch();
 
                 if (this.listingQuery.byUser)
-                    this.articleService.getArticleByListingForUser(this.listingQuery)
+                    this.articleService.queryArticleListingForUser(this.listingQuery)
                         .then(result => ({ data: this.articles, moreAvailable: this.moreAvailable } = result));
                  else
-                    this.articleService.getArticlesByListing(this.listingQuery)
+                    this.articleService.queryArticleListing(this.listingQuery)
                         .then(result => ({ data: this.articles, moreAvailable: this.moreAvailable } = result));
             }
         });
@@ -81,13 +81,13 @@ export class ShowAllArticlesComponent implements OnInit {
         this.listingQuery.page++;
 
         if (this.listingQuery.byUser)
-            this.articleService.getArticleByListingForUser(this.listingQuery)
+            this.articleService.queryArticleListingForUser(this.listingQuery)
                 .then(result => {
                     this.articles.push(...result.data);
                     this.moreAvailable = result.moreAvailable;
                 });
         else
-            this.articleService.getArticlesByListing(this.listingQuery)
+            this.articleService.queryArticleListing(this.listingQuery)
                 .then(result => {
                     this.articles.push(...result.data);
                     this.moreAvailable = result.moreAvailable;

@@ -7,7 +7,7 @@ import { Subscription } from 'rxjs';
 import { Article, Category } from '../../models/Article';
 import { User } from '../../models/User';
 import { ArticleService } from '../../services/article/article.service';
-import { AuthService } from '../../shared/auth/auth.service';
+import { AuthService } from '../../shared/services/auth/auth.service';
 
 type Result = 'none' | 'success' | 'error';
 
@@ -57,10 +57,7 @@ export class UpdateArticleComponent implements OnInit {
         this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
             const articleUUID = map.get('uuid');
 
-            this.article = await this.articleService.getArticleByUUID (
-                articleUUID,
-                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt', 'likeCount']
-            );
+            this.article = await this.articleService.getArticle (articleUUID,);
 
             this.article.categories.forEach((cat: Category) => this.formCategories.push(new FormControl(cat.name)));
 
@@ -73,7 +70,7 @@ export class UpdateArticleComponent implements OnInit {
         });
 
         this.authService.observeIsLoggedIn().subscribe(state => {
-            if (state) this.authService.userProfile.then(it => this.user = it);
+            if (state) this.user = this.authService.currentUser;
             else console.error('[blogifyNewArticle] must be logged in; check links to not allow unauth access to new-article');
         });
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { webSocket } from 'rxjs/webSocket';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../auth/auth.service';
 import { CommentsService } from '../../../services/comments/comments.service';
 import { CommentCreatePayload, EventPayload } from '../../../models/Events';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -30,7 +30,7 @@ export class PushService {
             });
 
             if (loggedIn) {
-                this.ws.next(this.authService.userToken);
+                this.ws.next(this.authService.currentUser.token);
                 this.ws.subscribe((msg) => {
                     if (!this.authenticated) {
                         if (msg.match(/AUTH OK/)) {

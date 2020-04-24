@@ -3,7 +3,7 @@ import { Article } from '../../../../models/Article';
 import { faHeart, faCommentAlt, faClipboard } from '@fortawesome/free-regular-svg-icons';
 import { faHeart as faHeartFilled, faThumbtack } from '@fortawesome/free-solid-svg-icons';
 import { ClipboardService } from 'ngx-clipboard';
-import { AuthService } from '../../../auth/auth.service';
+import { AuthService } from '../../../services/auth/auth.service';
 import { ArticleService } from '../../../../services/article/article.service';
 
 @Component({
@@ -35,7 +35,7 @@ export class SingleArticleBoxComponent implements OnInit {
 
     toggleLike() {
         this.articleService
-            .likeArticle(this.article, this.authService.userToken)
+            .likeArticle(this.article)
             .then(() => {
                 this.article.likedByUser = !this.article.likedByUser;
                 this.article.likeCount += (this.article.likedByUser ? 1 : -1);

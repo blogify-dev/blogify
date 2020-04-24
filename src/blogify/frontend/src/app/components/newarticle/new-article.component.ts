@@ -3,7 +3,7 @@ import { Article } from '../../models/Article';
 import { ArticleService } from '../../services/article/article.service';
 import { User } from '../../models/User';
 import { StaticFile } from '../../models/Static';
-import { AuthService } from '../../shared/auth/auth.service';
+import { AuthService } from '../../shared/services/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -45,7 +45,7 @@ export class NewArticleComponent implements OnInit {
 
     async ngOnInit() {
         this.authService.observeIsLoggedIn().subscribe(state => {
-            if (state) this.authService.userProfile.then(it => this.user = it);
+            if (state) this.user = this.authService.currentUser;
             else console.error('[blogifyNewArticle] must be logged in; check links to not allow unauth access to new-article');
         });
         this.validations = await this.http.get<object>('/api/articles/_validations').toPromise();

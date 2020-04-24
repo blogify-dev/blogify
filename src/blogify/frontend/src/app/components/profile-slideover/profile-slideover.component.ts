@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../shared/auth/auth.service';
+import { AuthService } from '../../shared/services/auth/auth.service';
 import { User } from '../../models/User';
 import { faList, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
@@ -22,8 +22,8 @@ export class ProfileSlideoverComponent implements OnInit {
         public authService: AuthService
     ) {}
 
-    async ngOnInit() {
-        this.user = await this.authService.userProfile;
+    ngOnInit() {
+        this.user = this.authService.currentUser;
     }
 
 }

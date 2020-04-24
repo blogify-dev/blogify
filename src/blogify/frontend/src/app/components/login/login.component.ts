@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../shared/auth/auth.service';
+import { AuthService } from '../../shared/services/auth/auth.service';
 import { LoginCredentials, RegisterCredentials, User } from '../../models/User';
 import { Router} from '@angular/router';
 
@@ -12,6 +12,7 @@ export class LoginComponent implements OnInit {
 
     registerCredentials: RegisterCredentials = { name: '', username: '', password: '', email: '' };
     loginCredentials: LoginCredentials = { username: '', password: '' };
+    keepLoggedIn = false;
 
     user: User;
     private redirectTo: string;
@@ -26,10 +27,9 @@ export class LoginComponent implements OnInit {
     }
 
     async login() {
-        this.authService.login(this.loginCredentials)
+        this.authService.login(this.loginCredentials, this.keepLoggedIn)
             .then(async () => {
-                await this.authService.userUUID;
-                this.user = await this.authService.userProfile;
+                this.user = await this.authService.currentUser;
 
                 if (this.redirectTo) {
                     await this.router.navigateByUrl(this.redirectTo);

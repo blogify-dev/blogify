@@ -19,7 +19,7 @@ export class ArticleCommentsComponent implements OnInit {
     @Input() article: Article;
 
     /**
-     * Stores the properties of {@link Article} that are needed for display in this component
+     * Stores the properties of {@link Comment} that are needed for display in this component
      */
     private readonly REQUIRED_FIELDS: (keyof Comment)[] =
         ['uuid', 'commenter', 'article', 'content', 'likeCount', 'createdAt', 'parentComment'];
@@ -27,7 +27,7 @@ export class ArticleCommentsComponent implements OnInit {
     /**
      * Use this listing for loading comments
      */
-    listingQuery = { ...(new ListingQuery<Comment>(10, -1, this.REQUIRED_FIELDS)), depth: 9 };
+    listingQuery = { ...(new ListingQuery<Comment>(7, -1, this.REQUIRED_FIELDS)), depth: 5 };
 
     treeListing: CommentTreeListing;
 
