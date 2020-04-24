@@ -8,7 +8,8 @@
     "test": "ng test",
     "lint": "eslint 'src/**/*.ts'",
     "cypress:open": "cypress open",
-    "e2e": "ng e2e"
+    "cypress:run": "cypress run",
+    "e2e": "start-server-and-test start http://localhost:4200 cypress:run"
   },
   "private": true,
   "dependencies": {
@@ -64,6 +65,7 @@
     "karma-jasmine-html-reporter": "^1.4.0",
     "prettier": "2.0.4",
     "protractor": "~5.4.0",
+    "start-server-and-test": "^1.11.0",
     "style-loader": "^1.0.1",
     "ts-node": "~7.0.0",
     "typescript": "~3.7.5"
