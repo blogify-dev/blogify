@@ -4,7 +4,7 @@
         "node": true
     },
     "extends": [
-        "plugin:prettier/recommended",
+//        "plugin:prettier/recommended",
         "plugin:cypress/recommended"
     ],
     "globals": {
@@ -20,5 +20,11 @@
         "@typescript-eslint"
     ],
     "rules": {
+        "indent": ["error", 4],
+        "semi": "error",
+        "arrow-parens": ["error", "as-needed"],
+        "max-len": ["error", { "code": 240 }],
+        "comma-dangle": "off",
+        "array-bracket-spacing": "error"
     }
 }

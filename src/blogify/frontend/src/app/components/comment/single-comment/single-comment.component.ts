@@ -10,12 +10,11 @@ import { ListingQuery } from '../../../models/ListingQuery';
 import { UserService } from '../../../shared/services/user-service/user.service';
 
 @Component({
-  selector: 'app-single-comment',
-  templateUrl: './single-comment.component.html',
-  styleUrls: ['./single-comment.component.scss']
+    selector: 'app-single-comment',
+    templateUrl: './single-comment.component.html',
+    styleUrls: ['./single-comment.component.scss'],
 })
 export class SingleCommentComponent implements OnInit {
-
     @Input() parent: Comment;
     @Input() comment: Comment;
 
@@ -52,7 +51,7 @@ export class SingleCommentComponent implements OnInit {
     /**
      * Use this listing for loading child comments. Page 0 is fine since we only load page 1 and further with it and never pagee 0
      */
-    listingQuery = { ...(new ListingQuery<Comment>(5, 0, this.REQUIRED_FIELDS)), depth: 9 };
+    listingQuery = { ...new ListingQuery<Comment>(5, 0, this.REQUIRED_FIELDS), depth: 9 };
 
     loggedInObs = this.authService.observeIsLoggedIn();
 
@@ -76,8 +75,7 @@ export class SingleCommentComponent implements OnInit {
 
         // Make sure our children array is not undefined
 
-        if (!this.comment.children)
-            this.comment.children = { data: [], moreAvailable: false };
+        if (!this.comment.children) this.comment.children = { data: [], moreAvailable: false };
 
         this.isReady = true;
 
@@ -135,7 +133,7 @@ export class SingleCommentComponent implements OnInit {
                 this.comment.likedByUser = !this.comment.likedByUser;
                 this.comment.likeCount += (this.comment.likedByUser ? 1 : -1);
             }).catch(() => {
-                console.error(`[blogifyComments] Couldn't like ${this.comment.uuid}` );
+                console.error(`[blogifyComments] Couldn't like ${this.comment.uuid}`);
             });
     }
 
