@@ -57,5 +57,15 @@ describe('StateService', () => {
         expect(fromCacheAfter).toBe(mockArticle)
     })
 
+    it('should cache an uncached user', () => {
+        const fromCacheBefore = service.getUser(mockUser.uuid)
+        expect(fromCacheBefore).toBeNull()
+
+        service.cacheUser(mockUser)
+
+        const fromCacheAfter = service.getUser(mockUser.uuid)
+        expect(fromCacheAfter).toBe(mockUser)
+    })
+
 
 })
