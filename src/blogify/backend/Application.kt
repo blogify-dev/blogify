@@ -193,7 +193,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
                 Comments.Likes,
                 Uploadables,
                 ImageUploadablesMetadata,
-                Notifications
+                Events
             )
         }
 

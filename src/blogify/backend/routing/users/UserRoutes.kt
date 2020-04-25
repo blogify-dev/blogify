@@ -1,7 +1,7 @@
 package blogify.backend.routing.users
 
 import blogify.backend.auth.handling.runAuthenticated
-import blogify.backend.database.tables.Notifications
+import blogify.backend.database.tables.Events
 import blogify.backend.database.tables.Users
 import blogify.backend.database.handling.query
 import blogify.backend.pipelines.wrapping.ApplicationContext
@@ -161,10 +161,10 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
                         val count = optionalParam("limit")?.toIntOrNull()?.coerceAtMost(25) ?: 25
 
                         val notifications = query {
-                            Notifications.select { Notifications.emitter eq user.uuid }
-                                .orderBy(Notifications.timestamp, SortOrder.DESC)
+                            Events.select { Events.emitter eq user.uuid }
+                                .orderBy(Events.timestamp, SortOrder.DESC)
                                 .limit(count)
-                                .map { Notifications.convert(this, it) }
+                                .map { Events.convert(this, it) }
                                 .toList()
                         }.assertGet()
 

@@ -1,6 +1,6 @@
 package blogify.backend.events.models
 
-import blogify.backend.database.tables.Notifications
+import blogify.backend.database.tables.Events
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.util.assertGet
@@ -18,7 +18,7 @@ open class Event (
     suspend fun send(request: RequestContext) {
         source.targets.forEach { it.sendEvent(request.appContext, this) }
 
-        Notifications.insert(this).assertGet()
+        Events.insert(this).assertGet()
     }
 
 }

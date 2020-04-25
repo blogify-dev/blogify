@@ -17,7 +17,7 @@ import com.github.kittinunf.result.coroutines.map
 import java.time.Instant
 
 @Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER")
-object Notifications : Table("notifications") {
+object Events : Table("notifications") {
 
     val klass     = text    ("class")
     val timestamp = integer ("timestamp")
