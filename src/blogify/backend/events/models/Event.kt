@@ -1,6 +1,6 @@
 package blogify.backend.events.models
 
-import blogify.backend.database.Notifications
+import blogify.backend.database.tables.Notifications
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.util.assertGet

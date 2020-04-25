@@ -9,7 +9,7 @@ import blogify.backend.annotations.search.QueryByField
 import blogify.backend.annotations.search.SearchDefaultSort
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
-import blogify.backend.database.Users
+import blogify.backend.database.tables.Users
 import blogify.backend.database.countReferredToBy
 import blogify.backend.database.findReferredToBy
 import blogify.backend.events.models.Event

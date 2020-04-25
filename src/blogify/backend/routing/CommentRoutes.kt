@@ -1,7 +1,7 @@
 package blogify.backend.routing
 
 import blogify.backend.auth.handling.runAuthenticated
-import blogify.backend.database.Comments
+import blogify.backend.database.tables.Comments
 import blogify.backend.database.handling.query
 import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.ApplicationContext

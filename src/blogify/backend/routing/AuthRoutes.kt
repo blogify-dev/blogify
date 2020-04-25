@@ -3,8 +3,7 @@ package blogify.backend.routing
 import blogify.backend.annotations.check
 import blogify.backend.auth.encoder
 import blogify.backend.auth.jwt.generateJWT
-import blogify.backend.auth.jwt.validateJwt
-import blogify.backend.database.Users
+import blogify.backend.database.tables.Users
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.requestContext
 import blogify.backend.pipelines.wrapping.ApplicationContext

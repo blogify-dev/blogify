@@ -3,7 +3,7 @@
 package blogify.backend.routing
 
 import blogify.backend.auth.handling.runAuthenticated
-import blogify.backend.database.Articles
+import blogify.backend.database.tables.Articles
 import blogify.backend.database.handling.query
 import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.ApplicationContext
@@ -18,7 +18,6 @@ import blogify.backend.util.*
 import io.ktor.http.HttpStatusCode
 import io.ktor.routing.*
 import io.ktor.response.respond
-import io.ktor.routing.optionalParam
 
 import org.jetbrains.exposed.sql.*
 

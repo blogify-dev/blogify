@@ -2,7 +2,7 @@ package blogify.backend.resources
 
 import blogify.backend.annotations.Invisible
 import blogify.backend.annotations.SqlTable
-import blogify.backend.database.Comments
+import blogify.backend.database.tables.Comments
 import blogify.backend.database.countReferredToBy
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.events.models.Event

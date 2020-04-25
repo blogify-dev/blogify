@@ -1,4 +1,4 @@
-package blogify.backend.util
+package blogify.backend.database.extensions
 
 import blogify.backend.resources.models.Resource
 
@@ -7,7 +7,6 @@ import org.jetbrains.exposed.sql.ColumnType
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.statements.api.PreparedStatementApi
 
-import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
@@ -20,7 +19,11 @@ private val objectMapper = jacksonObjectMapper().apply {
     registerModule(resourceModule)
 }
 
-inline fun <reified T : Any> Table.jsonb(name: String): Column<T> =
+fun Table.jsonb(name: String): Column<Map<String, Any?>> =
+    registerColumn(name, Json(Map::class.java))
+
+
+inline fun <reified T : Any> Table.typedJsonb(name: String): Column<T> =
     registerColumn(name, Json(T::class.java))
 
 
@@ -43,7 +46,6 @@ class Json<out T : Any>(private val klass: Class<T>) : ColumnType() {
             throw RuntimeException("Can't parse JSON: $value")
         }
     }
-
 
     override fun notNullValueToDB(value: Any): Any = objectMapper.writeValueAsString(value)
     override fun nonNullValueToString(value: Any): String = "'${objectMapper.writeValueAsString(value)}'"

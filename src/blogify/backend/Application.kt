@@ -12,6 +12,7 @@ import blogify.backend.routing.makeArticleRoutes
 import blogify.backend.routing.users.makeUserRoutes
 import blogify.backend.routing.makeAuthRoutes
 import blogify.backend.database.handling.query
+import blogify.backend.database.tables.*
 import blogify.backend.persistence.postgres.PostgresDataStore
 import blogify.backend.pipelines.GenericCallPipeline
 import blogify.backend.pipelines.wrapping.ApplicationContext
@@ -40,7 +41,6 @@ import io.ktor.features.CachingHeaders
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
-import io.ktor.features.HttpsRedirect
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.content.CachingOptions
