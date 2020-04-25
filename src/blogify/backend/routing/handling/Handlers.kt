@@ -27,7 +27,7 @@
 
 package blogify.backend.routing.handling
 
-import blogify.backend.database.Uploadables
+import blogify.backend.database.tables.Uploadables
 import blogify.backend.database.handling.query
 import blogify.backend.resources.User
 import blogify.backend.resources.models.Resource
@@ -38,7 +38,7 @@ import blogify.backend.persistence.models.Repository
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
-import blogify.backend.database.ImageUploadablesMetadata
+import blogify.backend.database.tables.ImageUploadablesMetadata
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.models.Mapped
 import blogify.backend.resources.reflect.models.PropMap

@@ -4,8 +4,8 @@ import blogify.backend.annotations.Invisible
 import blogify.backend.annotations.SqlTable
 import blogify.backend.annotations.check
 import blogify.backend.annotations.search.*
-import blogify.backend.database.Articles
-import blogify.backend.database.Comments
+import blogify.backend.database.tables.Articles
+import blogify.backend.database.tables.Comments
 import blogify.backend.resources.computed.compound
 import blogify.backend.resources.computed.models.Computed
 import blogify.backend.resources.models.Resource

@@ -1,6 +1,6 @@
 package blogify.backend.push.notifications
 
-import blogify.backend.database.Articles
+import blogify.backend.database.tables.Articles
 import blogify.backend.push.Message
 import blogify.backend.push.PushServer
 import blogify.backend.resources.Article

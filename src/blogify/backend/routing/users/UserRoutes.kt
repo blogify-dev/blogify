@@ -1,8 +1,8 @@
 package blogify.backend.routing.users
 
 import blogify.backend.auth.handling.runAuthenticated
-import blogify.backend.database.Notifications
-import blogify.backend.database.Users
+import blogify.backend.database.tables.Notifications
+import blogify.backend.database.tables.Users
 import blogify.backend.database.handling.query
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.User
