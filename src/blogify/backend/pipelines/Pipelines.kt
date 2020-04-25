@@ -98,7 +98,6 @@ fun RequestContext.param(name: String) = call.parameters[name] ?: pipelineError(
 fun RequestContext.optionalParam(name: String): String? =
     call.parameters[name]
 
-@Suppress("CAST_NEVER_SUCCEEDS")
 @PipelinesDsl
 inline val RequestContext.queryUuid get() = object : ReadOnlyProperty<Nothing?, UUID> {
     override fun getValue(thisRef: Nothing?, property: KProperty<*>) =
