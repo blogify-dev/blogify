@@ -22,7 +22,6 @@ import { SharedModule } from './shared/shared.module';
 import { ProfileModule } from './components/profile/profile/profile.module';
 import { FooterComponent } from './components/footer/footer.component';
 import { ClipboardModule } from 'ngx-clipboard';
-import { Error404FallbackComponent } from './components/error404-fallback/error404-fallback.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { AdminModule } from './components/admin/admin/admin.module';
 import { FollowsComponent } from './components/profile/profile/follows/follows.component';
@@ -33,7 +32,6 @@ import { NotificationComponent } from './shared/components/notification/notifica
 import { PushService } from './shared/services/push/push.service';
 import { ToastContainerModule, ToastrModule } from 'ngx-toastr';
 import { NotificationsPopoverComponent } from './components/navbar/notifications-popover/notifications-popover.component';
-import {WindowRef} from "./shared/utils/windowRef";
 import {AuthService} from "./shared/services/auth/auth.service";
 
 @NgModule({
@@ -50,7 +48,6 @@ import {AuthService} from "./shared/services/auth/auth.service";
         CreateCommentComponent,
         UpdateArticleComponent,
         FooterComponent,
-        Error404FallbackComponent,
         AdminComponent,
         FollowsComponent,
         UsersComponent,
@@ -80,7 +77,7 @@ import {AuthService} from "./shared/services/auth/auth.service";
         }),
         ToastContainerModule
     ],
-    providers: [WindowRef],
+    providers: [],
     exports: [],
     bootstrap: [AppComponent]
 })
