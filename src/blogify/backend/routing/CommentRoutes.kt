@@ -8,8 +8,8 @@ import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Comment
 import blogify.backend.resources.models.eqr
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.reflect.sanitize
-import blogify.backend.resources.reflect.slice
+import reflect.sanitize
+import reflect.slice
 import blogify.backend.routing.handling.*
 import blogify.backend.util.*
 

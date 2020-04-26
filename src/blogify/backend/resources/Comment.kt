@@ -1,6 +1,6 @@
 package blogify.backend.resources
 
-import blogify.backend.annotations.Invisible
+import annotations.Invisible
 import blogify.backend.annotations.SqlTable
 import blogify.backend.database.tables.Comments
 import blogify.backend.database.countReferredToBy
@@ -8,8 +8,8 @@ import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.events.models.Event
 import blogify.backend.events.models.EventSource
 import blogify.backend.events.models.EventType
-import blogify.backend.resources.computed.compound
-import blogify.backend.resources.computed.models.Computed
+import computed.compound
+import computed.models.Computed
 import blogify.backend.resources.models.UserCreatedResource
 
 import java.time.Instant

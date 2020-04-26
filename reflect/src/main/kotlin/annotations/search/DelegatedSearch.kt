@@ -1,4 +1,4 @@
-package blogify.backend.annotations.search
+package annotations.search
 
 /**
  * Marks a property as having to be treated as the value of one of it's properties.

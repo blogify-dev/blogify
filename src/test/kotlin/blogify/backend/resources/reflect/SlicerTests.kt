@@ -1,15 +1,18 @@
 package blogify.backend.resources.reflect
 
-import blogify.backend.annotations.Invisible
+import annotations.Invisible
 import blogify.backend.events.models.EventTarget
-import blogify.backend.resources.computed.models.Computed
+import computed.models.Computed
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.resources.reflect.models.extensions.valid
+import reflect.models.Mapped
+import reflect.models.extensions.valid
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import reflect.cachedPropMap
+import reflect.sanitize
+import reflect.slice
 
 class SlicerTests {
 

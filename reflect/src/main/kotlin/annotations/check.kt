@@ -1,4 +1,4 @@
-package blogify.backend.annotations
+package annotations
 
 import org.intellij.lang.annotations.Language
 

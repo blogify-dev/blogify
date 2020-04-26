@@ -1,14 +1,13 @@
-package blogify.backend.resources.reflect
+package reflect
 
-import blogify.backend.annotations.search.NoSearch
-import blogify.backend.resources.models.Resource
-import blogify.backend.annotations.Invisible
-import blogify.backend.annotations.Undisplayed
-import blogify.backend.resources.computed.models.ComputedPropertyDelegate
-import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.resources.reflect.models.extensions.valid
-import blogify.backend.util.Dto
+import Dto
+import NotResouce
+import annotations.Undisplayed
+import annotations.search.NoSearch
+import computed.models.ComputedPropertyDelegate
+import reflect.models.Mapped
+import reflect.models.PropMap
+import reflect.models.extensions.valid
 
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
@@ -79,7 +78,7 @@ private fun <M : Mapped> getPropValueOnInstance(instance: M, propertyName: Strin
                     }
                 }
                 is PropMap.PropertyHandle.Computed -> {
-                    if (instance is Resource) {
+                    if (instance is NotResouce) {
                         handle.property.isAccessible = true
 
                         val delegate = handle.property.getDelegate(instance) as? ComputedPropertyDelegate<*>
@@ -108,7 +107,7 @@ private fun <M : Mapped> getPropValueOnInstance(instance: M, propertyName: Strin
 fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>, unsafe: Boolean = false): Dto {
 
     val selectedPropertiesSanitized = selectedPropertyNames.toMutableSet().apply {
-        if (this@slice::class.isSubclassOf(Resource::class)) {
+        if (this@slice::class.isSubclassOf(NotResouce::class)) {
             removeIf { it == "uuid" || it == "UUID" }
             add("uuid")
         }

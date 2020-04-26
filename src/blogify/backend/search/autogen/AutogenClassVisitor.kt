@@ -1,10 +1,10 @@
 package blogify.backend.search.autogen
 
-import blogify.backend.annotations.search.NoSearch
-import blogify.backend.resources.computed.models.Computed
+import annotations.search.NoSearch
+import computed.models.Computed
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.cachedPropMap
-import blogify.backend.resources.reflect.models.extensions.ok
+import reflect.cachedPropMap
+import reflect.models.extensions.ok
 import blogify.backend.search.models.Template
 import blogify.backend.util.filterThenMapValues
 

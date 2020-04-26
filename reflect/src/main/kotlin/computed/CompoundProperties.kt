@@ -1,7 +1,7 @@
-package blogify.backend.resources.computed
+package computed
 
-import blogify.backend.resources.computed.models.ComputedPropertyDelegate
-import blogify.backend.resources.models.Resource
+import NotResouce
+import computed.models.ComputedPropertyDelegate
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +22,7 @@ class CompoundCachedComputedPropertyDelegate<A : Any> (
 ): ComputedPropertyDelegate<A>() {
 
     @Suppress("UNCHECKED_CAST")
-    override operator fun getValue(thisRef: Resource, property: KProperty<*>): A {
+    override operator fun getValue(thisRef: NotResouce, property: KProperty<*>): A {
         val key = CompoundCacheKey(thisRef::class, property)
         var cacheValue = compoundCache[key]?.toMutableMap()
 
@@ -43,7 +43,6 @@ class CompoundCachedComputedPropertyDelegate<A : Any> (
 
         return finalValue as A
     }
-
 }
 
 /**

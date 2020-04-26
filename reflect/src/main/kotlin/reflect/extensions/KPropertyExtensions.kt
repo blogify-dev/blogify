@@ -1,14 +1,17 @@
-package blogify.backend.resources.reflect.extensions
+package reflect.extensions
 
-import blogify.backend.resources.reflect.cachedPropMap
-import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.resources.reflect.models.extensions.ok
-
+import reflect.cachedPropMap
+import reflect.models.Mapped
+import reflect.models.PropMap
+import reflect.models.extensions.ok
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
-import com.andreapivetta.kolor.red
+//import com.andreapivetta.kolor.red
+
+private fun String.red(): String {
+    return this
+}
 
 @Suppress("UNCHECKED_CAST")
 private val <TClass : Any> KProperty1<TClass, *>.klass: KClass<out TClass> get() =

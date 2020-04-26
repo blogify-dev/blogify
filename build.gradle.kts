@@ -107,6 +107,7 @@ dependencies {
     // Testing
 
     implementation("org.junit.jupiter:junit-jupiter:5.5.2")
+    implementation(project(":reflect"))
 
 }
 

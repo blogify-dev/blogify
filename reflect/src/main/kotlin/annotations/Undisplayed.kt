@@ -1,4 +1,4 @@
-package blogify.backend.annotations
+package annotations
 
 /**
  * Marks a property of a [blogify.backend.resources.models.Resource] to not be sent in a DTO.

@@ -1,15 +1,16 @@
 package blogify.backend.resources.reflect
 
-import blogify.backend.annotations.Invisible
+import annotations.Invisible
 import blogify.backend.events.models.EventTarget
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.models.extensions.ok
+import reflect.models.extensions.ok
 import blogify.backend.util.Sr
 
 import kotlinx.coroutines.runBlocking
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import reflect.cachedUnsafePropMap
 
 @Suppress("MapGetWithNotNullAssertionOperator")
 class UpdaterTests {

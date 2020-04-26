@@ -40,9 +40,9 @@ import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
 import blogify.backend.database.tables.ImageUploadablesMetadata
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.resources.reflect.models.extensions.ok
+import reflect.models.Mapped
+import reflect.models.PropMap
+import reflect.models.extensions.ok
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.pipelines.obtainResource
 import blogify.backend.pipelines.obtainResources
@@ -88,6 +88,10 @@ import java.util.UUID
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
+import reflect.cachedPropMap
+import reflect.sanitize
+import reflect.slice
+import reflect.verify
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation

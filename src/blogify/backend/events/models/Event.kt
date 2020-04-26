@@ -2,7 +2,7 @@ package blogify.backend.events.models
 
 import blogify.backend.database.tables.Events
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.reflect.models.Mapped
+import reflect.models.Mapped
 import blogify.backend.util.assertGet
 
 import java.time.Instant

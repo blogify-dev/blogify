@@ -1,4 +1,4 @@
-package blogify.backend.annotations.search
+package annotations.search
 
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)

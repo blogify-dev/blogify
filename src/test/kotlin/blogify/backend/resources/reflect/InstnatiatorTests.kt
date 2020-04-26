@@ -1,6 +1,6 @@
 package blogify.backend.resources.reflect
 
-import blogify.backend.annotations.Invisible
+import annotations.Invisible
 import blogify.backend.events.models.EventTarget
 import blogify.backend.resources.models.Resource
 import blogify.backend.util.*
