@@ -70,7 +70,7 @@ export class ShowAllArticlesComponent implements OnInit {
                 if (this.listingQuery.byUser)
                     this.articleService.queryArticleListingForUser(this.listingQuery)
                         .then(result => ({ data: this.articles, moreAvailable: this.moreAvailable } = result));
-                 else
+                else
                     this.articleService.queryArticleListing(this.listingQuery)
                         .then(result => ({ data: this.articles, moreAvailable: this.moreAvailable } = result));
             }
