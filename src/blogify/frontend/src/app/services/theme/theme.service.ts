@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from "rxjs";
-import { WindowRef } from "../../shared/utils/windowRef";
 
 const PREFERRED_THEME_KEY = 'preferredTheme'
 
@@ -11,10 +10,11 @@ export class ThemeService {
     private useDarkMode = new BehaviorSubject(true);
 
 
-    constructor(windowRef: WindowRef) {
+    constructor() {
         const theme = localStorage.getItem(PREFERRED_THEME_KEY)
         if (!theme) {
-            if (windowRef.nativeWindow.matchMedia('prefers-color-scheme: dark')) {
+            // This is bad but we only use it on web so should be fine
+            if (window.matchMedia('prefers-color-scheme: dark')) {
                 this.setDarkMode(true)
             } else {
                 this.setDarkMode(false)

@@ -1,17 +1,17 @@
-import { Injectable } from '@angular/core';
-import { Article } from '../../../models/Article';
-import { User } from '../../../models/User';
+import { Injectable } from '@angular/core'
+import { Article } from '../../../models/Article'
+import { User } from '../../../models/User'
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'root',
 })
 export class StateService {
 
     // uuid: Article
-    private articles: { [key: string]: Article } = {};
+    private articles: { [key: string]: Article } = {}
 
     // uuid: User
-    private users: { [key: string]: User } = {};
+    private users: { [key: string]: User } = {}
 
     constructor() {}
 
