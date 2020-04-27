@@ -10,9 +10,11 @@ import blogify.backend.util.Wrap
 
 import org.jetbrains.exposed.sql.*
 
+import epgx.models.PgTable
+
 import java.util.*
 
-abstract class ResourceTable<TResource : Resource> : Table() {
+abstract class ResourceTable<TResource : Resource> : PgTable() {
 
     abstract class UserCreated<TResource : UserCreatedResource> : ResourceTable<TResource>() {
         abstract val authorColumn: Column<UUID>
