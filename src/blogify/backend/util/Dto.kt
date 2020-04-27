@@ -1,10 +1,10 @@
 package blogify.backend.util
 
-import blogify.backend.resources.reflect.cachedPropMap
-import blogify.backend.resources.reflect.cachedUnsafePropMap
-import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.resources.reflect.models.extensions.ok
+import reflect.cachedPropMap
+import reflect.cachedUnsafePropMap
+import reflect.models.Mapped
+import reflect.models.PropMap
+import reflect.models.extensions.ok
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 

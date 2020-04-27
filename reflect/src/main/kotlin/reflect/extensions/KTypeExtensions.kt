@@ -1,4 +1,4 @@
-package blogify.backend.resources.reflect.extensions
+package reflect.extensions
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KType

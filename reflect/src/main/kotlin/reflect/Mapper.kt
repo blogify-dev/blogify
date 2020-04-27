@@ -1,15 +1,15 @@
-package blogify.backend.resources.reflect
+package reflect
 
-import blogify.backend.annotations.check
-import blogify.backend.annotations.Invisible
-import blogify.backend.resources.computed.models.Computed
-import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.resources.reflect.models.PropMap
+import NotResouce
+import annotations.Invisible
+import annotations.check
+import computed.models.Computed
 
-import com.andreapivetta.kolor.green
+//import com.andreapivetta.kolor.green
 
-import org.slf4j.LoggerFactory
+//import org.slf4j.LoggerFactory
+import reflect.models.Mapped
+import reflect.models.PropMap
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
@@ -17,9 +17,8 @@ import kotlin.reflect.KVisibility
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.jvm.isAccessible
 
-private val logger = LoggerFactory.getLogger("blogify-datamap")
+//private val logger = LoggerFactory.getLogger("blogify-datamap")
 
 /**
  * Builds a [property map][PropMap] on the receiver [KClass]
@@ -41,7 +40,7 @@ private fun <M : Mapped> KClass<M>.buildPropMap(unsafe: Boolean = false): PropMa
                 PropMap.PropertyHandle.AccessDenied(name)
             } else {
                 if (self.findAnnotation<Computed>() != null) {
-                    if (!this.isSubclassOf(Resource::class))
+                    if (!this.isSubclassOf(NotResouce::class))
                         error("@Computed property can only appear on classes extending Resource")
 
                     PropMap.PropertyHandle.Computed(name, self as KProperty1<Any, Any>)
@@ -55,7 +54,7 @@ private fun <M : Mapped> KClass<M>.buildPropMap(unsafe: Boolean = false): PropMa
                     }
                 }
             }
-        }.also { logger.debug("built propmap for class ${this.simpleName}".green()) })
+        }/*.also { logger.debug("built propmap for class ${this.simpleName}".green()) }*/)
 }
 
 /**

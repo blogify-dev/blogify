@@ -1,7 +1,7 @@
-package blogify.backend.resources.reflect.models.extensions
+package reflect.models.extensions
 
-import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.util.filterThenMapValues
+import filterThenMapValues
+import reflect.models.PropMap
 
 /**
  * Only returns [PropMap.PropertyHandle]s that respect interface [PropMap.PropertyHandle.Valid]

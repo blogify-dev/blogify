@@ -1,10 +1,10 @@
 package blogify.backend.resources.models
 
+import NotResouce
 import blogify.backend.appContext
 import blogify.backend.events.models.EventEmitter
 import blogify.backend.events.models.EventSource
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.reflect.models.Mapped
 
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
@@ -21,13 +21,14 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
+import reflect.models.Mapped
 
 import kotlin.reflect.KClass
 
 import java.lang.IllegalStateException
 import java.util.*
 
-abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : Mapped(), EventSource, EventEmitter, Identified {
+abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : EventSource, EventEmitter, Identified, NotResouce() {
 
     object ObjectResolver {
 

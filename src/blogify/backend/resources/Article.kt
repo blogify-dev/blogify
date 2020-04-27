@@ -1,18 +1,18 @@
 package blogify.backend.resources
 
-import blogify.backend.annotations.Invisible
+import annotations.Invisible
 import blogify.backend.annotations.SqlTable
-import blogify.backend.annotations.check
-import blogify.backend.annotations.search.*
+import annotations.check
+import annotations.search.*
 import blogify.backend.database.tables.Articles
 import blogify.backend.database.tables.Comments
-import blogify.backend.resources.computed.compound
-import blogify.backend.resources.computed.models.Computed
+import computed.compound
 import blogify.backend.resources.models.Resource
 import blogify.backend.database.countReferredToBy
 import blogify.backend.events.models.Event
 import blogify.backend.events.models.EventType
 import blogify.backend.resources.models.UserCreatedResource
+import computed.models.Computed
 
 import java.time.Instant
 import java.util.UUID

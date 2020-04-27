@@ -1,10 +1,9 @@
 package blogify.backend.routing
 
-import blogify.backend.annotations.check
+import annotations.check
 import blogify.backend.auth.encoder
 import blogify.backend.auth.jwt.generateJWT
 import blogify.backend.database.tables.Users
-import blogify.backend.pipelines.param
 import blogify.backend.pipelines.requestContext
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.pipelines.wrapping.RequestContext

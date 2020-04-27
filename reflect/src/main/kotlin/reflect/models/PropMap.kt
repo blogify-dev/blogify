@@ -1,4 +1,4 @@
-package blogify.backend.resources.reflect.models
+package reflect.models
 
 import kotlin.reflect.KProperty1
 

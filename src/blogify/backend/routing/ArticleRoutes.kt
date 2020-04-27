@@ -11,7 +11,7 @@ import blogify.backend.resources.Article
 import blogify.backend.resources.models.eqr
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
-import blogify.backend.resources.reflect.extensions.okHandle
+import reflect.extensions.okHandle
 import blogify.backend.routing.handling.*
 import blogify.backend.util.*
 

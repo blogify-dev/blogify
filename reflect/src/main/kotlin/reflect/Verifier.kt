@@ -1,13 +1,13 @@
-package blogify.backend.resources.reflect
+package reflect
 
-import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.resources.reflect.models.extensions.ok
-import blogify.backend.util.filterThenMapValues
+import filterThenMapValues
+import reflect.models.Mapped
+import reflect.models.PropMap
+import reflect.models.extensions.ok
 
 /**
  * Verifies that a [Mapped] object's [String] properties conform to
- * any [check][blogify.backend.annotations.check] annotation regexps
+ * any [check][annotations.check] annotation regexps
  *
  * @author Benjozork
  */

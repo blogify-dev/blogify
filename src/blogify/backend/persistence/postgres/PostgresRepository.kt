@@ -2,7 +2,7 @@ package blogify.backend.persistence.postgres
 
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.models.PropMap
+import reflect.models.PropMap
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.update

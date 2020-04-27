@@ -1,10 +1,10 @@
 package blogify.backend.search.ext
 
-import blogify.backend.annotations.search.QueryByField
-import blogify.backend.annotations.search.SearchDefaultSort
+import annotations.search.QueryByField
+import annotations.search.SearchDefaultSort
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.cachedPropMap
-import blogify.backend.resources.reflect.models.extensions.ok
+import reflect.cachedPropMap
+import reflect.models.extensions.ok
 import blogify.backend.search.models.Template
 
 import kotlin.reflect.KClass

@@ -1,11 +1,6 @@
 package blogify.backend.resources.reflect
 
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.extensions.isPrimitive
-import blogify.backend.resources.reflect.extensions.subTypeOf
-import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.resources.reflect.models.extensions.ok
 import blogify.backend.resources.static.models.StaticResourceHandle
 import blogify.backend.search.models.Template
 import blogify.backend.util.*
@@ -26,6 +21,12 @@ import com.github.kittinunf.result.coroutines.mapError
 import java.lang.IllegalStateException
 
 import com.andreapivetta.kolor.red
+import reflect.cachedUnsafePropMap
+import reflect.extensions.isPrimitive
+import reflect.extensions.subTypeOf
+import reflect.models.Mapped
+import reflect.models.PropMap
+import reflect.models.extensions.ok
 
 //suspend inline fun <reified TMapped : Resource> KClass<TMapped>.from(dto: Dto, requestContext: RequestContext)
 //        = this.doInstantiate(dto) { requestContext.repository<TMapped>().get(requestContext, it) }
@@ -70,7 +71,7 @@ private val objectMapper = jacksonObjectMapper().apply {
 @Suppress("UNCHECKED_CAST")
 suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
     params:             Map<PropMap.PropertyHandle.Ok, Any?>,
-    externalFetcher:    suspend (KClass<Resource>, UUID) -> Sr<Any> = { _, _ -> error(noExternalFetcherMessage) },
+    externalFetcher: suspend (KClass<Resource>, UUID) -> Sr<Any> = { _, _ -> error(noExternalFetcherMessage) },
     externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
 ): Sr<TMapped> {
 

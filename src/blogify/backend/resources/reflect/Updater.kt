@@ -1,12 +1,15 @@
 package blogify.backend.resources.reflect
 
-import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.resources.reflect.models.extensions.ok
 import blogify.backend.util.Sr
+import reflect.cachedUnsafePropMap
+import NotResouce
+import blogify.backend.resources.models.Resource
 
 import com.andreapivetta.kolor.red
+import reflect.models.Mapped
+import reflect.models.PropMap
+import reflect.models.extensions.ok
+import reflect.slice
 
 import java.util.UUID
 
@@ -41,7 +44,7 @@ suspend fun <R : Mapped> R.update (
     val unchangedValues = this
         .slice(notUpdatedParameters.map { it.name }.toSet(), unsafe = true)
         .filter { !it.key.startsWith('_') }
-        .mapKeys { targetPropMap.ok()[it.key] ?: error("fatal: unknown propHandle slipped in !".red()) }
+        .mapKeys { targetPropMap.ok()[it.key] ?: error("fatal: unknown propHandle slipped in !") }
 
     // Find the values of the changed params
     val changedValues = updatedParameters

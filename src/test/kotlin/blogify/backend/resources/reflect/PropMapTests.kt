@@ -1,15 +1,16 @@
 package blogify.backend.resources.reflect
 
-import blogify.backend.annotations.Invisible
-import blogify.backend.annotations.check
+import annotations.Invisible
+import annotations.check
 import blogify.backend.events.models.EventTarget
-import blogify.backend.resources.computed.models.Computed
+import computed.models.Computed
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.models.extensions.ok
-import blogify.backend.resources.reflect.models.extensions.valid
+import reflect.models.extensions.ok
+import reflect.models.extensions.valid
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import reflect.cachedPropMap
 
 import kotlin.reflect.full.findAnnotation
 

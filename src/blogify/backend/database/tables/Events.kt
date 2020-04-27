@@ -5,7 +5,7 @@ import blogify.backend.database.extensions.keyOf
 import blogify.backend.database.handling.query
 import blogify.backend.events.models.Event
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.reflect.sanitize
+import reflect.sanitize
 import blogify.backend.util.*
 
 import org.jetbrains.exposed.sql.ResultRow

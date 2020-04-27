@@ -5,9 +5,9 @@ import blogify.backend.push.PushServer.ClosingCodes.INVALID_MESSAGE
 import blogify.backend.push.notifications.SubscribeToNotifications
 import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
-import blogify.backend.resources.reflect.cachedPropMap
 import blogify.backend.resources.reflect.doInstantiate
-import blogify.backend.resources.reflect.models.extensions.ok
+import reflect.cachedPropMap
+import reflect.models.extensions.ok
 import blogify.backend.routing.closeAndExit
 import blogify.backend.util.*
 
