@@ -75,6 +75,7 @@ dependencies {
     compile("org.jetbrains.exposed:exposed-core:$exposed_version")
     compile("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     compile("com.zaxxer:HikariCP:$hikari_version")
+    compile("com.github.Benjozork:exposed-postgres-extensions:master-SNAPSHOT")
 
     // Spring security for hashing
 
