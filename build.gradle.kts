@@ -36,6 +36,7 @@ buildscript {
 repositories {
     mavenLocal()
     jcenter()
+    maven("https://jitpack.io")
     maven { url = uri("https://dl.bintray.com/kittinunf/maven") }
     maven { url = uri("https://kotlin.bintray.com/ktor") }
 }
