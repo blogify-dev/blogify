@@ -1,9 +1,8 @@
 package blogify.backend
 
+import blogify.backend.bootstrap.BlogifyApplicationBootstrapper
+
 import com.fasterxml.jackson.databind.module.SimpleModule
-
-import com.andreapivetta.kolor.cyan
-
 import com.fasterxml.jackson.databind.*
 
 import blogify.backend.config.Configs
@@ -31,22 +30,18 @@ import blogify.backend.util.SinglePageApplication
 import blogify.backend.util.matches
 
 import io.ktor.application.call
-import io.ktor.features.Compression
-import io.ktor.features.GzipEncoder
 import io.ktor.response.respondRedirect
 import io.ktor.routing.get
 import io.ktor.application.Application
 import io.ktor.application.install
-import io.ktor.features.CachingHeaders
-import io.ktor.features.CallLogging
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.DefaultHeaders
+import io.ktor.features.*
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.content.CachingOptions
 import io.ktor.jackson.jackson
 import io.ktor.routing.route
 import io.ktor.routing.routing
+import io.ktor.util.KtorExperimentalAPI
 import io.ktor.websocket.WebSockets
 
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -54,19 +49,6 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
-
-private const val version = "0.3.0-preRelease"
-
-@Suppress("GrazieInspection")
-private const val asciiLogo = """
-    __     __               _  ____      
-   / /_   / /____   ____ _ (_)/ __/__  __
-  / __ \ / // __ \ / __ `// // /_ / / / /
- / /_/ // // /_/ // /_/ // // __// /_/ / 
-/_.___//_/ \____/ \__, //_//_/   \__, /  
-                 /____/         /____/   
----- Version $version - Development build -
-"""
 
 private val dataStore = PostgresDataStore {
 
@@ -87,13 +69,8 @@ val appContext = ApplicationContext(dataStore)
 val GenericCallPipeline.applicationContext
     get() = appContext
 
-@Suppress("unused") // Referenced in application.conf
-@kotlin.jvm.JvmOverloads
-fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = false) {
-
-    // Print startup logo
-
-    println(asciiLogo.cyan())
+@KtorExperimentalAPI
+fun Application.blogifyMainModule(configuration: BlogifyApplicationBootstrapper.StartConfiguration) {
 
     // Initialize jackson
 
@@ -116,14 +93,14 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
         }
     }
 
-    // Initialize HTTPS refirection
+    // Initialize HTTPS refirection if TLS is enabled
 
-//    install(HttpsRedirect) {
-//        // The port to redirect to. By default 443, the default HTTPS port.
-//        sslPort = 443
-//        // 301 Moved Permanently, or 302 Found redirect.
-//        permanentRedirect = true
-//    }
+    if (configuration.tlsConfig != null) {
+        install(HttpsRedirect) {
+            sslPort = configuration.tlsConfig.port
+            permanentRedirect = true
+        }
+    }
 
     // Initialize call logging
 
@@ -146,7 +123,7 @@ fun Application.mainModule(@Suppress("UNUSED_PARAMETER") testing: Boolean = fals
     // Default headers
 
     install(DefaultHeaders) {
-        header("X-Blogify-Version", "blogify-core $version")
+        header("X-Blogify-Version", "blogify-core ${configuration.blogifyVersion}")
         header("X-Blogify-Backend", "Ktor 1.3.2")
     }
 
