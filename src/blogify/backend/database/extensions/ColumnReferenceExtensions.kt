@@ -24,6 +24,15 @@ infix fun <T : Resource, C : Column<UUID>> C.keyOf(resourceTable: ResourceTable<
         target = resourceTable.uuid,
         from = this,
         onUpdate = ReferenceOption.RESTRICT,
+        onDelete = ReferenceOption.RESTRICT,
+        name = null
+    )}
+
+infix fun <T : Resource, C : Column<UUID>> C.dependentKeyOf(resourceTable: ResourceTable<T>): C = apply {
+    this.foreignKey = ForeignKeyConstraint (
+        target = resourceTable.uuid,
+        from = this,
+        onUpdate = ReferenceOption.RESTRICT,
         onDelete = ReferenceOption.CASCADE,
         name = null
     )}
