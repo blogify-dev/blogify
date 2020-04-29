@@ -45,19 +45,23 @@ dependencies {
 
     // Kt stdlib
 
-    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+
+    // Submodules
+
+    implementation(project(":reflect"))
 
     // Ktor
 
-    compile("io.ktor:ktor-server-netty:$ktor_version")
-    compile("ch.qos.logback:logback-classic:$logback_version")
-    compile("io.ktor:ktor-server-core:$ktor_version")
-    compile("io.ktor:ktor-websockets:$ktor_version")
-    compile("io.ktor:ktor-network-tls:$ktor_version")
-    compile("io.ktor:ktor-locations:$ktor_version")
-    compile("io.ktor:ktor-auth:$ktor_version")
-    compile("io.ktor:ktor-auth-jwt:$ktor_version")
-    compile("io.ktor:ktor-jackson:$ktor_version")
+    implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-websockets:$ktor_version")
+    implementation("io.ktor:ktor-network-tls:$ktor_version")
+    implementation("io.ktor:ktor-locations:$ktor_version")
+    implementation("io.ktor:ktor-auth:$ktor_version")
+    implementation("io.ktor:ktor-auth-jwt:$ktor_version")
+    implementation("io.ktor:ktor-jackson:$ktor_version")
 
     // Metadata Extractor
 
@@ -65,52 +69,47 @@ dependencies {
 
     // Ktor client
 
-    compile("io.ktor:ktor-client-cio:$ktor_version")
-    compile("io.ktor:ktor-client-json:$ktor_version")
-    compile("io.ktor:ktor-client-json-jvm:$ktor_version")
-    compile("io.ktor:ktor-client-jackson:$ktor_version")
+    implementation("io.ktor:ktor-client-cio:$ktor_version")
+    implementation("io.ktor:ktor-client-json:$ktor_version")
+    implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
+    implementation("io.ktor:ktor-client-jackson:$ktor_version")
 
     // Database stuff
 
-    compile("org.postgresql:postgresql:$pg_driver_version")
-    compile("org.jetbrains.exposed:exposed-core:$exposed_version")
-    compile("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
-    compile("com.zaxxer:HikariCP:$hikari_version")
-    compile("com.github.Benjozork:exposed-postgres-extensions:master-SNAPSHOT")
+    implementation("org.postgresql:postgresql:$pg_driver_version")
+    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
+    implementation("com.zaxxer:HikariCP:$hikari_version")
+    implementation("com.github.Benjozork:exposed-postgres-extensions:master-SNAPSHOT")
 
     // Spring security for hashing
 
-    compile("org.springframework.security:spring-security-core:$spring_security_core_version")
-
-    // Ktor test
-
-    testCompile("io.ktor:ktor-server-tests:$ktor_version")
+    implementation("org.springframework.security:spring-security-core:$spring_security_core_version")
 
     // Kolor
 
-    compile("com.andreapivetta.kolor:kolor:0.0.2")
+    implementation("com.andreapivetta.kolor:kolor:0.0.2")
 
     // Result
 
-    compile("com.github.kittinunf.result:result:2.2.0")
-    compile("com.github.kittinunf.result:result-coroutines:2.2.0")
+    implementation("com.github.kittinunf.result:result:2.2.0")
+    implementation("com.github.kittinunf.result:result-coroutines:2.2.0")
 
     // JJWT
 
-    compile("io.jsonwebtoken:jjwt-api:0.10.7")
+    implementation("io.jsonwebtoken:jjwt-api:0.10.7")
     runtime("io.jsonwebtoken:jjwt-impl:0.10.7")
     runtime("io.jsonwebtoken:jjwt-jackson:0.10.7")
 
     // Config
 
-    compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0")
-    compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime-configparser:0.14.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-configparser:0.14.0")
 
     // Testing
 
-    implementation("org.junit.jupiter:junit-jupiter:5.5.2")
-    implementation(project(":reflect"))
-
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.5.2")
+    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.5.2")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
@@ -119,9 +118,9 @@ kotlin.sourceSets["test"].kotlin.srcDirs("test")
 sourceSets["main"].resources.srcDirs("resources")
 sourceSets["test"].resources.srcDirs("testresources")
 
-
-tasks.test {
+tasks.withType<Test> {
     useJUnitPlatform()
+
     testLogging {
         events("passed", "skipped", "failed")
     }

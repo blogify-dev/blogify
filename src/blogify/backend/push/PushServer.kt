@@ -6,8 +6,8 @@ import blogify.backend.push.notifications.SubscribeToNotifications
 import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.doInstantiate
-import reflect.cachedPropMap
-import reflect.models.extensions.ok
+import blogify.reflect.cachedPropMap
+import blogify.reflect.models.extensions.ok
 import blogify.backend.routing.closeAndExit
 import blogify.backend.util.*
 

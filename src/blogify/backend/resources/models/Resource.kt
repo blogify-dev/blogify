@@ -1,10 +1,11 @@
 package blogify.backend.resources.models
 
-import NotResouce
+import blogify.reflect.models.Identified
 import blogify.backend.appContext
 import blogify.backend.events.models.EventEmitter
 import blogify.backend.events.models.EventSource
 import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.reflect.models.Mapped
 
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
@@ -13,22 +14,15 @@ import io.ktor.request.ApplicationRequest
 import io.ktor.response.ApplicationResponse
 import io.ktor.util.Attributes
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerator
-import com.fasterxml.jackson.annotation.ObjectIdResolver
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.runBlocking
-import reflect.models.Mapped
 
-import kotlin.reflect.KClass
-
-import java.lang.IllegalStateException
 import java.util.*
 
-abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : EventSource, EventEmitter, Identified, NotResouce() {
+abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : Mapped(), EventSource, EventEmitter, Identified {
 
     object ObjectResolver {
 
@@ -47,6 +41,7 @@ abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : EventSour
 
         }
 
+        @Deprecated("Please remove instances of this")
         val FakeRequestContext = RequestContext(appContext, GlobalScope, FakeApplicationCall, enableCaching = false)
 
     }

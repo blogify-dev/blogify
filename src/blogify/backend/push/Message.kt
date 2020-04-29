@@ -1,10 +1,10 @@
 package blogify.backend.push
 
-import annotations.Invisible
+import blogify.reflect.annotations.Invisible
 import blogify.backend.resources.models.Resource
-import reflect.models.Mapped
-import reflect.sanitize
-import reflect.slice
+import blogify.reflect.models.Mapped
+import blogify.reflect.sanitize
+import blogify.reflect.slice
 import blogify.backend.events.models.Event as ActualNotification
 
 import com.fasterxml.jackson.databind.module.SimpleModule
@@ -30,7 +30,8 @@ sealed class Message : Mapped() {
      */
     abstract class Outgoing(message: String) : Message() {
 
-        @Invisible val frame = Frame.Text(message)
+        @Invisible
+        val frame = Frame.Text(message)
 
         class Event(event: ActualNotification) : Outgoing(objectMapper.writeValueAsString(mapOf(
             "e" to event::class.qualifiedName,

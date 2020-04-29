@@ -21,14 +21,15 @@ import com.github.kittinunf.result.coroutines.mapError
 import java.lang.IllegalStateException
 
 import com.andreapivetta.kolor.red
-import reflect.cachedUnsafePropMap
-import reflect.extensions.isPrimitive
-import reflect.extensions.subTypeOf
-import reflect.models.Mapped
-import reflect.models.PropMap
-import reflect.models.extensions.ok
 
-//suspend inline fun <reified TMapped : Resource> KClass<TMapped>.from(dto: Dto, requestContext: RequestContext)
+import blogify.reflect.cachedUnsafePropMap
+import blogify.reflect.extensions.isPrimitive
+import blogify.reflect.extensions.subTypeOf
+import blogify.reflect.models.Mapped
+import blogify.reflect.models.PropMap
+import blogify.reflect.models.extensions.ok
+
+//suspend inline fun <reified TMapped : Resource> KClass<TMapped>.from(dto: blogify.reflect.Dto, requestContext: RequestContext)
 //        = this.doInstantiate(dto) { requestContext.repository<TMapped>().get(requestContext, it) }
 
 private class MissingArgumentsException(vararg val parameters: KParameter)

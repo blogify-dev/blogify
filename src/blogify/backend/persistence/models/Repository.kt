@@ -3,7 +3,7 @@ package blogify.backend.persistence.models
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
-import reflect.models.PropMap
+import blogify.reflect.models.PropMap
 import blogify.backend.util.BException
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap

@@ -1,8 +1,8 @@
 package blogify.backend.search.autogen
 
-import annotations.search.DelegatedSearch
+import blogify.reflect.annotations.search.DelegatedSearch
 import blogify.backend.resources.models.Resource
-import reflect.models.PropMap
+import blogify.reflect.models.PropMap
 import blogify.backend.search.models.Template
 
 import kotlin.reflect.KClass

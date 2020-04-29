@@ -1,15 +1,13 @@
 package blogify.backend.resources.reflect
 
 import blogify.backend.util.Sr
-import reflect.cachedUnsafePropMap
-import NotResouce
+import blogify.reflect.cachedUnsafePropMap
 import blogify.backend.resources.models.Resource
 
-import com.andreapivetta.kolor.red
-import reflect.models.Mapped
-import reflect.models.PropMap
-import reflect.models.extensions.ok
-import reflect.slice
+import blogify.reflect.models.Mapped
+import blogify.reflect.models.PropMap
+import blogify.reflect.models.extensions.ok
+import blogify.reflect.slice
 
 import java.util.UUID
 

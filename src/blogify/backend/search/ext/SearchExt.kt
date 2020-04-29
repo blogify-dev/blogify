@@ -2,7 +2,7 @@ package blogify.backend.search.ext
 
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
-import reflect.sanitize
+import blogify.reflect.sanitize
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.SearchView
 import blogify.backend.persistence.models.Repository

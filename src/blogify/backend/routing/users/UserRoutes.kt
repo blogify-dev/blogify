@@ -7,8 +7,8 @@ import blogify.backend.database.handling.query
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.User
 import blogify.backend.resources.models.eqr
-import reflect.sanitize
-import reflect.slice
+import blogify.reflect.sanitize
+import blogify.reflect.slice
 import blogify.backend.routing.handling.deleteResource
 import blogify.backend.routing.handling.deleteUpload
 import blogify.backend.routing.handling.fetchAllResources
