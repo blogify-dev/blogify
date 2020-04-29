@@ -2,8 +2,8 @@ package blogify.backend.bootstrap
 
 import blogify.backend.blogifyMainModule
 
-import io.ktor.server.cio.CIO
 import io.ktor.server.engine.*
+import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
 
 import java.io.File
@@ -100,7 +100,7 @@ object BlogifyApplicationBootstrapper {
 
     private fun doStartApplication(configuration: StartConfiguration) {
         val server = embeddedServer (
-            CIO, environment = applicationEngineEnvironment {
+            Netty, environment = applicationEngineEnvironment {
                 // Main application module
 
                 modules += { blogifyMainModule(configuration) }
