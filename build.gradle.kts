@@ -80,7 +80,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     implementation("com.zaxxer:HikariCP:$hikari_version")
-    implementation("com.github.Benjozork:exposed-postgres-extensions:4326e437")
+    implementation("com.github.Benjozork:exposed-postgres-extensions:alpha-1")
 
     // Spring security for hashing
 
