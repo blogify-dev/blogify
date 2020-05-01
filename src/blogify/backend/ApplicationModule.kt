@@ -28,6 +28,7 @@ import blogify.backend.util.ContentTypeSerializer
 import blogify.backend.util.InstantSerializer
 import blogify.backend.util.SinglePageApplication
 import blogify.backend.util.matches
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 import io.ktor.application.call
 import io.ktor.response.respondRedirect
@@ -38,7 +39,7 @@ import io.ktor.features.*
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.content.CachingOptions
-import io.ktor.jackson.jackson
+import io.ktor.jackson.JacksonConverter
 import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
@@ -64,9 +65,19 @@ private val dataStore = PostgresDataStore {
 
 }
 
-private lateinit var objectMapper: ObjectMapper
+private var objectMapper = jacksonObjectMapper().apply {
+    val blogifyModule = SimpleModule()
+
+    blogifyModule.addSerializer(Resource.ResourceIdSerializer)
+    blogifyModule.addSerializer(Template.Field.Serializer)
+    blogifyModule.addSerializer(ContentTypeSerializer)
+    blogifyModule.addSerializer(InstantSerializer)
+
+    registerModule(blogifyModule)
+}
 
 val appContext = ApplicationContext(dataStore, objectMapper)
+
 @property:Suppress("unused")
 val GenericCallPipeline.applicationContext
     get() = appContext
@@ -77,18 +88,7 @@ fun Application.blogifyMainModule(configuration: BlogifyApplicationBootstrapper.
     // Initialize jackson
 
     install(ContentNegotiation) {
-        jackson {
-            val blogifyModule = SimpleModule()
-
-            blogifyModule.addSerializer(Resource.ResourceIdSerializer)
-            blogifyModule.addSerializer(Template.Field.Serializer)
-            blogifyModule.addSerializer(ContentTypeSerializer)
-            blogifyModule.addSerializer(InstantSerializer)
-
-            registerModule(blogifyModule)
-
-            objectMapper = this
-        }
+        register(ContentType.Application.Json, JacksonConverter(objectMapper))
     }
 
     // Initialize HTTPS refirection if TLS is enabled
