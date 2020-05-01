@@ -1,5 +1,6 @@
 package blogify.backend.database.tables
 
+import blogify.backend.appContext
 import blogify.backend.database.extensions.keyOf
 import blogify.backend.database.extensions.weakKeyFrom
 import blogify.backend.database.handling.query
@@ -26,7 +27,7 @@ object Users : ResourceTable<User>() {
     val password       = varchar ("password", 255)
     val email          = varchar ("email", 255)
     val name           = varchar ("name", 255)
-    val settings       = jsonb   ("settings", UserSettings).default(UserSettings())
+    val settings       = jsonb   ("settings", appContext.createJsonbConverter<UserSettings>()).default(UserSettings())
     val profilePicture = varchar ("profile_picture", 32).nullable() weakKeyFrom Uploadables.fileId
     val coverPicture   = varchar ("cover_picture", 32).nullable() weakKeyFrom Uploadables.fileId
     val isAdmin        = bool    ("is_admin")
@@ -40,7 +41,7 @@ object Users : ResourceTable<User>() {
         val following = uuid("following") keyOf Users
         val follower  = uuid("follower") keyOf Users
 
-        override val primaryKey = PrimaryKey(
+        override val primaryKey = PrimaryKey (
             following,
             follower
         )

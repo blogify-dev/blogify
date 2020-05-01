@@ -20,13 +20,15 @@ import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.*
-import blogify.backend.util.assertGet
+import blogify.backend.util.*
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
 
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.springframework.security.core.userdetails.UserDetailsService
 
 /**
  * Defines the API routes for interacting with [users][User].
@@ -162,13 +164,27 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
                         val notifications = query {
                             Events.select { Events.emitter eq user.uuid }
-                                .orderBy(Events.timestamp, SortOrder.DESC)
-                                .limit(count)
-                                .map { Events.convert(this, it) }
-                                .toList()
+                                    .orderBy(Events.timestamp, SortOrder.DESC)
+                                    .limit(count)
+                                    .map { Events.convert(this, it) }
+                                    .toList()
                         }.assertGet()
 
                         call.respond(notifications.takeIf { it.isNotEmpty() } ?: "[]")
+                    }
+                }
+            }
+
+            get("/settings") {
+                requestContext(applicationContext) {
+                    runAuthenticated { user ->
+                        val settings = query {
+                            Users.slice(Users.settings)
+                                    .select { Users.uuid eq user.uuid }
+                                    .single().let { it[Users.settings] }
+                        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't get settings")
+
+                        call.respond(settings)
                     }
                 }
             }
