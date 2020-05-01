@@ -1,13 +1,13 @@
 package blogify.backend.routing
 
-import blogify.backend.auth.handling.autenticated
 import blogify.backend.database.tables.Comments
-import blogify.backend.database.handling.query
 import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Comment
 import blogify.backend.resources.models.eqr
 import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.routing.handling.flipCommentLike
+import blogify.backend.routing.handling.getCommentLikeStatus
 import blogify.reflect.sanitize
 import blogify.reflect.slice
 import blogify.backend.routing.handling.*
@@ -130,60 +130,9 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
             }
         }
 
-        val likes = Comments.Likes
-
-        get("/{uuid}/like") {
-            requestContext(applicationContext) {
-                val id by queryUuid
-
-                autenticated { subject ->
-                    val comment = obtainResource<Comment>(id)
-
-                    val liked = query {
-                        likes.select {
-                            (likes.comment eq comment.uuid) and (likes.user eq subject.uuid) }.count().toInt()
-                    }.getOrPipelineError() == 1
-
-                    call.respond(liked)
-                }
-            }
-        }
-
-        post("/{uuid}/like") {
-
-            requestContext(applicationContext) {
-                val id by queryUuid
-
-                autenticated { subject ->
-                    val commentToLike = obtainResource<Comment>(id)
-
-                    // Figure whether the article was already liked by the user
-                    val alreadyLiked = query {
-                        likes.select {
-                            (likes.comment eq commentToLike.uuid) and (likes.user eq subject.uuid) }.count().toInt()
-                    }.getOrPipelineError() == 1
-
-                    if (!alreadyLiked) { // Add a like if none were present
-                        query {
-                            likes.insert {
-                                it[likes.comment] = commentToLike.uuid
-                                it[likes.user]    = subject.uuid
-                            }
-                        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't like comment")
-
-                        call.respond(HttpStatusCode.OK, reason("comment liked"))
-                    } else { // Remove an existing like if there was one
-                        query {
-                            likes.deleteWhere {
-                                (likes.comment eq commentToLike.uuid) and (likes.user eq subject.uuid)
-                            }
-                        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't unlike comment")
-
-                        call.respond(HttpStatusCode.OK, reason("comment unliked"))
-                    }
-                }
-            }
-
+        route("/{uuid}/like") {
+            get  { requestContext(applicationContext, getCommentLikeStatus) }
+            post { requestContext(applicationContext, flipCommentLike) }
         }
 
     }

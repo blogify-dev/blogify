@@ -2,12 +2,13 @@
 
 package blogify.backend.routing
 
-import blogify.backend.auth.handling.autenticated
 import blogify.backend.database.tables.Articles
-import blogify.backend.database.handling.query
 import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
+import blogify.backend.routing.handling.flipArticleLike
+import blogify.backend.routing.handling.flipArticlePin
+import blogify.backend.routing.handling.getArticleLikeStatus
 import blogify.backend.resources.models.eqr
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
@@ -15,7 +16,6 @@ import blogify.reflect.extensions.okHandle
 import blogify.backend.routing.handling.*
 import blogify.backend.util.*
 
-import io.ktor.http.HttpStatusCode
 import io.ktor.routing.*
 import io.ktor.response.respond
 
@@ -51,74 +51,6 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
             }
         }
 
-        val likes = Articles.Likes
-
-        get("/{uuid}/like") {
-            requestContext(applicationContext) {
-                val id = param("uuid")
-
-                autenticated { subject ->
-                    val article = obtainResource<Article>(id.toUUID())
-
-                    val liked = query {
-                        likes.select {
-                            (likes.article eq article.uuid) and (likes.user eq subject.uuid) }.count().toInt()
-                    }.getOrPipelineError() == 1
-
-                    call.respond(liked)
-                }
-            }
-        }
-
-        post("/{uuid}/like") {
-            requestContext(applicationContext) {
-                val id by queryUuid
-
-                autenticated { subject ->
-                    val articleToLike = obtainResource<Article>(id)
-
-                    // Figure whether the article was already liked by the user
-                    val alreadyLiked = query {
-                        likes.select {
-                            (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid)
-                        }.count().toInt()
-                    }.assertGet() == 1
-
-                    if (!alreadyLiked) { // Add a like if none were present
-                        query {
-                            likes.insert {
-                                it[article] = articleToLike.uuid
-                                it[user]    = subject.uuid
-                            }
-                        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't like article")
-
-                        call.respond(HttpStatusCode.OK, reason("article liked"))
-                    } else { // Remove an existing like if there was one
-                        query {
-                            likes.deleteWhere {
-                                (likes.article eq articleToLike.uuid) and (likes.user eq subject.uuid)
-                            }
-                        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't unlike article")
-
-                        call.respond(HttpStatusCode.OK, reason("article unliked"))
-                    }
-                }
-            }
-        }
-
-        post("/{uuid}/pin") {
-            requestContext(applicationContext) {
-                val id by queryUuid
-                val article = obtainResource<Article>(id)
-
-                autenticated(predicate = { it.isAdmin }) {
-                    Articles.update(article.copy(isPinned = !article.isPinned)).also {
-                        call.respond(HttpStatusCode.OK)
-                    }
-                }
-            }
-        }
-
         delete("/{uuid}") {
             requestContext(applicationContext) {
                 deleteResource<Article> (
@@ -141,6 +73,15 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
                     authPredicate = { user, article -> article.createdBy eqr user }
                 )
             }
+        }
+
+        post("/{uuid}/pin") {
+            requestContext(applicationContext, flipArticlePin)
+        }
+
+        route("/{uuid}/like") {
+            get  { requestContext(applicationContext, getArticleLikeStatus) }
+            post { requestContext(applicationContext, flipArticleLike) }
         }
 
         get("/search") {
