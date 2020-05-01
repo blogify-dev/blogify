@@ -30,7 +30,7 @@ object Users : ResourceTable<User>() {
     val settings       = jsonb   ("settings", UserSettings).default(UserSettings())
     val profilePicture = varchar ("profile_picture", 32).nullable() weakKeyFrom Uploadables.fileId
     val coverPicture   = varchar ("cover_picture", 32).nullable() weakKeyFrom Uploadables.fileId
-    val isAdmin        = bool    ("is_admin")
+    val isAdmin        = bool    ("is_admin").default(false)
 
     init {
         index(true, username)
