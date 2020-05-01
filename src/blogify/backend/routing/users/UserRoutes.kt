@@ -1,6 +1,6 @@
 package blogify.backend.routing.users
 
-import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.auth.handling.autenticated
 import blogify.backend.database.tables.Events
 import blogify.backend.database.tables.Users
 import blogify.backend.database.handling.query
@@ -20,6 +20,8 @@ import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.*
+import blogify.backend.resources.user.handling.getSettings
+import blogify.backend.resources.user.handling.updateSettings
 import blogify.backend.util.*
 
 import io.ktor.http.HttpStatusCode
@@ -27,8 +29,6 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.springframework.security.core.userdetails.UserDetailsService
 
 /**
  * Defines the API routes for interacting with [users][User].
@@ -117,7 +117,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
                 val following = obtainResource<User>(id)
 
-                runAuthenticated { subject ->
+                autenticated { subject ->
 
                     val hasAlreadyFollowed = query {
                         follows.select {
@@ -150,7 +150,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
             get {
                 requestContext(applicationContext) {
-                    runAuthenticated { user ->
+                    autenticated { user ->
                         call.respond(optionalParam("fields")?.split(",")?.toSet()?.let { user.slice(it) }
                                 ?: user.sanitize(excludeUndisplayed = true))
                     }
@@ -159,7 +159,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
             get("/notifications") {
                 requestContext(applicationContext) {
-                    runAuthenticated { user ->
+                    autenticated { user ->
                         val count = optionalParam("limit")?.toIntOrNull()?.coerceAtMost(25) ?: 25
 
                         val notifications = query {

@@ -2,7 +2,7 @@
 
 package blogify.backend.routing
 
-import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.auth.handling.autenticated
 import blogify.backend.database.tables.Articles
 import blogify.backend.database.handling.query
 import blogify.backend.pipelines.*
@@ -57,7 +57,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
             requestContext(applicationContext) {
                 val id = param("uuid")
 
-                runAuthenticated { subject ->
+                autenticated { subject ->
                     val article = obtainResource<Article>(id.toUUID())
 
                     val liked = query {
@@ -74,7 +74,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
             requestContext(applicationContext) {
                 val id by queryUuid
 
-                runAuthenticated { subject ->
+                autenticated { subject ->
                     val articleToLike = obtainResource<Article>(id)
 
                     // Figure whether the article was already liked by the user
@@ -111,7 +111,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
                 val id by queryUuid
                 val article = obtainResource<Article>(id)
 
-                runAuthenticated(predicate = { it.isAdmin }) {
+                autenticated(predicate = { it.isAdmin }) {
                     Articles.update(article.copy(isPinned = !article.isPinned)).also {
                         call.respond(HttpStatusCode.OK)
                     }

@@ -36,7 +36,7 @@ fun isUser(mustBe: User): UserAuthPredicate = { user ->
  */
 @Suppress("EXPERIMENTAL_API_USAGE")
 @BlogifyDsl
-suspend fun RequestContext.runAuthenticated (
+suspend fun RequestContext.autenticated (
     predicate: UserAuthPredicate = { true },
     block: RequestContextFunction<User>
 ) {

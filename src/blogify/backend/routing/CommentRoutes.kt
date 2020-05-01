@@ -1,6 +1,6 @@
 package blogify.backend.routing
 
-import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.auth.handling.autenticated
 import blogify.backend.database.tables.Comments
 import blogify.backend.database.handling.query
 import blogify.backend.pipelines.*
@@ -136,7 +136,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
             requestContext(applicationContext) {
                 val id by queryUuid
 
-                runAuthenticated { subject ->
+                autenticated { subject ->
                     val comment = obtainResource<Comment>(id)
 
                     val liked = query {
@@ -154,7 +154,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
             requestContext(applicationContext) {
                 val id by queryUuid
 
-                runAuthenticated { subject ->
+                autenticated { subject ->
                     val commentToLike = obtainResource<Comment>(id)
 
                     // Figure whether the article was already liked by the user

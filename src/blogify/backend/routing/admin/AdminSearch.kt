@@ -1,6 +1,6 @@
 package blogify.backend.routing.admin
 
-import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.auth.handling.autenticated
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.user.User
@@ -23,7 +23,7 @@ fun Route.makeAdminRoutes(applicationContext: ApplicationContext) {
 
                 val what = call.parameters["what"] ?: error("bruh")
 
-                runAuthenticated(predicate = { it.isAdmin }) {
+                autenticated(predicate = { it.isAdmin }) {
                     when(what) {
                         "article" -> Typesense.refreshIndex<Article>(this@requestContext)
                         "user" -> Typesense.refreshIndex<User>(this@requestContext)

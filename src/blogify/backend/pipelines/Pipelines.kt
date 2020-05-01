@@ -2,7 +2,7 @@ package blogify.backend.pipelines
 
 import blogify.backend.annotations.PipelinesDsl
 import blogify.backend.auth.handling.UserAuthPredicate
-import blogify.backend.auth.handling.runAuthenticated
+import blogify.backend.auth.handling.autenticated
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.pipelines.wrapping.RequestContextFunction
@@ -55,23 +55,23 @@ class PipelineException(val code: HttpStatusCode, override val message: String) 
 /**
  * Initially handles and wraps a request by creating a [RequestContext] from an [ApplicationContext].
  *
- * If any [PipelineException] occurs during the execution of [block] and it is not handled inside that same function,
+ * If any [PipelineException] occurs during the execution of [function] and it is not handled inside that same function,
  * an error is sent to the client.
  *
  * @receiver a [PipelineContext] with an [ApplicationContext] as subject and [ApplicationCall] as context
  *
  * @param applicationContext the application context to use to create the request context
- * @param block              the function to be run inside the request context
+ * @param function              the function to be run inside the request context
  *
  * @author Benjozork
  */
 suspend fun GenericCallPipeline.requestContext (
     applicationContext: ApplicationContext,
-    block: RequestContextFunction<Unit>
+    function: RequestContextFunction<Unit>
 ) {
     try {
         RequestContext(applicationContext, this, call)
-            .execute(block, Unit)
+            .execute(function, Unit)
     }  catch (e: PipelineException) {
         call.respond(e.code, reason(e.message))
     } catch (e: Exception) {
@@ -121,7 +121,7 @@ suspend fun RequestContext.handleAuthentication (
     block:     RequestContextFunction<User?>
 ) {
     if (predicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-        runAuthenticated(predicate, { subject -> block(this@handleAuthentication, subject) })
+        autenticated(predicate, { subject -> block(this@handleAuthentication, subject) })
     } else {
         logUnusedAuth(funcName)
         block(this, null)
