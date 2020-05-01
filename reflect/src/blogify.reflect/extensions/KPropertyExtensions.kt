@@ -1,6 +1,6 @@
 package blogify.reflect.extensions
 
-import blogify.reflect.cachedPropMap
+import blogify.reflect.propMap
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.ok
@@ -21,10 +21,10 @@ private val <TClass : Any> KProperty1<TClass, *>.klass: KClass<out TClass> get()
  * Returns the [PropMap.PropertyHandle] for this property.
  */
 val <TResource : Mapped, TProperty : Any> KProperty1<TResource, TProperty>.handle: PropMap.PropertyHandle get() =
-    this.klass.cachedPropMap().map[this.name] ?: error("no handle for property '${this.name}' of class ${this.klass.simpleName}".red())
+    this.klass.propMap.map[this.name] ?: error("no handle for property '${this.name}' of class ${this.klass.simpleName}".red())
 
 /**
  * Returns the [PropMap.PropertyHandle.Ok] for this property, if available. Does not use an unsafe propmap.
  */
 val <TResource : Mapped, TProperty : Any> KProperty1<TResource, TProperty>.okHandle: PropMap.PropertyHandle.Ok? get() =
-    this.klass.cachedPropMap().ok()[this.name]
+    this.klass.propMap.ok()[this.name]

@@ -3,7 +3,7 @@ package blogify.backend.search.autogen
 import blogify.reflect.annotations.search.NoSearch
 import blogify.reflect.computed.models.Computed
 import blogify.backend.resources.models.Resource
-import blogify.reflect.cachedPropMap
+import blogify.reflect.propMap
 import blogify.reflect.models.extensions.ok
 import blogify.backend.search.models.Template
 import blogify.backend.util.filterThenMapValues
@@ -15,7 +15,7 @@ object AutogenClassVisitor {
 
     fun <R : Resource> visitAndMapClass(klass: KClass<R>): Set<Template.Field> {
         return klass
-            .cachedPropMap()
+            .propMap
             .ok()
             .filterThenMapValues (
                 predicate = {

@@ -10,7 +10,7 @@ import kotlinx.coroutines.runBlocking
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import blogify.reflect.cachedUnsafePropMap
+import blogify.reflect.unsafePropMap
 
 @Suppress("MapGetWithNotNullAssertionOperator")
 class UpdaterTests {
@@ -25,7 +25,7 @@ class UpdaterTests {
             get() = setOf()
     }
 
-    val propMap = TestClass::class.cachedUnsafePropMap()
+    val propMap = TestClass::class.unsafePropMap()
     val testObject = TestClass("abc", 17, "whatever")
     val testUpdateData = mapOf (
         propMap.ok()["name"]!!     to "steven",

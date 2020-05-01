@@ -6,7 +6,7 @@ import blogify.backend.push.notifications.SubscribeToNotifications
 import blogify.backend.resources.user.User
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.doInstantiate
-import blogify.reflect.cachedPropMap
+import blogify.reflect.propMap
 import blogify.reflect.models.extensions.ok
 import blogify.backend.routing.closeAndExit
 import blogify.backend.util.*
@@ -92,7 +92,7 @@ class PushServer(val appContext: ApplicationContext) {
 
             val receivedMessage = receivedClass.doInstantiate (
                     params = bodyPayload,
-                    externallyProvided = setOf(receivedClass.cachedPropMap().ok()["connection"] ?: error(noConnectionHandleMessage))
+                    externallyProvided = setOf(receivedClass.propMap.ok()["connection"] ?: error(noConnectionHandleMessage))
                 ).getOr {
                     it.printStackTrace()
                     close(INVALID_MESSAGE("couldn't instantiate message - ${it.javaClass.simpleName}: ${it.message}"))

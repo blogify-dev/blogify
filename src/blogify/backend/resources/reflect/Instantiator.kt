@@ -4,6 +4,12 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.search.models.Template
 import blogify.backend.util.*
+import blogify.reflect.unsafePropMap
+import blogify.reflect.extensions.isPrimitive
+import blogify.reflect.extensions.subTypeOf
+import blogify.reflect.models.Mapped
+import blogify.reflect.models.PropMap
+import blogify.reflect.models.extensions.ok
 
 import java.util.UUID
 
@@ -21,13 +27,6 @@ import com.github.kittinunf.result.coroutines.mapError
 import java.lang.IllegalStateException
 
 import com.andreapivetta.kolor.red
-
-import blogify.reflect.cachedUnsafePropMap
-import blogify.reflect.extensions.isPrimitive
-import blogify.reflect.extensions.subTypeOf
-import blogify.reflect.models.Mapped
-import blogify.reflect.models.PropMap
-import blogify.reflect.models.extensions.ok
 
 //suspend inline fun <reified TMapped : Resource> KClass<TMapped>.from(dto: blogify.reflect.Dto, requestContext: RequestContext)
 //        = this.doInstantiate(dto) { requestContext.repository<TMapped>().get(requestContext, it) }
@@ -77,7 +76,7 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
 ): Sr<TMapped> {
 
     // We use unsafe because we have to give the @Invisible values too
-    val propMap = this.cachedUnsafePropMap()
+    val propMap = this.unsafePropMap()
 
     // We use the first ctor to instantiate the object
     val targetCtor = this.constructors.first()

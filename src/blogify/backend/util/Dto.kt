@@ -1,8 +1,8 @@
 package blogify.backend.util
 
 import blogify.backend.appContext
-import blogify.reflect.cachedPropMap
-import blogify.reflect.cachedUnsafePropMap
+import blogify.reflect.propMap
+import blogify.reflect.unsafePropMap
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.ok
@@ -34,7 +34,7 @@ fun String.toDto(): Dto? =
  */
 fun <TMapped : Mapped> Dto.mappedByHandles(klass: KClass<TMapped>, unsafe: Boolean = false): Sr<Map<PropMap.PropertyHandle.Ok, Any?>> {
     return WrapBlocking { this.map { (key, value) ->
-        ((if (!unsafe) klass.cachedPropMap() else klass.cachedUnsafePropMap())
+        ((if (!unsafe) klass.propMap else klass.unsafePropMap())
             .ok().values
             .firstOrNull { it.name == key } ?: error("unknown key '$key'")) to value
     }.toMap() }

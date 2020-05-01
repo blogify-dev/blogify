@@ -10,7 +10,7 @@ import blogify.reflect.models.extensions.valid
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import blogify.reflect.cachedPropMap
+import blogify.reflect.propMap
 import blogify.reflect.sanitize
 import blogify.reflect.slice
 
@@ -26,7 +26,7 @@ class SlicerTests {
             get() = TODO("Not yet implemented")
     }
 
-    val propMap = TestClass::class.cachedPropMap()
+    val propMap = TestClass::class.propMap
     val testObject = TestClass("abc", 17, "whatever")
     val slicedObject = testObject.slice(propMap.map.keys - "uuid")
     val sanitizedObject = testObject.sanitize()
@@ -50,7 +50,7 @@ class SlicerTests {
         @Invisible val password: String
     ) : Mapped()
 
-    val mappedPropMap = MappedTestClass::class.cachedPropMap()
+    val mappedPropMap = MappedTestClass::class.propMap
     val mappedTestObject =
         MappedTestClass("abc", 17, "whatever")
     val mappedSlicedObject = mappedTestObject.slice(mappedPropMap.map.keys)
@@ -72,7 +72,7 @@ class SlicerTests {
 
     @Test fun `should throw an error when mapping a mapped class with a @Computed property`() {
         val exception = assertThrows<IllegalStateException>("Should throw an error when mapping the class") {
-            BadMappedTestClass::class.cachedPropMap()
+            BadMappedTestClass::class.propMap
         }
 
         assertEquals("@Computed property can only appear on classes extending Resource", exception.message)

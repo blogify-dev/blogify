@@ -90,7 +90,7 @@ private val unsafePropMapCache: MutableMap<KClass<*>, PropMap> = mutableMapOf()
  *
  * @author Benjozork
  */
-fun <M : Mapped> M.cachedPropMap(): PropMap {
+fun <M : Mapped> M.propMap(): PropMap {
     var cached: PropMap? = propMapCache[this::class]
     if (cached == null) {
         cached = this::class.buildPropMap()
@@ -109,15 +109,16 @@ fun <M : Mapped> M.cachedPropMap(): PropMap {
  *
  * @author Benjozork
  */
-fun <M : Mapped> KClass<M>.cachedPropMap(): PropMap {
-    var cached: PropMap? = propMapCache[this]
-    if (cached == null) {
-        cached = this.buildPropMap()
-        propMapCache[this] = cached
-    }
+val <M : Mapped> KClass<M>.propMap: PropMap
+    get() {
+        var cached: PropMap? = propMapCache[this]
+        if (cached == null) {
+            cached = this.buildPropMap()
+            propMapCache[this] = cached
+        }
 
-    return cached
-}
+        return cached
+    }
 
 /**
  * Fetches (or computes if the class is not in the cache) an unsafe [property map][PropMap] for the receiver [KClass]
@@ -128,15 +129,16 @@ fun <M : Mapped> KClass<M>.cachedPropMap(): PropMap {
  *
  * @author Benjozork
  */
-fun <M : Mapped> M.cachedUnsafePropMap(): PropMap {
-    var cached: PropMap? = unsafePropMapCache[this::class]
-    if (cached == null) {
-        cached = this::class.buildPropMap(unsafe = true)
-        unsafePropMapCache[this::class] = cached
-    }
+val <M : Mapped> M.unsafePropMap: PropMap
+    get() {
+        var cached: PropMap? = unsafePropMapCache[this::class]
+        if (cached == null) {
+            cached = this::class.buildPropMap(unsafe = true)
+            unsafePropMapCache[this::class] = cached
+        }
 
-    return cached
-}
+        return cached
+    }
 
 /**
  * Fetches (or computes if the class is not in the cache) an unsafe [property map][PropMap] for the receiver [KClass]
@@ -147,7 +149,7 @@ fun <M : Mapped> M.cachedUnsafePropMap(): PropMap {
  *
  * @author Benjozork
  */
-fun <M : Mapped> KClass<M>.cachedUnsafePropMap(): PropMap {
+fun <M : Mapped> KClass<M>.unsafePropMap(): PropMap {
     var cached: PropMap? = unsafePropMapCache[this]
     if (cached == null) {
         cached = this.buildPropMap(unsafe = true)

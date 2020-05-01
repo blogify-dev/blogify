@@ -65,7 +65,7 @@ sealed class SlicedProperty(val name: String) {
  */
 @Suppress("UNCHECKED_CAST")
 private fun <M : Mapped> getPropValueOnInstance(instance: M, propertyName: String, unsafe: Boolean = false): SlicedProperty {
-    return (if (!unsafe) instance.cachedPropMap() else instance.cachedUnsafePropMap()).map
+    return (if (!unsafe) instance.propMap() else instance.unsafePropMap).map
         .entries.firstOrNull { (name, _) -> name == propertyName }
         ?.value?.let { handle ->
             return when (handle) {
@@ -151,7 +151,7 @@ fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>, unsafe: Boolean = f
  * @author Benjozork
  */
 fun <M : Mapped> M.sanitize(excludeNoSearch: Boolean = false, excludeUndisplayed: Boolean = false): Dto {
-    val sanitizedClassProps = this::class.cachedPropMap().valid()
+    val sanitizedClassProps = this::class.propMap.valid()
         .asSequence()
         .filter {
             (!excludeNoSearch || it.value.property.findAnnotation<NoSearch>() == null)

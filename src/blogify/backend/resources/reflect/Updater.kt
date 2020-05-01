@@ -2,7 +2,7 @@ package blogify.backend.resources.reflect
 
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.util.Sr
-import blogify.reflect.cachedUnsafePropMap
+import blogify.reflect.unsafePropMap
 import blogify.backend.resources.models.Resource
 
 import blogify.reflect.models.Mapped
@@ -31,7 +31,7 @@ suspend fun <R : Mapped> R.update (
     fetcher: suspend (KClass<Resource>, UUID) -> Sr<Resource>
 ): Sr<R> {
 
-    val targetPropMap = this.cachedUnsafePropMap() // Get unsafe handles too
+    val targetPropMap = this.unsafePropMap // Get unsafe handles too
 
     // Find parameters we are not changing
     val notUpdatedParameters = (targetPropMap.ok().values subtract rawData.keys)

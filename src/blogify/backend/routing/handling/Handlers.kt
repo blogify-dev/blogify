@@ -72,7 +72,6 @@ import com.github.kittinunf.result.coroutines.failure
 import com.github.kittinunf.result.coroutines.map
 
 import com.andreapivetta.kolor.magenta
-import com.andreapivetta.kolor.yellow
 import com.drew.imaging.ImageMetadataReader
 import com.drew.metadata.exif.ExifImageDirectory
 import com.drew.metadata.jpeg.JpegDirectory
@@ -88,7 +87,7 @@ import java.util.UUID
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
-import blogify.reflect.cachedPropMap
+import blogify.reflect.propMap
 import blogify.reflect.sanitize
 import blogify.reflect.slice
 import blogify.reflect.verify
@@ -297,7 +296,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
         val targetClass = R::class
 
         // Find target property
-        val targetPropHandle = targetClass.cachedPropMap()[target]
+        val targetPropHandle = targetClass.propMap[target]
             ?.takeIf {
                 it is PropMap.PropertyHandle.Ok
                         && StaticFile::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
@@ -466,7 +465,7 @@ suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
         val targetClass = R::class
 
         // Find target property
-        val targetPropHandle = targetClass.cachedPropMap()[target]
+        val targetPropHandle = targetClass.propMap[target]
             ?.takeIf {
                 it is PropMap.PropertyHandle.Ok
                         && StaticFile::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
@@ -613,7 +612,7 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
     val replacement = call.receive<Map<String, Any>>()
     val current = obtainResource<R>((replacement["uuid"] as String).toUUID())
 
-    val rawData = replacement.mapKeys { n -> R::class.cachedPropMap().ok().values.first { it.name == n.key } }
+    val rawData = replacement.mapKeys { n -> R::class.propMap.ok().values.first { it.name == n.key } }
 
     authenticate (
         predicate = { user -> authPredicate(user, current) }
@@ -647,7 +646,7 @@ suspend inline fun <reified R : Resource> RequestContext.search(filters: Map<Pro
 @BlogifyDsl
 suspend inline fun <reified M : Mapped> RequestContext.getValidations() {
     call.respond (
-        M::class.cachedPropMap().ok()
+        M::class.propMap.ok()
             .filterThenMapValues (
                 { it.regexCheck != null },
                 { it.value.regexCheck!!.pattern }

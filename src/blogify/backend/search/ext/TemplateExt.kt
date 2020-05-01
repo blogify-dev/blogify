@@ -4,7 +4,7 @@ import blogify.reflect.annotations.search.QueryByField
 import blogify.reflect.annotations.search.SearchDefaultSort
 import blogify.backend.resources.models.Resource
 import blogify.backend.search.models.Template
-import blogify.reflect.cachedPropMap
+import blogify.reflect.propMap
 import blogify.reflect.models.extensions.ok
 
 import kotlin.reflect.KClass
@@ -30,10 +30,10 @@ fun <R : Resource> KClass<R>._buildSearchTemplate(): Template<R> {
     return Template (
         klass  = this,
         name   = this.simpleName!!,
-        defaultSortingField = this.cachedPropMap().ok().values
+        defaultSortingField = this.propMap.ok().values
             .filter { it.property.findAnnotation<SearchDefaultSort>() != null }
             .toSet().firstOrNull()?.name ?: TEMPLATE_DEFAULT_DSF, // Generate TEMPLATE_DEFAULT_DSF if there is no annotated DSF
-        queryByParams = this.cachedPropMap().ok().values
+        queryByParams = this.propMap.ok().values
             .filter { it.property.findAnnotation<QueryByField>() != null }
             .toSet().joinToString(separator = ",") { it.name }
     )
