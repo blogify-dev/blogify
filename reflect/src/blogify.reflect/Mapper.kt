@@ -1,6 +1,6 @@
 package blogify.reflect
 
-import blogify.reflect.annotations.Invisible
+import blogify.reflect.annotations.Hidden
 import blogify.reflect.annotations.check
 import blogify.reflect.computed.models.Computed
 
@@ -34,7 +34,7 @@ private fun <M : Mapped> KClass<M>.buildPropMap(unsafe: Boolean = false): PropMa
             it.name
         }
         .mapValues<String, KProperty1<*, *>, PropMap.PropertyHandle> { (name, self) ->
-            if ((self.findAnnotation<Invisible>() != null || self.visibility != KVisibility.PUBLIC) && !unsafe) {
+            if ((self.findAnnotation<Hidden>() != null || self.visibility != KVisibility.PUBLIC) && !unsafe) {
                 PropMap.PropertyHandle.AccessDenied(name)
             } else {
                 if (self.findAnnotation<Computed>() != null) {

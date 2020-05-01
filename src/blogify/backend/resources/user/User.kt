@@ -1,6 +1,6 @@
 package blogify.backend.resources.user
 
-import blogify.reflect.annotations.Invisible
+import blogify.reflect.annotations.Hidden
 import blogify.backend.annotations.SqlTable
 import blogify.reflect.annotations.Undisplayed
 import blogify.reflect.annotations.search.NoSearch
@@ -35,7 +35,7 @@ data class User (
     @DelegatedSearchReceiver
     val username: String,
 
-    @Invisible
+    @Hidden
     val password: String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
 
     @QueryByField
@@ -72,7 +72,7 @@ data class User (
     }
 
     // Any notification that is about a user only has the user itself as a target
-    @Invisible
+    @Hidden
     override val targets = setOf(this)
 
     override suspend fun sendEvent(appContext: ApplicationContext, event: Event) {

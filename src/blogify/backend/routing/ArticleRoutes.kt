@@ -149,7 +149,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
                 val user = optionalParam("byUser")?.toUUID()
 
                 if (user != null) {
-                    val userHandle = Article::createdBy.okHandle ?: error("a")
+                    val userHandle = Article::createdBy.okHandle ?: never
                     call.respond(Typesense.search<Article>(query, mapOf(userHandle to user)).asSearchView(this))
                 } else {
                     call.respond(Typesense.search<Article>(query).asSearchView(this))

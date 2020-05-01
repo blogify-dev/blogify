@@ -1,6 +1,6 @@
 package blogify.backend.resources.reflect
 
-import blogify.reflect.annotations.Invisible
+import blogify.reflect.annotations.Hidden
 
 import blogify.backend.events.models.EventTarget
 import blogify.backend.resources.models.Resource
@@ -16,9 +16,9 @@ class InstantiatorTests {
     data class TestClass (
         val name: String,
         val age: Int = 25,
-        @Invisible val password: String
+        @Hidden val password: String
     ) : Resource() {
-        @Invisible
+        @Hidden
         override val targets: Set<EventTarget>
             get() = TODO("Not yet implemented")
     }
@@ -63,7 +63,7 @@ class InstantiatorTests {
         val data: Int,
         val other: TestClass
     ) : Resource() {
-        @Invisible
+        @Hidden
         override val targets: Set<EventTarget>
             get() = TODO("Not yet implemented")
     }

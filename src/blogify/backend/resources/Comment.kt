@@ -1,6 +1,6 @@
 package blogify.backend.resources
 
-import blogify.reflect.annotations.Invisible
+import blogify.reflect.annotations.Hidden
 import blogify.backend.annotations.SqlTable
 import blogify.backend.database.tables.Comments
 import blogify.backend.database.countReferredToBy
@@ -55,11 +55,11 @@ data class Comment (
         CommentCreateEvent().send(request)
     }
 
-    @Invisible
+    @Hidden
     override val creator = commenter
 
     // The notification target of a comment is always it's author
-    @Invisible
+    @Hidden
     override val targets = setOf(commenter)
 
     @Computed

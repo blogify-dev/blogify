@@ -1,6 +1,6 @@
 package blogify.backend.resources.reflect
 
-import blogify.reflect.annotations.Invisible
+import blogify.reflect.annotations.Hidden
 import blogify.backend.events.models.EventTarget
 import blogify.reflect.computed.models.Computed
 import blogify.backend.resources.models.Resource
@@ -19,9 +19,9 @@ class SlicerTests {
     data class TestClass (
         val name: String,
         val age: Int,
-        @Invisible val password: String
+        @Hidden val password: String
     ) : Resource() {
-        @Invisible
+        @Hidden
         override val targets: Set<EventTarget>
             get() = TODO("Not yet implemented")
     }
@@ -47,7 +47,7 @@ class SlicerTests {
     data class MappedTestClass (
         val name: String,
         val age: Int,
-        @Invisible val password: String
+        @Hidden val password: String
     ) : Mapped()
 
     val mappedPropMap = MappedTestClass::class.propMap

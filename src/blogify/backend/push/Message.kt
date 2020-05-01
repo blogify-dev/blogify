@@ -1,6 +1,6 @@
 package blogify.backend.push
 
-import blogify.reflect.annotations.Invisible
+import blogify.reflect.annotations.Hidden
 import blogify.backend.resources.models.Resource
 import blogify.reflect.models.Mapped
 import blogify.reflect.sanitize
@@ -30,7 +30,7 @@ sealed class Message : Mapped() {
      */
     abstract class Outgoing(message: String) : Message() {
 
-        @Invisible
+        @Hidden
         val frame = Frame.Text(message)
 
         class Event(event: ActualNotification) : Outgoing(objectMapper.writeValueAsString(mapOf(
@@ -51,7 +51,7 @@ sealed class Message : Mapped() {
      * @property connection the [PushServer.Connection] from which the message originated
      */
     abstract class Incoming (
-        @Invisible open val connection: PushServer.Connection
+        @Hidden open val connection: PushServer.Connection
     ) : Message() {
 
         abstract suspend fun onArrival()

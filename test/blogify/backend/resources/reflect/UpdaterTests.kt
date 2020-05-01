@@ -1,6 +1,6 @@
 package blogify.backend.resources.reflect
 
-import blogify.reflect.annotations.Invisible
+import blogify.reflect.annotations.Hidden
 import blogify.backend.events.models.EventTarget
 import blogify.backend.resources.models.Resource
 import blogify.reflect.models.extensions.ok
@@ -18,9 +18,9 @@ class UpdaterTests {
     data class TestClass (
         val name: String,
         val age: Int,
-        @Invisible val password: String
+        @Hidden val password: String
     ) : Resource() {
-        @Invisible
+        @Hidden
         override val targets: Set<EventTarget>
             get() = setOf()
     }
