@@ -1,5 +1,6 @@
 package blogify.backend.resources.reflect
 
+import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.util.Sr
 import blogify.reflect.cachedUnsafePropMap
 import blogify.backend.resources.models.Resource
@@ -21,7 +22,7 @@ import kotlin.reflect.KClass
  * @param R       the class associated with [this]
  * @param rawData a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
  *
- * @return an updated instance of [R] with all new data from [rawData], but the same unchanged data from [target]
+ * @return an updated instance of [R] with all new data from [rawData], but the same unchanged data from [this]
  *
  * @author Benjozork
  */
@@ -51,3 +52,20 @@ suspend fun <R : Mapped> R.update (
     return this::class.doInstantiate(unchangedValues + changedValues, fetcher)
 
 }
+
+/**
+ * Updates a [Resource] using a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
+ *
+ * @receiver the [Resource] to update
+ *
+ * @param R       the class associated with [this]
+ * @param rawData a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
+ *
+ * @return an updated instance of [R] with all new data from [rawData], but the same unchanged data from [this]
+ *
+ * @author Benjozork
+ */
+suspend fun <R : Mapped> R.update (
+    rawData: Map<PropMap.PropertyHandle.Ok, Any?>,
+    requestContext: RequestContext
+): Sr<R> = update(rawData) { klass, uuid -> requestContext.repository(klass).get(id = uuid) }
