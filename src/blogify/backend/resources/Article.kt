@@ -11,6 +11,7 @@ import blogify.backend.database.countReferredToBy
 import blogify.backend.events.models.Event
 import blogify.backend.events.models.EventType
 import blogify.backend.resources.models.UserCreatedResource
+import blogify.backend.resources.user.User
 import blogify.reflect.annotations.search.*
 import blogify.reflect.computed.models.Computed
 

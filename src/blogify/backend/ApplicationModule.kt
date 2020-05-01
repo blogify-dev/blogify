@@ -16,7 +16,7 @@ import blogify.backend.persistence.postgres.PostgresDataStore
 import blogify.backend.pipelines.GenericCallPipeline
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
-import blogify.backend.resources.User
+import blogify.backend.resources.user.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.routing.admin.makeAdminRoutes
 import blogify.backend.routing.makePushServerRoutes
@@ -64,7 +64,9 @@ private val dataStore = PostgresDataStore {
 
 }
 
-val appContext = ApplicationContext(dataStore)
+private lateinit var objectMapper: ObjectMapper
+
+val appContext = ApplicationContext(dataStore, objectMapper)
 @property:Suppress("unused")
 val GenericCallPipeline.applicationContext
     get() = appContext
@@ -76,12 +78,6 @@ fun Application.blogifyMainModule(configuration: BlogifyApplicationBootstrapper.
 
     install(ContentNegotiation) {
         jackson {
-            enable(SerializationFeature.INDENT_OUTPUT)
-
-            // Register a serializer for Resource and Type.
-            // This will only affect pure Resource objects, so elements produced by the slicer are not affected,
-            // since those don't use Jackson for root serialization.
-
             val blogifyModule = SimpleModule()
 
             blogifyModule.addSerializer(Resource.ResourceIdSerializer)
@@ -90,6 +86,8 @@ fun Application.blogifyMainModule(configuration: BlogifyApplicationBootstrapper.
             blogifyModule.addSerializer(InstantSerializer)
 
             registerModule(blogifyModule)
+
+            objectMapper = this
         }
     }
 

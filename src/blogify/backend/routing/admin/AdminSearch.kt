@@ -3,7 +3,7 @@ package blogify.backend.routing.admin
 import blogify.backend.auth.handling.runAuthenticated
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
-import blogify.backend.resources.User
+import blogify.backend.resources.user.User
 import blogify.backend.pipelines.requestContext
 import blogify.backend.search.Typesense
 import blogify.backend.util.Dto

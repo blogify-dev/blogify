@@ -1,4 +1,4 @@
-package blogify.backend.resources
+package blogify.backend.resources.user
 
 import blogify.reflect.annotations.Invisible
 import blogify.backend.annotations.SqlTable
@@ -21,7 +21,7 @@ import blogify.backend.push.Message
 import blogify.reflect.computed.compound
 import blogify.reflect.computed.models.Computed
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.static.models.StaticResourceHandle
+import blogify.backend.resources.static.models.StaticFile
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -47,13 +47,13 @@ data class User (
     val profilePicture:
         @type("image/*")
         @maxByteSize(500_000)
-        StaticResourceHandle,
+        StaticFile,
 
     @NoSearch
     val coverPicture:
         @type("image/*")
         @maxByteSize(1_000_000)
-        StaticResourceHandle,
+        StaticFile,
 
     val isAdmin: Boolean = false,
 

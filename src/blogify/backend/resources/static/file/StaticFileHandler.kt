@@ -1,7 +1,7 @@
 package blogify.backend.resources.static.file
 
 import blogify.backend.resources.static.models.StaticData
-import blogify.backend.resources.static.models.StaticResourceHandle
+import blogify.backend.resources.static.models.StaticFile
 
 import io.ktor.http.ContentType
 
@@ -64,13 +64,13 @@ object StaticFileHandler {
      *
      * @param staticData the actual byte data of the uploaded static resource
      *
-     * @return a [StaticResourceHandle.Ok] describing the stored [static resource][StaticData]
+     * @return a [StaticFile.Ok] describing the stored [static resource][StaticData]
      *
      * @author Benjozork
      */
     suspend fun writeStaticResource (
         staticData: StaticData
-    ): StaticResourceHandle.Ok = withContext(IO) {
+    ): StaticFile.Ok = withContext(IO) {
 
         // Generate random ID
         val fileId = Random.Default.nextLong(0, Long.MAX_VALUE).toString()
@@ -91,20 +91,20 @@ object StaticFileHandler {
         }
 
         // Return created handle
-        return@withContext StaticResourceHandle.Ok(staticData.contentType, fileId)
+        return@withContext StaticFile.Ok(staticData.contentType, fileId)
     }
 
     /**
      * Deletes a file containing [StaticData] on the filesystem
      *
-     * @param handle a [StaticResourceHandle.Ok] pointing to the stored [static resource][StaticData]
+     * @param handle a [StaticFile.Ok] pointing to the stored [static resource][StaticData]
      *
      * @return whether or not the file was successfully deleted
      *
      * @author Benjozork
      */
     suspend fun deleteStaticResource (
-        handle: StaticResourceHandle.Ok
+        handle: StaticFile.Ok
     ): Boolean = withContext(IO) {
         val targetFile = getTargetFileFromId(handle.fileId)
 

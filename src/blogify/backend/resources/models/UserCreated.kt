@@ -2,7 +2,7 @@ package blogify.backend.resources.models
 
 import blogify.backend.events.models.Event
 import blogify.backend.events.models.EventType
-import blogify.backend.resources.User
+import blogify.backend.resources.user.User
 
 import java.util.*
 

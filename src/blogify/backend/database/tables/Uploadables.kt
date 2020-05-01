@@ -2,7 +2,7 @@ package blogify.backend.database.tables
 
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.static.image.ImageMetadata
-import blogify.backend.resources.static.models.StaticResourceHandle
+import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.util.Wrap
 import blogify.backend.util.matches
 
@@ -27,7 +27,7 @@ object Uploadables : Table() {
             val contentType = ContentType.parse(source[contentType])
 
             return@Wrap if (contentType matches ContentType.Image.Any) { // If it's an image, read metadata
-                StaticResourceHandle.Ok.Image(
+                StaticFile.Ok.Image(
                     contentType = contentType,
                     fileId = source[fileId],
                     metadata = ImageUploadablesMetadata.obtain(
@@ -37,7 +37,7 @@ object Uploadables : Table() {
                         .getOrElse(ImageMetadata(0, 0))
                 )
             } else { // If not, just return a normal handle
-                StaticResourceHandle.Ok(
+                StaticFile.Ok(
                     contentType = contentType,
                     fileId = source[fileId]
                 )

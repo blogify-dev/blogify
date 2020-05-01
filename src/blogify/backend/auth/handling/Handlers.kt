@@ -7,7 +7,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.request.header
 import io.ktor.response.respond
 
-import blogify.backend.resources.User
+import blogify.backend.resources.user.User
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.pipelines.wrapping.RequestContextFunction

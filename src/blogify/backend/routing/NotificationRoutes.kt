@@ -5,7 +5,7 @@ import blogify.backend.appContext
 import blogify.backend.auth.jwt.validateJwt
 import blogify.backend.push.PushServer
 import blogify.backend.push.PushServer.ResponseCodes.AUTH_OK
-import blogify.backend.resources.User
+import blogify.backend.resources.user.User
 import blogify.backend.util.getOrNull
 
 import com.andreapivetta.kolor.red

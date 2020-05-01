@@ -5,6 +5,11 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.persistence.models.Repository
 import blogify.backend.push.PushServer
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+
+import epgx.types.Jsonb
+
 import kotlin.reflect.KClass
 
 /**
@@ -13,8 +18,19 @@ import kotlin.reflect.KClass
  * @author Benjozork
  */
 class ApplicationContext (
-    val dataStore: DataStore
+    val dataStore: DataStore,
+    val objectMapper: ObjectMapper
 ) {
+
+    /**
+     * Creates an implementation of [Jsonb.Converter] for [T]
+     *
+     * @author Benjozork
+     */
+    inline fun <reified T> jsonbConverter(): Jsonb.Converter<T> = object : Jsonb.Converter<T> {
+        override fun serializer(instance: T): String = objectMapper.writeValueAsString(instance)
+        override fun deserializer(source: String): T = objectMapper.readValue(source)
+    }
 
     /**
      * Provides a [Repository] object for [TResource] using the data store in context

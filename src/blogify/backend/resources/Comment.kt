@@ -11,6 +11,7 @@ import blogify.backend.events.models.EventType
 import blogify.reflect.computed.compound
 import blogify.reflect.computed.models.Computed
 import blogify.backend.resources.models.UserCreatedResource
+import blogify.backend.resources.user.User
 
 import java.time.Instant
 

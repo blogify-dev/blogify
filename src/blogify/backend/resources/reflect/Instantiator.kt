@@ -1,7 +1,7 @@
 package blogify.backend.resources.reflect
 
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.static.models.StaticResourceHandle
+import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.search.models.Template
 import blogify.backend.util.*
 
@@ -122,19 +122,19 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
                             else -> never
                         }
                     }
-                    parameter.type subTypeOf StaticResourceHandle::class -> { // Special case for SRH, since it's a sealed class
+                    parameter.type subTypeOf StaticFile::class -> { // Special case for SRH, since it's a sealed class
                         val valueString = objectMapper.writeValueAsString(value)
                         val valueMap = objectMapper.readValue<Map<String, Any?>>(valueString)
 
                         parameter to when {
                             valueMap.containsKey("metadata") -> {
-                                objectMapper.readValue<StaticResourceHandle.Ok.Image>(valueString)
+                                objectMapper.readValue<StaticFile.Ok.Image>(valueString)
                             }
                             valueMap.containsKey("fileId") -> {
-                                objectMapper.readValue<StaticResourceHandle.Ok>(valueString)
+                                objectMapper.readValue<StaticFile.Ok>(valueString)
                             }
                             valueMap.containsKey("contentType") -> {
-                                objectMapper.readValue<StaticResourceHandle.None>(valueString)
+                                objectMapper.readValue<StaticFile.None>(valueString)
                             }
                             else -> never
                         }

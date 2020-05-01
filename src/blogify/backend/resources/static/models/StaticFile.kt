@@ -11,14 +11,14 @@ import io.ktor.http.ContentType
  *
  * @author Benjozork
  */
-sealed class StaticResourceHandle(open val contentType: ContentType) {
+sealed class StaticFile(open val contentType: ContentType) {
 
     /**
      * Represents a pointer to a file that hasn't been uploaded yet
      *
      * @param contentType the content type of files this handle can point to
      */
-    class None(contentType: ContentType): StaticResourceHandle(contentType) {
+    class None(contentType: ContentType): StaticFile(contentType) {
         override fun toString(): String = "None(contentType=$contentType)"
     }
 
@@ -27,7 +27,7 @@ sealed class StaticResourceHandle(open val contentType: ContentType) {
      *
      * @param fileId the file ID to make it point to
      */
-    open class Ok(contentType: ContentType, val fileId: String): StaticResourceHandle(contentType) {
+    open class Ok(contentType: ContentType, val fileId: String): StaticFile(contentType) {
         override fun toString(): String = "Ok(contentType=$contentType, fileId=$fileId)"
 
         class Image(val metadata: ImageMetadata, contentType: ContentType, fileId: String): Ok(contentType, fileId)

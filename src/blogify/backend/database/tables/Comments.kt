@@ -9,7 +9,7 @@ import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
-import blogify.backend.resources.User
+import blogify.backend.resources.user.User
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 

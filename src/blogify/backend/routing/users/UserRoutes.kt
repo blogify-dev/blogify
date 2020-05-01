@@ -5,7 +5,7 @@ import blogify.backend.database.tables.Events
 import blogify.backend.database.tables.Users
 import blogify.backend.database.handling.query
 import blogify.backend.pipelines.wrapping.ApplicationContext
-import blogify.backend.resources.User
+import blogify.backend.resources.user.User
 import blogify.backend.resources.models.eqr
 import blogify.reflect.sanitize
 import blogify.reflect.slice

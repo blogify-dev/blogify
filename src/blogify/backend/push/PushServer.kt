@@ -3,7 +3,7 @@ package blogify.backend.push
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_MESSAGE
 import blogify.backend.push.notifications.SubscribeToNotifications
-import blogify.backend.resources.User
+import blogify.backend.resources.user.User
 import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.doInstantiate
 import blogify.reflect.cachedPropMap

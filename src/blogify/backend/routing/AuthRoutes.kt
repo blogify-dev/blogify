@@ -7,8 +7,8 @@ import blogify.backend.database.tables.Users
 import blogify.backend.pipelines.requestContext
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.User
-import blogify.backend.resources.static.models.StaticResourceHandle
+import blogify.backend.resources.user.User
+import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.routing.handling.respondExceptionMessage
 import blogify.backend.search.Typesense
 import blogify.backend.util.*
@@ -51,13 +51,13 @@ data class RegisterCredentials (
      * @return The created user
      */
     suspend fun createUser(requestContext: RequestContext): User {
-        val created = User (
+        val created = User(
             username = this.username,
             password = this.password.hash(),
             email = this.email,
             name = this.name,
-            profilePicture = StaticResourceHandle.None(ContentType.Image.PNG),
-            coverPicture = StaticResourceHandle.None(ContentType.Image.PNG)
+            profilePicture = StaticFile.None(ContentType.Image.PNG),
+            coverPicture = StaticFile.None(ContentType.Image.PNG)
         )
 
         requestContext.repository<User>().add(created).fold (

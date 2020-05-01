@@ -6,8 +6,9 @@ import blogify.backend.database.handling.query
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.User
-import blogify.backend.resources.static.models.StaticResourceHandle
+import blogify.backend.resources.user.User
+import blogify.backend.resources.static.models.StaticFile
+import blogify.backend.resources.user.UserSettings
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 
@@ -25,6 +26,7 @@ object Users : ResourceTable<User>() {
     val password       = varchar ("password", 255)
     val email          = varchar ("email", 255)
     val name           = varchar ("name", 255)
+    val settings       = jsonb   ("settings", UserSettings).default(UserSettings())
     val profilePicture = varchar ("profile_picture", 32).nullable() weakKeyFrom Uploadables.fileId
     val coverPicture   = varchar ("cover_picture", 32).nullable() weakKeyFrom Uploadables.fileId
     val isAdmin        = bool    ("is_admin")
@@ -55,7 +57,7 @@ object Users : ResourceTable<User>() {
                     it[email] = resource.email
                     it[name] = resource.name
                     it[profilePicture] =
-                        if (resource.profilePicture is StaticResourceHandle.Ok) resource.profilePicture.fileId else null
+                        if (resource.profilePicture is StaticFile.Ok) resource.profilePicture.fileId else null
                     it[isAdmin] = resource.isAdmin
                 }
             }
@@ -73,9 +75,9 @@ object Users : ResourceTable<User>() {
                 it[email] = resource.email
                 it[name] = resource.name
                 it[profilePicture] =
-                    if (resource.profilePicture is StaticResourceHandle.Ok) resource.profilePicture.fileId else null
+                    if (resource.profilePicture is StaticFile.Ok) resource.profilePicture.fileId else null
                 it[coverPicture] =
-                    if (resource.coverPicture is StaticResourceHandle.Ok) resource.coverPicture.fileId else null
+                    if (resource.coverPicture is StaticFile.Ok) resource.coverPicture.fileId else null
                 it[isAdmin] = resource.isAdmin
             }
         }.get() == 1
@@ -93,19 +95,19 @@ object Users : ResourceTable<User>() {
                 profilePicture = source[profilePicture]?.let {
                     transaction {
                         Uploadables.select { Uploadables.fileId eq source[profilePicture]!! }
-                            .limit(1).single()
+                                .limit(1).single()
                     }.let {
                         Uploadables.convert(requestContext, it).get()
                     }
-                } ?: StaticResourceHandle.None(ContentType.Any),
+                } ?: StaticFile.None(ContentType.Any),
                 coverPicture = source[coverPicture]?.let {
                     transaction {
                         Uploadables.select { Uploadables.fileId eq source[coverPicture]!! }
-                            .limit(1).single()
+                                .limit(1).single()
                     }.let {
                         Uploadables.convert(requestContext, it).get()
                     }
-                } ?: StaticResourceHandle.None(ContentType.Any)
+                } ?: StaticFile.None(ContentType.Any)
             )
         }
 

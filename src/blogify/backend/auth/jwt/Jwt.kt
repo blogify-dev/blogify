@@ -1,7 +1,7 @@
 package blogify.backend.auth.jwt
 
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.User
+import blogify.backend.resources.user.User
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
 import blogify.backend.util.Sr
 import blogify.backend.util.short

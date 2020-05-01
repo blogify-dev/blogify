@@ -29,11 +29,11 @@ package blogify.backend.routing.handling
 
 import blogify.backend.database.tables.Uploadables
 import blogify.backend.database.handling.query
-import blogify.backend.resources.User
+import blogify.backend.resources.user.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.file.StaticFileHandler
 import blogify.backend.resources.static.models.StaticData
-import blogify.backend.resources.static.models.StaticResourceHandle
+import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.persistence.models.Repository
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.maxByteSize
@@ -304,7 +304,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
         val targetPropHandle = targetClass.cachedPropMap()[target]
             ?.takeIf {
                 it is PropMap.PropertyHandle.Ok
-                        && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
+                        && StaticFile::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
             } as? PropMap.PropertyHandle.Ok
                                ?: pipelineError(
                                    message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass
@@ -314,8 +314,8 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
         var shouldDelete = false
 
         // Check if there's already an uploaded file
-        val existingValue = targetPropHandle.property.get(targetResource) as StaticResourceHandle
-        if (existingValue is StaticResourceHandle.Ok) {
+        val existingValue = targetPropHandle.property.get(targetResource) as StaticFile
+        if (existingValue is StaticFile.Ok) {
             // Delete later, if successful
             shouldDelete = true
         }
@@ -426,7 +426,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
 
             // Since at this point it was successful, we can delete
             if (shouldDelete) {
-                val idToDelete = (existingValue as StaticResourceHandle.Ok).fileId
+                val idToDelete = (existingValue as StaticFile.Ok).fileId
 
                 // Delete in DB
 
@@ -473,15 +473,15 @@ suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
         val targetPropHandle = targetClass.cachedPropMap()[target]
             ?.takeIf {
                 it is PropMap.PropertyHandle.Ok
-                        && StaticResourceHandle::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
+                        && StaticFile::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
             } as? PropMap.PropertyHandle.Ok
                                ?: pipelineError(
                                    message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass
                                        .simpleName}'"
                                )
 
-        when (val targetPropHandleValue = targetPropHandle.property.get(targetResource) as StaticResourceHandle) {
-            is StaticResourceHandle.Ok -> {
+        when (val targetPropHandleValue = targetPropHandle.property.get(targetResource) as StaticFile) {
+            is StaticFile.Ok -> {
 
                 val uploadableId = targetPropHandleValue.fileId
 
@@ -503,7 +503,7 @@ suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
                 } else pipelineError(HttpStatusCode.InternalServerError, "couldn't delete static resource file")
 
             }
-            is StaticResourceHandle.None -> {
+            is StaticFile.None -> {
                 call.respond(HttpStatusCode.NotFound)
                 return@handleAuthentication
             }
