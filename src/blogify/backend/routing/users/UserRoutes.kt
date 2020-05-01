@@ -175,18 +175,9 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
                 }
             }
 
-            get("/settings") {
-                requestContext(applicationContext) {
-                    runAuthenticated { user ->
-                        val settings = query {
-                            Users.slice(Users.settings)
-                                    .select { Users.uuid eq user.uuid }
-                                    .single().let { it[Users.settings] }
-                        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't get settings")
-
-                        call.respond(settings)
-                    }
-                }
+            route("/settings") {
+                get   { requestContext(applicationContext, function = getSettings) }
+                patch { requestContext(applicationContext, function = updateSettings) }
             }
 
         }
