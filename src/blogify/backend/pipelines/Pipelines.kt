@@ -9,7 +9,6 @@ import blogify.backend.pipelines.wrapping.RequestContextFunction
 import blogify.backend.resources.user.User
 import blogify.backend.resources.models.Resource
 import blogify.backend.routing.handling.defaultResourceLessPredicateLambda
-import blogify.backend.routing.handling.logUnusedAuth
 import blogify.backend.util.getOrPipelineError
 import blogify.backend.util.reason
 import blogify.backend.util.toUUIDOrNull
@@ -98,6 +97,9 @@ fun RequestContext.param(name: String) = call.parameters[name] ?: pipelineError(
 fun RequestContext.optionalParam(name: String): String? =
     call.parameters[name]
 
+/**
+ * Returns a UUID from a `{uuid}` query parameter. Responds with `Bad Request` if it is not found or invalid.
+ */
 @PipelinesDsl
 inline val RequestContext.queryUuid get() = object : ReadOnlyProperty<Nothing?, UUID> {
     override fun getValue(thisRef: Nothing?, property: KProperty<*>) =
@@ -108,22 +110,19 @@ inline val RequestContext.queryUuid get() = object : ReadOnlyProperty<Nothing?, 
 /**
  * A default [RequestContext] that handles client authentication.
  *
- * @param funcName  the name of the pipeline using this pipeline. Only for logging purposes.
  * @param predicate the [UserAuthPredicate] to run as authentication
  * @param block     the actual pipeline code
  *
  * @author Benjozork
  */
 @PipelinesDsl
-suspend fun RequestContext.handleAuthentication (
-    funcName:  String = "<unspecified>",
+suspend fun RequestContext.authenticate (
     predicate: UserAuthPredicate,
-    block:     RequestContextFunction<User?>
+    block: RequestContextFunction<User?>
 ) {
     if (predicate != defaultResourceLessPredicateLambda) { // Don't authenticate if the endpoint doesn't authenticate
-        autenticated(predicate, { subject -> block(this@handleAuthentication, subject) })
+        autenticated(predicate, { subject -> block(this@authenticate, subject) })
     } else {
-        logUnusedAuth(funcName)
         block(this, null)
     }
 }

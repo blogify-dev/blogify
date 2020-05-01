@@ -46,7 +46,7 @@ import blogify.reflect.models.extensions.ok
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.pipelines.obtainResource
 import blogify.backend.pipelines.obtainResources
-import blogify.backend.pipelines.handleAuthentication
+import blogify.backend.pipelines.authenticate
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.pipelineError
@@ -116,10 +116,6 @@ suspend fun ApplicationCall.respondExceptionMessage(ex: Exception) {
     respond(HttpStatusCode.InternalServerError, object { @Suppress("unused") val message = ex.message }) // Failure ? Send a simple object with the exception message.
 }
 
-fun logUnusedAuth(func: String) {
-    logger.debug("${"skipped auth for $func".yellow()} - endpoint didn't request auth")
-}
-
 /**
  * Adds a handler to a [RequestContext] that handles fetching a set of resources with a certain list of desired properties.
  *
@@ -187,7 +183,7 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResource (
     val uuid = param("uuid")
     val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
 
-    handleAuthentication("fetchWithIdAndRespond", authPredicate) {
+    authenticate(authPredicate) {
 
         val resource = obtainResource<R>(uuid.toUUID())
 
@@ -296,7 +292,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
     // Find target resource
     val targetResource = obtainResource<R>(uuid.toUUID())
 
-    handleAuthentication("uploadToResource", { authPredicate(it, targetResource) }) {
+    authenticate({ authPredicate(it, targetResource) }) {
 
         val targetClass = R::class
 
@@ -465,7 +461,7 @@ suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
     // Find target resource
     val targetResource = obtainResource<R>(uuid.toUUID())
 
-    handleAuthentication("uploadToResource", { authPredicate(it, targetResource) }) {
+    authenticate({ authPredicate(it, targetResource) }) {
 
         val targetClass = R::class
 
@@ -505,7 +501,7 @@ suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
             }
             is StaticFile.None -> {
                 call.respond(HttpStatusCode.NotFound)
-                return@handleAuthentication
+                return@authenticate
             }
         }
 
@@ -543,7 +539,7 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
             pipelineError(HttpStatusCode.BadRequest, "invalid value for property '${firstInvalidValue.key.name}'")
         }
 
-        handleAuthentication(predicate = { u -> authPredicate(u, received) }) {
+        authenticate(predicate = { u -> authPredicate(u, received) }) {
             repository<R>().add(received).fold (
                 success = {
                     call.respond(HttpStatusCode.Created, it.sanitize(excludeUndisplayed = true))
@@ -584,8 +580,7 @@ suspend inline fun <reified R: Resource> RequestContext.deleteResource (
 
     val toDelete = obtainResource<R>(uuid.toUUID())
 
-    handleAuthentication (
-        funcName  = "deleteWithId",
+    authenticate (
         predicate = { user -> authPredicate(user, toDelete) }
     ) {
         repository<R>().delete(toDelete).fold (
@@ -620,8 +615,7 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
 
     val rawData = replacement.mapKeys { n -> R::class.cachedPropMap().ok().values.first { it.name == n.key } }
 
-    handleAuthentication (
-        funcName  = "createWithResource",
+    authenticate (
         predicate = { user -> authPredicate(user, current) }
     ) {
         repository<R>().update(this, current, rawData).fold (
