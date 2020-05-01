@@ -35,7 +35,7 @@ fun String.toDto(): Dto? =
 fun <TMapped : Mapped> Dto.mappedByHandles(klass: KClass<TMapped>, unsafe: Boolean = false): Sr<Map<PropMap.PropertyHandle.Ok, Any?>> {
     return WrapBlocking { this.map { (key, value) ->
         ((if (!unsafe) klass.propMap else klass.unsafePropMap())
-            .ok().values
+            .ok.values
             .firstOrNull { it.name == key } ?: error("unknown key '$key'")) to value
     }.toMap() }
 }

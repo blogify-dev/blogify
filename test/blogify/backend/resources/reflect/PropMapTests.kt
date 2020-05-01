@@ -23,7 +23,7 @@ class PropMapTests {
 
     @Test
     fun `valid() should not return Invisible properties`() {
-        val none = TestClass::class.propMap.valid()
+        val none = TestClass::class.propMap.valid
             .none { it.value.property.findAnnotation<Invisible>() !== null }
 
         assertTrue(none, "Should not contain @Invisible properties")
@@ -31,7 +31,7 @@ class PropMapTests {
 
     @Test
     fun `ok() should not return Invisible or Computed properties`() {
-        val none = TestClass::class.propMap.ok()
+        val none = TestClass::class.propMap.ok
             .none { it.value.property.findAnnotation<Invisible>() != null|| it.value.property.findAnnotation<Computed>() != null }
 
         assertTrue(none, "Should not contain @Invisible or @Computed properties")
@@ -44,7 +44,7 @@ class PropMapTests {
 
     @Test
     fun `should pick up regexes`() {
-        val prop = TestClassWithRegexes::class.propMap.ok().values.first { it.name == "withRegex" }
+        val prop = TestClassWithRegexes::class.propMap.ok.values.first { it.name == "withRegex" }
 
         val hasRegex = prop.regexCheck != null
         val regexPattern = prop.regexCheck?.pattern

@@ -28,9 +28,9 @@ class UpdaterTests {
     val propMap = TestClass::class.unsafePropMap()
     val testObject = TestClass("abc", 17, "whatever")
     val testUpdateData = mapOf (
-        propMap.ok()["name"]!!     to "steven",
-        propMap.ok()["age"]!!      to 18,
-        propMap.ok()["password"]!! to "ha"
+        propMap.ok["name"]!!     to "steven",
+        propMap.ok["age"]!!      to 18,
+        propMap.ok["password"]!! to "ha"
     )
 
     @Test fun `should update mapped object`() {
@@ -46,9 +46,9 @@ class UpdaterTests {
     val testObjectUnchanged =
         TestClass("def", 21, "dontlook")
     val testUpdateDataUnchanged = mapOf (
-        propMap.ok()["name"]!!     to "wow",
-        propMap.ok()["age"]!!      to 36,
-        propMap.ok()["password"]!! to "ho"
+        propMap.ok["name"]!!     to "wow",
+        propMap.ok["age"]!!      to 36,
+        propMap.ok["password"]!! to "ho"
     )
 
     @Test fun `should keep unchanged values`() {

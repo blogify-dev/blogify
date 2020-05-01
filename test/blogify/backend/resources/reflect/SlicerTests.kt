@@ -41,7 +41,7 @@ class SlicerTests {
     }
 
     @Test fun `sanitize should include all visible properties`() {
-        assertTrue(sanitizedObject.filterNot { it.key.startsWith('_') }.all { it.key in propMap.valid().keys }, "All keys of DTO should be in propMap.valid()")
+        assertTrue(sanitizedObject.filterNot { it.key.startsWith('_') }.all { it.key in propMap.valid.keys }, "All keys of DTO should be in propMap.valid()")
     }
 
     data class MappedTestClass (

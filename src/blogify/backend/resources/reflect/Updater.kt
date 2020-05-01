@@ -34,16 +34,16 @@ suspend fun <R : Mapped> R.update (
     val targetPropMap = this.unsafePropMap // Get unsafe handles too
 
     // Find parameters we are not changing
-    val notUpdatedParameters = (targetPropMap.ok().values subtract rawData.keys)
+    val notUpdatedParameters = (targetPropMap.ok.values subtract rawData.keys)
 
     // Find parameters we are changing
-    val updatedParameters = (targetPropMap.ok().values intersect rawData.keys)
+    val updatedParameters = (targetPropMap.ok.values intersect rawData.keys)
 
     // Find the values of the unchanged params
     val unchangedValues = this
         .slice(notUpdatedParameters.map { it.name }.toSet(), unsafe = true)
         .filter { !it.key.startsWith('_') }
-        .mapKeys { targetPropMap.ok()[it.key] ?: error("fatal: unknown propHandle slipped in !") }
+        .mapKeys { targetPropMap.ok[it.key] ?: error("fatal: unknown propHandle slipped in !") }
 
     // Find the values of the changed params
     val changedValues = updatedParameters

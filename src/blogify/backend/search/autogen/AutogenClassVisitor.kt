@@ -16,7 +16,7 @@ object AutogenClassVisitor {
     fun <R : Resource> visitAndMapClass(klass: KClass<R>): Set<Template.Field> {
         return klass
             .propMap
-            .ok()
+            .ok
             .filterThenMapValues (
                 predicate = {
                     it.property.findAnnotation<NoSearch>() == null && it.property.findAnnotation<Computed>() == null

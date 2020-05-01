@@ -92,7 +92,7 @@ class PushServer(val appContext: ApplicationContext) {
 
             val receivedMessage = receivedClass.doInstantiate (
                     params = bodyPayload,
-                    externallyProvided = setOf(receivedClass.propMap.ok()["connection"] ?: error(noConnectionHandleMessage))
+                    externallyProvided = setOf(receivedClass.propMap.ok["connection"] ?: error(noConnectionHandleMessage))
                 ).getOr {
                     it.printStackTrace()
                     close(INVALID_MESSAGE("couldn't instantiate message - ${it.javaClass.simpleName}: ${it.message}"))

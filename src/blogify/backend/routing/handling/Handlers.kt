@@ -612,7 +612,7 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
     val replacement = call.receive<Map<String, Any>>()
     val current = obtainResource<R>((replacement["uuid"] as String).toUUID())
 
-    val rawData = replacement.mapKeys { n -> R::class.propMap.ok().values.first { it.name == n.key } }
+    val rawData = replacement.mapKeys { n -> R::class.propMap.ok.values.first { it.name == n.key } }
 
     authenticate (
         predicate = { user -> authPredicate(user, current) }
@@ -646,7 +646,7 @@ suspend inline fun <reified R : Resource> RequestContext.search(filters: Map<Pro
 @BlogifyDsl
 suspend inline fun <reified M : Mapped> RequestContext.getValidations() {
     call.respond (
-        M::class.propMap.ok()
+        M::class.propMap.ok
             .filterThenMapValues (
                 { it.regexCheck != null },
                 { it.value.regexCheck!!.pattern }

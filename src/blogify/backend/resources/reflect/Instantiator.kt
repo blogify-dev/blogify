@@ -83,7 +83,7 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
 
     // We make this a function so that Wrap {} catches any error in it
     suspend fun makeParamMap(): Map<KParameter, Any?> {
-        return ((propMap.ok().values intersect params.keys))
+        return ((propMap.ok.values intersect params.keys))
             // For now, associate each propHandle to the constructor param with the same name
             .associateWith { targetCtor.parameters.firstOrNull { p -> p.name == it.name } }
             .withoutNullValues() // Drop properties not in our ctor

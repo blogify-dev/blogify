@@ -4,10 +4,9 @@ import blogify.reflect.propMap
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.ok
+
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
-
-//import com.andreapivetta.kolor.red
 
 private fun String.red(): String {
     return this
@@ -27,4 +26,4 @@ val <TResource : Mapped, TProperty : Any> KProperty1<TResource, TProperty>.handl
  * Returns the [PropMap.PropertyHandle.Ok] for this property, if available. Does not use an unsafe propmap.
  */
 val <TResource : Mapped, TProperty : Any> KProperty1<TResource, TProperty>.okHandle: PropMap.PropertyHandle.Ok? get() =
-    this.klass.propMap.ok()[this.name]
+    this.klass.propMap.ok[this.name]

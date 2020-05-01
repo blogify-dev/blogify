@@ -10,7 +10,7 @@ import blogify.reflect.models.extensions.ok
  *
  * @author Benjozork
  */
-fun Mapped.verify(): Map<PropMap.PropertyHandle.Ok, Boolean> = this.propMap().ok()
+fun Mapped.verify(): Map<PropMap.PropertyHandle.Ok, Boolean> = this.propMap().ok
     .mapKeys { it.value } // Use property handles as keys
     .filterThenMapValues (
         { it.property.returnType.classifier == String::class },

@@ -8,8 +8,8 @@ import blogify.reflect.models.PropMap
  *
  * @author Benjozork
  */
-fun PropMap.valid() = this.map
-    .filterThenMapValues (
+val PropMap.valid
+    get() = this.map.filterThenMapValues (
         { it is PropMap.PropertyHandle.Valid },
         { it.value as PropMap.PropertyHandle.Valid }
     )
@@ -19,8 +19,8 @@ fun PropMap.valid() = this.map
  *
  * @author Benjozork
  */
-fun PropMap.ok() = this.map
-    .filterThenMapValues (
+val PropMap.ok
+    get() = this.map.filterThenMapValues (
         { it is PropMap.PropertyHandle.Ok },
         { it.value as PropMap.PropertyHandle.Ok }
     )
@@ -30,4 +30,8 @@ fun PropMap.ok() = this.map
  *
  * @author Benjozork
  */
-fun PropMap.accessDenied() = this.map.filterThenMapValues ({ it is PropMap.PropertyHandle.AccessDenied }, { it.value as PropMap.PropertyHandle.AccessDenied })
+val PropMap.accessDenied
+    get() = this.map.filterThenMapValues (
+        { it is PropMap.PropertyHandle.AccessDenied },
+        { it.value as PropMap.PropertyHandle.AccessDenied }
+    )
