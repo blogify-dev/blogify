@@ -1,39 +1,53 @@
 package blogify.backend.util
 
+import blogify.backend.appContext
 import blogify.reflect.cachedPropMap
 import blogify.reflect.cachedUnsafePropMap
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.ok
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 
 import kotlin.reflect.KClass
 
 typealias Dto = Map<String, Any?>
 
-// This is thread safe, this is ok
-private val dtoObjectMapper = jacksonObjectMapper()
-
 /**
- * Parses a string into a [Dto]
+ * Attempts to parse a string into a [Dto]
  *
  * @author Benjozork
  */
 fun String.toDto(): Dto? =
     letCatchingOrNull {
         return@letCatchingOrNull try {
-            dtoObjectMapper.readValue(it, Map::class.java) as? Dto
+            appContext.objectMapper.readValue<Dto>(it)
         } catch (e: Exception) {
-            e.printStackTrace()
             null
         }
     }
 
+/**
+ * Attempts to turn a [Dto]'s String keys into [property handles][PropMap.PropertyHandle.Ok] of [klass]
+ *
+ * @author Benjozork
+ */
 fun <TMapped : Mapped> Dto.mappedByHandles(klass: KClass<TMapped>, unsafe: Boolean = false): Sr<Map<PropMap.PropertyHandle.Ok, Any?>> {
     return WrapBlocking { this.map { (key, value) ->
         ((if (!unsafe) klass.cachedPropMap() else klass.cachedUnsafePropMap())
             .ok().values
             .firstOrNull { it.name == key } ?: error("unknown key '$key'")) to value
     }.toMap() }
+}
+
+/**
+ * Attempts to turn a JSON string into a map with its string keys turned into [property handles][PropMap.PropertyHandle.Ok] of [klass].
+ *
+ * The string must be valid JSON and the keys must be `Ok` property handles, otherwise the returned [Sr]
+ * will be a failure.
+ *
+ * @author Benjozork
+ */
+fun <TMapped : Mapped> String.parseJsonHandleMap(klass: KClass<TMapped>): Sr<Map<PropMap.PropertyHandle.Ok, Any?>> {
+    return WrapBlocking { this.toDto()?.mappedByHandles(klass)!!.get() }
 }
