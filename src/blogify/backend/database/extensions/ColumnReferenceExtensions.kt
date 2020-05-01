@@ -14,7 +14,7 @@ infix fun <T : Resource, C : Column<UUID?>> C.nullableKeyOf(resourceTable: Resou
         target = resourceTable.uuid,
         from = this,
         onUpdate = ReferenceOption.RESTRICT,
-        onDelete = ReferenceOption.CASCADE,
+        onDelete = ReferenceOption.SET_NULL,
         name = null
     )
 }

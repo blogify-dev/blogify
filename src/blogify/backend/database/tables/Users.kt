@@ -23,11 +23,11 @@ import io.ktor.http.ContentType
 @Suppress("DuplicatedCode")
 object Users : ResourceTable<User>() {
 
-    val username       = varchar ("username", 255)
-    val password       = varchar ("password", 255)
-    val email          = varchar ("email", 255)
-    val name           = varchar ("name", 255)
-    val settings       = jsonb   ("settings", appContext.createJsonbConverter<UserSettings>()).default(UserSettings())
+    val username       = text    ("username")
+    val password       = text    ("password")
+    val email          = text    ("email")
+    val name           = text    ("name")
+    val settings       = jsonb   ("settings", UserSettings).default(UserSettings())
     val profilePicture = varchar ("profile_picture", 32).nullable() weakKeyFrom Uploadables.fileId
     val coverPicture   = varchar ("cover_picture", 32).nullable() weakKeyFrom Uploadables.fileId
     val isAdmin        = bool    ("is_admin")
@@ -41,10 +41,7 @@ object Users : ResourceTable<User>() {
         val following = uuid("following") keyOf Users
         val follower  = uuid("follower") keyOf Users
 
-        override val primaryKey = PrimaryKey (
-            following,
-            follower
-        )
+        override val primaryKey = PrimaryKey(following, follower)
 
     }
 

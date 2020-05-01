@@ -1,7 +1,8 @@
 package blogify.backend.database.tables
 
 import blogify.backend.appContext
-import blogify.backend.database.extensions.keyOf
+import blogify.backend.database.extensions.parentKey
+import blogify.backend.database.extensions.strongKey
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.persistence.models.Repository
@@ -18,12 +19,12 @@ import com.github.kittinunf.result.coroutines.SuspendableResult
 
 object Articles : ResourceTable.UserCreated<Article>() {
 
-    val title      = varchar ("title", 512)
-    val createdAt  = integer ("created_at")
-    val createdBy  = uuid    ("created_by") keyOf Users
-    val content    = text    ("content")
-    val summary    = text    ("summary")
-    val isPinned   = bool    ("is_pinned").default(false)
+    val title      = text      ("title")
+    val createdAt  = integer   ("created_at")
+    val createdBy  = strongKey ("created_by", Users)
+    val content    = text      ("content")
+    val summary    = text      ("summary")
+    val isPinned   = bool      ("is_pinned").default(false)
 
     override val authorColumn = createdBy
 

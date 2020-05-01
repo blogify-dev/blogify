@@ -3,6 +3,8 @@ package blogify.backend.database.tables
 import blogify.backend.appContext
 import blogify.backend.database.extensions.keyOf
 import blogify.backend.database.extensions.nullableKeyOf
+import blogify.backend.database.extensions.strongKey
+import blogify.backend.database.extensions.weaKey
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.persistence.models.Repository
@@ -19,11 +21,11 @@ import com.github.kittinunf.result.coroutines.SuspendableResult
 
 object Comments : ResourceTable.UserCreated<Comment>() {
 
-    val commenter     =  uuid    ("commenter") keyOf Users
-    val article       =  uuid    ("article") keyOf Articles
-    val content       =  text    ("content")
-    val parentComment =  uuid    ("parent_comment").nullable() nullableKeyOf Comments
-    val createdAt     =  integer ("created_at")
+    val commenter     =  strongKey ("commenter", Users)
+    val article       =  strongKey ("article", Articles)
+    val content       =  text      ("content")
+    val parentComment =  weaKey    ("parent_comment", Comments)
+    val createdAt     =  integer   ("created_at")
 
     override val authorColumn = commenter
 
