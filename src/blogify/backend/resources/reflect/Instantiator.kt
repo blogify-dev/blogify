@@ -61,7 +61,7 @@ private val objectMapper = jacksonObjectMapper().apply {
  * @receiver the [KClass] we wish to instantiate
  *
  * @param params          the map of property handles to values we are going to be using to instantiate the object.
- *                        All primary constructor properties must be present or else the returned [Sr] will be a failure.
+ *                        All non-optional primary constructor properties must be present or else the returned [Sr] will be a failure.
  * @param externalFetcher a function that is used to fetch other [resources][Resource] requires by the instantiated objects.
  *                        Takes the type of the property and an [UUID].
  *
