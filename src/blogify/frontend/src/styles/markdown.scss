@@ -1,0 +1,22 @@
+@import "layouts";
+
+markdown {
+
+    table {
+        border: solid var(--border-color) 1px;
+        border-collapse: collapse;
+
+        &:not(last-child) { margin-bottom: 1.15em; }
+
+        td, th {
+            padding: .5em 1em;
+
+            border: solid var(--border-color) 1px;
+        }
+
+        th {
+            background-color: var(--body-ct);
+        }
+    }
+
+}

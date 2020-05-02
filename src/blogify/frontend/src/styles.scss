@@ -3,7 +3,7 @@
 
 @import "styles/colours";
 @import "styles/fonts";
-
+@import "styles/markdown";
 @import "styles/code";
 @import "styles/forms";
 @import "styles/layouts";
@@ -54,9 +54,8 @@ a, a:visited, a:active, a:hover {
 
 // No idea why, but this doesn't work in SA
 markdown {
-    * {
-        font-size: 1.35em;
-    }
+    font-size: 1.35em;
+
     p:not(:last-of-type) {
         margin-bottom: 1.15em;
     }

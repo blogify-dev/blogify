@@ -23,3 +23,7 @@ $source: 'Source Code Pro', sans-serif;
 .bold {
     font-weight: 600;
 }
+
+em, strong {
+    font-size: unset !important;
+}
