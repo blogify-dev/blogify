@@ -125,11 +125,9 @@
             pointer-events: none;
 
             &:not(:last-child) { margin-right: .25em; }
-            padding: .25em .75em;
+            padding: .25em .85em;
 
             border-radius: .5em;
-
-            & span { font-size: 1.15em; }
 
             background-color: var(--body-ct);
         }
