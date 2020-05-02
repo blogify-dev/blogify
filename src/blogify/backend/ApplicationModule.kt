@@ -3,12 +3,11 @@ package blogify.backend
 import blogify.backend.bootstrap.BlogifyApplicationBootstrapper
 
 import com.fasterxml.jackson.databind.module.SimpleModule
-import com.fasterxml.jackson.databind.*
 
 import blogify.backend.config.Configs
 import blogify.backend.database.*
 import blogify.backend.routing.makeArticleRoutes
-import blogify.backend.routing.users.makeUserRoutes
+import blogify.backend.routing.makeUserRoutes
 import blogify.backend.routing.makeAuthRoutes
 import blogify.backend.database.handling.query
 import blogify.backend.database.tables.*

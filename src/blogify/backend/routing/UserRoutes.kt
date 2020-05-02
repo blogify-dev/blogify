@@ -1,4 +1,4 @@
-package blogify.backend.routing.users
+package blogify.backend.routing
 
 import blogify.backend.auth.handling.autenticated
 import blogify.backend.database.tables.Events
@@ -9,19 +9,11 @@ import blogify.backend.resources.user.User
 import blogify.backend.resources.models.eqr
 import blogify.reflect.sanitize
 import blogify.reflect.slice
-import blogify.backend.routing.handling.deleteResource
-import blogify.backend.routing.handling.deleteUpload
-import blogify.backend.routing.handling.fetchAllResources
-import blogify.backend.routing.handling.fetchResource
-import blogify.backend.routing.handling.respondExceptionMessage
-import blogify.backend.routing.handling.updateResource
-import blogify.backend.routing.handling.uploadToResource
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.*
-import blogify.backend.resources.user.handling.getSettings
-import blogify.backend.resources.user.handling.updateSettings
+import blogify.backend.routing.handling.*
 import blogify.backend.util.*
 
 import io.ktor.http.HttpStatusCode

@@ -1,4 +1,4 @@
-package blogify.backend.resources.user.handling
+package blogify.backend.routing.handling
 
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.auth.handling.autenticated
