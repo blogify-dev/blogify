@@ -33,10 +33,15 @@
         flex-direction: row;
         align-items: center;
         flex-wrap: wrap;
+        row-gap: 1em;
+        column-gap: 1em;
 
         padding-bottom: .95em;
 
         .title {
+            flex-basis: 60%;
+            flex-grow: 1;
+
             font-size: 1.9em;
             text-align: left;
             padding: 0;
@@ -55,9 +60,22 @@
         flex-direction:  row;
         justify-content: space-between;
         align-items:     center;
+        column-gap:      1em;
 
-        .summary,
-        .posted-at { font-size: 1.3em; }
+        .summary {
+            flex-shrink: 1;
+
+            word-break: break-word;
+            font-size: 1.3em;
+        }
+
+        .posted-at {
+            flex-grow: 1;
+            flex-shrink: 0;
+
+            text-align: end;
+            font-size: 1.3em;
+        }
     }
 
     .last-line {
