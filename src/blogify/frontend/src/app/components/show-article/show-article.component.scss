@@ -18,6 +18,8 @@
             display:         flex;
             justify-content: flex-start;
             align-items:     flex-start;
+            flex-wrap:       wrap;
+            row-gap:         .75em;
 
             margin-top: 1.2rem;
 
@@ -55,7 +57,7 @@
                 padding-bottom: 0;
                 padding-top: 0;
 
-                word-break: break-all;
+                word-break: break-word;
             }
 
             #user {
@@ -66,6 +68,8 @@
 
         .summary-row {
             font-size: 1.5em;
+
+            margin-top: .5em;
 
             padding-bottom: 1em;
             padding-top: 0;
