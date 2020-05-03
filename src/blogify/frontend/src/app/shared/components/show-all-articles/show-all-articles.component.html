@@ -30,12 +30,12 @@
 
         <!-- Search icon -->
         <a class="clickable hover-neutral" id="header-search-icon" *ngIf="!showingMobileSearchBar" (click)="setShowSearchBar(true)">
-            <fa-icon [icon]="faSearch" size="2x"></fa-icon>
+            <fa-icon [icon]="faSearch" size="lg" [transform]="{ size: 21 }"></fa-icon>
         </a>
 
         <!-- New article -->
         <a id="header-create-btn" class="clickable" (click)="navigateToNewArticle()" *ngIf="allowCreate && !forceNoAllowCreate">
-            <fa-icon [icon]="faPencil" size="2x"></fa-icon>
+            <fa-icon [icon]="faPencil" size="lg" [transform]="{ size: 21 }"></fa-icon>
         </a>
     </div>
 

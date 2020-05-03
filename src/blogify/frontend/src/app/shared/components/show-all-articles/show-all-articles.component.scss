@@ -1,7 +1,7 @@
-@import "../../../../styles/fonts";
-@import "../../../../styles/colours";
-@import "../../../../styles/layouts";
-@import "../../../../styles/mixins";
+@import "src/styles/fonts";
+@import "src/styles/colours";
+@import "src/styles/layouts";
+@import "src/styles/mixins";
 
 :host {
     &.no-padding       { .articles { @include pageContainer(false) } }
@@ -21,6 +21,9 @@
         }
 
         #header-title {
+            font-size: 2em;
+
+            padding: 0;
             margin-right: 1em;
         }
 
@@ -44,7 +47,7 @@
         }
 
         #header-create-btn {
-            margin-left: 2em;
+            margin-left: 2.35em;
             margin-right: 1em;
 
             cursor: pointer;
