@@ -25,6 +25,7 @@
         "arrow-parens": ["error", "as-needed"],
         "max-len": ["error", { "code": 240 }],
         "comma-dangle": "off",
-        "array-bracket-spacing": "error"
+        "array-bracket-spacing": "error",
+        "object-curly-spacing": ["error", "always"]
     }
 }

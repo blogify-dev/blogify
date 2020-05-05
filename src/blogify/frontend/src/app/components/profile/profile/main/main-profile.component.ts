@@ -5,7 +5,7 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { AuthService } from '../../../../shared/services/auth/auth.service';
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { HttpResponse } from '@angular/common/http';
-import {faCheck, faCross, faPencilAlt, faTimes, faUserMinus, faUserPlus} from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faCross, faPencilAlt, faTimes, faUserMinus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-main-profile',
