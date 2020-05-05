@@ -39,17 +39,12 @@ import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
 import blogify.backend.database.tables.ImageUploadablesMetadata
+import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.ok
 import blogify.backend.resources.static.image.ImageMetadata
-import blogify.backend.pipelines.obtainResource
-import blogify.backend.pipelines.obtainResources
-import blogify.backend.pipelines.authenticate
-import blogify.backend.pipelines.optionalParam
-import blogify.backend.pipelines.param
-import blogify.backend.pipelines.pipelineError
 import blogify.backend.resources.Article
 import blogify.backend.resources.reflect.*
 import blogify.backend.search.Typesense
@@ -607,12 +602,14 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
     noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
 ) {
 
-    // @TODO make this a bit more failure-proof
+    val replacement = call.receive<Dto>()
+    val id = (replacement["uuid"] as? String ?: call.parameters["uuid"])?.toUUIDOrNull()
+            ?: pipelineError(HttpStatusCode.BadRequest, "resource uuid not found in update object or url")
 
-    val replacement = call.receive<Map<String, Any>>()
-    val current = obtainResource<R>((replacement["uuid"] as String).toUUID())
+    val current = obtainResource<R>(id)
 
-    val rawData = replacement.mapKeys { n -> R::class.propMap.ok.values.first { it.name == n.key } }
+    val rawData = replacement.mappedByHandles(R::class)
+            .getOrPipelineError(HttpStatusCode.BadRequest,"bad update object (invalid properties)")
 
     authenticate (
         predicate = { user -> authPredicate(user, current) }
@@ -623,7 +620,7 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
                 launch { Typesense.updateResource(it) }
             },
             failure = { e ->
-                e.printStackTrace()
+                pipelineError(message = "could not update resource", rootException = e)
             }
         )
     }
