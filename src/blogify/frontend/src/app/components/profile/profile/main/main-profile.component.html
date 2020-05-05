@@ -30,6 +30,52 @@
             </div>
         </div>
 
+        <div id="user__biography">
+            <ng-container *ngIf="!editingBiography">
+                <span id="__biography_text" *ngIf="user.biography">{{user.biography}}</span>
+                <span id="__biography__absent" *ngIf="!user.biography">No biography</span>
+            </ng-container>
+
+            <ng-container *ngIf="isSelf">
+                <fa-icon
+                        class="clickable __biography_icon"
+                        id="__icon_edit"
+                        [icon]="faPencilAlt"
+                        [transform]="{ size: 14, y: 1 }"
+                        (click)="toggleEditingBiography()"
+                        *ngIf="!editingBiography"
+                ></fa-icon>
+
+                <input
+                        id="__biography__input"
+                        type="text"
+                        aria-label="Biography"
+                        *ngIf="editingBiography"
+                        [(ngModel)]="user.biography"
+                        (keydown.escape)="toggleEditingBiography()"
+                        (keydown.enter)="updateBiography()"
+                >
+
+                <fa-icon
+                        class="clickable hover-positive __biography_icon"
+                        id="__icon_confirm"
+                        [icon]="faCheck"
+                        [transform]="{ size: 16, y: 1 }"
+                        (click)="updateBiography()"
+                        *ngIf="editingBiography"
+                ></fa-icon>
+
+                <fa-icon
+                        class="clickable hover-negative __biography_icon"
+                        id="__icon_close"
+                        [icon]="faTimes"
+                        [transform]="{ size: 16, y: 1 }"
+                        (click)="toggleEditingBiography()"
+                        *ngIf="editingBiography"
+                ></fa-icon>
+            </ng-container>
+        </div>
+
         <router-outlet></router-outlet>
 
     </div>

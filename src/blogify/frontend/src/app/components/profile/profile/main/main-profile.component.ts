@@ -5,7 +5,7 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { AuthService } from '../../../../shared/services/auth/auth.service';
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { HttpResponse } from '@angular/common/http';
-import { faUserMinus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import {faCheck, faCross, faPencilAlt, faTimes, faUserMinus, faUserPlus} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-main-profile',
@@ -22,6 +22,12 @@ export class MainProfileComponent implements OnInit {
 
     faUserPlus = faUserPlus;
     faUserMinus = faUserMinus;
+
+    faPencilAlt = faPencilAlt;
+    faCheck = faCheck;
+    faTimes = faTimes;
+
+    editingBiography = false;
 
     baseTabs: TabList = [
         new Tab('Overview', 'overview'),
@@ -91,6 +97,18 @@ export class MainProfileComponent implements OnInit {
             }).catch(e => {
                 console.error(`[blogifyUsers] Couldn't like ${this.user.uuid}`, e);
             });
+    }
+
+    toggleEditingBiography = () => this.editingBiography =! this.editingBiography;
+
+    updateBiography() {
+        const text = this.user.biography;
+
+        this.userService.updateUser(this.user, { biography: text }, this.authService.currentUser.token)
+            .then(_ => this.toggleEditingBiography())
+            .catch(_ => console.log('[blogifyUsers] couldn\'t update biography'));
+
+        this.user.biography = text;
     }
 
 }

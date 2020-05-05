@@ -7,6 +7,7 @@ import { OverviewComponent } from './overview/overview.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { CoverPictureComponent } from './cover-picture/cover-picture.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { FormsModule } from "@angular/forms";
 
 @NgModule({
     declarations: [
@@ -22,7 +23,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
         CommonModule,
         SharedModule,
         ProfileRoutingModule,
-        FontAwesomeModule
+        FontAwesomeModule,
+        FormsModule
     ]
 })
 

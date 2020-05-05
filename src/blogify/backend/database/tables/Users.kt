@@ -1,6 +1,5 @@
 package blogify.backend.database.tables
 
-import blogify.backend.appContext
 import blogify.backend.database.extensions.keyOf
 import blogify.backend.database.extensions.weakKeyFrom
 import blogify.backend.database.handling.query
@@ -31,6 +30,7 @@ object Users : ResourceTable<User>() {
     val profilePicture = varchar ("profile_picture", 32).nullable() weakKeyFrom Uploadables.fileId
     val coverPicture   = varchar ("cover_picture", 32).nullable() weakKeyFrom Uploadables.fileId
     val isAdmin        = bool    ("is_admin").default(false)
+    val biography      = text    ("biography").default("")
 
     init {
         index(true, username)
@@ -57,6 +57,7 @@ object Users : ResourceTable<User>() {
                     it[profilePicture] =
                         if (resource.profilePicture is StaticFile.Ok) resource.profilePicture.fileId else null
                     it[isAdmin] = resource.isAdmin
+                    it[biography] = resource.biography
                 }
             }
             return@Wrap resource
@@ -77,6 +78,7 @@ object Users : ResourceTable<User>() {
                 it[coverPicture] =
                     if (resource.coverPicture is StaticFile.Ok) resource.coverPicture.fileId else null
                 it[isAdmin] = resource.isAdmin
+                it[biography] = resource.biography
             }
         }.get() == 1
     }
@@ -90,6 +92,7 @@ object Users : ResourceTable<User>() {
                 name = source[name],
                 email = source[email],
                 isAdmin = source[isAdmin],
+                biography = source[biography],
                 profilePicture = source[profilePicture]?.let {
                     transaction {
                         Uploadables.select { Uploadables.fileId eq source[profilePicture]!! }

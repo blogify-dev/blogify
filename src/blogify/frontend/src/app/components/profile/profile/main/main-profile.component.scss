@@ -35,4 +35,42 @@
         }
 
     }
+
+    #user__biography {
+        font-size: 1.5em;
+
+        margin-bottom: 1em;
+
+        &:hover #__icon_edit:last-child {
+            display: initial;
+        }
+        .__biography_icon {
+            margin-left: .65em;
+
+            &#__icon_edit {
+                display: none;
+            }
+        }
+
+        #__biography_text {
+            margin: .15em 0 .2em 0;
+
+            display: inline-block;
+        }
+
+        #__biography__absent {
+            font-style: italic;
+        }
+
+        #__biography__input__label {
+            width: 0;
+        }
+
+        #__biography__input {
+            padding: .1em .6em;
+
+            font-size: inherit;
+        }
+    }
+
 }

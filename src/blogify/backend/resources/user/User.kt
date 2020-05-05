@@ -57,6 +57,8 @@ data class User (
 
     val isAdmin: Boolean = false,
 
+    val biography: String = "",
+
     @Undisplayed
     @SearchDefaultSort
     val dsf: Int = Random.nextInt(),

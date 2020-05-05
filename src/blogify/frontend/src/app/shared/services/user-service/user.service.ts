@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { User } from '../../../models/User';
 import { StateService } from '../state/state.service';
 import { SearchView } from "../../../models/SearchView";
+import {idOf, Shadow} from "../../../models/Shadow";
 
 @Injectable({
     providedIn: 'root'
@@ -26,6 +27,19 @@ export class UserService {
 
             return fetched;
         }
+    }
+
+    async updateUser(user: Shadow<User>, data: { [k in keyof User]?: User[k] }, userToken: string): Promise<object> {
+        const url = `/api/users/${idOf(user)}`;
+
+        const options = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${userToken}`
+            })
+        };
+
+        return this.httpClient.patch(url, data, options).toPromise();
     }
 
     async toggleFollowUser(user: User, userToken: string): Promise<HttpResponse<object>> {
