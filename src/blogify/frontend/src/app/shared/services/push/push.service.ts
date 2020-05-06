@@ -30,11 +30,15 @@ export class PushService {
             });
 
             if (loggedIn) {
+                console.log('[blogifyStreaming] Trying to authenticate to server ...');
                 this.ws.next(this.authService.currentUser.token);
-                this.ws.subscribe((msg) => {
+
+                this.ws.subscribe(msg => {
                     if (!this.authenticated) {
                         if (msg.match(/AUTH OK/)) {
                             this.authenticated = true;
+
+                            console.log('[blogifyStreaming] Successfully authenticated to server');
                         }
                     } else {
                         const parsed = JSON.parse(msg) as EventPayload;
