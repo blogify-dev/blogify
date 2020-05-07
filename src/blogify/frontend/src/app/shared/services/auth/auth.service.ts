@@ -5,10 +5,9 @@ import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StaticContentService } from "../../../services/static/static-content.service";
 import { StateService } from "../state/state.service";
-import { StaticFile } from "../../../models/Static";
 
 const USER_TOKEN_KEY = 'userToken';
-const KEEP_LOGGED_IN = 'keepLoggedIn';
+const KEEP_LOGGED_IN_KEY = 'keepLoggedIn';
 
 @Injectable({
     providedIn: 'root'
@@ -48,13 +47,12 @@ export class AuthService {
 
     async login(creds: LoginCredentials | string, keepLoggedIn = false): Promise<User> {
         const signin = async (): Promise<string> => {
-            localStorage.setItem(KEEP_LOGGED_IN, `${keepLoggedIn}`);
-            return (await this.httpClient.post<UserToken>('/api/auth/signin', creds, {responseType: 'json'})
+            localStorage.setItem(KEEP_LOGGED_IN_KEY, `${keepLoggedIn}`);
+            return (await this.httpClient.post<{ token: string }>('/api/auth/signin', creds, { responseType: 'json' })
                 .toPromise()).token;
         };
 
         const token = (typeof creds === 'string') ? creds : (await signin());
-
 
         const httpOptions = {
             headers: new HttpHeaders({
@@ -66,7 +64,7 @@ export class AuthService {
         const user = await this.httpClient.get<User>('/api/users/me/', httpOptions).toPromise();
         this.stateService.cacheUser(user);
 
-        const shouldKeepLoggedIn = localStorage.getItem(KEEP_LOGGED_IN) === 'true';
+        const shouldKeepLoggedIn = localStorage.getItem(KEEP_LOGGED_IN_KEY) === 'true';
         if (shouldKeepLoggedIn) {
             // We have reached a point where `token` is valid so we populate the cache with it
             localStorage.setItem('userToken', token);
@@ -101,10 +99,6 @@ export class AuthService {
         );
     }
 
-}
-
-interface UserToken {
-    token: string;
 }
 
 interface SignupPayload {

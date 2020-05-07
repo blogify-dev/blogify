@@ -14,11 +14,9 @@ export class User {
     ) {}
 }
 
-export class LoginCredentials {
-    constructor (
-        public username: string,
-        public password: string,
-    ) {}
+export interface LoginCredentials {
+    username: string;
+    password: string;
 }
 
 export class RegisterCredentials {

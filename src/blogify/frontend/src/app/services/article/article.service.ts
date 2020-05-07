@@ -33,9 +33,9 @@ export class ArticleService {
     private async fetchLikeStatus(articles: Article[]): Promise<Article[]> {
         if (this.authService.currentUser === null) {
             return articles.map(article => {
-                article.likedByUser = false
-                return article
-            })
+                article.likedByUser = false;
+                return article;
+            });
         }
         const httpOptions = {
             headers: new HttpHeaders({
@@ -133,7 +133,7 @@ export class ArticleService {
         const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}${byUserString}`;
         return this.httpClient.get<SearchView<Article>>(url)
             .toPromise()
-            .then((hits) => {
+            .then(hits => {
                 if (hits != null) {
                     return this.prepareArticleData(hits.hits.map(hit => hit.document));
                 } else {
