@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { User } from '../../../models/User';
 import { StateService } from '../state/state.service';
 import { SearchView } from "../../../models/SearchView";
-import {idOf, Shadow} from "../../../models/Shadow";
+import { idOf, Shadow } from "../../../models/Shadow";
 
 @Injectable({
     providedIn: 'root'
@@ -43,7 +43,6 @@ export class UserService {
     }
 
     async toggleFollowUser(user: User, userToken: string): Promise<HttpResponse<object>> {
-
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
@@ -61,6 +60,19 @@ export class UserService {
         return this.httpClient.get<User>(`/api/users/byUsername/${username}`).toPromise();
     }
 
+    async toggleUserAdmin(user: Shadow<User>, userToken: string): Promise<object> {
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${userToken}`
+            }),
+            observe: 'response',
+        };
+
+        // TypeScript bug with method overloads.
+        // @ts-ignore
+        return this.httpClient.post<HttpResponse<object>>(`/api/users/${idOf(user)}/toggleAdmin`, null, httpOptions).toPromise();
+    }
 
     async fillUsersFromUUIDs(uuids: string[]): Promise<User[]> {
         return Promise.all(uuids.map(it => this.getUser(it)));

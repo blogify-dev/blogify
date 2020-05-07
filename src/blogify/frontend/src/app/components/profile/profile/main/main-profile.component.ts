@@ -5,7 +5,7 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { AuthService } from '../../../../shared/services/auth/auth.service';
 import { UserService } from '../../../../shared/services/user-service/user.service';
 import { HttpResponse } from '@angular/common/http';
-import { faCheck, faCross, faPencilAlt, faTimes, faUserMinus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faPencilAlt, faTimes, faUserMinus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-main-profile',
@@ -37,6 +37,10 @@ export class MainProfileComponent implements OnInit {
     loggedInTabs: TabList = [
         new Tab('Settings', 'settings'),
     ];
+
+    adminTabs: TabList = [
+        new Tab('Manage', 'manage')
+    ]
 
     finalTabs: TabList = this.baseTabs;
 
@@ -80,10 +84,14 @@ export class MainProfileComponent implements OnInit {
      * Make sure tabs are consistent for logged in or not, self or not
      */
     private updateTabs() {
+        this.finalTabs = [...this.baseTabs];
+
         if (this.isLoggedIn && this.isSelf) {
-            this.finalTabs = this.baseTabs.concat(this.loggedInTabs);
-        } else {
-            this.finalTabs = this.baseTabs;
+            this.finalTabs.push(...this.loggedInTabs);
+        }
+
+        if (this.isLoggedIn && this.authService.currentUser.isAdmin) {
+            this.finalTabs.push(...this.adminTabs);
         }
     }
 

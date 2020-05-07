@@ -8,13 +8,15 @@ import { SharedModule } from '../../../shared/shared.module';
 import { CoverPictureComponent } from './cover-picture/cover-picture.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from "@angular/forms";
+import { ManageComponent } from './manage/manage.component';
 
 @NgModule({
     declarations: [
         SettingsComponent,
         MainProfileComponent,
         OverviewComponent,
-        CoverPictureComponent
+        CoverPictureComponent,
+        ManageComponent
     ],
     exports: [
         MainProfileComponent

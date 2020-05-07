@@ -83,6 +83,10 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
             }
         }
 
+        post("/{uuid}/toggleAdmin") {
+            requestContext(applicationContext, toggleUserAdmin)
+        }
+
         get("/search") {
             requestContext(applicationContext) {
                 val query = param("q")

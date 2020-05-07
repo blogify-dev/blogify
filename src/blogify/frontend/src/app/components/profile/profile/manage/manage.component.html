@@ -1,0 +1,28 @@
+<ng-container *ngIf="this.forUser">
+    <div id="__toggle_user_admin">
+
+        <div id="__icon">
+            <fa-layers size="2x">
+                <fa-icon [icon]="faUser"></fa-icon>
+                <fa-icon [icon]="faShield" [transform]="{ x: 7, y: 5, size: 10 }"></fa-icon>
+            </fa-layers>
+        </div>
+
+        <div id="__body">
+            <div id="__title">
+                User administrator status
+            </div>
+
+            <div id="__detailed">
+                Change this user's administrator status. Can let them remove your administrator status.
+            </div>
+        </div>
+
+        <button class="rounded"
+                [ngClass]="{ positive: !this.forUser.isAdmin, negative: this.forUser.isAdmin }"
+                (click)="toggleUserAdmin()"
+        >
+            {{!this.forUser.isAdmin ? 'Enable' : 'Disable'}}
+        </button>
+    </div>
+</ng-container>
