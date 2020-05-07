@@ -4,7 +4,7 @@ import { UserService } from "../../../../shared/services/user-service/user.servi
 import { ActivatedRoute, Params } from "@angular/router";
 import { User } from "../../../../models/User";
 import { faUser } from "@fortawesome/free-regular-svg-icons";
-import { faShieldAlt } from "@fortawesome/free-solid-svg-icons";
+import {faGavel, faShieldAlt} from "@fortawesome/free-solid-svg-icons";
 import { idOf } from "../../../../models/Shadow";
 import { StateService } from "../../../../shared/services/state/state.service";
 
@@ -17,6 +17,8 @@ export class ManageComponent implements OnInit {
     
     faUser = faUser;
     faShield = faShieldAlt;
+
+    faGavel = faGavel;
 
     forUser: User;
     

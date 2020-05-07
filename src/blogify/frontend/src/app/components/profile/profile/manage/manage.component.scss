@@ -1,7 +1,14 @@
 @import "src/styles/queries";
 @import "src/styles/layouts";
 
-#__toggle_user_admin {
+h2 {
+    padding: 1em 0 .5em 0;
+    &:first-child {
+        padding-top: 0;
+    }
+}
+
+#__toggle_user_admin, #__user_ban {
     @media (min-width: $query-desktop) {
         max-width: 70%;
     }
@@ -15,19 +22,40 @@
     font-size: 1.15em;
 
     border: 1px solid var(--border-color);
-    border-radius: $std-border-radius * 2;
 
-    #__body {
+    &:first-child {
+        border-top-left-radius: $std-border-radius * 2;
+        border-top-right-radius: $std-border-radius * 2;
+    }
+
+    &:last-child {
+        border-bottom-left-radius: $std-border-radius * 2;
+        border-bottom-right-radius: $std-border-radius * 2;
+    }
+
+    &:not(:last-child) {
+        border-bottom: none;
+    }
+
+    .__body {
         flex: 4 1;
     }
 
-    #__title {
+    .__title {
         font-size: 1.15em;
         font-weight: bold;
     }
 
     button {
+        font-size: 1.05em;
+
+        padding: .5em .75em;
+
         margin-left: auto;
         flex: 1 0;
     }
+}
+
+#__user_ban {
+    border-color: var(--accent-negative);
 }
