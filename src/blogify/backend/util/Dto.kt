@@ -20,11 +20,7 @@ typealias Dto = Map<String, Any?>
  */
 fun String.toDto(): Dto? =
     letCatchingOrNull {
-        return@letCatchingOrNull try {
-            appContext.objectMapper.readValue<Dto>(it)
-        } catch (e: Exception) {
-            null
-        }
+        appContext.objectMapper.readValue<Dto>(it)
     }
 
 /**

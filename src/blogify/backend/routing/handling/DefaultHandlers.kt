@@ -34,7 +34,6 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.file.StaticFileHandler
 import blogify.backend.resources.static.models.StaticData
 import blogify.backend.resources.static.models.StaticFile
-import blogify.backend.persistence.models.Repository
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
@@ -62,11 +61,9 @@ import io.ktor.http.content.forEachPart
 import io.ktor.http.content.streamProvider
 import io.ktor.request.receiveMultipart
 
-import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.failure
 import com.github.kittinunf.result.coroutines.map
 
-import com.andreapivetta.kolor.magenta
 import com.drew.imaging.ImageMetadataReader
 import com.drew.metadata.exif.ExifImageDirectory
 import com.drew.metadata.jpeg.JpegDirectory
@@ -90,8 +87,6 @@ import blogify.reflect.verify
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSuperclassOf
-
-/* temp private */ val logger: Logger = LoggerFactory.getLogger("blogify-service-wrapper")
 
 /**
  * The default predicate used by the wrappers in this file
@@ -128,10 +123,8 @@ suspend inline fun <reified R : Resource> RequestContext.fetchAllResources() {
     val resources = obtainResources<R>(limit)
 
     if (selectedProperties == null) {
-        logger.debug("slicer: getting all fields".magenta())
         call.respond(resources.map { it.sanitize(excludeUndisplayed = true) })
     } else {
-        logger.debug("slicer: getting fields $selectedProperties".magenta())
         call.respond(resources.map { it.slice(selectedProperties) })
     }
 
@@ -182,95 +175,12 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResource (
         val resource = obtainResource<R>(uuid.toUUID())
 
         if (selectedProperties == null) {
-            logger.debug("slicer: getting all fields".magenta())
             call.respond(resource.sanitize(excludeUndisplayed = true))
         } else {
-            logger.debug("slicer: getting fields $selectedProperties".magenta())
             call.respond(resource.slice(selectedProperties))
         }
 
     }
-
-}
-
-/**
- * Adds a handler to a [RequestContext] that handles fetching a set of resources that match the given [predicate]
- *
- * Allows a [Map] of specific property names to be passed in the query URL. If omitted, all the properties are returned
- *
- * **WARNING:** Those property names must *exactly* match property names present in the class of the specific resource type.
- *
- * @author hamza1311
- */
-@BlogifyDsl
-suspend inline fun <reified R : Resource> RequestContext.fetchResourcesMatching(noinline predicate: SqlExpressionBuilder.() -> Op<Boolean>) {
-
-    val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
-
-    repository<R>().getMatching(this, predicate).fold(
-        success = { resources ->
-            if (selectedProperties == null) {
-                logger.debug("slicer: getting all fields".magenta())
-                call.respond(resources.map { it.sanitize(excludeUndisplayed = true) })
-            } else {
-                logger.debug("slicer: getting fields $selectedProperties".magenta())
-                call.respond(resources.map { it.slice(selectedProperties) })
-            }
-        },
-        failure = { call.respondExceptionMessage(it) }
-    )
-
-}
-
-/**
- * Adds a handler to a [RequestContext] that handles fetching all the available resources that are related to a particular resource.
- *
- * Requires a [UUID] to be passed in the query URL.
- *
- * @param R          the type of [Resource] to be fetched
- * @param fetch      the [function][Function] that retrieves the resources using the [ID][UUID] of another resource
- * @param transform  a transformation [function][Function] that transforms the [resources][Resource] before sending them back to the client*
- * @author Benjozork
- */
-@BlogifyDsl
-suspend fun <R : Resource> RequestContext.fetchAllWithId (
-    fetch:     suspend (UUID) -> SrList<R>,
-    transform: suspend (R) -> Resource = { it }
-) {
-
-    val uuid = param("uuid")
-    val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
-
-    if (selectedPropertyNames == null)
-        logger.debug("slicer: getting all fields".magenta())
-    else
-        logger.debug("slicer: getting fields $selectedPropertyNames".magenta())
-
-    fetch.invoke(uuid.toUUID()).fold (
-        success = { fetchedSet ->
-            if (fetchedSet.isNotEmpty()) {
-                SuspendableResult.of<Set<Resource>, Repository.Exception> {
-                    fetchedSet.map { transform.invoke(it) }.toSet() // Cover for any errors in transform()
-                }.fold (
-                    success = { fetched ->
-                        try {
-                            selectedPropertyNames?.let { props ->
-
-                                call.respond(fetched.map { it.slice(props) })
-
-                            } ?: call.respond(fetched.map { it.sanitize(excludeUndisplayed = true) })
-                        } catch (bruhMoment: Repository.Exception) {
-                            call.respondExceptionMessage(bruhMoment)
-                        }
-                    },
-                    failure = call::respondExceptionMessage
-                )
-            } else {
-                call.respond(HttpStatusCode.NoContent)
-            }
-        },
-        failure = call::respondExceptionMessage
-    )
 
 }
 
@@ -580,6 +490,7 @@ suspend inline fun <reified R: Resource> RequestContext.deleteResource (
         repository<R>().delete(toDelete).fold (
             success = {
                 call.respond(HttpStatusCode.OK)
+
                 launch { Typesense.deleteResource<R>(toDelete.uuid) }
             },
             failure = call::respondExceptionMessage
@@ -614,15 +525,12 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
     authenticate (
         predicate = { user -> authPredicate(user, current) }
     ) {
-        repository<R>().update(this, current, rawData).fold (
-            success = {
-                call.respond(HttpStatusCode.OK)
-                launch { Typesense.updateResource(it) }
-            },
-            failure = { e ->
-                pipelineError(message = "could not update resource", rootException = e)
-            }
-        )
+        val updatedResource = repository<R>().update(this, current, rawData)
+            .getOrPipelineError(message = "couldn't update resource")
+
+        call.respond(HttpStatusCode.OK)
+
+        launch { Typesense.updateResource(updatedResource) }
     }
 
 }

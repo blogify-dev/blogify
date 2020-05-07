@@ -9,9 +9,9 @@ import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.user.User
 import blogify.backend.resources.static.models.StaticFile
-import blogify.backend.routing.handling.respondExceptionMessage
 import blogify.backend.search.Typesense
 import blogify.backend.util.*
+
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
@@ -29,7 +29,7 @@ data class LoginCredentials (
 ) {
 
     /**
-     * Checks the [credentials][LoginCredentials] against a [user][User].
+     * Checks the [credentials][LoginCredentials] against a [user][User]
      *
      * @param user the user to check the credentials against
      *
@@ -79,29 +79,16 @@ fun Route.makeAuthRoutes(applicationContext: ApplicationContext) {
         post("/signin") {
             requestContext(applicationContext) {
                 val credentials = call.receive<LoginCredentials>()
-                val matchingCredentials = repository<User>().getMatching(this) { Users.username eq credentials.username }
+                val dbCredentials = repository<User>().getOneMatching(this) { Users.username eq credentials.username }
+                    .getOrPipelineError()
 
-                matchingCredentials.fold (
-                    success = { set ->
-                        set.foldForOne ( // We got a set of matching users
-                            one = { singleUser ->
-                                if (credentials.matchFor(singleUser)) {
-                                    val token = generateJWT(singleUser)
+                if (credentials.matchFor(dbCredentials)) {
+                    val token = generateJWT(dbCredentials)
 
-                                    call.respond(object { @Suppress("unused") val token = token })
-                                } else {
-                                    call.respond(HttpStatusCode.Forbidden, reason("username/password invalid")) // Password doesn't match
-                                }
-                            }, multiple = {
-                                call.respond(HttpStatusCode.InternalServerError)
-                            }, none = {
-                                call.respond(HttpStatusCode.NotFound)
-                            })
-                    },
-                    failure = { ex ->
-                        call.respondExceptionMessage(ex)
-                    }
-                )
+                    call.respond(object { val token = token })
+                } else {
+                    call.respond(HttpStatusCode.Forbidden, reason("username/password invalid"))
+                }
             }
         }
 

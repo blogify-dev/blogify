@@ -6,12 +6,11 @@ import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestConte
 import blogify.reflect.models.PropMap
 import blogify.backend.util.BException
 import blogify.backend.util.Sr
-import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
 
 import io.ktor.application.ApplicationCall
-import org.jetbrains.exposed.sql.Column
 
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
@@ -26,17 +25,25 @@ interface Repository<R : Resource> {
     /**
      * Obtains all instances of [R] in the database
      *
-     * @param request the context of the [call][ApplicationCall] resulting in this operation,
-     *                    used for caching purposes. Defaults to [FakeApplicationCall] without caching.
-     *
-     * @param limit the max number of items to fetch. Defaults to 256.
-     *
-     * @return a [SrList] of [R] items
+     * @param request the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
+     * @param limit   the max number of items to fetch. Defaults to 256.
      *
      * @author Benjozork, hamza1311
      */
     suspend fun getAll(request: RequestContext = FakeRequestContext, limit: Int = 256): SrList<R>
 
+    /**
+     * Obtains an instance of [R] with a specific [id][UUID] ]in the database
+     *
+     * @param request         the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
+     * @param selectCondition the SQL predicate to match rows with
+     * @param quantity        the quantity of items to fetch on one page
+     * @param page            the page number to fetch (group of [quantity] items)
+     * @param orderBy         the SQL column to order the resources by
+     * @param sortOrder       the sort order to sort the resources in
+     *
+     * @author Benjozork, hamza1311
+     */
     suspend fun queryListing(request: RequestContext,
                              selectCondition: SqlExpressionBuilder.() -> Op<Boolean>,
                              quantity: Int,
@@ -47,41 +54,47 @@ interface Repository<R : Resource> {
     /**
      * Obtains an instance of [R] with a specific [id][UUID] ]in the database
      *
-     * @param request the context of the [call][ApplicationCall] resulting in this operation,
-     *                    used for caching purposes. Defaults to [FakeApplicationCall] without caching.
-     *
-     * @param id the [UUID] of the resource to fetch
-     *
-     * @return a [Wrap] of an [R] item with the provided [id]
+     * @param request the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
+     * @param id      the [UUID] of the resource to fetch
      *
      * @author Benjozork, hamza1311
      */
     suspend fun get(request: RequestContext = FakeRequestContext, id: UUID): Sr<R>
 
     /**
-     * Obtains a set of instances of [R] matching a given [predicate]
+     * Obtains an instance of [R] matching a specific SQL predicate
      *
-     * @param request the context of the [request][RequestContext] resulting in this operation,
-     *                used for caching purposes. Defaults to [FakeRequestContext] without caching.
+     * @param request         the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
+     * @param selectCondition the SQL predicate to match rows with
      *
-     * @param predicate an Exposed predicate that is used to return the needed items
-     *
-     * @return a [SrList] of [R] items matching [predicate]
-     *
-     * @author hamza1311
+     * @author Benjozork, hamza1311
      */
-    suspend fun getMatching(request: RequestContext = FakeRequestContext, predicate: SqlExpressionBuilder.() -> Op<Boolean>): SrList<R>
+    suspend fun getOneMatching(request: RequestContext, selectCondition: SqlExpressionBuilder.() -> Op<Boolean>): Sr<R>
 
+    /**
+     * Adds an instance of [R] to the database
+     *
+     * @param res the resource to add
+     *
+     * @author Benjozork, hamza1311
+     */
     suspend fun add(res: R): Sr<R>
 
+    /**
+     * Updates an instance of [R] in the database
+     *
+     * @param request the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
+     * @param res     the resource to update
+     * @param rawData a map of [property handles][PropMap.PropertyHandle.Ok] to replacement values. Can omit values to not update them.
+     *
+     * @author Benjozork, hamza1311
+     */
     suspend fun update(request: RequestContext, res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R>
 
     /**
      * Deletes an instance of [R] from the database
      *
      * @param res the resource to delete
-     *
-     * @return a [Wrap] of the [UUID] of the deleted resource
      *
      * @author Benjozork, hamza1311
      */

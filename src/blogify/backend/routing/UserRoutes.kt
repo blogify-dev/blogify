@@ -62,21 +62,12 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
                 val username = param("username")
                 val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
-                repository<User>().getMatching { Users.username eq username }.fold(
-                    success = {
-                        val user = it.single()
-                        try {
-                            selectedPropertyNames?.let { props ->
+                val matchingUser = repository<User>().getOneMatching(this) { Users.username eq username }
+                    .getOrPipelineError(HttpStatusCode.NotFound)
 
-                                call.respond(user.slice(props))
-
-                            } ?: call.respond(user.sanitize())
-                        } catch (bruhMoment: Repository.Exception) {
-                            call.respondExceptionMessage(bruhMoment)
-                        }
-                    },
-                    failure = { call.respondExceptionMessage(it) }
-                )
+                selectedPropertyNames?.let { props ->
+                    call.respond(matchingUser.slice(props))
+                } ?: call.respond(matchingUser.sanitize())
             }
         }
 
