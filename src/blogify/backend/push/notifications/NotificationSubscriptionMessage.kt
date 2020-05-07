@@ -10,10 +10,7 @@ class SubscribeToNotifications(val test: String, override val connection: PushSe
     : Message.Incoming(connection) {
 
     override suspend fun onArrival() {
-        val repo = this.connection.appContext.repository<Article>()
-        val arts = repo.getMatching { Articles.title like "%a%" }.get()
-
-        arts.forEach { println(it.title) }
+        TODO("Not yet implemented")
     }
 
 }
