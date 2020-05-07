@@ -57,7 +57,7 @@
                     <fa-icon [icon]="faCopy" size="2x" [transform]="{ size: 13, y: 0 }"></fa-icon>
                 </a>
 
-                <span class="separator" *ngIf="loggedInObs | async"></span>
+                <span class="separator" *ngIf="isLoggedInUsersArticle || isAdmin"></span>
 
                 <!-- Update button -->
                 <a id="button-update" class="clickable" routerLink="/article/update/{{article.uuid}}" *ngIf="isLoggedInUsersArticle">

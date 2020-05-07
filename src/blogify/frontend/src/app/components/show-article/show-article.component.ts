@@ -51,7 +51,7 @@ export class ShowArticleComponent implements OnInit {
             this.authService.observeIsLoggedIn().subscribe(async state => {
                 if (state) {
                     this.isLoggedInUsersArticle = idOf(this.article.createdBy) === this.authService.currentUser.uuid;
-                    this.isAdmin = (await this.userService.getUser(idOf(this.article.createdBy))).isAdmin;
+                    this.isAdmin = this.authService.currentUser.isAdmin;
                 }
             });
         });

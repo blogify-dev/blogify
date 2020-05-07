@@ -53,7 +53,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         delete("/{uuid}") {
             requestContext(applicationContext) {
                 deleteResource<Comment> (
-                    authPredicate = { user, comment -> comment.commenter eqr user }
+                    authPredicate = { user, comment -> comment.commenter eqr user || user.isAdmin }
                 )
             }
         }

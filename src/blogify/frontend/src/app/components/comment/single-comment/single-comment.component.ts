@@ -23,6 +23,7 @@ export class SingleCommentComponent implements OnInit {
     isReady = false;
 
     isLoggedInUsersComment = false;
+    isAdmin = false;
 
     replyingEnabled = false;
     isDeleting = false;
@@ -92,6 +93,7 @@ export class SingleCommentComponent implements OnInit {
 
         this.authService.observeIsLoggedIn().subscribe(async state => {
             this.isLoggedInUsersComment = state && idOf(this.comment.commenter) === this.authService.currentUser.uuid;
+            this.isAdmin = this.authService.currentUser.isAdmin;
         });
     }
 

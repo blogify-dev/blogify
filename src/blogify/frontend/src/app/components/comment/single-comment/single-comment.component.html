@@ -34,24 +34,24 @@
             Reply
         </span>
 
-        <span class="separator" *ngIf="this.isLoggedInUsersComment"></span>
+        <ng-container *ngIf="isLoggedInUsersComment || isAdmin">
+            <span class="separator"></span>
 
-        <span class="button clickable hover-negative"
-              [ngClass]="this.isDeleting ? 'negative' : ''" (click)="toggleDeleting()"
-              *ngIf="this.isLoggedInUsersComment"
-        >
-            <fa-icon [icon]="faTrashAlt"></fa-icon>
+            <span class="button clickable hover-negative" [ngClass]="this.isDeleting ? 'negative' : ''" (click)="toggleDeleting()">
+                <fa-icon [icon]="faTrashAlt"></fa-icon>
 
-            Delete
-        </span>
+                Delete
+            </span>
 
-        <span id="delete-confirmation" class="button" *ngIf="this.isDeleting">
-            Are you sure ?
-            &nbsp;
-            <span class="choice clickable hover-negative" (click)="deleteSelf()">Yes</span>
-            &nbsp;/&nbsp;
-            <span class="choice clickable hover-gray" (click)="toggleDeleting()">No</span>
-        </span>
+            <span id="delete-confirmation" class="button" *ngIf="this.isDeleting">
+                Are you sure ?
+                &nbsp;
+                <span class="choice clickable hover-negative" (click)="deleteSelf()">Yes</span>
+                &nbsp;/&nbsp;
+                <span class="choice clickable hover-gray" (click)="toggleDeleting()">No</span>
+            </span>
+        </ng-container>
+
     </div>
 
     <app-create-comment class="reply" *ngIf="replyingEnabled" (replied)="this.replyingEnabled = !this.replyingEnabled" [comment]="comment"></app-create-comment>
