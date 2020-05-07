@@ -68,6 +68,17 @@ abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : Mapped(),
     @Suppress("RedundantSuspendModifier")
     open suspend fun onCreation(request: RequestContext) = Unit
 
-}
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Resource) return false
 
-infix fun <T : Resource> T.eqr(other: T) = this.uuid == other.uuid
+        if (uuid != other.uuid) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return uuid.hashCode()
+    }
+
+}

@@ -6,12 +6,10 @@ import blogify.backend.database.tables.Users
 import blogify.backend.database.handling.query
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.user.User
-import blogify.backend.resources.models.eqr
 import blogify.reflect.sanitize
 import blogify.reflect.slice
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
-import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.*
 import blogify.backend.routing.handling.*
 import blogify.backend.util.*
@@ -44,7 +42,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
         delete("/{uuid}") {
             requestContext(applicationContext) {
                 deleteResource<User> (
-                    authPredicate = { user, manipulated -> user eqr manipulated }
+                    authPredicate = { user, manipulated -> user == manipulated }
                 )
             }
         }
@@ -52,7 +50,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
         patch("/{uuid}") {
             requestContext(applicationContext) {
                 updateResource<User> (
-                    authPredicate = { user, replaced -> user eqr replaced }
+                    authPredicate = { user, replaced -> user == replaced }
                 )
             }
         }
@@ -73,13 +71,13 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
         post("/upload/{uuid}") {
             requestContext(applicationContext) {
-                uploadToResource<User>(authPredicate = { user, manipulated -> user eqr manipulated })
+                uploadToResource<User>(authPredicate = { user, manipulated -> user == manipulated })
             }
         }
 
         delete("/upload/{uuid}") {
             requestContext(applicationContext) {
-                deleteUpload<User>(authPredicate = { user, manipulated -> user eqr manipulated })
+                deleteUpload<User>(authPredicate = { user, manipulated -> user == manipulated })
             }
         }
 

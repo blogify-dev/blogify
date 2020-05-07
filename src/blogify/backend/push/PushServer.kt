@@ -4,7 +4,6 @@ import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_MESSAGE
 import blogify.backend.push.notifications.SubscribeToNotifications
 import blogify.backend.resources.user.User
-import blogify.backend.resources.models.eqr
 import blogify.backend.resources.reflect.doInstantiate
 import blogify.reflect.propMap
 import blogify.reflect.models.extensions.ok
@@ -127,7 +126,7 @@ class PushServer(val appContext: ApplicationContext) {
      * @param user the [User] for which to look for clients to send the message to
      */
     suspend fun sendMessageToConnected(user: User, message: Message.Outgoing) = this.clientConnections
-        .filter { it.key eqr user }.values
+        .filter { it.key == user }.values
         .forEach { it.send(message) }
 
     /**

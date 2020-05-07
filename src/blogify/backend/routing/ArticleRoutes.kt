@@ -9,7 +9,6 @@ import blogify.backend.resources.Article
 import blogify.backend.routing.handling.flipArticleLike
 import blogify.backend.routing.handling.flipArticlePin
 import blogify.backend.routing.handling.getArticleLikeStatus
-import blogify.backend.resources.models.eqr
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.reflect.extensions.okHandle
@@ -62,7 +61,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         patch("/{uuid}") {
             requestContext(applicationContext) {
                 updateResource<Article> (
-                    authPredicate = { user, article -> article.createdBy eqr user }
+                    authPredicate = { user, article -> article.createdBy == user }
                 )
             }
         }
@@ -70,7 +69,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         post("/") {
             requestContext(applicationContext) {
                 createResource<Article> (
-                    authPredicate = { user, article -> article.createdBy eqr user }
+                    authPredicate = { user, article -> article.createdBy == user }
                 )
             }
         }

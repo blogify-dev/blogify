@@ -4,7 +4,6 @@ import blogify.backend.database.tables.Comments
 import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Comment
-import blogify.backend.resources.models.eqr
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.routing.handling.flipCommentLike
 import blogify.backend.routing.handling.getCommentLikeStatus
@@ -53,7 +52,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         delete("/{uuid}") {
             requestContext(applicationContext) {
                 deleteResource<Comment> (
-                    authPredicate = { user, comment -> comment.commenter eqr user || user.isAdmin }
+                    authPredicate = { user, comment -> comment.commenter == user || user.isAdmin }
                 )
             }
         }
@@ -61,7 +60,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         patch("/{uuid}") {
             requestContext(applicationContext) {
                 updateResource<Comment> (
-                    authPredicate = { user, comment -> comment.commenter eqr user }
+                    authPredicate = { user, comment -> comment.commenter == user }
                 )
             }
         }
@@ -69,7 +68,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         post("/") {
             requestContext(applicationContext) {
                 createResource<Comment> (
-                    authPredicate = { user, comment -> comment.commenter eqr user }
+                    authPredicate = { user, comment -> comment.commenter == user }
                 )
             }
         }
