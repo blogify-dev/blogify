@@ -90,7 +90,7 @@ export class MainProfileComponent implements OnInit {
             this.finalTabs.push(...this.loggedInTabs);
         }
 
-        if (this.isLoggedIn && this.authService.currentUser.isAdmin) {
+        if (this.isLoggedIn && !this.isSelf && this.authService.currentUser.isAdmin) {
             this.finalTabs.push(...this.adminTabs);
         }
     }

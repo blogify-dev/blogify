@@ -16,12 +16,12 @@ import io.ktor.response.respond
  */
 @BlogifyDsl
 val toggleUserAdmin: RequestContextFunction<Unit> = {
-    authenticate({ it.isAdmin }) {
-        val id by queryUuid
+    val id by queryUuid
 
-        val user = repository<User>().get(this, id)
-            .getOrPipelineError(HttpStatusCode.NotFound)
+    val user = repository<User>().get(this, id)
+        .getOrPipelineError(HttpStatusCode.NotFound)
 
+    authenticate({ it.isAdmin && it != user }) {
         repository<User>().update(this, user, mapOf(User::isAdmin.okHandle!! to !user.isAdmin))
             .getOrPipelineError()
 
