@@ -128,10 +128,10 @@ button {
     // Color classes
 
     &.neutral  { color: var(--theme); background-color: var(--accent-neutral) }
-    &.positive { color: black; background-color: var(--accent-positive); }
-    &.mild     { color: black; background-color: var(--accent-mild); }
-    &.negative { color: black; background-color: var(--accent-negative); }
-    &.gray     { color: black; background-color: var(--accent-gray); }
+    &.positive { color: var(--theme); background-color: var(--accent-positive); }
+    &.mild     { color: var(--theme); background-color: var(--accent-mild); }
+    &.negative { color: var(--theme);; background-color: var(--accent-negative); }
+    &.gray     { color: var(--theme); background-color: var(--accent-gray); }
 
 
     &:not(.hollow) {
