@@ -8,9 +8,8 @@ import blogify.reflect.models.extensions.ok
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
-private fun String.red(): String {
-    return this
-}
+import com.andreapivetta.kolor.red
+
 
 @Suppress("UNCHECKED_CAST")
 private val <TClass : Any> KProperty1<TClass, *>.klass: KClass<out TClass> get() =
