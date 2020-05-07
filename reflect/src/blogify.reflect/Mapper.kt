@@ -7,6 +7,7 @@ import blogify.reflect.computed.models.Computed
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.Identified
 import blogify.reflect.models.PropMap
+import com.andreapivetta.kolor.green
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
@@ -15,7 +16,9 @@ import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
 
-//private val logger = LoggerFactory.getLogger("blogify-datamap")
+import org.slf4j.LoggerFactory
+
+private val logger = LoggerFactory.getLogger("blogify-reflect-datamap")
 
 /**
  * Builds a [property map][PropMap] on the receiver [KClass]
@@ -63,7 +66,7 @@ private fun <M : Mapped> KClass<M>.buildPropMap(unsafe: Boolean = false): PropMa
                     }
                 }
             }
-        }/*.also { logger.debug("built propmap for class ${this.simpleName}".green()) }*/
+        }.also { logger.debug("built propmap for class ${this.simpleName}".green()) }
     )
 }
 
