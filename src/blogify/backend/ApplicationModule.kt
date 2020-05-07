@@ -151,7 +151,7 @@ fun Application.blogifyMainModule(configuration: BlogifyApplicationBootstrapper.
 
     // Initialize database
 
-    Database.init()
+    DatabaseConnection.connect()
 
     // Create tables if they don't exist
 

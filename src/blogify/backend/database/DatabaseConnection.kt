@@ -1,6 +1,7 @@
 package blogify.backend.database
 
 import blogify.backend.config.Configs
+import blogify.backend.config.DatabaseConfig
 import blogify.backend.util.BException
 
 import com.zaxxer.hikari.HikariConfig
@@ -11,17 +12,15 @@ import org.jetbrains.exposed.sql.Database
 /**
  * Meta object regrouping setup and utility functions for PostgreSQL.
  */
-object Database {
-
-    lateinit var instance: Database
+object DatabaseConnection {
 
     private val config = Configs.Database
 
-    private fun configureHikariCP(envDbHost: String, envDbPort: Int, envDbUser: String, envDbPass: String): HikariDataSource {
+    private fun configureHikariCP(dbConfig: DatabaseConfig): HikariDataSource {
         val config = HikariConfig()
         config.driverClassName        = "org.postgresql.Driver"
-        config.jdbcUrl                = "jdbc:postgresql://$envDbHost:$envDbPort/postgres"
-        config.maximumPoolSize        = 24
+        config.jdbcUrl                = "jdbc:postgresql://${dbConfig.host}:${dbConfig.port}/${dbConfig.databaseName}"
+        config.maximumPoolSize        = 64
         config.minimumIdle            = 6
         config.validationTimeout      = 10 * 1000
         config.connectionTimeout      = 10 * 1000
@@ -29,15 +28,13 @@ object Database {
         config.leakDetectionThreshold = 60 * 1000
         config.isAutoCommit           = false
         config.transactionIsolation   = "TRANSACTION_REPEATABLE_READ"
-        config.username               = envDbUser
-        config.password               = envDbPass
+        config.username               = dbConfig.username
+        config.password               = dbConfig.password
         config.validate()
         return HikariDataSource(config)
     }
 
-    fun init() {
-        instance = Database.connect(configureHikariCP(config.host, config.port, config.username, config.password))
-    }
+    fun connect() = Database.connect(configureHikariCP(config))
 
     open class Exception(causedBy: kotlin.Exception) : BException(causedBy) {
 
