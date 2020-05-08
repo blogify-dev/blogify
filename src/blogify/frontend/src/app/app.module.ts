@@ -19,12 +19,12 @@ import { UpdateArticleComponent } from './components/update-article/update-artic
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MarkdownModule } from 'ngx-markdown';
 import { SharedModule } from './shared/shared.module';
-import { ProfileModule } from './components/profile/profile/profile.module';
+import { ProfileModule } from '@blogify/profiles/profile.module';
 import { FooterComponent } from './components/footer/footer.component';
 import { ClipboardModule } from 'ngx-clipboard';
 import { AdminComponent } from './components/admin/admin.component';
 import { AdminModule } from './components/admin/admin/admin.module';
-import { FollowsComponent } from './components/profile/profile/follows/follows.component';
+import { FollowsComponent } from '@blogify/profiles/follows/follows.component';
 import { UsersComponent } from './components/users/users.component';
 import { ProfileSlideoverComponent } from './components/profile-slideover/profile-slideover.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -32,7 +32,8 @@ import { NotificationComponent } from './shared/components/notification/notifica
 import { PushService } from './shared/services/push/push.service';
 import { ToastContainerModule, ToastrModule } from 'ngx-toastr';
 import { NotificationsPopoverComponent } from './components/navbar/notifications-popover/notifications-popover.component';
-import {AuthService} from "./shared/services/auth/auth.service";
+import { AuthService } from './shared/services/auth/auth.service';
+import { PageNotFoundFallbackComponent } from './components/page-not-found-fallback/page-not-found-fallback.component';
 
 @NgModule({
     declarations: [
@@ -53,6 +54,7 @@ import {AuthService} from "./shared/services/auth/auth.service";
         UsersComponent,
         ProfileSlideoverComponent,
         NotificationsPopoverComponent,
+        PageNotFoundFallbackComponent,
     ],
     imports: [
         BrowserModule,
@@ -84,6 +86,6 @@ import {AuthService} from "./shared/services/auth/auth.service";
 export class AppModule {
     // noinspection JSUnusedLocalSymbols
     constructor(private pushService: PushService, private authService: AuthService) {
-        this.authService.setupAndPopulateCache()
+        this.authService.setupAndPopulateCache();
     }
 }
