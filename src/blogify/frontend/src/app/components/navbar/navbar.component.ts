@@ -1,9 +1,9 @@
-import { Component, OnInit} from '@angular/core';
-import { AuthService } from '../../shared/services/auth/auth.service';
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { Router } from '@angular/router';
-import { User } from '../../models/User';
+import { User } from '@blogify/models/User';
 import { faBell, faMoon, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
-import { ThemeService } from "../../services/theme/theme.service";
+import { ThemeService } from '@blogify/core/services/theme/theme.service';
 
 @Component({
     selector: 'app-navbar',
@@ -43,7 +43,7 @@ export class NavbarComponent implements OnInit {
     }
 
     async navigateToProfile() {
-        const it = await this.authService.currentUser
+        const it = await this.authService.currentUser;
         const url = `/profile/${it.username}`;
         await this.router.navigateByUrl(url);
 

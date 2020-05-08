@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { NotificationsService } from '../../../shared/services/notifications/notifications.service';
-import { Notification } from '../../../models/Notification';
+import { NotificationsService } from '@blogify/shared/services/notifications/notifications.service';
+import { Notification } from '@blogify/models/Notification';
 import { faBan } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -25,7 +25,7 @@ export class NotificationsPopoverComponent implements OnInit {
 
         this.notificationsService.fetchMyNotifications()
             .then(notifs => this.notifications = notifs)
-            .catch(err => console.error('[blogifyNotifications] could not fetch all notification data'));
+            .catch(_ => console.error('[blogifyNotifications] could not fetch all notification data'));
 
         // Subscribe to new notifications
 

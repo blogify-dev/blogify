@@ -1,5 +1,5 @@
 import { Directive, ElementRef } from '@angular/core';
-import { ThemeService } from "../../../services/theme/theme.service";
+import { ThemeService } from '@blogify/core/services/theme/theme.service';
 
 @Directive({
     selector: '[appDarkTheme]'

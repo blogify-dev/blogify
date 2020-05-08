@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Article } from '../../../../models/Article';
-import { ListingQuery } from '../../../../models/ListingQuery';
-import { ArticleService } from '../../../../services/article/article.service';
+import { Article } from '@blogify/models/Article';
+import { ListingQuery } from '@blogify/models/ListingQuery';
+import { ArticleService } from '@blogify/core/services/article/article.service';
 import { ActivatedRoute, Params } from '@angular/router';
-import { User } from '../../../../models/User';
-import { Shadow } from '../../../../models/Shadow';
-import { UserService } from '../../../../shared/services/user-service/user.service';
+import { User } from '@blogify/models/User';
+import { Shadow } from '@blogify/models/Shadow';
+import { UserService } from '@blogify/shared/services/user-service/user.service';
 
 @Component({
     selector: 'app-overview',

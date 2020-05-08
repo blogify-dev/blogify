@@ -1,6 +1,6 @@
-import { Article } from './Article';
-import { User } from './User';
-import { Comment } from './Comment';
+import { Article } from '@blogify/models/Article';
+import { User } from '@blogify/models/User';
+import { Comment } from '@blogify/models/Comment';
 
 export type Shadow<TResource extends Article | Comment | User> = TResource | string;
 

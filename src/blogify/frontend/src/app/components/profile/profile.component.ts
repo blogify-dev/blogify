@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { User } from 'src/app/models/User';
-import { UserService } from "../../shared/services/user-service/user.service";
+import { UserService } from '@blogify/shared/services/user-service/user.service';
 
 @Component({
     selector: 'app-profile',
@@ -20,7 +20,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     ) {}
 
     async ngOnInit() {
-        this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
+        this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async map => {
             const username = map.get('username');
 
             this.user = await this.userService.getByUsername(username);

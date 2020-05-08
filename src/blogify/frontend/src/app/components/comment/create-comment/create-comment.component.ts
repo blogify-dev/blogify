@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Article } from '../../../models/Article';
-import { CommentsService } from '../../../services/comments/comments.service';
-import { AuthService } from '../../../shared/services/auth/auth.service';
-import { Comment } from '../../../models/Comment';
-import { idOf } from '../../../models/Shadow';
+import { Article } from '@blogify/models/Article';
+import { CommentsService } from '@blogify/core/services/comments/comments.service';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { Comment } from '@blogify/models/Comment';
+import { idOf } from '@blogify/models/Shadow';
 
 @Component({
     selector: 'app-create-comment',

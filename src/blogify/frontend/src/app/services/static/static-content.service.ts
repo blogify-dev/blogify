@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { StaticFile } from '../../models/Static';
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { StaticFile } from '@blogify/models/Static';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
     providedIn: 'root'
@@ -24,7 +24,7 @@ export class StaticContentService {
         const input = new FormData();
         input.append('lUcY', file);
 
-        return this.httpClient.post<any>(url, input, httpOptions).toPromise()
+        return this.httpClient.post<any>(url, input, httpOptions).toPromise();
 
     }
 

@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faArrowLeft, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { StaticContentService } from '../../../services/static/static-content.service';
+import { StaticContentService } from '@blogify/core/services/static/static-content.service';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
-import { User } from '../../../models/User';
-import { UserService } from "../../services/user-service/user.service";
+import { User } from '@blogify/models/User';
+import { UserService } from '@blogify/shared/services/user-service/user.service';
 
 @Component({
     selector: 'app-show-all-users',
@@ -57,7 +57,7 @@ export class ShowAllUsersComponent implements OnInit {
     }
 
     async navigateToSearch() {
-        await this.router.navigate([{search: `"${this.searchQuery}"`}], {relativeTo: this.activatedRoute});
+        await this.router.navigate([{ search: `"${this.searchQuery}"` }], { relativeTo: this.activatedRoute });
     }
 
     async navigateToNoSearch() {

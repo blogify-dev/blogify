@@ -1,7 +1,7 @@
-import { User } from './User';
-import { Article } from './Article';
-import { Shadow } from './Shadow';
-import { CommentTreeListing } from '../services/comments/comments.service';
+import { User } from '@blogify/models/User';
+import { Article } from '@blogify/models/Article';
+import { Shadow } from '@blogify/models/Shadow';
+import { CommentTreeListing } from '@blogify/core/services/comments/comments.service';
 
 export class Comment {
 

@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Article } from '../../models/Article';
-import { ArticleService } from '../../services/article/article.service';
+import { Article } from '@blogify/models/Article';
+import { ArticleService } from '@blogify/core/services/article/article.service';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../../shared/services/auth/auth.service';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { faHeart as faHeartFilled, faThumbtack } from '@fortawesome/free-solid-svg-icons';
 import { faClipboard, faEdit, faHeart, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { ClipboardService } from 'ngx-clipboard';
-import { idOf } from '../../models/Shadow';
-import {UserService} from "../../shared/services/user-service/user.service";
+import { idOf } from '@blogify/models/Shadow';
+import { UserService } from '@blogify/shared/services/user-service/user.service';
 
 @Component({
     selector: 'app-show-article',
@@ -43,7 +43,7 @@ export class ShowArticleComponent implements OnInit {
     isAdmin = false;
 
     ngOnInit() {
-        this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
+        this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async map => {
             const articleUUID = map.get('uuid');
 
             this.article = await this.articleService.getArticle(articleUUID);

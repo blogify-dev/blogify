@@ -1,4 +1,4 @@
-import { StaticFile } from './Static';
+import { StaticFile } from '@blogify/models/Static';
 
 export class User {
     constructor (

@@ -1,10 +1,9 @@
-/* tslint:disable:variable-name */
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { LoginCredentials, RegisterCredentials, User } from 'src/app/models/User';
+import { LoginCredentials, RegisterCredentials, User } from '@blogify/models/User';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { StaticContentService } from "../../../services/static/static-content.service";
-import { StateService } from "../state/state.service";
+import { StaticContentService } from '@blogify/core/services/static/static-content.service';
+import { StateService } from '@blogify/shared/services/state/state.service';
 
 const USER_TOKEN_KEY = 'userToken';
 const KEEP_LOGGED_IN_KEY = 'keepLoggedIn';

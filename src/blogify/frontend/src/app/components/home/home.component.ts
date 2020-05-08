@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ListingQuery } from '../../models/ListingQuery';
-import { Article } from '../../models/Article';
+import { ListingQuery } from '@blogify/models/ListingQuery';
 
 @Component({
     selector: 'app-home',

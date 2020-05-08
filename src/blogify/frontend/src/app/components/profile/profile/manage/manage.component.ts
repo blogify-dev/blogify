@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from "../../../../shared/services/auth/auth.service";
-import { UserService } from "../../../../shared/services/user-service/user.service";
-import { ActivatedRoute, Params } from "@angular/router";
-import { User } from "../../../../models/User";
-import { faUser } from "@fortawesome/free-regular-svg-icons";
-import {faGavel, faShieldAlt} from "@fortawesome/free-solid-svg-icons";
-import { idOf } from "../../../../models/Shadow";
-import { StateService } from "../../../../shared/services/state/state.service";
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { UserService } from '@blogify/shared/services/user-service/user.service';
+import { ActivatedRoute, Params } from '@angular/router';
+import { User } from '@blogify/models/User';
+import { faUser } from '@fortawesome/free-regular-svg-icons';
+import { faGavel, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
+import { idOf } from '@blogify/models/Shadow';
+import { StateService } from '@blogify/shared/services/state/state.service';
 
 @Component({
     selector: 'b-manage',

@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { User } from '../../../models/User';
+import { User } from '@blogify/models/User';
 
 @Component({
     selector: 'app-user-display',

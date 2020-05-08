@@ -1,6 +1,6 @@
-import { Article } from './Article';
-import { Comment } from './Comment';
-import { User } from './User';
+import { Article } from '@blogify/models/Article';
+import { Comment } from '@blogify/models/Comment';
+import { User } from '@blogify/models/User';
 
 export class ListingQuery<T extends Article | Comment | User> {
 

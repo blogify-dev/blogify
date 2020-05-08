@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { EventPayload } from '../../../models/Events';
+import { EventPayload } from '@blogify/models/Events';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { AuthService } from '../auth/auth.service';
-import { Notification } from '../../../models/Notification';
-import { ArticleCommentReplyPayload, CommentReplyPayload, CommentsService } from '../../../services/comments/comments.service';
-import { idOf } from '../../../models/Shadow';
-import { ArticleService } from '../../../services/article/article.service';
-import { UserService } from '../user-service/user.service';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { Notification } from '@blogify/models/Notification';
+import { ArticleCommentReplyPayload, CommentReplyPayload, CommentsService } from '@blogify/core/services/comments/comments.service';
+import { idOf } from '@blogify/models/Shadow';
+import { ArticleService } from '@blogify/core/services/article/article.service';
+import { UserService } from '@blogify/shared/services/user-service/user.service';
 
 @Injectable({
     providedIn: 'root'

@@ -1,4 +1,4 @@
-import { User } from './User';
+import { User } from '@blogify/models/User';
 
 export class Article {
 

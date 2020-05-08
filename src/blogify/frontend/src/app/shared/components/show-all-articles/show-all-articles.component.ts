@@ -1,13 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Article } from '../../../models/Article';
-import { ListingQuery } from '../../../models/ListingQuery';
-import { ArticleService } from '../../../services/article/article.service';
-import { AuthService } from '../../services/auth/auth.service';
+import { Article } from '@blogify/models/Article';
+import { ListingQuery } from '@blogify/models/ListingQuery';
+import { ArticleService } from '@blogify/core/services/article/article.service';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
-import { StaticContentService } from '../../../services/static/static-content.service';
+import { StaticContentService } from '@blogify/core/services/static/static-content.service';
 import { faArrowDown, faArrowLeft, faPencilAlt, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { User } from '../../../models/User';
-import { Shadow } from '../../../models/Shadow';
+import { User } from '@blogify/models/User';
+import { Shadow } from '@blogify/models/Shadow';
 
 @Component({
     selector: 'app-show-all-articles',

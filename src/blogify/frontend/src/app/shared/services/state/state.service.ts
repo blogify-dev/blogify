@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Article } from '../../../models/Article';
-import { User } from '../../../models/User';
+import { Article } from '@blogify/models/Article';
+import { User } from '@blogify/models/User';
 
 @Injectable({
     providedIn: 'root',

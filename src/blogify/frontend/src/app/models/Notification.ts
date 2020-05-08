@@ -1,4 +1,4 @@
-import { StaticFile } from './Static';
+import { StaticFile } from '@blogify/models/Static';
 import { IconDefinition } from '@fortawesome/fontawesome-common-types';
 
 export type NotificationIcon = StaticFile | IconDefinition | null;

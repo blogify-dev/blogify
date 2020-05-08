@@ -1,10 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Article } from '../../../../models/Article';
+import { Article } from '@blogify/models/Article';
 import { faHeart, faCommentAlt, faClipboard } from '@fortawesome/free-regular-svg-icons';
 import { faHeart as faHeartFilled, faThumbtack } from '@fortawesome/free-solid-svg-icons';
 import { ClipboardService } from 'ngx-clipboard';
-import { AuthService } from '../../../services/auth/auth.service';
-import { ArticleService } from '../../../../services/article/article.service';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { ArticleService } from '@blogify/core/services/article/article.service';
 
 @Component({
     selector: 'app-single-article-box',

@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ListingQuery } from '../../models/ListingQuery';
-import { idOf, Shadow } from '../../models/Shadow';
-import { Comment } from '../../models/Comment';
-import { Article } from '../../models/Article';
+import { ListingQuery } from '@blogify/models/ListingQuery';
+import { idOf, Shadow } from '@blogify/models/Shadow';
+import { Comment } from '@blogify/models/Comment';
+import { Article } from '@blogify/models/Article';
 import { BehaviorSubject } from 'rxjs';
-import { AuthService } from '../../shared/services/auth/auth.service';
-import {UserService} from "../../shared/services/user-service/user.service";
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { UserService } from '@blogify/shared/services/user-service/user.service';
 
 @Injectable({
     providedIn: 'root'
@@ -24,7 +24,7 @@ export class CommentsService {
         return { headers: new HttpHeaders({
             'Content-Type': 'application/json',
             Authorization: `Bearer ${this.authService.currentUser.token}`
-        })};
+        }) };
     }
 
     async commentTreeForArticle(article: Shadow<Article>, query: ListingQuery<Comment> & { depth: number }): Promise<CommentTreeListing> {

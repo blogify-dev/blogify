@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from './shared/services/auth/auth.service';
-import { CommentsService } from './services/comments/comments.service';
-import { ArticleService } from './services/article/article.service';
-import { NotificationsService } from './shared/services/notifications/notifications.service';
-import { StaticContentService } from './services/static/static-content.service';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { CommentsService } from '@blogify/core/services/comments/comments.service';
+import { ArticleService } from '@blogify/core/services/article/article.service';
+import { NotificationsService } from '@blogify/shared/services/notifications/notifications.service';
+import { StaticContentService } from '@blogify/core/services/static/static-content.service';
 import { Router } from '@angular/router';
-import { StaticFile } from './models/Static';
+import { StaticFile } from '@blogify/models/Static';
 
 @Component({
     selector: 'app-root',
@@ -25,7 +25,7 @@ export class AppComponent implements OnInit {
     ) {}
 
     async ngOnInit() {
-        this.notificationsService.liveNotifications.subscribe(async (msg) => {
+        this.notificationsService.liveNotifications.subscribe(async msg => {
             const notificationIcon = msg.icon['fileId']
                 ? this.staticContentService.urlFor(msg.icon as StaticFile)
                 : undefined;

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../shared/services/auth/auth.service';
-import { LoginCredentials, RegisterCredentials, User } from '../../models/User';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { LoginCredentials, RegisterCredentials, User } from '@blogify/models/User';
 import { Router } from '@angular/router';
 
 @Component({
@@ -37,9 +37,9 @@ export class LoginComponent implements OnInit {
                     await this.router.navigateByUrl('/home');
                 }
             })
-            .catch((error) => {
-                alert("An error occurred during login");
-                console.error(`[login]: ${error}`)
+            .catch(error => {
+                alert('An error occurred during login');
+                console.error(`[login]: ${error}`);
             });
     }
 
@@ -54,9 +54,9 @@ export class LoginComponent implements OnInit {
                     await this.router.navigateByUrl('/home');
                 }
             })
-            .catch((error) => {
-                alert("An error occurred during login");
-                console.error(`[register]: ${error}`)
+            .catch(error => {
+                alert('An error occurred during login');
+                console.error(`[register]: ${error}`);
             });
     }
 

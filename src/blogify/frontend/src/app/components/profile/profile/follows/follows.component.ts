@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { User } from "../../../../models/User";
+import { User } from '@blogify/models/User';
 import { ActivatedRoute, Params } from '@angular/router';
-import { UserService } from '../../../../shared/services/user-service/user.service';
+import { UserService } from '@blogify/shared/services/user-service/user.service';
 
 @Component({
     selector: 'app-follows',

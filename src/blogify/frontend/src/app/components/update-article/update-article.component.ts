@@ -5,9 +5,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { Subscription } from 'rxjs';
 import { Article, Category } from '../../models/Article';
-import { User } from '../../models/User';
-import { ArticleService } from '../../services/article/article.service';
-import { AuthService } from '../../shared/services/auth/auth.service';
+import { User } from '@blogify/models/User';
+import { ArticleService } from '@blogify/core/services/article/article.service';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
 
 type Result = 'none' | 'success' | 'error';
 
@@ -54,7 +54,7 @@ export class UpdateArticleComponent implements OnInit {
     });
 
     async ngOnInit() {
-        this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
+        this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async map => {
             const articleUUID = map.get('uuid');
 
             this.article = await this.articleService.getArticle (articleUUID,);

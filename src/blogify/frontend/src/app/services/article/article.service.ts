@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Article } from '../../models/Article';
-import { ListingQuery } from '../../models/ListingQuery';
-import { AuthService } from '../../shared/services/auth/auth.service';
-import { User } from '../../models/User';
-import { SearchView } from '../../models/SearchView';
-import { idOf, Shadow } from '../../models/Shadow';
-import { StateService } from '../../shared/services/state/state.service';
-import { UserService } from '../../shared/services/user-service/user.service';
+import { Article } from '@blogify/models/Article';
+import { ListingQuery } from '@blogify/models/ListingQuery';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { User } from '@blogify/models/User';
+import { SearchView } from '@blogify/models/SearchView';
+import { idOf, Shadow } from '@blogify/models/Shadow';
+import { StateService } from '@blogify/shared/services/state/state.service';
+import { UserService } from '@blogify/shared/services/user-service/user.service';
 
 interface ListingResult { data: Article[]; moreAvailable: boolean; }
 
@@ -102,7 +102,7 @@ export class ArticleService {
 
         const newArticle: Article = { ...article, createdBy: this.authService.currentUser.uuid };
 
-        return this.httpClient.post<any>(`/api/articles/`, newArticle, httpOptions).toPromise();
+        return this.httpClient.post<any>('/api/articles/', newArticle, httpOptions).toPromise();
     }
 
     updateArticle(article: Article): Promise<Article> {

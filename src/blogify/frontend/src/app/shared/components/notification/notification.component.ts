@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Notification } from '../../../models/Notification';
+import { Notification } from '@blogify/models/Notification';
 import { ToastRef } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';

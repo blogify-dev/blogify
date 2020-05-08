@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Comment } from '../../../models/Comment';
-import { AuthService } from '../../../shared/services/auth/auth.service';
-import { CommentsService } from '../../../services/comments/comments.service';
-import { ArticleService } from '../../../services/article/article.service';
+import { Comment } from '@blogify/models/Comment';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { CommentsService } from '@blogify/core/services/comments/comments.service';
+import { ArticleService } from '@blogify/core/services/article/article.service';
 import { faCommentAlt, faHeart, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { faArrowDown, faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
-import { idOf } from '../../../models/Shadow';
-import { ListingQuery } from '../../../models/ListingQuery';
-import { UserService } from '../../../shared/services/user-service/user.service';
+import { idOf } from '@blogify/models/Shadow';
+import { ListingQuery } from '@blogify/models/ListingQuery';
+import { UserService } from '@blogify/shared/services/user-service/user.service';
 
 @Component({
     selector: 'app-single-comment',

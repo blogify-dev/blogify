@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { CommentsService, CommentTreeListing } from '../../services/comments/comments.service';
-import { Comment } from '../../models/Comment';
-import { Article } from '../../models/Article';
-import { ListingQuery } from '../../models/ListingQuery';
+import { CommentsService, CommentTreeListing } from '@blogify/core/services/comments/comments.service';
+import { Comment } from '@blogify/models/Comment';
+import { Article } from '@blogify/models/Article';
+import { ListingQuery } from '@blogify/models/ListingQuery';
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
 
 @Component({

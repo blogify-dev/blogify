@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Tab, TabList } from '../../../../shared/components/tab-header/tab-header.component';
-import { User } from '../../../../models/User';
+import { Tab, TabList } from '@blogify/shared/components/tab-header/tab-header.component';
+import { User } from '@blogify/models/User';
 import { ActivatedRoute, Params } from '@angular/router';
-import { AuthService } from '../../../../shared/services/auth/auth.service';
-import { UserService } from '../../../../shared/services/user-service/user.service';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { UserService } from '@blogify/shared/services/user-service/user.service';
 import { HttpResponse } from '@angular/common/http';
 import { faCheck, faPencilAlt, faTimes, faUserMinus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 

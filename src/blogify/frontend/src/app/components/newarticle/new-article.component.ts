@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Article } from '../../models/Article';
-import { ArticleService } from '../../services/article/article.service';
-import { User } from '../../models/User';
-import { StaticFile } from '../../models/Static';
-import { AuthService } from '../../shared/services/auth/auth.service';
+import { Article } from '@blogify/models/Article';
+import { ArticleService } from '@blogify/core/services/article/article.service';
+import { User } from '@blogify/models/User';
+import { StaticFile } from '@blogify/models/Static';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -61,7 +61,7 @@ export class NewArticleComponent implements OnInit {
 
             if (matchResult !== null) { return null; } // Any matches; valid
             else return { reason: `doesn't match regex '${validationRegex.source}'` }; // No matches; invalid
-        }
+        };
     }
 
     public formTitle = new FormControl('',
@@ -87,9 +87,9 @@ export class NewArticleComponent implements OnInit {
         const article = form.value;
         article['categories'] = (<FormArray>form.controls['categories']).controls.map(it => <string> it.value)
             // .filter((cat: string) => cat.match(/\\s/) !== null)
-            .map(cat => { return { name: cat }});
+            .map(cat => { return { name: cat };});
         console.table(article);
-        return article
+        return article;
     }
 
     createNewArticle() {
@@ -98,7 +98,7 @@ export class NewArticleComponent implements OnInit {
         ).then(async (article: object) => {
             const uuid = article['uuid'];
             this.result = { status: 'success', message: 'Article created successfully' };
-            await this.router.navigateByUrl(`/article/${uuid}`)
+            await this.router.navigateByUrl(`/article/${uuid}`);
         }).catch(() =>
             this.result = { status: 'error', message: 'Error while creating article' }
         );

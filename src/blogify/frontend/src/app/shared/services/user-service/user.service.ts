@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { User } from '../../../models/User';
-import { StateService } from '../state/state.service';
-import { SearchView } from "../../../models/SearchView";
-import { idOf, Shadow } from "../../../models/Shadow";
+import { User } from '@blogify/models/User';
+import { StateService } from '@blogify/shared/services/state/state.service';
+import { SearchView } from '@blogify/models/SearchView';
+import { idOf, Shadow } from '@blogify/models/Shadow';
 
 @Injectable({
     providedIn: 'root'
