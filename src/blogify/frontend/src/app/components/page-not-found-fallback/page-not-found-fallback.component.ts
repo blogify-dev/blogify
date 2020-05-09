@@ -12,7 +12,7 @@ export class PageNotFoundFallbackComponent implements OnInit {
         this.document.location.href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
     }
 
 }
