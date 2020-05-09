@@ -80,4 +80,7 @@ data class Article (
     @Computed
     val commentCount by compound { Articles.uuid countReferredToBy Comments.article }
 
+    override fun equals(other: Any?) = super.equals(other)
+    override fun hashCode() = super.hashCode()
+
 }

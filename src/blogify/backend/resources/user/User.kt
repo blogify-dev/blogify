@@ -93,4 +93,7 @@ data class User (
         Users.uuid findReferredToBy (Users.Follows.following to Users.Follows.follower)
     }
 
+    override fun equals(other: Any?) = super.equals(other)
+    override fun hashCode() = super.hashCode()
+
 }

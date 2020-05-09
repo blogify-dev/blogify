@@ -65,4 +65,7 @@ data class Comment (
     @Computed
     val likeCount by compound { Comments.uuid countReferredToBy Comments.Likes.comment }
 
+    override fun equals(other: Any?) = super.equals(other)
+    override fun hashCode() = super.hashCode()
+
 }
