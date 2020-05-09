@@ -1,4 +1,4 @@
-@import "../../../styles/mixins";
+@import "src/styles/mixins";
 
 .login {
 
@@ -6,12 +6,9 @@
 
     * {transition: color 150ms ease-in-out, border-bottom-color 150ms ease-in-out; }
 
-    display:
-        grid;
-    grid-template-columns:
-        auto auto 1fr;
-    grid-column-gap:
-        1.75em;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    grid-column-gap: 1.75em;
 
     input#tab-1 {
         &:checked {
@@ -103,6 +100,8 @@
     }
 
     #login-form-remember {
+        input[type=checkbox] { border: 1px solid var(--border-color); }
+
         justify-content: flex-start !important;
         * { flex-grow: 0 !important }
     }
