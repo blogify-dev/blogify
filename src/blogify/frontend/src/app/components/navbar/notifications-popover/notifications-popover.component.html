@@ -5,7 +5,7 @@
 
         <span
             id="clear-all"
-            [ngClass]="this.notifications.length > 0 ? 'clickable hover-negative' : ''"
+            [ngClass]="{ 'clickable hover-negative': this.notifications.length > 0 }"
             (click)="this.notifications = []"
         >
             <fa-icon [icon]="faBan" size="lg" [transform]="{ size: 20, y: -3 }"></fa-icon>

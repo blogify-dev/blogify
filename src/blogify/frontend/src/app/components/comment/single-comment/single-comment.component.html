@@ -28,7 +28,7 @@
         <span class="separator"></span>
 
         <!-- Reply -->
-        <span class="button reply clickable" [ngClass]="replyingEnabled ? 'neutral' : ''" (click)="replyingEnabled = !replyingEnabled">
+        <span class="button reply clickable" [ngClass]="{ neutral: replyingEnabled }" (click)="replyingEnabled = !replyingEnabled">
             <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ size: 13, y: 0 }"></fa-icon>
 
             Reply
@@ -37,7 +37,7 @@
         <ng-container *ngIf="isLoggedInUsersComment || isAdmin">
             <span class="separator"></span>
 
-            <span class="button clickable hover-negative" [ngClass]="this.isDeleting ? 'negative' : ''" (click)="toggleDeleting()">
+            <span class="button clickable hover-negative" [ngClass]="{ negative: this.isDeleting }" (click)="toggleDeleting()">
                 <fa-icon [icon]="faTrashAlt"></fa-icon>
 
                 Delete
