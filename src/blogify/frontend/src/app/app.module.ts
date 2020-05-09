@@ -9,7 +9,7 @@ import { LoginComponent } from './components/login/login.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { HomeComponent } from './components/home/home.component';
 import { RouterModule } from '@angular/router';
-import { NewArticleComponent } from './components/newarticle/new-article.component';
+import { NewArticleComponent } from './components/new-article/new-article.component';
 import { ShowArticleComponent } from './components/show-article/show-article.component';
 import { ArticleCommentsComponent } from './components/comment/article-comments.component';
 import { NavbarComponent } from './components/navbar/navbar.component';

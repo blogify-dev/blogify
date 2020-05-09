@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule, UrlSegment, UrlMatchResult } from '@angular/router';
-import { HomeComponent } from './components/home/home.component';
-import { LoginComponent } from './components/login/login.component';
-import { NewArticleComponent } from './components/newarticle/new-article.component';
-import { ShowArticleComponent } from './components/show-article/show-article.component';
-import { UpdateArticleComponent } from './components/update-article/update-article.component';
-import { UsersComponent } from './components/users/users.component';
+import { HomeComponent } from '@blogify/core/components/home/home.component';
+import { LoginComponent } from '@blogify/core/components/login/login.component';
+import { NewArticleComponent } from '@blogify/core/components/new-article/new-article.component';
+import { ShowArticleComponent } from '@blogify/core/components/show-article/show-article.component';
+import { UpdateArticleComponent } from '@blogify/core/components/update-article/update-article.component';
+import { UsersComponent } from '@blogify/core/components/users/users.component';
 import { PageNotFoundFallbackComponent } from '@blogify/core/components/page-not-found-fallback/page-not-found-fallback.component';
 
 const paths = {
