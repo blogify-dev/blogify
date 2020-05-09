@@ -1,7 +1,6 @@
 package blogify.backend.database.tables
 
 import blogify.backend.appContext
-import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.extensions.strongKey
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.ResourceTable

@@ -54,12 +54,3 @@ infix fun <T : Comparable<T>, S : T, C : Column<S?>> C.weakKeyFrom(other: Column
         onDelete = ReferenceOption.SET_NULL,
         name = null
     )}
-
-infix fun <T : Comparable<T>, S : T, C : Column<S>> C.dependentKeyFrom(other: Column<T>): C = apply {
-    this.foreignKey = ForeignKeyConstraint (
-        target = other,
-        from = this,
-        onUpdate = ReferenceOption.RESTRICT,
-        onDelete = ReferenceOption.CASCADE,
-        name = null
-    )}

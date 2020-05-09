@@ -1,8 +1,7 @@
 package blogify.backend.database.tables
 
 import blogify.backend.appContext
-import blogify.backend.database.extensions.keyOf
-import blogify.backend.database.extensions.nullableKeyOf
+import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.extensions.strongKey
 import blogify.backend.database.extensions.weaKey
 import blogify.backend.database.handling.query
@@ -31,13 +30,10 @@ object Comments : ResourceTable.UserCreated<Comment>() {
 
     object Likes: Table("comment_likes") {
 
-        val user    = this.uuid("user") keyOf Users
-        val comment = this.uuid("comment") keyOf Comments
+        val user    = parentKey("user", Users)
+        val comment = parentKey("comment", Comments)
 
-        override val primaryKey = PrimaryKey(
-            user,
-            comment
-        )
+        override val primaryKey = PrimaryKey(user, comment)
     }
 
     override suspend fun insert(resource: Comment): Sr<Comment> {

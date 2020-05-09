@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.*
 import java.util.*
 
 fun <TResource : Resource> Table.weaKey(name: String, other: ResourceTable<TResource>): Column<UUID?> =
-        registerColumn<UUID?>(name, UUIDColumnType().apply { nullable = true }) nullableKeyOf  other
+        registerColumn<UUID?>(name, UUIDColumnType().apply { nullable = true }) nullableKeyOf other
 
 fun <TResource : Resource> Table.strongKey(name: String, other: ResourceTable<TResource>): Column<UUID> =
         registerColumn<UUID>(name, UUIDColumnType()) keyOf other

@@ -1,6 +1,6 @@
 package blogify.backend.database.tables
 
-import blogify.backend.database.extensions.keyOf
+import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.extensions.weakKeyFrom
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.ResourceTable
@@ -38,8 +38,8 @@ object Users : ResourceTable<User>() {
 
     object Follows : Table() {
 
-        val following = uuid("following") keyOf Users
-        val follower  = uuid("follower") keyOf Users
+        val following = parentKey ("following", Users)
+        val follower  = parentKey ("follower", Users)
 
         override val primaryKey = PrimaryKey(following, follower)
 
