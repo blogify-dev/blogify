@@ -1,7 +1,7 @@
 package blogify.backend.routing.handling
 
 import blogify.backend.annotations.BlogifyDsl
-import blogify.backend.auth.handling.autenticated
+import blogify.backend.auth.handling.authenticated
 import blogify.backend.database.handling.query
 import blogify.backend.database.tables.Articles
 import blogify.backend.pipelines.obtainResource
@@ -28,10 +28,10 @@ private val likes = Articles.Likes
 val getArticleLikeStatus: RequestContextFunction<Unit> = {
     val id by queryUuid
 
-    autenticated { subject ->
+    authenticated { user ->
         val liked = query {
             likes.select {
-                (likes.article eq id) and (likes.user eq subject.uuid)
+                (likes.article eq id) and (likes.user eq user.uuid)
             }.count()
         }.assertGet() == 1L
 
@@ -46,7 +46,7 @@ val getArticleLikeStatus: RequestContextFunction<Unit> = {
 val flipArticleLike: RequestContextFunction<Unit> = {
     val id by queryUuid
 
-    autenticated { user ->
+    authenticated { user ->
         // Figure whether the article was already liked by the user
         val alreadyLiked = query {
             likes.select {
@@ -83,7 +83,7 @@ val flipArticlePin: RequestContextFunction<Unit> = {
     val id by queryUuid
     val article = obtainResource<Article>(id)
 
-    autenticated(predicate = { it.isAdmin }) {
+    authenticated({ it.isAdmin }) {
         Articles.update(article.copy(isPinned = !article.isPinned)).also {
             call.respond(HttpStatusCode.OK)
         }

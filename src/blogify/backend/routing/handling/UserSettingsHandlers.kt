@@ -1,7 +1,7 @@
 package blogify.backend.routing.handling
 
 import blogify.backend.annotations.BlogifyDsl
-import blogify.backend.auth.handling.autenticated
+import blogify.backend.auth.handling.authenticated
 import blogify.backend.database.handling.query
 import blogify.backend.database.tables.Users
 import blogify.backend.pipelines.wrapping.RequestContextFunction
@@ -22,7 +22,7 @@ import org.jetbrains.exposed.sql.update
  */
 @BlogifyDsl
 val getSettings: RequestContextFunction<Unit> = {
-    autenticated { user ->
+    authenticated { user ->
         val userSettings = query {
             Users.slice(Users.settings)
                 .select { Users.uuid eq user.uuid }
@@ -38,7 +38,7 @@ val getSettings: RequestContextFunction<Unit> = {
  */
 @BlogifyDsl
 val updateSettings: RequestContextFunction<Unit> = {
-    autenticated { user ->
+    authenticated { user ->
         val oldSettings = query {
             Users.slice(Users.settings)
                 .select { Users.uuid eq user.uuid }

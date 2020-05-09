@@ -8,7 +8,7 @@ import io.ktor.request.header
 import io.ktor.response.respond
 
 import blogify.backend.resources.user.User
-import blogify.backend.annotations.BlogifyDsl
+import blogify.backend.annotations.PipelinesDsl
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.pipelines.wrapping.RequestContextFunction
 import blogify.backend.util.reason
@@ -19,17 +19,29 @@ import blogify.backend.util.reason
 typealias UserAuthPredicate = suspend (user: User) -> Boolean
 
 /**
- * Allows to wrap a pipeline into a block that takes care of authentication using a given [predicate][UserAuthPredicate].
+ * Allows to wrap a call-handling block into a possible authentication.
+ *
+ * If [predicate] is null, authentication will be bypassed and therefore the block will be invoked anyway
+ * with a null user as parameter.
+ * If [predicate] is *not* null, authentication will be performed using the predicate and the block will be run
+ * with the authenticated user as parameter.
  *
  * @param predicate the predicate used as a check for authentication
  * @param block     the call handling block that is run if the check succeeds
+ *
+ * @author Benjozork
  */
 @Suppress("EXPERIMENTAL_API_USAGE")
-@BlogifyDsl
-suspend fun RequestContext.autenticated (
-    predicate: UserAuthPredicate = { true },
-    block: RequestContextFunction<User>
+@PipelinesDsl
+suspend fun RequestContext.maybeAuthenticated (
+    predicate: UserAuthPredicate? = { true },
+    block: RequestContextFunction<User?>
 ) {
+    if (predicate == null) {
+        this.execute(block, null)
+        return
+    }
+
     val header = call.request.header(HttpHeaders.Authorization) ?: run {
         call.respond(HttpStatusCode.Unauthorized) // Header is missing
         return
@@ -54,3 +66,22 @@ suspend fun RequestContext.autenticated (
     )
 
 }
+
+/**
+ * Allows to wrap a call-handling block into authentication.
+ *
+ * If [predicate] is null, authentication will be performed with the only condition being valid identity,
+ * and the block will be run with the authenticated user as parameter.
+ * If [predicate] is *not* null, authentication will be performed using the predicate and the block will be run
+ * with the authenticated user as parameter.
+ *
+ * @param predicate the predicate used as a check for authentication
+ * @param block     the call handling block that is run if the check succeeds
+ *
+ * @author Benjozork
+ */
+@PipelinesDsl
+suspend fun RequestContext.authenticated (
+    predicate: (suspend (User) -> Boolean) = { true },
+    block: RequestContextFunction<User>
+) = maybeAuthenticated(predicate, { block(it!!) })

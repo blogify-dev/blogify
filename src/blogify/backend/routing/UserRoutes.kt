@@ -1,6 +1,6 @@
 package blogify.backend.routing
 
-import blogify.backend.auth.handling.autenticated
+import blogify.backend.auth.handling.authenticated
 import blogify.backend.database.tables.Events
 import blogify.backend.database.tables.Users
 import blogify.backend.database.handling.query
@@ -102,29 +102,29 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
                 val following = obtainResource<User>(id)
 
-                autenticated { subject ->
+                authenticated { user ->
 
                     val hasAlreadyFollowed = query {
                         follows.select {
-                            (follows.follower eq subject.uuid) and (follows.following eq following.uuid)
+                            (follows.follower eq user.uuid) and (follows.following eq following.uuid)
                         }.count().toInt()
                     }.get() == 1
 
                     if (!hasAlreadyFollowed) {
                         query {
                             follows.insert {
-                                it[Users.Follows.follower] = subject.uuid
+                                it[Users.Follows.follower] = user.uuid
                                 it[Users.Follows.following] = following.uuid
                             }
                         }
                     } else {
                         query {
                             follows.deleteWhere {
-                                (follows.follower eq subject.uuid) and (follows.following eq following.uuid)
+                                (follows.follower eq user.uuid) and (follows.following eq following.uuid)
                             }
                         }
                     }
-                    following.FollowedEvent(subject).send(this)
+                    following.FollowedEvent(user).send(this)
 
                     call.respond(HttpStatusCode.OK)
                 }
@@ -135,7 +135,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
             get {
                 requestContext(applicationContext) {
-                    autenticated { user ->
+                    authenticated { user ->
                         call.respond(optionalParam("fields")?.split(",")?.toSet()?.let { user.slice(it) }
                                 ?: user.sanitize(excludeUndisplayed = true))
                     }
@@ -144,7 +144,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
             get("/notifications") {
                 requestContext(applicationContext) {
-                    autenticated { user ->
+                    authenticated { user ->
                         val count = optionalParam("limit")?.toIntOrNull()?.coerceAtMost(25) ?: 25
 
                         val notifications = query {

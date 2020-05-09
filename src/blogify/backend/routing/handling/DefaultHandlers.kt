@@ -37,18 +37,24 @@ import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
+import blogify.backend.auth.handling.maybeAuthenticated
 import blogify.backend.database.tables.ImageUploadablesMetadata
 import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.reflect.models.Mapped
-import blogify.reflect.models.PropMap
-import blogify.reflect.models.extensions.ok
+
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.Article
 import blogify.backend.resources.reflect.*
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.util.*
+import blogify.reflect.propMap
+import blogify.reflect.sanitize
+import blogify.reflect.slice
+import blogify.reflect.verify
+import blogify.reflect.models.Mapped
+import blogify.reflect.models.PropMap
+import blogify.reflect.models.extensions.ok
 
 import io.ktor.application.ApplicationCall
 import io.ktor.http.HttpStatusCode
@@ -76,24 +82,22 @@ import java.util.UUID
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
-import blogify.reflect.propMap
-import blogify.reflect.sanitize
-import blogify.reflect.slice
-import blogify.reflect.verify
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSuperclassOf
 
 /**
- * The default predicate used by the wrappers in this file
+ * Takes a predicate of type `suspend (User, R) -> Boolean` and captures it into a returned predicate of type
+ * `suspend (User) -> Boolean`.
+ *
+ * @author Benjozork
  */
-val defaultPredicateLambda: suspend (user: User, res: Resource) -> Boolean = { _, _ -> true }
-
-/**
- * The default resource-less predicate used by the wrappers in this file
- */
-val defaultResourceLessPredicateLambda: suspend (user: User) -> Boolean = { _ -> true }
+fun <R> wrapPredicate(basePredicate: (suspend (User, R) -> Boolean)?, resource: R): (suspend (User) -> Boolean)? {
+    return if (basePredicate != null) {
+        { u -> basePredicate(u, resource) }
+    } else null
+}
 
 /**
  * Sends an object describing an exception as a response
@@ -161,39 +165,34 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing (
  */
 @BlogifyDsl
 suspend inline fun <reified R : Resource> RequestContext.fetchResource (
-    noinline authPredicate: suspend (User) -> Boolean = defaultResourceLessPredicateLambda
+    noinline authPredicate: (suspend (User) -> Boolean)? = null
 ) {
-
-    val uuid = param("uuid")
+    val uuid by queryUuid
     val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
 
-    authenticate(authPredicate) {
-
-        val resource = obtainResource<R>(uuid.toUUID())
+    maybeAuthenticated(authPredicate) {
+        val resource = obtainResource<R>(uuid)
 
         if (selectedProperties == null) {
             call.respond(resource.sanitize(excludeUndisplayed = true))
         } else {
             call.respond(resource.slice(selectedProperties))
         }
-
     }
-
 }
 
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
-       noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
+       noinline authPredicate: (suspend (User, R) -> Boolean)? = null
 ) {
-
-    val uuid = param("uuid")
+    val uuid by queryUuid
     val target = param("target")
 
     // Find target resource
-    val targetResource = obtainResource<R>(uuid.toUUID())
+    val targetResource = obtainResource<R>(uuid)
 
-    authenticate({ authPredicate(it, targetResource) }) {
+    maybeAuthenticated(wrapPredicate(authPredicate, targetResource)) {
 
         val targetClass = R::class
 
@@ -353,16 +352,15 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
 
 @BlogifyDsl
 suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
-    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
+    noinline authPredicate: (suspend (User, R) -> Boolean)? = null
 ) {
-
-    val uuid = param("uuid")
+    val uuid by queryUuid
     val target = param("target")
 
     // Find target resource
-    val targetResource = obtainResource<R>(uuid.toUUID())
+    val targetResource = obtainResource<R>(uuid)
 
-    authenticate({ authPredicate(it, targetResource) }) {
+    maybeAuthenticated(wrapPredicate(authPredicate, targetResource)) {
 
         val targetClass = R::class
 
@@ -402,7 +400,7 @@ suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
             }
             is StaticFile.None -> {
                 call.respond(HttpStatusCode.NotFound)
-                return@authenticate
+                return@maybeAuthenticated
             }
         }
 
@@ -421,7 +419,7 @@ suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> RequestContext.createResource (
-    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
+    noinline authPredicate: (suspend (User, R) -> Boolean)? = null
 ) {
     try {
 
@@ -440,7 +438,7 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
             pipelineError(HttpStatusCode.BadRequest, "invalid value for property '${firstInvalidValue.key.name}'")
         }
 
-        authenticate(predicate = { u -> authPredicate(u, received) }) {
+        maybeAuthenticated(wrapPredicate(authPredicate, received)) {
             repository<R>().add(received).fold (
                 success = {
                     call.respond(HttpStatusCode.Created, it.sanitize(excludeUndisplayed = true))
@@ -474,16 +472,12 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R: Resource> RequestContext.deleteResource (
-    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
+    noinline authPredicate: (suspend (User, R) -> Boolean)? = null
 ) {
+    val uuid by queryUuid
+    val toDelete = obtainResource<R>(uuid)
 
-    val uuid = param("uuid")
-
-    val toDelete = obtainResource<R>(uuid.toUUID())
-
-    authenticate (
-        predicate = { user -> authPredicate(user, toDelete) }
-    ) {
+    maybeAuthenticated(wrapPredicate(authPredicate, toDelete)) {
         repository<R>().delete(toDelete).fold (
             success = {
                 call.respond(HttpStatusCode.OK)
@@ -507,9 +501,8 @@ suspend inline fun <reified R: Resource> RequestContext.deleteResource (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> RequestContext.updateResource (
-    noinline authPredicate: suspend (User, R) -> Boolean = defaultPredicateLambda
+    noinline authPredicate: (suspend (User, R) -> Boolean)? = null
 ) {
-
     val replacement = call.receive<Dto>()
     val id = (replacement["uuid"] as? String ?: call.parameters["uuid"])?.toUUIDOrNull()
             ?: pipelineError(HttpStatusCode.BadRequest, "resource uuid not found in update object or url")
@@ -519,9 +512,7 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
     val rawData = replacement.mappedByHandles(R::class)
             .getOrPipelineError(HttpStatusCode.BadRequest,"bad update object (invalid properties)")
 
-    authenticate (
-        predicate = { user -> authPredicate(user, current) }
-    ) {
+    maybeAuthenticated(wrapPredicate(authPredicate, current)) {
         val updatedResource = repository<R>().update(this, current, rawData)
             .getOrPipelineError(message = "couldn't update resource")
 

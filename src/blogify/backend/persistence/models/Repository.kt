@@ -3,10 +3,9 @@ package blogify.backend.persistence.models
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
+import blogify.backend.util.*
 import blogify.reflect.models.PropMap
-import blogify.backend.util.BException
-import blogify.backend.util.Sr
-import blogify.backend.util.SrList
+import blogify.reflect.extensions.okHandle
 
 import io.ktor.application.ApplicationCall
 
@@ -16,6 +15,8 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 
 import java.util.*
+
+import kotlin.reflect.KProperty1
 
 /**
  * Service interface for fetching, creating, updating and deleting [resources][Resource].
@@ -90,6 +91,19 @@ interface Repository<R : Resource> {
      * @author Benjozork, hamza1311
      */
     suspend fun update(request: RequestContext, res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R>
+
+    /**
+     * Updates an instance of [R] in the database
+     *
+     * @param request the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
+     * @param resource     the resource to update
+     * @param data a map of [properties][KProperty1] to replacement values. Properties must resolve
+     * to [Ok][PropMap.PropertyHandle.Ok] handles. Can omit values to not update them.
+     *
+     * @author Benjozork, hamza1311
+     */
+    suspend fun updateWithProperties(request: RequestContext, resource: R, data: Map<KProperty1<R, Any>, Any>): Sr<R>
+            = update(request, resource, data.mapKeys { it.key.okHandle ?: error("update with a <KProperty1. Any> map cannot resolve to non-ok handles") })
 
     /**
      * Deletes an instance of [R] from the database
