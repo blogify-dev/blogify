@@ -1,6 +1,5 @@
 package blogify.backend.search.models
 
-import blogify.backend.resources.models.Resource
 import blogify.backend.search.Typesense
 import blogify.backend.util.Dto
 
