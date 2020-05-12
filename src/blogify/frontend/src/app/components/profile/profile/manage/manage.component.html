@@ -1,0 +1,63 @@
+<ng-container *ngIf="this.forUser">
+
+    <h2>Roles</h2>
+
+    <div>
+        <div id="__toggle_user_admin">
+
+
+            <div class="__icon">
+                <fa-layers size="2x">
+                    <fa-icon [icon]="faUser"></fa-icon>
+                    <fa-icon [icon]="faShield" [transform]="{ x: 7, y: 5, size: 10 }"></fa-icon>
+                </fa-layers>
+            </div>
+
+            <div class="__body">
+                <div class="__title">
+                    User administrator status &mdash;
+
+                    <span [ngClass]="this.forUser.isAdmin ? 'positive' : 'negative'">
+                    {{this.forUser.isAdmin ? 'Enabled' : 'Disabled'}}
+                </span>
+                </div>
+
+                <div class="__detailed">
+                    Change this user's administrator status. Can let them remove your administrator status.
+                </div>
+            </div>
+
+            <button class="rounded hollow gray" (click)="toggleUserAdmin()">
+                {{!this.forUser.isAdmin ? 'Enable' : 'Disable'}}
+            </button>
+        </div>
+    </div>
+
+    <h2>Moderation</h2>
+
+    <div>
+        <div id="__user_ban">
+
+            <div class="__icon negative">
+                <fa-icon [icon]="faGavel" size="2x"></fa-icon>
+            </div>
+
+            <div class="__body">
+                <div class="__title">
+                    Ban user
+                </div>
+
+                <div class="__detailed">
+                    Revoke user's ability to post articles and comment on articles. Will still be able to login.
+                </div>
+            </div>
+
+            <button class="rounded negative disabled" disabled>
+                N / A
+            </button>
+        </div>
+    </div>
+
+    <div></div>
+
+</ng-container>

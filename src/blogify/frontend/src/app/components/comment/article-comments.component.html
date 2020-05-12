@@ -1,7 +1,12 @@
-<div *ngIf="rootComments">
-    <div *ngFor="let comment of rootComments">
-        <app-single-comment [comment]="comment"></app-single-comment>
-    </div>
-</div>
+ <ng-container *ngIf="this.treeListing">
+     <app-single-comment
+         [comment]="comment" (deleted)="handleDeletion(comment)"
+         *ngFor="let comment of this.treeListing.data"
+     ></app-single-comment>
 
-<app-create-comment *ngIf="isLoggedIn()" [article]="article"></app-create-comment>
+     <span id="next-page" class="clickable" (click)="loadPage()" *ngIf="this.treeListing.moreAvailable">
+        <fa-icon [icon]="faArrowDown" [transform]="{ size: 18, y: 1, x: -6 }"></fa-icon>
+
+         Load More
+    </span>
+ </ng-container>

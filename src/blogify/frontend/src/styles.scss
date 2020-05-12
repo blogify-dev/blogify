@@ -1,15 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
 /* We're working with the body tag, and so with the WHOLE page */
 
-@import "styles/fonts";
 @import "styles/colours";
-@import "styles/layouts";
-@import "styles/forms";
-@import "styles/titles";
+@import "styles/fonts";
+@import "styles/markdown";
 @import "styles/code";
+@import "styles/forms";
+@import "styles/layouts";
+@import "styles/queries";
+@import "styles/titles";
 
 * {
-    transition: color 150ms ease-in-out, background-color 150ms ease-in-out;
+    transition: color 150ms ease-in-out, background-color 150ms ease-in-out, border-color 150ms ease-in-out;
 
     margin: 0;
     padding: 0;
@@ -19,7 +21,16 @@
     border: none;
     outline: none;
     font-family: $nunito;
+}
+
+html {
+    overflow-x: hidden;
+
     font-size: 10px;
+
+    @media (min-width: $query-desktop) {
+        font-size: 12px;
+    }
 }
 
 #parent {
@@ -43,9 +54,8 @@ a, a:visited, a:active, a:hover {
 
 // No idea why, but this doesn't work in SA
 markdown {
-    * {
-        font-size: 1.35em;
-    }
+    font-size: 1.35em;
+
     p:not(:last-of-type) {
         margin-bottom: 1.15em;
     }

@@ -1,7 +1,7 @@
 package blogify.backend.search.models
 
-import blogify.backend.resources.models.Resource
 import blogify.backend.search.Typesense
+import blogify.backend.util.Dto
 
 /**
  * Models for sending processed [Typesense] search results to a client
@@ -20,7 +20,7 @@ data class SearchView (
      * Represents a hit
      */
     data class Hit (
-        val document: Map<String, Any?>,
+        val document: Dto,
         val highlights: List<Search.Highlight>
     )
 

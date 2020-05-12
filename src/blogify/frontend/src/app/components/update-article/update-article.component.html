@@ -1,37 +1,52 @@
 <!--suppress HtmlFormInputWithoutLabel -->
+<div id="update-article" *ngIf="this.user && this.article" [formGroup]="form">
 
-<div id="update-article" *ngIf="user && article">
+    <div class="data-row" id="categories-row" formArrayName="categories">
 
-    <div id="header-row">
-        <h1>Update Article</h1>
+        <span *ngFor="let control of formCategories.controls; let i = index" class="existing">
+            <span tabindex="-1" contenteditable formControlName="{{i}}"></span>
+        </span>
 
-        <app-user-display info="username" [user]="user"></app-user-display>
+        <input type="text" id="new-category-input" (keydown.enter)="addCategory($event.target)" />
+
     </div>
 
     <span class="data-row" id="title-row">
-        <span>Title</span>
-        <input [(ngModel)]="article.title">
+        <input id="title-input" [formControl]="formTitle" placeholder="Title" />
+
+        <app-user-display info="username" [user]="user" emSize=".95" sizeRatio="1.25"></app-user-display>
     </span>
 
     <span class="data-row" id="summary-row">
-        <span>Summary</span>
-        <input [(ngModel)]="article.summary">
+        <input id="summary-input" [formControl]="formSummary" placeholder="Summary" />
     </span>
+
+    <!-- Icons -->
+    <div class="data-row" id="header-row">
+
+        <div id="icons-left">
+            <!-- Like count - non-clickable -->
+            <a class="likes negative">
+                <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 19 }"></fa-icon>
+                <span>&ensp;{{this.article.likeCount}}</span>
+            </a>
+
+            <span class="separator"></span>
+
+            <!-- Timestamp -->
+            <span class="date">{{article.createdAt | relativeTime}}</span>
+        </div>
+
+    </div>
 
     <span class="data-row" id="content-row">
-        <span>Content</span>
-        <textarea rows="5" [(ngModel)]="article.content"></textarea>
+        <textarea rows="5" [formControl]="formContent" placeholder="Content"></textarea>
     </span>
 
-    <span class="data-row" id="submit">
-         <button class="positive rounded hollow" (click)="updateArticle()">Save draft</button>
-         <button class="positive rounded" (click)="updateArticle()">Submit</button>
+    <span class="data-row" id="submit-row">
+         <button [disabled]="!form.valid" class="positive rounded hollow" (click)="updateArticle()">Save draft</button>
+         <button [disabled]="!form.valid" class="positive rounded" (click)="updateArticle()">Submit Changes</button>
     </span>
-
-    <ng-container *ngFor="let cat of article.categories">
-        <input [(ngModel)]="cat.name">
-    </ng-container>
-
-    <button (click)="addCategory()">Add Category</button>
 
 </div>
+

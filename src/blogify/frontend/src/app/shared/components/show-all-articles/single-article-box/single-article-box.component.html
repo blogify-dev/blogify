@@ -1,63 +1,65 @@
 <div class="article">
 
-    <div class="article-first-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
+    <div class="first-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
+
         <!-- Title -->
-        <h1 class="header-title">{{article.title}}</h1>
+        <h1 class="title" [style.color]="this.article.isPinned ? 'var(--accent-positive)' : ''">
+            <fa-icon
+                    [icon]="faThumbtack" size="lg" [transform]="{ size: 10, y: 1, rotate: 45 }"
+                    *ngIf="this.article.isPinned"
+                    style="margin-right: .35em; color: var(--accent-positive)"
+            ></fa-icon>
+
+            {{article.title}}
+        </h1>
 
         <!-- Author -->
-        <app-user-display [user]="article.createdBy" emSize="2.25"></app-user-display>
+        <app-user-display class="author" [user]="article.createdBy" emSize="1.5" sizeRatio="0.85"></app-user-display>
     </div>
 
-    <div class="article-second-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
+    <div class="second-line clickable no-highlight" routerLink="/article/{{article.uuid}}">
         <!-- Summary -->
-        <span class="article-summary">{{article.summary}}</span>
+        <span class="summary">{{article.summary}}</span>
 
         <!-- Timestamp -->
-        <span class="article-posted-at">{{article.createdAt | relativeTime}}</span>
+        <span class="posted-at">{{article.createdAt | relativeTime}}</span>
     </div>
 
-    <div class="article-last-line">
+    <div class="last-line">
         <!-- Like count - clickable -->
         <a class="article-like-count clickable negative"
            *ngIf="loggedInObs | async"
            (click)="toggleLike()"
         >
             <fa-icon [icon]="this.article.likedByUser ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 19 }"></fa-icon>
-            <span>&ensp;{{this.article.likedByUser ? article.likeCount + 1 : this.article.likeCount}}</span>
+            <span>&ensp;{{this.article.likeCount}}</span>
         </a>
 
         <!-- Like count - non-clickable -->
         <a class="article-like-count negative" *ngIf="!(loggedInObs | async)">
-            <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 19 }"></fa-icon>
-            <span>&ensp;{{article.likeCount}}</span>
+            <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 18 }"></fa-icon>
+            <span>&ensp;{{this.article.likeCount}}</span>
         </a>
 
         <span class="separator"></span>
 
         <!-- Comment count -->
-        <a class="article-comments-count clickable">
-            <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ y: 1, size: 17 }"></fa-icon>
+        <a class="comment-count clickable">
+            <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ size: 18, y: 1 }"></fa-icon>
             <span>&ensp;{{article.commentCount}}</span>
         </a>
 
         <span class="separator"></span>
 
         <!-- Share button -->
-        <a class="article-share clickable" (click)="copyLinkToClipboard()">
-            <fa-icon [icon]="faCopy" size="2x" [transform]="{ rotate: 1, size: 12 }"></fa-icon>
-            <span class="button-text">Share</span>
+        <a class="share clickable" (click)="copyLinkToClipboard()">
+            <fa-icon [icon]="faClipboard" size="lg" [transform]="{ size: 18, y: -1.4 }"></fa-icon>
         </a>
 
         <!-- Categories -->
-        <div class="article-tags" *ngIf="article.categories.length > 0">
-            <span class="tags-title">Tags:&nbsp;</span>
+        <div class="tags" *ngIf="article.categories.length > 0">
             <span *ngFor="let tag of article.categories">{{tag.name}}</span>
         </div>
-
-        <!-- No categories -->
-        <span class="article-no-tags" *ngIf="article.categories.length == 0">
-            <em>No tags</em>
-        </span>
     </div>
 
 </div>

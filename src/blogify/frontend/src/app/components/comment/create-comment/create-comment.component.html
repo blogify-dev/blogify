@@ -1,9 +1,15 @@
-<div class="comment-reply" *ngIf="replying && replyComment != undefined">
+<!--suppress HtmlFormInputWithoutLabel -->
+
+<div class="comment-reply" *ngIf="replyComment != undefined">
     <textarea rows="4" [(ngModel)]="replyComment.content" type="text" class="reply-text" placeholder="Type your response ..."></textarea>
 
     <div class="reply-submit">
-        <button (click)="doReply()" class="submit-button positive rounded">Submit</button>
-<!--        <button class="draft-button positive hollow rounded">Save draft</button>-->
+        <button
+            class="submit-button rounded"
+            [ngClass]="{ disabled: !(loggedInObs | async) }"
+            (click)="doReply()"
+        >Submit</button>
+        <button class="draft-button hollow rounded">Save draft</button>
 
         <span class="submit-error-container" *ngIf="replyError !== ''">{{replyError}}</span>
     </div>

@@ -1,18 +1,11 @@
 package blogify.backend.resources.models
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerator
-import com.fasterxml.jackson.annotation.ObjectIdResolver
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.ser.std.StdSerializer
-
-import blogify.backend.resources.Article
-import blogify.backend.resources.Comment
-import blogify.backend.resources.User
-import blogify.backend.resources.reflect.models.Mapped
-import blogify.backend.services.UserService
-import blogify.backend.services.ArticleService
-import blogify.backend.services.CommentService
+import blogify.reflect.models.Identified
+import blogify.backend.appContext
+import blogify.backend.events.models.EventEmitter
+import blogify.backend.events.models.EventSource
+import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.reflect.models.Mapped
 
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
@@ -21,14 +14,17 @@ import io.ktor.request.ApplicationRequest
 import io.ktor.response.ApplicationResponse
 import io.ktor.util.Attributes
 
-import kotlinx.coroutines.runBlocking
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
-import java.lang.IllegalStateException
+import kotlinx.coroutines.GlobalScope
+
 import java.util.*
 
-open class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped() {
+abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : Mapped(), EventSource, EventEmitter, Identified {
 
-    object ObjectResolver : ObjectIdResolver {
+    object ObjectResolver {
 
         object FakeApplicationCall : ApplicationCall {
 
@@ -45,62 +41,8 @@ open class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped() {
 
         }
 
-        override fun resolveId(id: ObjectIdGenerator.IdKey?): Any? {
-
-            val uuid = id?.key as UUID
-
-            fun genException(scope: Class<*>, ex: Exception)
-                    = IllegalStateException("exception during resource (type: ${scope.simpleName}) resolve with UUID $uuid : ${ex.message}", ex)
-
-            return runBlocking {
-                // Necessary since we're interacting with Java cruft
-                when (id.scope) {
-
-                    Article::class.java -> {
-                        try {
-                            return@runBlocking ArticleService.get(id = uuid).get()
-                        } catch (e: Exception) {
-                            throw genException(id.scope, e)
-                        }
-                    }
-
-                    User::class.java -> {
-                        try {
-                            return@runBlocking UserService.get(id = uuid).get()
-                        } catch (e: Exception) {
-                            throw genException(id.scope, e)
-                        }
-                    }
-
-                    Comment::class.java -> {
-                        try {
-                            return@runBlocking CommentService.get(id = uuid).get()
-                        } catch (e: Exception) {
-                            throw genException(id.scope, e)
-                        }
-                    }
-
-                    else -> {
-                        error("can't find service for resource class ${id.scope.simpleName}")
-                    }
-
-                }
-
-            }
-
-        }
-
-        override fun newForDeserialization(context: Any?): ObjectIdResolver {
-           return this
-        }
-
-        override fun bindItem(id: ObjectIdGenerator.IdKey?, pojo: Any?) {
-            return
-        }
-
-        override fun canUseFor(resolverType: ObjectIdResolver?): Boolean {
-            return resolverType!!::class == this::class
-        }
+        @Deprecated("Please remove instances of this")
+        val FakeRequestContext = RequestContext(appContext, GlobalScope, FakeApplicationCall, enableCaching = false)
 
     }
 
@@ -115,6 +57,28 @@ open class Resource(open val uuid: UUID = UUID.randomUUID()) : Mapped() {
 
     }
 
-}
+    /**
+     * This function is run when the resource is created. Not to confuse with the constructor;
+     * [Resource] subtypes can be constructed at any moment.
+     *
+     * @param request the [RequestContext] in which the creation originated
+     *
+     * @author Benjozork
+     */
+    @Suppress("RedundantSuspendModifier")
+    open suspend fun onCreation(request: RequestContext) = Unit
 
-infix fun <T : Resource> T.eqr(other: T) = this.uuid == other.uuid
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Resource) return false
+
+        if (uuid != other.uuid) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return uuid.hashCode()
+    }
+
+}

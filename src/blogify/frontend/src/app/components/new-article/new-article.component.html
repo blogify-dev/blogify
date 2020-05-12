@@ -1,0 +1,36 @@
+<!--suppress HtmlFormInputWithoutLabel -->
+<div id="new-article" *ngIf="user != undefined" [formGroup]="form">
+
+    <div class="data-row" id="categories-row" formArrayName="categories">
+
+        <span *ngFor="let control of formCategories.controls; let i = index" class="existing">
+            <span tabindex="-1" contenteditable formControlName="{{i}}"></span>
+        </span>
+
+        <input type="text" id="new-category-input" (keydown.enter)="addCategory($event.target)" />
+
+    </div>
+
+    <span class="data-row" id="title-row">
+        <input id="title-input" [formControl]="formTitle" placeholder="Title" />
+
+        <app-user-display info="username" [user]="user" emSize=".95" sizeRatio="1.25"></app-user-display>
+    </span>
+
+    <span class="data-row" id="summary-row">
+        <input [formControl]="formSummary" placeholder="Summary">
+    </span>
+
+    <span class="data-row" id="content-row">
+        <textarea rows="5" [formControl]="formContent" placeholder="Content"></textarea>
+    </span>
+
+    <span class="data-row" id="submit-row">
+        <span [className]="result.status" id="submit-result-container">{{result.message}}</span>
+
+         <button [disabled]="!form.valid" class="positive rounded hollow" (click)="createNewArticle()">Save Draft</button>
+         <button [disabled]="!form.valid" class="positive rounded" (click)="createNewArticle()">Submit</button>
+    </span>
+
+</div>
+

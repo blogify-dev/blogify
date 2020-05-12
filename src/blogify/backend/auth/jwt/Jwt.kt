@@ -1,7 +1,9 @@
 package blogify.backend.auth.jwt
 
-import blogify.backend.resources.User
-import blogify.backend.services.UserService
+import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.resources.user.User
+import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
+import blogify.backend.util.Sr
 import blogify.backend.util.short
 import blogify.backend.util.toUUID
 
@@ -16,7 +18,6 @@ import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
-import io.ktor.application.ApplicationCall
 
 import org.slf4j.LoggerFactory
 
@@ -43,13 +44,13 @@ fun generateJWT(user: User) = Jwts
         setExpiration(cal.time)
     }
     .signWith(keyPair.private).compact().also {
-        logger.debug("${"created token for user with id".green()} {${user.uuid.toString().take(8)}...}")
+        logger.debug("${"created token for user with id".green()} {${user.uuid.short()}...}")
     }
 
 /**
-* Validates a JWT, returning a [SuspendableResult] if that token authenticates a user, or an exception if the token is invalid
+* Validates a JWT, returning a [Sr] accordingly
  */
-suspend fun validateJwt(callContext: ApplicationCall, token: String): SuspendableResult<User, Exception> {
+suspend fun validateJwt(requestContext: RequestContext = FakeRequestContext, token: String): Sr<User> {
     var jwsClaims: Jws<Claims>? = null
 
     try {
@@ -68,8 +69,8 @@ suspend fun validateJwt(callContext: ApplicationCall, token: String): Suspendabl
         e.printStackTrace()
     }
 
-    val user = UserService.get(callContext, jwsClaims?.body?.subject?.toUUID() ?: error("malformed uuid in jwt"))
+    val user = requestContext.repository<User>().get(requestContext, jwsClaims?.body?.subject?.toUUID() ?: error("malformed uuid in jwt"))
     logger.debug("got valid JWT for user {${user.get().uuid.short()}...}".green())
 
-    return SuspendableResult.of { user.get() }
+    return user
 }

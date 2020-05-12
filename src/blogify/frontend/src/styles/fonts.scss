@@ -3,3 +3,27 @@
 
 $nunito: 'Nunito', sans-serif;
 $source: 'Source Code Pro', sans-serif;
+
+.text-small {
+    font-size: 1em;
+}
+
+.text-medium {
+    font-size: 1.15em;
+}
+
+.text-large {
+    font-size: 1.5em;
+}
+
+.text-huge {
+    font-size: 2em;
+}
+
+.bold {
+    font-weight: 600;
+}
+
+em, strong {
+    font-size: unset !important;
+}

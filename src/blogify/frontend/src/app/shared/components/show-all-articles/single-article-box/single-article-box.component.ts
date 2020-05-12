@@ -1,10 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Article } from "../../../../models/Article";
-import { faHeart, faCommentAlt, faCopy } from '@fortawesome/free-regular-svg-icons';
-import { faHeart as faHeartFilled } from '@fortawesome/free-solid-svg-icons';
-import { ClipboardService } from "ngx-clipboard";
-import { AuthService } from '../../../auth/auth.service';
-import { ArticleService } from '../../../../services/article/article.service';
+import { Article } from '@blogify/models/Article';
+import { faHeart, faCommentAlt, faClipboard } from '@fortawesome/free-regular-svg-icons';
+import { faHeart as faHeartFilled, faThumbtack } from '@fortawesome/free-solid-svg-icons';
+import { ClipboardService } from 'ngx-clipboard';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { ArticleService } from '@blogify/core/services/article/article.service';
 
 @Component({
     selector: 'app-single-article-box',
@@ -15,11 +15,13 @@ export class SingleArticleBoxComponent implements OnInit {
 
     @Input() article: Article;
 
+    faThumbtack = faThumbtack;
+
     faHeartOutline = faHeart;
     faHeartFilled = faHeartFilled;
 
     faCommentAlt = faCommentAlt;
-    faCopy = faCopy;
+    faClipboard = faClipboard;
 
     constructor (
         private authService: AuthService,
@@ -33,16 +35,17 @@ export class SingleArticleBoxComponent implements OnInit {
 
     toggleLike() {
         this.articleService
-            .likeArticle(this.article, this.authService.userToken)
-            .then(_ => {
+            .likeArticle(this.article)
+            .then(() => {
                 this.article.likedByUser = !this.article.likedByUser;
-            }).catch(error => {
-                console.error(`[blogifyArticles] Couldn't like ${this.article.uuid}` )
-            })
+                this.article.likeCount += (this.article.likedByUser ? 1 : -1);
+            }).catch(() => {
+                console.error(`[blogifyArticles] Couldn't like ${this.article.uuid}` );
+            });
     }
 
     copyLinkToClipboard() {
-        this.clipboardService.copyFromContent(window.location.href)
+        this.clipboardService.copyFromContent(window.location.href);
     }
 
 }

@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { StaticContentService } from '../../../../services/static/static-content.service';
-import { StaticFile } from "../../../../models/Static";
+import { StaticContentService } from '@blogify/core/services/static/static-content.service';
+import { StaticFile } from '@blogify/models/Static';
 
 @Component({
     selector: 'app-cover-picture',

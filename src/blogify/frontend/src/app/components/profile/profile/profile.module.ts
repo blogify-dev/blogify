@@ -6,13 +6,17 @@ import { MainProfileComponent } from './main/main-profile.component';
 import { OverviewComponent } from './overview/overview.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { CoverPictureComponent } from './cover-picture/cover-picture.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { FormsModule } from "@angular/forms";
+import { ManageComponent } from './manage/manage.component';
 
 @NgModule({
     declarations: [
         SettingsComponent,
         MainProfileComponent,
         OverviewComponent,
-        CoverPictureComponent
+        CoverPictureComponent,
+        ManageComponent
     ],
     exports: [
         MainProfileComponent
@@ -20,7 +24,9 @@ import { CoverPictureComponent } from './cover-picture/cover-picture.component';
     imports: [
         CommonModule,
         SharedModule,
-        ProfileRoutingModule
+        ProfileRoutingModule,
+        FontAwesomeModule,
+        FormsModule
     ]
 })
 

@@ -1,4 +1,4 @@
-class SearchView<T> {
+export class SearchView<T> {
 
     constructor (
         public found: number,

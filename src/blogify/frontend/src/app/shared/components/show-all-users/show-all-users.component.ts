@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faArrowLeft, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { AuthService} from '../../auth/auth.service';
-import { StaticContentService } from '../../../services/static/static-content.service';
+import { StaticContentService } from '@blogify/core/services/static/static-content.service';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
-import { User } from '../../../models/User';
+import { User } from '@blogify/models/User';
+import { UserService } from '@blogify/shared/services/user-service/user.service';
 
 @Component({
     selector: 'app-show-all-users',
@@ -30,7 +30,7 @@ export class ShowAllUsersComponent implements OnInit {
     showingMobileSearchBar: boolean;
 
     constructor (
-        private authService: AuthService,
+        private usersService: UserService,
         private staticContentService: StaticContentService,
         private activatedRoute: ActivatedRoute,
         private router: Router
@@ -46,16 +46,18 @@ export class ShowAllUsersComponent implements OnInit {
                 const actualQuery = query.match(/^"[^"']+"$/) != null ? query.substring(1, query.length - 1) : null;
                 if (actualQuery != null) {
                     this.searchQuery = actualQuery;
+                    // noinspection JSIgnoredPromiseFromCall
                     this.startSearch();
                 }
             } else { // We are in a regular listing
+                // noinspection JSIgnoredPromiseFromCall
                 this.stopSearch();
             }
         });
     }
 
     async navigateToSearch() {
-        await this.router.navigate([{search: `"${this.searchQuery}"`}], {relativeTo: this.activatedRoute});
+        await this.router.navigate([{ search: `"${this.searchQuery}"` }], { relativeTo: this.activatedRoute });
     }
 
     async navigateToNoSearch() {
@@ -63,7 +65,7 @@ export class ShowAllUsersComponent implements OnInit {
     }
 
     private async startSearch() {
-        this.authService.search (
+        this.usersService.search (
             this.searchQuery,
             ['name', 'username', 'profilePicture'],
         ).then(it => {
@@ -80,7 +82,7 @@ export class ShowAllUsersComponent implements OnInit {
         this.forceNoAllowCreate = false;
         this.searchQuery = undefined;
         this.showingMobileSearchBar = false;
-        this.navigateToNoSearch();
+        await this.navigateToNoSearch();
     }
 
 

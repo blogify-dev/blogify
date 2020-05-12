@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../shared/auth/auth.service';
-import { LoginCredentials, RegisterCredentials, User } from '../../models/User';
-import { Router} from '@angular/router';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { LoginCredentials, RegisterCredentials, User } from '@blogify/models/User';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-login',
@@ -12,6 +12,7 @@ export class LoginComponent implements OnInit {
 
     registerCredentials: RegisterCredentials = { name: '', username: '', password: '', email: '' };
     loginCredentials: LoginCredentials = { username: '', password: '' };
+    keepLoggedIn = false;
 
     user: User;
     private redirectTo: string;
@@ -23,21 +24,12 @@ export class LoginComponent implements OnInit {
         if (redirect) {
             this.redirectTo = redirect;
         }
-        console.log(this.redirectTo);
     }
 
     async login() {
-        this.authService.login(this.loginCredentials)
-            .then(async token => {
-                const uuid = await this.authService.userUUID;
-                this.user = await this.authService.userProfile;
-
-                // console.log('LOGIN ->');
-                // console.log(uuid);
-                // console.log(this.user);
-                // console.log(this.loginCredentials);
-                // console.log(this.authService.userToken);
-                // console.log(this.redirectTo);
+        this.authService.login(this.loginCredentials, this.keepLoggedIn)
+            .then(async () => {
+                this.user = await this.authService.currentUser;
 
                 if (this.redirectTo) {
                     await this.router.navigateByUrl(this.redirectTo);
@@ -45,9 +37,9 @@ export class LoginComponent implements OnInit {
                     await this.router.navigateByUrl('/home');
                 }
             })
-            .catch((error) => {
-                alert("An error occurred during login");
-                console.error(`[login]: ${error}`)
+            .catch(error => {
+                alert('An error occurred during login');
+                console.error(`[login]: ${error}`);
             });
     }
 
@@ -56,19 +48,15 @@ export class LoginComponent implements OnInit {
             .then(async user => {
                 this.user = user;
 
-                // console.log('REGISTER ->');
-                // console.log(this.user);
-                // console.log(this.registerCredentials);
-
                 if (this.redirectTo) {
                     await this.router.navigateByUrl(this.redirectTo);
                 } else {
                     await this.router.navigateByUrl('/home');
                 }
             })
-            .catch((error) => {
-                alert("An error occurred during login");
-                console.error(`[register]: ${error}`)
+            .catch(error => {
+                alert('An error occurred during login');
+                console.error(`[register]: ${error}`);
             });
     }
 

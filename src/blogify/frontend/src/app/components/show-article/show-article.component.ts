@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Article } from '../../models/Article';
-import { ArticleService } from '../../services/article/article.service';
+import { Article } from '@blogify/models/Article';
+import { ArticleService } from '@blogify/core/services/article/article.service';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../../shared/auth/auth.service';
-import { User } from '../../models/User';
-import { faPenFancy, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { faCopy } from '@fortawesome/free-regular-svg-icons';
-import { ClipboardService } from "ngx-clipboard";
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { faHeart as faHeartFilled, faThumbtack } from '@fortawesome/free-solid-svg-icons';
+import { faClipboard, faEdit, faHeart, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
+import { ClipboardService } from 'ngx-clipboard';
+import { idOf } from '@blogify/models/Shadow';
+import { UserService } from '@blogify/shared/services/user-service/user.service';
 
 @Component({
     selector: 'app-show-article',
@@ -23,39 +24,60 @@ export class ShowArticleComponent implements OnInit {
         private activatedRoute: ActivatedRoute,
         private articleService: ArticleService,
         public authService: AuthService,
+        private userService: UserService,
         private router: Router,
         private clipboardService: ClipboardService,
     ) {}
 
-    faEdit = faPenFancy;
-    faTimes = faTimes;
-    faCopy = faCopy;
+    loggedInObs = this.authService.observeIsLoggedIn();
 
-    showUpdateButton = false;
-    showDeleteButton = false;
+    faHeartOutline = faHeart;
+    faHeartFilled = faHeartFilled;
+
+    faEdit = faEdit;
+    faTimes = faTrashAlt;
+    faCopy = faClipboard;
+    faThumbtack = faThumbtack;
+
+    isLoggedInUsersArticle = false;
+    isAdmin = false;
 
     ngOnInit() {
-        this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async (map) => {
+        this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async map => {
             const articleUUID = map.get('uuid');
 
-            this.article = await this.articleService.getArticleByUUID (
-                articleUUID,
-                ['title', 'createdBy', 'content', 'summary', 'uuid', 'categories', 'createdAt']
-            );
+            this.article = await this.articleService.getArticle(articleUUID);
 
-            this.authService.observeIsLoggedIn().subscribe(async it => {
-                this.showUpdateButton = it && (await this.authService.userUUID) == (<User> this.article.createdBy).uuid;
-                this.showDeleteButton = it && (await this.authService.userUUID) == (<User> this.article.createdBy).uuid;
+            this.authService.observeIsLoggedIn().subscribe(async state => {
+                if (state) {
+                    this.isLoggedInUsersArticle = idOf(this.article.createdBy) === this.authService.currentUser.uuid;
+                    this.isAdmin = this.authService.currentUser.isAdmin;
+                }
             });
         });
     }
 
+    toggleLike() {
+        this.articleService.likeArticle(this.article)
+            .then(() => {
+                this.article.likedByUser = !this.article.likedByUser;
+                this.article.likeCount += (this.article.likedByUser ? 1 : -1);
+            }).catch(() => console.error(`[blogifyArticles] Couldn't like ${this.article.uuid}`));
+    }
+
+    togglePin() {
+        this.articleService.pinArticle(this.article.uuid)
+            .then(_ => this.article.isPinned = !this.article.isPinned)
+            .catch(_ => console.error(`[blogifyArticles] could not pin ${this.article.uuid}`));
+    }
+
     deleteArticle() {
-        this.articleService.deleteArticle(this.article.uuid).then(it => console.log(it));
-        this.router.navigateByUrl("/home").then(() => {})
+        this.articleService.deleteArticle(this.article.uuid)
+            .then(_ => this.router.navigateByUrl('/home'))
+            .catch(_ => console.error(`[blogifyArticles] could not delete ${this.article.uuid}\``));
     }
 
     copyUrlToClipboard() {
-        this.clipboardService.copyFromContent(window.location.href)
+        this.clipboardService.copyFromContent(window.location.href);
     }
 }

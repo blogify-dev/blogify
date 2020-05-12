@@ -9,9 +9,11 @@
 
         &:not(:first-child) { margin-left: 1.75em; }
 
-        border-bottom: solid 3px transparent;
+        padding-bottom: .2em;
+
+        border-bottom: solid 2px transparent;
         &.activated {
-            border-bottom: solid 3px var(--body-fg);
+            border-bottom: solid 2px var(--body-fg);
         }
 
         .tab-name {

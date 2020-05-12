@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from "../../../../shared/auth/auth.service";
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
 
 @Component({
     selector: 'app-settings',
@@ -26,11 +26,16 @@ export class SettingsComponent implements OnInit {
     }
 
     async setProfilePicture() {
-        await this.authService.uploadFile(this.pfpFile, 'profilePicture')
+        await this.authService.uploadFile(this.pfpFile, 'profilePicture');
     }
 
     async setCoverPicture() {
-        await this.authService.uploadFile(this.coverFile, 'coverPicture')
+        await this.authService.uploadFile(this.coverFile, 'coverPicture');
     }
 
+    async requestNotificationsPermission() {
+        if (Notification.permission !== 'granted') {
+            await Notification.requestPermission();
+        }
+    }
 }

@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { User } from '../../models/User';
-import { AuthService } from '../../shared/auth/auth.service';
+import { User } from '@blogify/models/User';
+import { UserService } from '@blogify/shared/services/user-service/user.service';
 
 @Component({
-  selector: 'app-users',
-  templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss']
+    selector: 'app-users',
+    templateUrl: './users.component.html',
+    styleUrls: ['./users.component.scss']
 })
 export class UsersComponent implements OnInit {
 
@@ -13,10 +13,10 @@ export class UsersComponent implements OnInit {
 
     users: User[];
 
-    constructor(private authService: AuthService) {}
+    constructor(private userService: UserService) {}
 
     ngOnInit() {
-        this.authService
+        this.userService
             .getAllUsers()
             .then( users => {
                 this.users = users;

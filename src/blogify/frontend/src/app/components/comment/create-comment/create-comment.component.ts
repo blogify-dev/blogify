@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Input, OnInit } from '@angular/core';
-import { Article } from '../../../models/Article';
-import { CommentsService } from '../../../services/comments/comments.service';
-import { AuthService } from '../../../shared/auth/auth.service';
-import { User } from '../../../models/User';
-import { Comment } from '../../../models/Comment';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Article } from '@blogify/models/Article';
+import { CommentsService } from '@blogify/core/services/comments/comments.service';
+import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import { Comment } from '@blogify/models/Comment';
+import { idOf } from '@blogify/models/Shadow';
 
 @Component({
     selector: 'app-create-comment',
@@ -12,10 +12,12 @@ import { Comment } from '../../../models/Comment';
 })
 export class CreateCommentComponent implements OnInit {
 
-    commentContent = '';
     @Input() article: Article;
     @Input() comment: Comment;
-    @Input() replying = false;
+
+    @Output() replied = new EventEmitter<any>();
+
+    loggedInObs = this.authService.observeIsLoggedIn();
 
     replyComment: Comment;
     replyError: string;
@@ -23,38 +25,24 @@ export class CreateCommentComponent implements OnInit {
     constructor(private commentsService: CommentsService, private authService: AuthService) {}
 
     async ngOnInit() {
-        this.authService.observeIsLoggedIn().subscribe(async value => {
+        this.authService.observeIsLoggedIn().subscribe(async loggedIn => {
             this.replyComment = {
-                commenter: value ? await this.authService.userProfile : '',
-                article: this.comment === undefined ? this.article : this.comment.article,
+                commenter: loggedIn ? this.authService.currentUser.uuid : '',
+                article: this.comment === undefined ? this.article.uuid : idOf(this.comment.article),
+                parentComment: this.comment ? this.comment.uuid : undefined,
+                likeCount: 0,
+                likedByUser: false,
                 content: '',
-                uuid: ''
+                uuid: '',
+                createdAt: Date.now(),
             };
         });
     }
 
     async doReply() {
-        // Make sure the user is authenticated
-        if (this.authService.observeIsLoggedIn() && this.replyComment.commenter instanceof User) {
+        await this.commentsService.createComment(this.replyComment);
 
-            if (this.comment === undefined) { // Reply to article
-                const newComment = await this.commentsService.createComment (
-                    this.replyComment.content,
-                    this.article.uuid,
-                    this.replyComment.commenter.uuid
-                );
-            } else { // Reply to comment
-                await this.commentsService.replyToComment (
-                    this.replyComment.content,
-                    this.comment.article.uuid,
-                    this.replyComment.commenter.uuid,
-                    this.comment.uuid
-                );
-            }
-
-        } else {
-            this.replyError = 'You must be logged in to comment.';
-        }
+        this.replied.emit();
     }
 
 }

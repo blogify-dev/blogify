@@ -21,7 +21,7 @@ export class TabHeaderComponent implements OnInit {
         this.currentUrl = this.router.url;
         this.adjustSelectedtab(this.currentUrl);
 
-        this.router.events.subscribe(event => { // weird hack for setting correct tab on profile change, but works. sort of. for now.
+        this.router.events.subscribe(() => { // weird hack for setting correct tab on profile change, but works. sort of. for now.
             const newUrl = this.router.url;
             if (newUrl !== this.currentUrl) {
                 this.currentUrl = newUrl;

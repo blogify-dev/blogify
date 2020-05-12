@@ -9,8 +9,6 @@
     width: 100%;
     @media ($query-desktop) { width: 50%; }
 
-    margin-top: 1em;
-
     .reply-text { width: 100%; }
 
     .reply-submit {
@@ -30,9 +28,6 @@
         }
 
         .draft-button {
-            width: 50%;
-            max-width: 100px;
-
             margin-left: 1em;
             margin-right: auto;
         }

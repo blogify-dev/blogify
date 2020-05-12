@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { StaticContentService } from '../../../services/static/static-content.service';
-import { StaticFile } from "../../../models/Static";
+import { StaticContentService } from '@blogify/core/services/static/static-content.service';
+import { StaticFile } from '@blogify/models/Static';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
 
 @Component({
@@ -11,8 +11,8 @@ import { faUser } from '@fortawesome/free-regular-svg-icons';
 export class ProfilePictureComponent implements OnInit, OnChanges {
 
     @Input() pfpFile: StaticFile;
-    @Input() emSize: number = 3;
-    @Input() displayedVertically: boolean = false;
+    @Input() emSize = 3;
+    @Input() displayedVertically = false;
 
     sourceUrl: string | null = null;
 

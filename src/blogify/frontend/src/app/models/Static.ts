@@ -1,7 +1,5 @@
 export class StaticFile {
 
-    constructor (
-        public fileId: string,
-    ) {}
+    constructor(public fileId: string) {}
 
 }

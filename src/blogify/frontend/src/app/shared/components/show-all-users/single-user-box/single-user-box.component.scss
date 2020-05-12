@@ -32,69 +32,6 @@
         flex-direction:  row;
         justify-content: space-between;
         align-items:     center;
-
-        .header-title {
-            text-align: left;
-        }
-
-        .user-author {
-            display:         flex;
-            flex-direction:  row;
-            justify-content: flex-start;
-            align-items:     center;
-
-            .author-pfp {
-                margin-right: .85em;
-            }
-
-            .author-name { font-size: 1.7em; font-weight: 600; }
-
-        }
-
-    }
-
-    .user-read-more { color: var(--card-fg); }
-
-    .user-last-line {
-        width: 100%;
-
-        margin-top: 1rem;
-
-        text-align: center;
-
-        display:         flex;
-        flex-direction:  row;
-        justify-content: space-between;
-        align-items:     center;
-
-        $element-separation: 1.5rem;
-        .separator {
-            margin-left: $element-separation !important;
-        }
-        a {
-            display:         flex;
-            flex-direction:  row;
-            justify-content: space-between;
-            align-items:     center;
-
-            fa-icon:first-child { margin-right: .7rem; }
-
-            span { font-size: 1.4rem; }
-            font-weight: 600;
-
-            @media (max-width: $query-desktop) {
-                & .button-text {
-                    display: none;
-                }
-            }
-
-            &:not(:first-child) { margin-left: $element-separation; }
-        }
-
-        .user-share {
-            margin-right: auto;
-        }
-
     }
 
 }

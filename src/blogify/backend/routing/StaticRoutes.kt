@@ -1,20 +1,23 @@
 package blogify.backend.routing
 
-import blogify.backend.resources.static.fs.StaticFileHandler
-import blogify.backend.routing.pipelines.pipeline
+import blogify.backend.pipelines.wrapping.ApplicationContext
+import blogify.backend.resources.static.file.StaticFileHandler
+import blogify.backend.pipelines.param
+import blogify.backend.pipelines.requestContext
 
-import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.response.respondBytes
 import io.ktor.routing.Route
 import io.ktor.routing.get
 
-fun Route.static() {
+fun Route.makeStaticRoutes(applicationContext: ApplicationContext) {
 
     get("/get/{uploadableId}") {
 
-        pipeline("uploadableId") { (uploadableId) ->
+        requestContext(applicationContext) {
+
+            val uploadableId = param("uploadableId")
 
             val actualId = uploadableId.takeWhile(Char::isDigit) // Allow for trailing extensions
             if (actualId != "") {
@@ -26,6 +29,7 @@ fun Route.static() {
             }
 
         }
+
 
     }
 

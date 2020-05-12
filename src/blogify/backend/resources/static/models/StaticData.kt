@@ -11,4 +11,4 @@ import io.ktor.http.ContentType
  * @author Benjozork
  */
 @Suppress("ArrayInDataClass")
-data class StaticData(val contentType: ContentType, val bytes: ByteArray)
+open class StaticData(open val contentType: ContentType, open val bytes: ByteArray)

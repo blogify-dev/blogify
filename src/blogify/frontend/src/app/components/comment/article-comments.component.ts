@@ -1,8 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { CommentsService } from '../../services/comments/comments.service';
-import { Comment } from '../../models/Comment';
-import { Article } from '../../models/Article';
-import { AuthService } from '../../shared/auth/auth.service';
+import { Component, Input, OnInit } from '@angular/core';
+import { CommentsService, CommentTreeListing } from '@blogify/core/services/comments/comments.service';
+import { Comment } from '@blogify/models/Comment';
+import { Article } from '@blogify/models/Article';
+import { ListingQuery } from '@blogify/models/ListingQuery';
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-article-comments',
@@ -11,40 +12,44 @@ import { AuthService } from '../../shared/auth/auth.service';
 })
 export class ArticleCommentsComponent implements OnInit {
 
+    constructor (private commentsService: CommentsService) {}
+
+    faArrowDown = faArrowDown;
+
     @Input() article: Article;
 
-    rootComments: Comment[];
+    /**
+     * Stores the properties of {@link Comment} that are needed for display in this component
+     */
+    private readonly REQUIRED_FIELDS: (keyof Comment)[] =
+        ['uuid', 'commenter', 'article', 'content', 'likeCount', 'createdAt', 'parentComment'];
 
-    constructor(private commentService: CommentsService, public authService: AuthService) {}
+    /**
+     * Use this listing for loading comments
+     */
+    listingQuery = { ...(new ListingQuery<Comment>(7, -1, this.REQUIRED_FIELDS)), depth: 5 };
+
+    treeListing: CommentTreeListing;
 
     ngOnInit() {
-        this.commentService.getCommentsForArticle(this.article).then(async it => {
-            this.rootComments = it;
+        this.loadPage();
 
-            // Get promises for children of root comments
-            const childrenPromises: Promise<Comment>[] = [];
-            this.rootComments.forEach(comment => {
-                childrenPromises.push(this.commentService.getChildrenOf(comment.uuid, 5));
-            });
-            const children = await Promise.all(childrenPromises);
-
-            // Apply children to every root comment
-            const out = [];
-            this.rootComments.forEach((comment, index) => {
-                comment.children = children[index].children;
-                out.push(comment);
-            });
-            this.rootComments = out;
-        });
-
-        this.commentService.latestRootSubmittedComment.subscribe(comment => {
-            if (comment) {
-                this.rootComments.push(comment);
+        this.commentsService.newCommentsFromServer.subscribe(async payload => {
+            if (payload && !payload.parentComment) {
+                this.treeListing.data = [payload, ...this.treeListing.data];
             }
         });
     }
 
-    isLoggedIn(): boolean {
-        return this.authService.userToken !== '';
+    loadPage() {
+        this.listingQuery.page++;
+
+        this.commentsService.commentTreeForArticle(this.article, this.listingQuery)
+            .then(async listing => this.treeListing = { data: [...this.treeListing?.data ?? [], ...listing.data], moreAvailable: listing.moreAvailable });
     }
+
+    handleDeletion(comment: Comment) {
+        this.treeListing.data.splice(this.treeListing.data.indexOf(comment), 1);
+    }
+
 }

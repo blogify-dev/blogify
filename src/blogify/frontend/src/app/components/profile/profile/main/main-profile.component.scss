@@ -1,4 +1,4 @@
-@import "../../../../../styles/mixins";
+@import "src/styles/mixins";
 
 #main-container {
     @include pageContainer;
@@ -7,29 +7,70 @@
 
         margin-bottom: 1em;
 
-        //height: 10rem;
         display: flex;
+        justify-content: space-between;
+        align-items: center;
         flex-wrap: wrap;
         gap: 1.15rem;
 
         .separator {
-            margin-left: 1.75rem !important;
+            margin: 0.5em 0;
+
+            margin-left: 1.65rem !important;
+            margin-right: 1.35em !important;
         }
 
-        #header-follow-button {
-            align-self: center;
+        #right-area {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
 
-            margin-left: 1.75rem;
-            margin-right: auto;
-        }
+            #flexible-space {
+                flex-grow: 10;
+            }
 
-        #flexible-space {
-            flex-grow: 10;
-        }
-
-        #header-tabs {
-            justify-self: end;
+            #header-tabs {
+                justify-self: end;
+            }
         }
 
     }
+
+    #user__biography {
+        font-size: 1.5em;
+
+        margin-bottom: 1em;
+
+        &:hover #__icon_edit:last-child {
+            display: initial;
+        }
+        .__biography_icon {
+            margin-left: .65em;
+
+            &#__icon_edit {
+                display: none;
+            }
+        }
+
+        #__biography_text {
+            margin: .15em 0 .2em 0;
+
+            display: inline-block;
+        }
+
+        #__biography__absent {
+            font-style: italic;
+        }
+
+        #__biography__input__label {
+            width: 0;
+        }
+
+        #__biography__input {
+            padding: .1em .6em;
+
+            font-size: inherit;
+        }
+    }
+
 }

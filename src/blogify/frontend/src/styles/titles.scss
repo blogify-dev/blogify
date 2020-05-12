@@ -1,19 +1,14 @@
 @import "fonts";
 
-h1, h2 {
-    padding: .35em 0;
+h1, h2, h3, h4, h5, h6 {
+    padding: 0 0 .25em 0;
     font-family: $nunito;
     font-weight: 700;
 }
 
-h3, h4, h5, h6 {
-    padding: .35em 0 0 0;
-    font-family: $nunito;
-}
-
-h1 { font-size: 2.2em; }
-h2 { font-size: 1.8em; }
-h3 { font-size: 1.6em; }
-h4 { font-size: 1.4em; }
-h5 { font-size: 1.2em; }
-h6 { font-size: 1.1em; }
+h1 { font-size: 1.65em; }
+h2 { font-size: 1.55em; }
+h3 { font-size: 1.45em; }
+h4 { font-size: 1.35em; }
+h5 { font-size: 1.25em; }
+h6 { font-size: 1.15em; }

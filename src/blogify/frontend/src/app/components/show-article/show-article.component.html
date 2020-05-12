@@ -4,45 +4,84 @@
 
         <div class="header-categories">
             <!-- Categories -->
-            <div class="article-tags" *ngIf="article.categories.length > 0">
+            <div class="tags" *ngIf="article.categories.length > 0">
                 <span *ngFor="let tag of article.categories">{{tag.name}}</span>
             </div>
 
-            <!-- No categories -->
-            <span class="article-no-tags" *ngIf="article.categories.length == 0">
-                <em>No tags</em>
-            </span>
+            <!--            &lt;!&ndash; No categories &ndash;&gt;-->
+            <!--            <span class="article-no-tags" *ngIf="article.categories.length == 0">-->
+            <!--                <em>No tags</em>-->
+            <!--            </span>-->
         </div>
 
-        <!-- Title -->
-        <h1 class="header-title">{{article.title}}</h1>
+        <!-- Title & likes -->
+        <div id="title-row">
+            <h1 id="title">{{article.title}}</h1>
 
+            <app-user-display id="user" class="clickable" [user]="article.createdBy" emSize="1.7"></app-user-display>
+        </div>
+
+        <!-- Summary -->
+        <h1 class="summary-row">{{article.summary}}</h1>
+
+        <!-- Icons -->
         <div class="header-bottom">
 
-            <!-- Author -->
-            <app-user-display [user]="article.createdBy" emSize="2.75"></app-user-display>
+            <div id="icons-left">
+                <!-- Like count - clickable -->
+                <!--suppress XmlDuplicatedId <-- this is fine since we *ngIf the other one -->
+                <a class="likes clickable negative"
+                   *ngIf="loggedInObs | async"
+                   (click)="toggleLike()"
+                >
+                    <fa-icon [icon]="this.article.likedByUser ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 19 }"></fa-icon>
+                    <span>&ensp;{{this.article.likeCount}}</span>
+                </a>
 
-            <span class="separator"></span>
+                <!-- Like count - non-clickable -->
+                <!--suppress XmlDuplicatedId <-- this is fine since we *ngIf the other one -->
+                <a class="likes negative" *ngIf="!(loggedInObs | async)">
+                    <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 19 }"></fa-icon>
+                    <span>&ensp;{{this.article.likeCount}}</span>
+                </a>
 
-            <!-- Timestamp -->
-            <span class="date">{{article.createdAt | relativeTime}}</span>
+                <span class="separator"></span>
 
-            <span class="separator"></span>
+                <!-- Timestamp -->
+                <span class="date">{{article.createdAt | relativeTime}}</span>
+            </div>
 
-            <!-- Share button -->
-            <a id="button-share" class="clickable" (click)="copyUrlToClipboard()">
-                <fa-icon [icon]="faCopy" size="2x" [transform]="{ size: 14, y: 1 }"></fa-icon>
-            </a>
+            <div id="icons-right">
+                <!-- Share button -->
+                <a id="button-share" class="clickable" (click)="copyUrlToClipboard()">
+                    <fa-icon [icon]="faCopy" size="2x" [transform]="{ size: 13, y: 0 }"></fa-icon>
+                </a>
 
-             <!-- Update button -->
-            <a id="button-update" class="clickable hover-positive" routerLink="/article/update/{{article.uuid}}" *ngIf="showUpdateButton">
-                 <fa-icon [icon]="faEdit" size="2x" [transform]="{ size: 15 }"></fa-icon>
-            </a>
+                <span class="separator" *ngIf="isLoggedInUsersArticle || isAdmin"></span>
 
-            <!-- Delete button -->
-            <a id="button-delete" class="clickable hover-negative" (click)="deleteArticle()" *ngIf="showUpdateButton">
-                <fa-icon [icon]="faTimes" size="2x" [transform]="{ size: 20 }"></fa-icon>
-            </a>
+                <!-- Update button -->
+                <a id="button-update" class="clickable" routerLink="/article/update/{{article.uuid}}" *ngIf="isLoggedInUsersArticle">
+                    <fa-icon [icon]="faEdit" size="2x" [transform]="{ size: 13, y: 0 }"></fa-icon>
+                </a>
+
+                <!-- Delete button -->
+                <a id="button-delete" class="clickable hover-negative" (click)="deleteArticle()" *ngIf="isLoggedInUsersArticle || isAdmin">
+                    <fa-icon [icon]="faTimes" size="2x" [transform]="{ size: 13 }"></fa-icon>
+                </a>
+
+                <span class="separator" *ngIf="isAdmin"></span>
+
+                <!-- Pin button -->
+                <a
+                    id="button-pin" class="clickable hover-positive"
+                    [style.color]="this.article.isPinned ? 'var(--accent-positive)' : 'var(--body-fg)'"
+                    (click)="togglePin()"
+                    *ngIf="isAdmin"
+                >
+                    <fa-icon [icon]="faThumbtack" size="2x" [transform]="{ size: 14, y: 1, rotate: 45 }"></fa-icon>
+                </a>
+
+            </div>
 
         </div>
 
@@ -52,18 +91,16 @@
     <markdown id="article-content" data="{{article.content}}" [line]="'6, 10-16'" [lineOffset]="5"></markdown>
 
     <!-- Comments section -->
-    <div class="article-comments">
+    <div id="comments">
 
         <!-- Comments title -->
-        <div class="comments-header">
-            <h2>Comments</h2>
-        </div>
+        <h2 id="comments-header">Comments</h2>
 
         <!-- Article reply box -->
-        <app-create-comment [replying]="true" [article]="article"></app-create-comment>
+        <app-create-comment id="article-reply" [article]="article"></app-create-comment>
 
         <!-- Comments list -->
-        <app-article-comments [article]="article"></app-article-comments>
+        <app-article-comments id="root-comments" [article]="article"></app-article-comments>
 
     </div>
 

@@ -2,7 +2,7 @@
 
     <div id="articles-header">
         <!-- Back arrow, if necessary -->
-        <a id="header-search-back" (click)="stopSearch()" *ngIf="showingSearchResults">
+        <a class="clickable hover-neutral" id="header-search-back" (click)="stopSearch()" *ngIf="showingSearchResults">
             <fa-icon [icon]="faArrowLeft" size="2x"></fa-icon>
         </a>
 
@@ -29,13 +29,13 @@
                (focusout)="setShowSearchBar(false)">
 
         <!-- Search icon -->
-        <a id="header-search-icon" *ngIf="!showingMobileSearchBar" (click)="setShowSearchBar(true)">
-            <fa-icon [icon]="faSearch" size="2x"></fa-icon>
+        <a class="clickable hover-neutral" id="header-search-icon" *ngIf="!showingMobileSearchBar" (click)="setShowSearchBar(true)">
+            <fa-icon [icon]="faSearch" size="lg" [transform]="{ size: 21 }"></fa-icon>
         </a>
 
         <!-- New article -->
-        <a id="header-create-btn" (click)="navigateToNewArticle()" *ngIf="allowCreate && !forceNoAllowCreate">
-            <fa-icon [icon]="faPencil" size="2x"></fa-icon>
+        <a id="header-create-btn" class="clickable" (click)="navigateToNewArticle()" *ngIf="allowCreate && !forceNoAllowCreate">
+            <fa-icon [icon]="faPencil" size="lg" [transform]="{ size: 21 }"></fa-icon>
         </a>
     </div>
 
@@ -43,6 +43,12 @@
 
     <div id="articles-main" *ngIf="!showingSearchResults">
         <app-single-article-box *ngFor="let article of articles" [article]="article"></app-single-article-box>
+
+        <span id="next-page" class="clickable" (click)="loadPage()" *ngIf="moreAvailable">
+            <fa-icon [icon]="faArrowDown" [transform]="{ size: 18, y: 1 }"></fa-icon>
+
+            Load More
+        </span>
     </div>
 
     <div id="no-content" *ngIf="articles.length == 0 && !showingSearchResults">

@@ -1,8 +1,8 @@
 package blogify.backend.search.autogen
 
-import blogify.backend.annotations.search.DelegatedSearch
+import blogify.reflect.annotations.search.DelegatedSearch
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.models.PropMap
+import blogify.reflect.models.PropMap
 import blogify.backend.search.models.Template
 
 import kotlin.reflect.KClass
@@ -27,7 +27,6 @@ object AutogenPropertyVisitor {
     fun <R : Resource> visitAndMapProperty(handle: PropMap.PropertyHandle.Ok): Template.Field {
         val property = handle.property
         val propertyClass = property.returnType.classifier as KClass<*>
-        val propertyAnnotations = property.annotations
         val typeAnnotations = property.returnType.annotations
 
         // Is it delegated ?

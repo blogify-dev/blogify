@@ -1,23 +1,72 @@
 <div class="comment" *ngIf="isReady">
 
-    <div class="comment-user">
-        <app-user-display [user]="comment.commenter" info="name" emSize="2.25"></app-user-display>
+    <div class="header">
+        <app-user-display [user]="comment.commenter" info="name" emSize="1.35" sizeRatio="1"></app-user-display>
+
+        <span class="timestamp">{{comment.createdAt | relativeTime}}</span>
     </div>
 
-    <div class="comment-content">
+    <div class="body">
         <markdown class="content-text">{{comment.content}}</markdown>
     </div>
 
-    <div class="comment-buttons">
-        <span class="button-reply" (click)="replyingEnabled = !replyingEnabled">Reply</span>
+    <div class="buttons">
+        <!-- Like count - clickable -->
+        <span class="button like-count clickable negative" *ngIf="loggedInObs | async" (click)="toggleLike()">
+            <fa-icon [icon]="this.comment.likedByUser ? faHeartFilled : faHeartOutline" size="lg" [transform]="{ size: 13, y: 0 }"></fa-icon>
+
+            {{this.comment.likeCount}}
+        </span>
+
+        <!-- Like count - non-clickable -->
+        <span class="button like-count negative" *ngIf="!(loggedInObs | async)">
+            <fa-icon [icon]="faHeartOutline" size="lg" [transform]="{ size: 13, y: 0 }"></fa-icon>
+
+            {{comment.likeCount}}
+        </span>
+
+        <span class="separator"></span>
+
+        <!-- Reply -->
+        <span class="button reply clickable" [ngClass]="{ neutral: replyingEnabled }" (click)="replyingEnabled = !replyingEnabled">
+            <fa-icon [icon]="faCommentAlt" size="lg" [transform]="{ size: 13, y: 0 }"></fa-icon>
+
+            Reply
+        </span>
+
+        <ng-container *ngIf="isLoggedInUsersComment || isAdmin">
+            <span class="separator"></span>
+
+            <span class="button clickable hover-negative" [ngClass]="{ negative: this.isDeleting }" (click)="toggleDeleting()">
+                <fa-icon [icon]="faTrashAlt"></fa-icon>
+
+                Delete
+            </span>
+
+            <span id="delete-confirmation" class="button" *ngIf="this.isDeleting">
+                Are you sure ?
+                &nbsp;
+                <span class="choice clickable hover-negative" (click)="deleteSelf()">Yes</span>
+                &nbsp;/&nbsp;
+                <span class="choice clickable hover-gray" (click)="toggleDeleting()">No</span>
+            </span>
+        </ng-container>
+
     </div>
 
-    <app-create-comment [replying]="replyingEnabled" [comment]="comment"></app-create-comment>
+    <app-create-comment class="reply" *ngIf="replyingEnabled" (replied)="this.replyingEnabled = !this.replyingEnabled" [comment]="comment"></app-create-comment>
 
-    <div *ngIf="comment.children">
-        <div *ngFor="let child of comment.children">
-            <app-single-comment [parent]="comment" [comment]="child"></app-single-comment>
-        </div>
+    <div class="children" *ngIf="this.comment.children.data.length > 0">
+            <app-single-comment
+                [parent]="comment" [comment]="child" (deleted)="handleDeletion(child)"
+                *ngFor="let child of comment.children.data"
+            ></app-single-comment>
     </div>
+
+    <span class="next-page clickable" (click)="loadPage()" *ngIf="this.comment.children.moreAvailable">
+        <fa-icon [icon]="faArrowDown" [transform]="{ size: 18, y: 1, x: -6 }"></fa-icon>
+
+        Load More
+    </span>
 
 </div>

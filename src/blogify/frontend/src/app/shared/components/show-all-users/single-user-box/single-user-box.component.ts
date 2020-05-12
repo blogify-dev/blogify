@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { User } from '../../../../models/User';
+import { User } from '@blogify/models/User';
 import { faCopy } from '@fortawesome/free-regular-svg-icons';
 import { ClipboardService } from 'ngx-clipboard';
-import { StaticContentService } from '../../../../services/static/static-content.service';
+import { StaticContentService } from '@blogify/core/services/static/static-content.service';
 
 @Component({
     selector: 'app-single-user-box',

@@ -1,6 +1,6 @@
 <div class="tab-container">
 
-    <div class="tab {{activatedTab == i ? 'activated' : ''}}" *ngFor="let tab of tabs; let i = index">
+    <div class="tab{{activatedTab == i ? ' activated' : ' clickable'}}" *ngFor="let tab of tabs; let i = index">
 
         <span class="tab-name" routerLink="{{tab.tabRouterLink}}" (click)="activatedTab = i">
             {{tab.tabName}}

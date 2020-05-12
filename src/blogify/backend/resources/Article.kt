@@ -1,16 +1,19 @@
 package blogify.backend.resources
 
-import blogify.backend.annotations.check
-import blogify.backend.annotations.search.*
-import blogify.backend.database.Articles
-import blogify.backend.database.Comments
-import blogify.backend.resources.computed.compound
-import blogify.backend.resources.computed.models.Computed
+import blogify.reflect.annotations.Hidden
+import blogify.backend.annotations.SqlTable
+import blogify.reflect.annotations.check
+import blogify.backend.database.tables.Articles
+import blogify.backend.database.tables.Comments
+import blogify.reflect.computed.compound
 import blogify.backend.resources.models.Resource
-import blogify.backend.database.referredToBy
-
-import com.fasterxml.jackson.annotation.JsonIdentityInfo
-import com.fasterxml.jackson.annotation.ObjectIdGenerators
+import blogify.backend.database.countReferredToBy
+import blogify.backend.events.models.Event
+import blogify.backend.events.models.EventType
+import blogify.backend.resources.models.UserCreatedResource
+import blogify.backend.resources.user.User
+import blogify.reflect.annotations.search.*
+import blogify.reflect.computed.models.Computed
 
 import java.time.Instant
 import java.util.UUID
@@ -25,12 +28,7 @@ import java.util.UUID
  * @property summary    The summary of the article.
  * @property categories The [categories][Article.Category] of the article.
  */
-@JsonIdentityInfo (
-    scope     = Article::class,
-    resolver  = Resource.ObjectResolver::class,
-    generator = ObjectIdGenerators.PropertyGenerator::class,
-    property  = "uuid"
-)
+@SqlTable(Articles::class)
 data class Article (
 
     @QueryByField
@@ -50,9 +48,17 @@ data class Article (
     val categories: @DelegatedSearch List<Category>,
 
     @NoSearch
+    val isPinned: Boolean = false,
+
+    @NoSearch
     override val uuid: UUID = UUID.randomUUID()
 
-) : Resource(uuid) {
+) : UserCreatedResource(uuid) {
+
+    inner class CommentReplyEvent(comment: Comment) : Event(comment.commenter, this, EventType.Notification) {
+        val onArticle = source.uuid
+        val newComment = comment.uuid
+    }
 
     /**
      * Represents the categories of an [Article].
@@ -61,10 +67,20 @@ data class Article (
      */
     data class Category(@DelegatedSearchReceiver val name: String)
 
-    @[Computed NoSearch]
-    val likeCount by compound { Articles.uuid referredToBy Articles.Likes.article }
+    @Hidden
+    override val creator = createdBy
 
-    @[Computed NoSearch]
-    val commentCount by compound { Articles.uuid referredToBy Comments.article }
+    // The notification target of an article is always it's author
+    @Hidden
+    override val targets = setOf(createdBy)
+
+    @Computed
+    val likeCount by compound { Articles.uuid countReferredToBy Articles.Likes.article }
+
+    @Computed
+    val commentCount by compound { Articles.uuid countReferredToBy Comments.article }
+
+    override fun equals(other: Any?) = super.equals(other)
+    override fun hashCode() = super.hashCode()
 
 }

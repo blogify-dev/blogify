@@ -27,3 +27,10 @@
     justify-content: space-between;
     align-items:            center;
 }
+
+@mixin flex($direction: 'row', $align-main: 'flex-start', $align-cross: 'center') {
+    display: flex;
+    flex-direction: $direction;
+    justify-content: $align-main;
+    align-items: $align-cross;
+}

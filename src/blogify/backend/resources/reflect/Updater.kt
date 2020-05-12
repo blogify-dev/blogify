@@ -1,79 +1,71 @@
 package blogify.backend.resources.reflect
 
-import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.models.PropMap
-import blogify.backend.resources.reflect.models.ext.ok
+import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.util.Sr
-import blogify.backend.util.service
-import blogify.backend.util.toUUID
+import blogify.reflect.unsafePropMap
+import blogify.backend.resources.models.Resource
 
-import java.lang.Exception
+import blogify.reflect.models.Mapped
+import blogify.reflect.models.PropMap
+import blogify.reflect.models.extensions.ok
+import blogify.reflect.slice
+
 import java.util.UUID
 
-import com.andreapivetta.kolor.yellow
-
-import org.slf4j.LoggerFactory
-
 import kotlin.reflect.KClass
-import kotlin.reflect.full.createType
-import kotlin.reflect.full.functions
-import kotlin.reflect.full.isSubtypeOf
-
-private val logger = LoggerFactory.getLogger("blogify-datamap-updater")
 
 /**
  * Updates a [Resource] using a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
  *
- * @param R       the class associated with [target]
- * @param target  the [Resource] to update
+ * @receiver the [Resource] to update
+ *
+ * @param R       the class associated with [this]
  * @param rawData a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
  *
- * @return an updated instance of [R] with all new data from [rawData], but the same unchanged data from [target]
+ * @return an updated instance of [R] with all new data from [rawData], but the same unchanged data from [this]
  *
  * @author Benjozork
  */
-suspend fun <R : Resource> update(target: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R> {
+suspend fun <R : Mapped> R.update (
+    rawData: Map<PropMap.PropertyHandle.Ok, Any?>,
+    fetcher: suspend (KClass<Resource>, UUID) -> Sr<Resource>
+): Sr<R> {
 
-    val targetPropMap = target.cachedUnsafePropMap() // Get unsafe handles too
-    val targetCopyFunction = target::class.functions.first { it.name == "copy" }
+    val targetPropMap = this.unsafePropMap // Get unsafe handles too
 
-    // Make paramMap for unchanged properties
+    // Find parameters we are not changing
+    val notUpdatedParameters = (targetPropMap.ok.values subtract rawData.keys)
 
-    val notUpdatedParameterMap = (targetPropMap.ok().values subtract rawData.keys)
-        .associateWith { targetCopyFunction.parameters.first { p -> p.name == it.name } }
-        .map { it.value to it.key.property.get(target) }
+    // Find parameters we are changing
+    val updatedParameters = (targetPropMap.ok.values intersect rawData.keys)
 
-    // Make paramMap for changed properties
+    // Find the values of the unchanged params
+    val unchangedValues = this
+        .slice(notUpdatedParameters.map { it.name }.toSet(), unsafe = true)
+        .filter { !it.key.startsWith('_') }
+        .mapKeys { targetPropMap.ok[it.key] ?: error("fatal: unknown propHandle slipped in !") }
 
-    val updatedParameterMap = (targetPropMap.ok().values intersect rawData.keys)
-        .associateWith { targetCopyFunction.parameters.first { p -> p.name == it.name } }
-        .map { it.value to rawData[it.key] }
-        .map { (k ,v) -> // Do some known obvious conversions
-            when {
-                k.type.isSubtypeOf(Resource::class.createType()) -> { // KType of property is subtype of Resource
-                    @Suppress("UNCHECKED_CAST")
-                    val keyResourceType = k.type.classifier as KClass<Resource>
-                    val valueUUID = (v as String).toUUID()
-                    k to keyResourceType.service.get(id = valueUUID).get()
-                }
-                k.type.isSubtypeOf(UUID::class.createType()) -> { // KType of property is subtype of UUID
-                    k to (v as String).toUUID()
-                }
-                else -> k to v
-            }
-        }
+    // Find the values of the changed params
+    val changedValues = updatedParameters
+        .associateWith { rawData[it] }
 
-    val completeData =
-        (notUpdatedParameterMap + updatedParameterMap + (targetCopyFunction.parameters.first() to target)).toMap()
-
-    logger.trace("attempting with paramMap: ${completeData.map { "${it.key.name}: ${it.value!!::class.simpleName}" }}".yellow())
-    logger.trace("function wants paramMap: ${targetCopyFunction.parameters.map { "${it.name}: ${it.type.classifier}" } }".yellow())
-
-    return Sr.of<R, Exception> {
-        @Suppress("UNCHECKED_CAST")
-        targetCopyFunction.callBy (
-            completeData
-        ) as R
-    }
+    return this::class.doInstantiate(unchangedValues + changedValues, fetcher)
 
 }
+
+/**
+ * Updates a [Resource] using a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
+ *
+ * @receiver the [Resource] to update
+ *
+ * @param R       the class associated with [this]
+ * @param rawData a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
+ *
+ * @return an updated instance of [R] with all new data from [rawData], but the same unchanged data from [this]
+ *
+ * @author Benjozork
+ */
+suspend fun <R : Mapped> R.update (
+    rawData: Map<PropMap.PropertyHandle.Ok, Any?>,
+    requestContext: RequestContext
+): Sr<R> = update(rawData) { klass, uuid -> requestContext.repository(klass).get(id = uuid) }
