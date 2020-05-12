@@ -1,12 +1,11 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm")
 }
 
 group = "blogify"
 version = "0.1.0"
-
-kotlin.sourceSets["main"].kotlin.srcDirs("src")
-kotlin.sourceSets["test"].kotlin.srcDirs("test")
 
 repositories {
     mavenCentral()
@@ -31,18 +30,25 @@ dependencies {
 
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
-
     // Testing
 
-    testCompile("org.junit.jupiter", "junit-jupiter-api", "5.5.2")
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.5.2")
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.5.2")
 }
 
+kotlin.sourceSets["main"].kotlin.srcDirs("src")
+kotlin.sourceSets["test"].kotlin.srcDirs("test")
+
 tasks {
-    compileKotlin {
+    withType<KotlinCompile>().configureEach {
         kotlinOptions.jvmTarget = "1.8"
     }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+
+    withType<Test>().configureEach {
+        useJUnitPlatform()
+
+        testLogging {
+            events("passed", "skipped", "failed")
+        }
     }
 }

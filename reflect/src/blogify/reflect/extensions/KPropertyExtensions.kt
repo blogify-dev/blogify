@@ -10,7 +10,6 @@ import kotlin.reflect.KProperty1
 
 import com.andreapivetta.kolor.red
 
-
 @Suppress("UNCHECKED_CAST")
 private val <TClass : Any> KProperty1<TClass, *>.klass: KClass<out TClass> get() =
     this.getter.parameters.first().type.classifier as? KClass<out TClass> ?: error("can't get class of type projection".red())

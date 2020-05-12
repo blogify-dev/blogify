@@ -3,6 +3,8 @@ package blogify.reflect
 import blogify.reflect.annotations.Hidden
 import blogify.reflect.annotations.check
 import blogify.reflect.computed.models.Computed
+import blogify.reflect.computed.models.ComputedPropContainer
+import blogify.reflect.extensions.subTypeOf
 
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.Identified
@@ -40,29 +42,18 @@ private fun <M : Mapped> KClass<M>.buildPropMap(unsafe: Boolean = false): PropMa
             if ((self.findAnnotation<Hidden>() != null || self.visibility != KVisibility.PUBLIC) && !unsafe) {
                 PropMap.PropertyHandle.AccessDenied(name)
             } else {
-                if (self.findAnnotation<Computed>() != null) {
-                    if (!this.isSubclassOf(Identified::class))
-                        error("@Computed property can only appear on classes extending Resource")
+                if (self.findAnnotation<Computed>() != null || self.returnType subTypeOf ComputedPropContainer::class) {
+                    if (self.findAnnotation<Computed>() != null && !this.isSubclassOf(Identified::class))
+                        error("@Computed properties can only appear on classes implementing Identified")
 
-                    PropMap.PropertyHandle.Computed(
-                        name,
-                        self as KProperty1<Any, Any>
-                    )
+                    PropMap.PropertyHandle.Computed(name, self as KProperty1<Any, Any>)
                 } else {
                     if (self.returnType.findAnnotation<check>() != null) {
                         val regex = Regex(self.returnType.findAnnotation<check>()!!.pattern)
 
-                        PropMap.PropertyHandle.Ok(
-                            name,
-                            regex,
-                            self as KProperty1<Any, Any>
-                        )
+                        PropMap.PropertyHandle.Ok(name, regex, self as KProperty1<Any, Any>)
                     } else {
-                        PropMap.PropertyHandle.Ok(
-                            name,
-                            null,
-                            self as KProperty1<Any, Any>
-                        )
+                        PropMap.PropertyHandle.Ok(name, null, self as KProperty1<Any, Any>)
                     }
                 }
             }
@@ -93,15 +84,16 @@ private val unsafePropMapCache: MutableMap<KClass<*>, PropMap> = mutableMapOf()
  *
  * @author Benjozork
  */
-fun <M : Mapped> M.propMap(): PropMap {
-    var cached: PropMap? = propMapCache[this::class]
-    if (cached == null) {
-        cached = this::class.buildPropMap()
-        propMapCache[this::class] = cached
-    }
+val <M : Mapped> M.propMap: PropMap
+    get() {
+        var cached: PropMap? = propMapCache[this::class]
+        if (cached == null) {
+            cached = this::class.buildPropMap()
+            propMapCache[this::class] = cached
+        }
 
-    return cached
-}
+        return cached
+    }
 
 /**
  * Fetches (or computes if the class is not in the cache) a [property map][PropMap] for the receiver [KClass]

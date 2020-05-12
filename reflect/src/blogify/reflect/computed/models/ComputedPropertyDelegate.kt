@@ -7,6 +7,7 @@ import kotlin.reflect.KProperty
 
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
+@Deprecated("Please use new computed properties instead.")
 annotation class Computed
 
 abstract class ComputedPropertyDelegate<A : Any> : ReadOnlyProperty<Identified, A> {

@@ -51,7 +51,8 @@ class PropMap(val map: Map<String, PropertyHandle>): Iterable<Map.Entry<String, 
          *
          * @author Benjozork
          */
-        class Ok(name: String, val regexCheck: Regex?, override val property: KProperty1<Any, Any>): PropertyHandle(name),
+        class Ok(name: String, val regexCheck: Regex?, override val property: KProperty1<Any, Any>):
+            PropertyHandle(name),
             Valid
 
         /**
@@ -63,7 +64,8 @@ class PropMap(val map: Map<String, PropertyHandle>): Iterable<Map.Entry<String, 
          *
          * @author Benjozork
          */
-        class Computed(name: String, override val property: KProperty1<Any, Any>): PropertyHandle(name),
+        class Computed(name: String, override val property: KProperty1<Any, Any>):
+            PropertyHandle(name),
             Valid
 
         /**

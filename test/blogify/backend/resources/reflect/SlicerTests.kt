@@ -75,7 +75,7 @@ class SlicerTests {
             BadMappedTestClass::class.propMap
         }
 
-        assertEquals("@Computed property can only appear on classes extending Resource", exception.message)
+        assertEquals("@Computed properties can only appear on classes implementing Identified", exception.message)
     }
 
 }
