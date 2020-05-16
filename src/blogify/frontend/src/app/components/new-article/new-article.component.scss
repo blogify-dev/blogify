@@ -104,6 +104,12 @@
             margin-right: .7em;
             height: 100%;
         }
+
+        #__categories_row_drafts {
+            margin-left: auto;
+
+            font-weight: bold;
+        }
     }
 
     #submit-row {
@@ -147,20 +153,8 @@
             margin-top: .75rem;
         }
 
-        &:not(:last-of-type) > span:first-child {
-            width: 40%;
-
-            font-size: 1.5em;
-
-            @media (max-width: $query-desktop) {
-                font-size: 1.6em;
-                margin-bottom: .5em;
-            }
-        }
-
         & input:last-child,
         & textarea:last-child {
-
             font-size: 1em;
             font-weight: bold;
 
@@ -175,24 +169,39 @@
         flex-direction:  row;
         justify-content: space-between;
         align-items:     center;
-
-        @media (max-width: $query-desktop) {
-            flex-direction:  column;
-            align-items:     stretch;
-        }
     }
 
 }
 
 // Copied from single-article-box
 .drafts {
-    @include pageContainer(true, 80%);
-    .draft {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
 
-        display:         flex;
-        flex-direction:  column;
+    #__drafts_go_back {
+        align-self: flex-start;
+
+        display: flex;
+        flex-direction: row;
+
+        font-size: 1.75em;
+        font-weight: bold;
+
+        fa-icon {
+            margin-right: .75em;
+        }
+
+        margin-top: .8em;
+    }
+
+    @include pageContainer(true, 80%);
+
+    .draft {
+        display: flex;
+        flex-direction: column;
         justify-content: center;
-        align-items:     flex-start;
+        align-items: flex-start;
 
         color: var(--card-fg);
         background: var(--card-bg);
@@ -231,10 +240,6 @@
                 font-size: 1.9em;
                 text-align: left;
                 padding: 0;
-            }
-
-            .author {
-                margin-left: auto;
             }
 
         }
@@ -279,24 +284,6 @@
             flex-wrap: wrap;
             row-gap: 1.4em;
 
-            $element-separation: 1.5rem;
-            .separator {
-                margin-left: $element-separation !important;
-            }
-            a {
-                display:         flex;
-                flex-direction:  row;
-                justify-content: space-between;
-                align-items:     center;
-
-                fa-icon:first-child { margin-right: .7rem; }
-
-                span { font-size: 1.4rem }
-                font-weight: 600;
-
-                &:not(:first-child) { margin-left: $element-separation; }
-            }
-
             .tags {
                 display: flex;
                 flex-wrap: wrap;
@@ -316,6 +303,17 @@
                     &:last-child { margin-right: 0; }
                 }
             }
+
+            .__draft_box__delete {
+                font-weight: bold;
+
+                fa-icon {
+                    margin-right: .35em;
+                }
+            }
+
         }
+
     }
+
 }

@@ -6,8 +6,9 @@ import { StaticFile } from '@blogify/models/Static';
 import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import {faPlus, faArrowLeft, faTrash} from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
+import {faTrashAlt} from "@fortawesome/free-regular-svg-icons";
 
 type Result = 'none' | 'success' | 'error';
 
@@ -20,12 +21,15 @@ export class NewArticleComponent implements OnInit {
 
     faPlus = faPlus;
 
+    faArrowLeft = faArrowLeft;
+    faTrashAlt = faTrashAlt;
+
     article: Article = new Article (
         '',
         '',
         '',
         '',
-        new User('', '', '', '', [], false, '', new StaticFile('-1'), new StaticFile('-1')),
+        new User('', '', '', '', [], false, '', { profilePicture: new StaticFile('-1'), coverPicture: new StaticFile('-1') }),
         Date.now(),
         false,
         []
@@ -119,7 +123,17 @@ export class NewArticleComponent implements OnInit {
         localStorage.setItem('drafts', JSON.stringify(parsed));
     }
 
+    deleteDraft(index: number) {
+        const parsed = this.getAllDrafts();
+
+        parsed.splice(index, 1)
+
+        localStorage.setItem('drafts', JSON.stringify(parsed))
+    }
+
     addCategory(input: HTMLInputElement) {
+        if (input.value.trim() === '') return;
+
         this.formCategories.push(new FormControl(input.value));
         input.value = '';
     }

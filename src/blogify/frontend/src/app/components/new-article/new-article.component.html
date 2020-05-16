@@ -8,8 +8,13 @@
         </span>
 
         <input type="text" id="new-category-input" (keydown.enter)="addCategory($event.target)" />
-        <span style="flex: 1 1 auto"></span>
-        <span (click)="toggleShowDrafts()">Drafts</span>
+
+        <span
+                class="clickable text-medium"
+                id="__categories_row_drafts"
+                (click)="toggleShowDrafts()">
+            Drafts
+        </span>
     </div>
 
     <span class="data-row" id="title-row">
@@ -36,7 +41,13 @@
 </div>
 
 <div class="drafts" *ngIf="user != undefined && showingDrafts">
-    <div class="draft" *ngFor="let article of getAllDrafts()" (click)="editDraft(article)">
+    <span class="clickable" id="__drafts_go_back" (click)="this.toggleShowDrafts()">
+        <fa-icon [icon]="faArrowLeft" size="lg"></fa-icon>
+
+        Go back
+    </span>
+
+    <div class="draft" *ngFor="let article of getAllDrafts(); let i = index" (click)="editDraft(article)">
 
         <div class="first-line clickable no-highlight">
 
@@ -59,6 +70,14 @@
             <div class="tags" *ngIf="article.categories.length > 0">
                 <span *ngFor="let tag of article.categories">{{tag.name}}</span>
             </div>
+
+            <!-- Delete button -->
+
+            <span class="__draft_box__delete text-large clickable hover-negative" (click)="deleteDraft(i)">
+                <fa-icon [icon]="faTrashAlt"></fa-icon>
+
+                Delete
+            </span>
         </div>
 
     </div>
