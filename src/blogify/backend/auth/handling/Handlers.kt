@@ -70,6 +70,32 @@ suspend fun RequestContext.maybeAuthenticated (
 /**
  * Allows to wrap a call-handling block into authentication.
  *
+ * If [predicate] is null, authentication will not be performed with the only condition being valid identity,
+ * and the block will be run with null as parameter.
+ * If [predicate] is *not* null, authentication will be performed using the predicate and the block will be run
+ * with the authenticated user as parameter.
+ *
+ * @param predicate the predicate used as a check for authentication
+ * @param block     the call handling block that is run if the check succeeds
+ *
+ * @author Benjozork
+ */
+@PipelinesDsl
+suspend fun RequestContext.optionallyAuthenticated (
+    predicate: UserAuthPredicate? = { true },
+    block: RequestContextFunction<User?>
+) {
+    if (call.request.headers["Authorization"] != null) {
+         maybeAuthenticated(predicate, block)
+    } else {
+        this.execute(block, null)
+    }
+}
+
+
+/**
+ * Allows to wrap a call-handling block into authentication.
+ *
  * If [predicate] is null, authentication will be performed with the only condition being valid identity,
  * and the block will be run with the authenticated user as parameter.
  * If [predicate] is *not* null, authentication will be performed using the predicate and the block will be run
