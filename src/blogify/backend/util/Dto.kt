@@ -1,6 +1,7 @@
 package blogify.backend.util
 
 import blogify.backend.appContext
+import blogify.reflect.Dto
 import blogify.reflect.propMap
 import blogify.reflect.unsafePropMap
 import blogify.reflect.models.Mapped
@@ -10,8 +11,6 @@ import blogify.reflect.models.extensions.ok
 import com.fasterxml.jackson.module.kotlin.readValue
 
 import kotlin.reflect.KClass
-
-typealias Dto = Map<String, Any?>
 
 /**
  * Attempts to parse a string into a [Dto]
