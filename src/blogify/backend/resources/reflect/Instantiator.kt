@@ -125,6 +125,9 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
                         val valueString = objectMapper.writeValueAsString(value)
                         val valueMap = objectMapper.readValue<Map<String, Any?>>(valueString)
 
+                        /* TODO make sure we can handle those sealed classes without hard-coding them.
+                           Maybe emit class FQN ? */
+
                         parameter to when {
                             valueMap.containsKey("metadata") -> {
                                 objectMapper.readValue<StaticFile.Ok.Image>(valueString)
