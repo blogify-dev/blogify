@@ -6,8 +6,6 @@ abstract class ComputedPropContainer <TMapped : Mapped, TProperty : Any?> {
 
     abstract val obj: TMapped
 
-    abstract var resolved: TProperty?
-
     var resolution: Resolution = Resolution.Unresolved
 
     var wasResolveAttempted = false
