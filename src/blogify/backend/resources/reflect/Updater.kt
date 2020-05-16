@@ -4,6 +4,7 @@ import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.util.Sr
 import blogify.reflect.unsafePropMap
 import blogify.backend.resources.models.Resource
+import blogify.reflect.MappedData
 
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
@@ -27,7 +28,7 @@ import kotlin.reflect.KClass
  * @author Benjozork
  */
 suspend fun <R : Mapped> R.update (
-    rawData: Map<PropMap.PropertyHandle.Ok, Any?>,
+    rawData: MappedData,
     fetcher: suspend (KClass<Resource>, UUID) -> Sr<Resource>
 ): Sr<R> {
 
@@ -49,7 +50,7 @@ suspend fun <R : Mapped> R.update (
     val changedValues = updatedParameters
         .associateWith { rawData[it] }
 
-    return this::class.doInstantiate(unchangedValues + changedValues, fetcher)
+    return this::class.construct(unchangedValues + changedValues, fetcher)
 
 }
 
@@ -66,6 +67,6 @@ suspend fun <R : Mapped> R.update (
  * @author Benjozork
  */
 suspend fun <R : Mapped> R.update (
-    rawData: Map<PropMap.PropertyHandle.Ok, Any?>,
+    rawData: MappedData,
     requestContext: RequestContext
 ): Sr<R> = update(rawData) { klass, uuid -> requestContext.repository(klass).get(id = uuid) }

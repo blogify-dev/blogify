@@ -1,7 +1,7 @@
 package blogify.backend.search.models
 
 import blogify.backend.search.Typesense
-import blogify.backend.util.Dto
+import blogify.reflect.Dto
 
 /**
  * Models for sending processed [Typesense] search results to a client

@@ -16,7 +16,7 @@ object BlogifyApplicationBootstrapper {
 
     private val logger = LoggerFactory.getLogger("blogify-application-bootstrapper")
 
-    private const val version = "0.3.0-preRelease"
+    private const val version = "0.4.0-preRelease"
 
     @Suppress("GrazieInspection")
     private val asciiLogo = """

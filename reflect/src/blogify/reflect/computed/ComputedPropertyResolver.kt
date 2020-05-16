@@ -10,10 +10,51 @@ import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.valid
 import blogify.reflect.propMap
 
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+
+/**
+ * Asynchronously evaluates the computed properties of [instance] and puts the value inside the [container][ComputedPropContainer] of each property.
+ *
+ * @param instance         the [mapped object][Mapped] to work on
+ * @param coroutineContext a custom [CoroutineContext] to use for starting the resolution jobs
+ * @param customResolver   a function that can handle custom subclasses of [ComputedPropContainer] if a library-provided subclass isn't used.
+ *
+ * @return a map of [valid handles][PropMap.PropertyHandle.Valid] to [their container instances][ComputedPropContainer].
+ *
+ * @author Benjozork
+ */
+suspend fun <TMapped : Mapped> resolveComputedPropsAsync (
+    instance: TMapped,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    customResolver: (ComputedPropContainer<TMapped, *>) -> Any? =
+        { error("unknown computed property container was found, but no custom resolver was provided") }
+): Map<PropMap.PropertyHandle.Valid, ComputedPropContainer<TMapped, Any>> {
+    // Find all prop containers in instance
+    val allPropContainers = findAllPropContainers(instance)
+
+    val containerJobs = allPropContainers.map { (_, container) ->
+        GlobalScope.async(coroutineContext) { doResolveComputedProperty(instance, container, customResolver) }
+    }
+
+    val completedJobs = containerJobs.awaitAll()
+
+    val containersAndValues = (allPropContainers.entries zip completedJobs)
+
+    return containersAndValues.mapNotNull { (handleAndContainer, value) ->
+        val (handle, container) = handleAndContainer
+
+        container.resolution = ComputedPropContainer.Resolution.Value(value)
+
+        if (value != null)
+            handle to container
+        else null
+    }.toMap()
+}
+
 /**
  * Evaluates the computed properties of [instance] and puts the value inside the [container][ComputedPropContainer] of each property.
- *
- * This process is NOT thread-safe. This should only be called once during the lifetime of [instance].
  *
  * @param instance       the [mapped object][Mapped] to work on
  * @param customResolver a function that can handle custom subclasses of [ComputedPropContainer] if a library-provided subclass isn't used.
@@ -74,7 +115,7 @@ private fun <TMapped : Mapped> doResolveComputedProperty (
     customResolver: (ComputedPropContainer<TMapped, *>) -> Any?
 ): Any? {
     return when (container) {
-        is BasicComputedProperty<TMapped, *> -> container.function(instance)
+        is BasicComputedProperty<TMapped, *> -> container.function()
         else -> customResolver(container)
     }
 }

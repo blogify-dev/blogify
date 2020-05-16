@@ -7,6 +7,7 @@ import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
 import blogify.reflect.sanitize
 import blogify.backend.util.*
+import blogify.reflect.Dto
 
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

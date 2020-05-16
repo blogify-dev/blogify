@@ -20,7 +20,7 @@ plugins {
 }
 
 group   = "blogify"
-version = "0.1.0"
+version = "0.4.0"
 
 application {
     mainClassName = "blogify.backend.bootstrap.BlogifyApplicationBootstrapper"

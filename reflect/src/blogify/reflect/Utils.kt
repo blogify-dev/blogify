@@ -1,5 +1,7 @@
 package blogify.reflect
 
+import blogify.reflect.models.PropMap
+
 fun <K : Any, V : Any, R : Any> Map<K, V>.filterThenMapValues (
     predicate: (V) -> Boolean,
     mapper:    (Map.Entry<K, V>) -> R
@@ -9,3 +11,4 @@ fun <K : Any, V : Any, R : Any> Map<K, V>.filterThenMapValues (
 
 typealias Dto = Map<String, Any?>
 
+typealias MappedData = Map<PropMap.PropertyHandle.Ok, Any?>

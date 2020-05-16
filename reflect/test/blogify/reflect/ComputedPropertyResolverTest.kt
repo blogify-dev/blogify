@@ -25,11 +25,7 @@ class ComputedPropertyResolverTest {
 
     class CustomContainer<TMapped : Mapped> (
         override val obj: TMapped
-    ) : ComputedPropContainer<TMapped, String>() {
-
-        override var resolved: String? = null
-
-    }
+    ) : ComputedPropContainer<TMapped, String>()
 
     @Test fun should_throw_an_error_given_custom_container_without_providing_a_custom_resolver() {
         val testObject = object : Mapped() {

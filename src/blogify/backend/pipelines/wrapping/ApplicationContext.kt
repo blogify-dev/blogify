@@ -5,7 +5,7 @@ import blogify.backend.persistence.models.DataStore
 import blogify.backend.resources.models.Resource
 import blogify.backend.persistence.models.Repository
 import blogify.backend.push.PushServer
-import blogify.backend.resources.reflect.doInstantiate
+import blogify.backend.resources.reflect.construct
 import blogify.backend.resources.reflect.extensions.sanitizeToString
 import blogify.backend.resources.user.UserSettings
 import blogify.backend.util.parseJsonHandleMap
@@ -31,7 +31,7 @@ class ApplicationContext (
 
     /**
      * Creates an implementation of [Jsonb.Converter] for [T], using [Mapped.sanitizeToString] for serialization
-     * and [blogify.backend.resources.reflect.doInstantiate] for deserialization
+     * and [blogify.backend.resources.reflect.construct] for deserialization
      *
      * @author Benjozork
      */
@@ -41,7 +41,7 @@ class ApplicationContext (
         override fun deserializer(source: String): T = runBlocking {
             val params = source.parseJsonHandleMap(UserSettings::class).get()
 
-            T::class.doInstantiate (
+            T::class.construct (
                 params = params,
                 externalFetcher = { klass, id -> appContext.repository(klass).get(id = id) }
             ).get()

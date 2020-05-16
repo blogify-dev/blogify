@@ -85,7 +85,7 @@ object Users : ResourceTable<User>() {
 
     override suspend fun convert(requestContext: RequestContext, source: ResultRow) =
         SuspendableResult.of<User, Repository.Exception.Fetching> {
-            User(
+            User (
                 uuid = source[uuid],
                 username = source[username],
                 password = source[password],

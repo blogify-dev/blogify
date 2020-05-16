@@ -4,7 +4,7 @@ import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_MESSAGE
 import blogify.backend.push.notifications.SubscribeToNotifications
 import blogify.backend.resources.user.User
-import blogify.backend.resources.reflect.doInstantiate
+import blogify.backend.resources.reflect.construct
 import blogify.reflect.propMap
 import blogify.reflect.models.extensions.ok
 import blogify.backend.routing.closeAndExit
@@ -89,7 +89,7 @@ class PushServer(val appContext: ApplicationContext) {
 
             val noConnectionHandleMessage = "fatal: no connection property on class ${receivedClass.simpleName}".red()
 
-            val receivedMessage = receivedClass.doInstantiate (
+            val receivedMessage = receivedClass.construct (
                     params = bodyPayload,
                     externallyProvided = setOf(receivedClass.propMap.ok["connection"] ?: error(noConnectionHandleMessage))
                 ).getOr {
