@@ -11,6 +11,7 @@ import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 import blogify.backend.util.SrList
 import blogify.backend.util.getOrPipelineError
+import blogify.reflect.MappedData
 
 import org.jetbrains.exposed.sql.*
 
@@ -48,7 +49,7 @@ open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repos
 
     override suspend fun add(res: R): Sr<R> = this.table.insert(res)
 
-    override suspend fun update(request: RequestContext, res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R> {
+    override suspend fun update(request: RequestContext, res: R, rawData: MappedData): Sr<R> {
         val new = res.update (
             rawData,
             fetcher = { type, uuid -> request.repository(type).get(request, uuid) }

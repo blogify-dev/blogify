@@ -2,6 +2,7 @@ package blogify.backend.util
 
 import blogify.backend.appContext
 import blogify.reflect.Dto
+import blogify.reflect.MappedData
 import blogify.reflect.propMap
 import blogify.reflect.unsafePropMap
 import blogify.reflect.models.Mapped
@@ -27,7 +28,7 @@ fun String.toDto(): Dto? =
  *
  * @author Benjozork
  */
-fun <TMapped : Mapped> Dto.mappedByHandles(klass: KClass<TMapped>, unsafe: Boolean = false): Sr<Map<PropMap.PropertyHandle.Ok, Any?>> {
+fun <TMapped : Mapped> Dto.mappedByHandles(klass: KClass<TMapped>, unsafe: Boolean = false): Sr<MappedData> {
     return WrapBlocking { this.map { (key, value) ->
         ((if (!unsafe) klass.propMap else klass.unsafePropMap())
             .ok.values
@@ -43,6 +44,6 @@ fun <TMapped : Mapped> Dto.mappedByHandles(klass: KClass<TMapped>, unsafe: Boole
  *
  * @author Benjozork
  */
-fun <TMapped : Mapped> String.parseJsonHandleMap(klass: KClass<TMapped>): Sr<Map<PropMap.PropertyHandle.Ok, Any?>> {
+fun <TMapped : Mapped> String.parseJsonHandleMap(klass: KClass<TMapped>): Sr<MappedData> {
     return WrapBlocking { this.toDto()?.mappedByHandles(klass)!!.get() }
 }

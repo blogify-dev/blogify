@@ -4,6 +4,7 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.search.models.Template
 import blogify.backend.util.*
+import blogify.reflect.MappedData
 import blogify.reflect.unsafePropMap
 import blogify.reflect.extensions.isPrimitive
 import blogify.reflect.extensions.subTypeOf
@@ -70,7 +71,7 @@ private val objectMapper = jacksonObjectMapper().apply {
  */
 @Suppress("UNCHECKED_CAST")
 suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
-    params:             Map<PropMap.PropertyHandle.Ok, Any?>,
+    params:             MappedData,
     externalFetcher:    suspend (KClass<Resource>, UUID) -> Sr<Any> = { _, _ -> error(noExternalFetcherMessage) },
     externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
 ): Sr<TMapped> {

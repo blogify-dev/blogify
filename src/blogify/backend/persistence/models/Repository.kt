@@ -4,6 +4,7 @@ import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
 import blogify.backend.util.*
+import blogify.reflect.MappedData
 import blogify.reflect.models.PropMap
 import blogify.reflect.extensions.okHandle
 
@@ -90,7 +91,7 @@ interface Repository<R : Resource> {
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun update(request: RequestContext, res: R, rawData: Map<PropMap.PropertyHandle.Ok, Any?>): Sr<R>
+    suspend fun update(request: RequestContext, res: R, rawData: MappedData): Sr<R>
 
     /**
      * Updates an instance of [R] in the database
