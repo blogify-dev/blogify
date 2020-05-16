@@ -10,7 +10,7 @@ import blogify.reflect.models.Mapped
  *
  * @author Benjozork
  */
-abstract class ComputedPropContainer <TMapped : Mapped, TProperty : Any?> {
+abstract class ComputedPropContainer<TMapped : Mapped, TProperty : Any?> {
 
     abstract val obj: TMapped
 
