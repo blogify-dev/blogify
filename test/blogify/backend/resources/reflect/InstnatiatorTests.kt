@@ -79,7 +79,7 @@ class InstantiatorTests {
 
     @Test fun `instantiate should create object correctly with external fetching`() {
         runBlocking {
-            val propHandleDto = otherTestData.mappedByHandles(OtherTestClass::class, unsafe = true).getOr { never }
+            val propHandleDto = otherTestData.mappedByHandles(OtherTestClass::class, unsafe = true).assertGet()
             val newInstance = OtherTestClass::class.doInstantiate(propHandleDto, { _, _ -> Wrap { testObjectForOther } })
 
             assertEquals(otherTestObject, newInstance.get())
