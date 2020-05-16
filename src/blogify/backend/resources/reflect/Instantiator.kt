@@ -69,9 +69,9 @@ private val objectMapper = jacksonObjectMapper().apply {
  * @author Benjozork
  */
 @Suppress("UNCHECKED_CAST")
-suspend fun <TMapped : Mapped> KClass<out TMapped>.doInstantiate (
+suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
     params:             Map<PropMap.PropertyHandle.Ok, Any?>,
-    externalFetcher: suspend (KClass<Resource>, UUID) -> Sr<Any> = { _, _ -> error(noExternalFetcherMessage) },
+    externalFetcher:    suspend (KClass<Resource>, UUID) -> Sr<Any> = { _, _ -> error(noExternalFetcherMessage) },
     externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
 ): Sr<TMapped> {
 

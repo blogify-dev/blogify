@@ -34,7 +34,7 @@ class InstantiatorTests {
     @Test fun `instantiate should create object correctly`() {
         runBlocking {
             val propHandleDto = testData.mappedByHandles(TestClass::class, unsafe = true).getOr { never }
-            val newInstance = TestClass::class.doInstantiate(propHandleDto)
+            val newInstance = TestClass::class.construct(propHandleDto)
 
             assertEquals(testObject, newInstance.get())
         }
@@ -53,7 +53,7 @@ class InstantiatorTests {
     @Test fun `instantiate should create object correctly while omitting values for default properties`() {
         runBlocking {
             val propHandleDto = testDataNoAge.mappedByHandles(TestClass::class, unsafe = true).getOr { never }
-            val newInstance = TestClass::class.doInstantiate(propHandleDto)
+            val newInstance = TestClass::class.construct(propHandleDto)
 
             assertEquals(testObjectDefaultAge, newInstance.get())
         }
@@ -80,7 +80,7 @@ class InstantiatorTests {
     @Test fun `instantiate should create object correctly with external fetching`() {
         runBlocking {
             val propHandleDto = otherTestData.mappedByHandles(OtherTestClass::class, unsafe = true).assertGet()
-            val newInstance = OtherTestClass::class.doInstantiate(propHandleDto, { _, _ -> Wrap { testObjectForOther } })
+            val newInstance = OtherTestClass::class.construct(propHandleDto, { _, _ -> Wrap { testObjectForOther } })
 
             assertEquals(otherTestObject, newInstance.get())
         }

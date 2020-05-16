@@ -49,7 +49,7 @@ suspend fun <R : Mapped> R.update (
     val changedValues = updatedParameters
         .associateWith { rawData[it] }
 
-    return this::class.doInstantiate(unchangedValues + changedValues, fetcher)
+    return this::class.construct(unchangedValues + changedValues, fetcher)
 
 }
 

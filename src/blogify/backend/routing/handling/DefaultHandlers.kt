@@ -48,10 +48,10 @@ import blogify.backend.resources.reflect.*
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.util.*
-import blogify.reflect.propMap
-import blogify.reflect.sanitize
-import blogify.reflect.slice
-import blogify.reflect.verify
+import blogify.backend.util.filterThenMapValues
+import blogify.reflect.*
+import blogify.reflect.computed.models.BasicComputedProperty
+import blogify.reflect.computed.resolveComputedProps
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.ok
@@ -426,9 +426,9 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
         val received = call.receive<Dto>() // Receive a resource from the request body
             .mappedByHandles(R::class, false)
             .getOrPipelineError(HttpStatusCode.BadRequest, "bad DTO format")
-            .let {
-                R::class.doInstantiate (
-                    it,
+            .let { dto ->
+                R::class.construct (
+                    dto,
                     externalFetcher = { klass, id -> this.repository(klass).get(this, id) }
                 )
             }.getOrPipelineError(HttpStatusCode.BadRequest, "could not instantiate resource")
