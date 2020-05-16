@@ -38,6 +38,7 @@ import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
 import blogify.backend.auth.handling.maybeAuthenticated
+import blogify.backend.auth.handling.optionallyAuthenticated
 import blogify.backend.database.tables.ImageUploadablesMetadata
 import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.RequestContext
@@ -79,13 +80,11 @@ import org.jetbrains.exposed.sql.*
 
 import java.util.UUID
 
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.Dispatchers
-
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSuperclassOf
+
+import kotlinx.coroutines.*
 
 /**
  * Takes a predicate of type `suspend (User, R) -> Boolean` and captures it into a returned predicate of type
@@ -106,6 +105,18 @@ suspend fun ApplicationCall.respondExceptionMessage(ex: Exception) {
     respond(HttpStatusCode.InternalServerError, object { @Suppress("unused") val message = ex.message }) // Failure ? Send a simple object with the exception message.
 }
 
+fun applyDefaultComputedPropertyResolver(resource: Mapped, user: User?) {
+    resolveComputedProps(resource) { container ->
+        when (container) {
+            is BasicComputedProperty ->
+                container.function()
+            is UserSpecificPropertyContainer ->
+                user?.let { container.resolve(resource, it) }
+            else -> never
+        }
+    }
+}
+
 /**
  * Adds a handler to a [RequestContext] that handles fetching a set of resources with a certain list of desired properties.
  *
@@ -123,12 +134,17 @@ suspend inline fun <reified R : Resource> RequestContext.fetchAllResources() {
 
     val resources = obtainResources<R>(limit)
 
-    if (selectedProperties == null) {
-        call.respond(resources.map { it.sanitize(excludeUndisplayed = true) })
-    } else {
-        call.respond(resources.map { it.slice(selectedProperties) })
-    }
+    optionallyAuthenticated { user ->
+        for (resource in resources) {
+            applyDefaultComputedPropertyResolver(resource, user)
+        }
 
+        if (selectedProperties == null) {
+            call.respond(resources.map { it.sanitize(excludeUndisplayed = true) })
+        } else {
+            call.respond(resources.map { it.slice(selectedProperties) })
+        }
+    }
 }
 
 @BlogifyDsl
@@ -145,12 +161,18 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing (
     val results = repo.queryListing(this, selectCondition, quantity, page, orderBy, sortOrder)
         .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't query listing")
 
-    call.respond(object {
-        val data = results.first.map {
-            selectedPropertyNames?.let { props -> it.slice(props) } ?: it.sanitize()
+    optionallyAuthenticated { user ->
+        for (resource in results.first) {
+            applyDefaultComputedPropertyResolver(resource, user)
         }
-        val moreAvailable = results.second
-    })
+
+        call.respond(object {
+            val data = results.first.map {
+                selectedPropertyNames?.let { props -> it.slice(props) } ?: it.sanitize()
+            }
+            val moreAvailable = results.second
+        })
+    }
 }
 
 /**
@@ -170,8 +192,10 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResource (
     val uuid by queryUuid
     val selectedProperties = optionalParam("fields")?.split(",")?.toSet()
 
-    maybeAuthenticated(authPredicate) {
+    optionallyAuthenticated(authPredicate) { user ->
         val resource = obtainResource<R>(uuid)
+
+        applyDefaultComputedPropertyResolver(resource, user)
 
         if (selectedProperties == null) {
             call.respond(resource.sanitize(excludeUndisplayed = true))
@@ -184,7 +208,7 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResource (
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 @BlogifyDsl
 suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
-       noinline authPredicate: (suspend (User, R) -> Boolean)? = null
+    noinline authPredicate: (suspend (User, R) -> Boolean)? = null
 ) {
     val uuid by queryUuid
     val target = param("target")
@@ -202,10 +226,10 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
                 it is PropMap.PropertyHandle.Ok
                         && StaticFile::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
             } as? PropMap.PropertyHandle.Ok
-                               ?: pipelineError(
-                                   message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass
-                                       .simpleName}'"
-                               )
+            ?: pipelineError(
+                message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass
+                    .simpleName}'"
+            )
 
         var shouldDelete = false
 
@@ -291,10 +315,10 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
                         }
                         else -> {
                             val exif = metadata.getFirstDirectoryOfType(ExifImageDirectory::class.java)
-                                       ?: pipelineError(
-                                           HttpStatusCode.UnsupportedMediaType,
-                                           "image must be png, jpeg or contain exif"
-                                       )
+                                ?: pipelineError(
+                                    HttpStatusCode.UnsupportedMediaType,
+                                    "image must be png, jpeg or contain exif"
+                                )
 
                             imageWidth = exif.getInt(ExifImageDirectory.TAG_IMAGE_WIDTH)
                             imageHeight = exif.getInt(ExifImageDirectory.TAG_IMAGE_HEIGHT)
@@ -370,10 +394,10 @@ suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
                 it is PropMap.PropertyHandle.Ok
                         && StaticFile::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
             } as? PropMap.PropertyHandle.Ok
-                               ?: pipelineError(
-                                   message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass
-                                       .simpleName}'"
-                               )
+            ?: pipelineError(
+                message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass
+                    .simpleName}'"
+            )
 
         when (val targetPropHandleValue = targetPropHandle.property.get(targetResource) as StaticFile) {
             is StaticFile.Ok -> {
@@ -438,13 +462,15 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
             pipelineError(HttpStatusCode.BadRequest, "invalid value for property '${firstInvalidValue.key.name}'")
         }
 
-        maybeAuthenticated(wrapPredicate(authPredicate, received)) {
+        maybeAuthenticated(wrapPredicate(authPredicate, received)) { user ->
             repository<R>().add(received).fold (
-                success = {
-                    call.respond(HttpStatusCode.Created, it.sanitize(excludeUndisplayed = true))
+                success = { resource ->
+                    applyDefaultComputedPropertyResolver(resource, user)
+
+                    call.respond(HttpStatusCode.Created, resource.sanitize(excludeUndisplayed = true))
 
                     launch { // Dispatch creation events and call creation function
-                        it.onCreation(this@createResource)
+                        resource.onCreation(this@createResource)
                     }
 
                     /*launch {
@@ -505,12 +531,12 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
 ) {
     val replacement = call.receive<Dto>()
     val id = (replacement["uuid"] as? String ?: call.parameters["uuid"])?.toUUIDOrNull()
-            ?: pipelineError(HttpStatusCode.BadRequest, "resource uuid not found in update object or url")
+        ?: pipelineError(HttpStatusCode.BadRequest, "resource uuid not found in update object or url")
 
     val current = obtainResource<R>(id)
 
     val rawData = replacement.mappedByHandles(R::class)
-            .getOrPipelineError(HttpStatusCode.BadRequest,"bad update object (invalid properties)")
+        .getOrPipelineError(HttpStatusCode.BadRequest,"bad update object (invalid properties)")
 
     maybeAuthenticated(wrapPredicate(authPredicate, current)) {
         val updatedResource = repository<R>().update(this, current, rawData)

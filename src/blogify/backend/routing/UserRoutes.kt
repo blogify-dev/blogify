@@ -1,6 +1,7 @@
 package blogify.backend.routing
 
 import blogify.backend.auth.handling.authenticated
+import blogify.backend.auth.handling.optionallyAuthenticated
 import blogify.backend.database.tables.Events
 import blogify.backend.database.tables.Users
 import blogify.backend.database.handling.query
@@ -63,9 +64,13 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
                 val matchingUser = repository<User>().getOneMatching(this) { Users.username eq username }
                     .getOrPipelineError(HttpStatusCode.NotFound)
 
-                selectedPropertyNames?.let { props ->
-                    call.respond(matchingUser.slice(props))
-                } ?: call.respond(matchingUser.sanitize())
+                optionallyAuthenticated { user ->
+                    applyDefaultComputedPropertyResolver(matchingUser, user)
+
+                    selectedPropertyNames?.let { props ->
+                        call.respond(matchingUser.slice(props))
+                    } ?: call.respond(matchingUser.sanitize())
+                }
             }
         }
 
@@ -136,6 +141,8 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
             get {
                 requestContext(applicationContext) {
                     authenticated { user ->
+                        applyDefaultComputedPropertyResolver(user, user)
+
                         call.respond(optionalParam("fields")?.split(",")?.toSet()?.let { user.slice(it) }
                                 ?: user.sanitize(excludeUndisplayed = true))
                     }
