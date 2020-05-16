@@ -11,8 +11,8 @@ import blogify.backend.search.ext._rebuildSearchTemplate
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.Template
-import blogify.backend.util.Dto
 import blogify.backend.util.short
+import blogify.reflect.Dto
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JacksonSerializer

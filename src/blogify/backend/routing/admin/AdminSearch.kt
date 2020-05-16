@@ -6,7 +6,7 @@ import blogify.backend.resources.Article
 import blogify.backend.resources.user.User
 import blogify.backend.pipelines.requestContext
 import blogify.backend.search.Typesense
-import blogify.backend.util.Dto
+import blogify.reflect.Dto
 
 import io.ktor.response.respond
 import io.ktor.routing.Route
