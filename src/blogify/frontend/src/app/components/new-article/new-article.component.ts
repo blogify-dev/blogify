@@ -6,9 +6,9 @@ import { StaticFile } from '@blogify/models/Static';
 import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import {faPlus, faArrowLeft, faTrash} from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
-import {faTrashAlt} from "@fortawesome/free-regular-svg-icons";
+import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 
 type Result = 'none' | 'success' | 'error';
 
