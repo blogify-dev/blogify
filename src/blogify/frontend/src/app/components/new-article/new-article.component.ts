@@ -36,6 +36,8 @@ export class NewArticleComponent implements OnInit {
 
     result: { status: Result, message: string } = { status: 'none', message: null };
 
+    showingDrafts = false
+
     constructor (
         private articleService: ArticleService,
         private authService: AuthService,
@@ -104,9 +106,38 @@ export class NewArticleComponent implements OnInit {
         );
     }
 
+    getAllDrafts(): Article[] {
+        const fromLocalStorage = localStorage.getItem('drafts');
+        return fromLocalStorage ? JSON.parse(fromLocalStorage) : [];
+    }
+
+    saveDraft() {
+        const data = <Article> this.transformArticleData(this.form);
+
+        const parsed = this.getAllDrafts();
+        parsed.push({ ...data, createdAt: Date.now() / 1000 });
+        localStorage.setItem('drafts', JSON.stringify(parsed));
+    }
+
     addCategory(input: HTMLInputElement) {
         this.formCategories.push(new FormControl(input.value));
         input.value = '';
     }
 
+    toggleShowDrafts() {
+        this.showingDrafts = !this.showingDrafts;
+    }
+
+    editDraft(draft) {
+        console.log(draft);
+        this.article.createdAt = draft.createdAt;
+        this.formCategories.clear();
+        this.form.patchValue({
+            title: draft.title,
+            content: draft.content,
+            summary: draft.summary,
+        });
+        draft.categories.forEach(cat => this.formCategories.push(new FormControl(cat.name)));
+        this.toggleShowDrafts();
+    }
 }

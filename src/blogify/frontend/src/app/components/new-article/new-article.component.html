@@ -1,5 +1,5 @@
 <!--suppress HtmlFormInputWithoutLabel -->
-<div id="new-article" *ngIf="user != undefined" [formGroup]="form">
+<div id="new-article" *ngIf="user != undefined && !showingDrafts" [formGroup]="form">
 
     <div class="data-row" id="categories-row" formArrayName="categories">
 
@@ -8,7 +8,8 @@
         </span>
 
         <input type="text" id="new-category-input" (keydown.enter)="addCategory($event.target)" />
-
+        <span style="flex: 1 1 auto"></span>
+        <span (click)="toggleShowDrafts()">Drafts</span>
     </div>
 
     <span class="data-row" id="title-row">
@@ -28,9 +29,37 @@
     <span class="data-row" id="submit-row">
         <span [className]="result.status" id="submit-result-container">{{result.message}}</span>
 
-         <button [disabled]="!form.valid" class="positive rounded hollow" (click)="createNewArticle()">Save Draft</button>
+         <button [disabled]="!form.valid" class="positive rounded hollow" (click)="saveDraft()">Save Draft</button>
          <button [disabled]="!form.valid" class="positive rounded" (click)="createNewArticle()">Submit</button>
     </span>
 
 </div>
 
+<div class="drafts" *ngIf="user != undefined && showingDrafts">
+    <div class="draft" *ngFor="let article of getAllDrafts()" (click)="editDraft(article)">
+
+        <div class="first-line clickable no-highlight">
+
+            <!-- Title -->
+            <h1 class="title">
+                {{article.title}}
+            </h1>
+        </div>
+
+        <div class="second-line clickable no-highlight">
+            <!-- Summary -->
+            <span class="summary">{{article.summary}}</span>
+
+            <!-- Timestamp -->
+            <span class="posted-at">Drafted {{article.createdAt | relativeTime}}</span>
+        </div>
+
+        <div class="last-line">
+            <!-- Categories -->
+            <div class="tags" *ngIf="article.categories.length > 0">
+                <span *ngFor="let tag of article.categories">{{tag.name}}</span>
+            </div>
+        </div>
+
+    </div>
+</div>
