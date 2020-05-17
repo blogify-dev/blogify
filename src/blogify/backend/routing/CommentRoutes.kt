@@ -69,7 +69,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         post("/") {
             requestContext(applicationContext) {
                 createResource<Comment> (
-                    authPredicate = { user, comment -> comment.commenter == user }
+                    authPredicate = { user, comment -> comment.commenter == user && !comment.article.isDraft }
                 )
             }
         }

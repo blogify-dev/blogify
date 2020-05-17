@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
 import { faArrowLeft, faDraftingCompass } from '@fortawesome/free-solid-svg-icons';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
-import { filter } from 'rxjs/operators';
+import { filter, map, tap } from 'rxjs/operators';
 
 type Result = 'none' | 'success' | 'error';
 
@@ -29,6 +29,7 @@ export class NewArticleComponent implements OnInit {
 
     result: { status: Result, message: string } = { status: 'none', message: null };
 
+    drafts: Article[] = [];
     showingDrafts = false
 
     constructor (
@@ -48,18 +49,32 @@ export class NewArticleComponent implements OnInit {
 
         // We need to listen to `activatedRoute.firstChild.url`, but that seems to only exist
         // on an initial page load for some reason. -- Ben
-        this.activatedRoute.firstChild?.url.subscribe(fragments => {
-            this.showingDrafts = fragments.some(it => it.path === 'drafts');
-        });
+        this.activatedRoute.firstChild?.url.pipe (
+            map(fragments => fragments.some(it => it.path === 'drafts')),
+            tap(state => this.showingDrafts = state)
+        ).subscribe();
 
         // This only collects new navigation events. not the initial ones. So this takes care of in-visit navigation. -- Ben
         this.router.events.pipe (
-            filter(e => e instanceof NavigationEnd)
-        ).subscribe(async event => {
-            const url = (event as NavigationEnd).url;
+            filter(e => e instanceof NavigationEnd),
+            tap(event => {
+                const url = (event as NavigationEnd).url;
 
-            this.showingDrafts =  url.split('/').some(it => it === 'drafts');
-        });
+                this.showingDrafts =  url.split('/').some(it => it === 'drafts');
+            })
+        ).subscribe();
+
+        // Get all drafts for user if logged in
+        this.authService.observeIsLoggedIn().pipe (
+            filter(state => state),
+            tap(() => {
+                this.articleService.queryArticleDraftsForUser ({
+                    quantity: 15,
+                    page: 0,
+                    byUser: this.authService.currentUser
+                }).then(it => this.drafts = it.data);
+            })
+        ).subscribe();
 
         this.validations = await this.http.get<object>('/api/articles/_validations').toPromise();
     }
@@ -110,38 +125,27 @@ export class NewArticleComponent implements OnInit {
         };
     }
 
-    createNewArticle() {
+    createNewArticle(asDraft = false) {
         this.articleService.createNewArticle (
-            (<Article> this.articleData)
+            { ...(this.articleData as Article), isDraft: asDraft }
         ).then(async (article: object) => {
             const uuid = article['uuid'];
-            this.result = { status: 'success', message: 'Article created successfully' };
-            await this.router.navigateByUrl(`/article/${uuid}`);
+            this.result = { status: 'success', message: (asDraft ? 'Draft' : 'Article') + ' created successfully' };
+
+            if (!asDraft)
+                await this.router.navigateByUrl(`/article/${uuid}`);
         }).catch(() =>
             this.result = { status: 'error', message: 'Error while creating article' }
         );
     }
 
-    getAllDrafts(): Article[] {
-        const fromLocalStorage = localStorage.getItem('drafts');
-        return fromLocalStorage ? JSON.parse(fromLocalStorage) : [];
-    }
-
     saveDraft() {
-        const data = <Article> this.articleData;
-
-        const parsed = this.getAllDrafts();
-        parsed.push({ ...data, createdAt: Date.now() / 1000 });
-
-        localStorage.setItem('drafts', JSON.stringify(parsed));
+        this.createNewArticle(true);
     }
 
-    deleteDraft(index: number) {
-        const parsed = this.getAllDrafts();
-
-        parsed.splice(index, 1);
-
-        localStorage.setItem('drafts', JSON.stringify(parsed));
+    deleteDraft(uuid: string) {
+        this.articleService.deleteArticle(uuid)
+            .then(() => this.drafts.splice(this.drafts.findIndex(it => it.uuid === uuid)));
     }
 
     useDraft(draft: Article) {

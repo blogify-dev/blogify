@@ -48,6 +48,9 @@ data class Article (
     val categories: @DelegatedSearch List<Category>,
 
     @NoSearch
+    val isDraft: Boolean = false,
+
+    @NoSearch
     val isPinned: Boolean = false,
 
     @NoSearch

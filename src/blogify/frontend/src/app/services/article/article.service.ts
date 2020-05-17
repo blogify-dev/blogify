@@ -79,6 +79,18 @@ export class ArticleService {
         return { data: await this.prepareArticleData(result.data), moreAvailable: result.moreAvailable };
     }
 
+    async queryArticleDraftsForUser(listing: ListingQuery<Article> & { byUser: Shadow<User> }): Promise<ListingResult> {
+        if (!this.authService.currentUser) throw 'not logged in';
+
+        const listingObservable = this.httpClient.get<ListingResult> (
+            `/api/users/me/drafts/articles?quantity=${listing.quantity}&page=${listing.page}`,
+            { headers: this.HTTP_OPTIONS }
+        );
+        const result = await listingObservable.toPromise();
+
+        return { data: await this.prepareArticleData(result.data), moreAvailable: result.moreAvailable };
+    }
+
     async getArticle(articleUuid: string): Promise<Article> {
         const cached = this.state.getArticle(articleUuid);
 

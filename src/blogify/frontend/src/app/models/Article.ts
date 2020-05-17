@@ -9,6 +9,7 @@ export class Article {
         public summary: string,
         public createdBy: User | string,
         public createdAt: number,
+        public isDraft: boolean = false,
         public isPinned: boolean,
         public categories: Category[],
         public likedByUser: boolean | null = null,

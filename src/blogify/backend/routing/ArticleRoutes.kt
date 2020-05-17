@@ -26,7 +26,11 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
         get("/") {
             requestContext(applicationContext) {
-                fetchResourceListing<Article>(orderBy = Articles.isPinned, sortOrder = SortOrder.DESC)
+                fetchResourceListing<Article> (
+                    selectCondition = { Articles.isDraft eq false },
+                    orderBy = Articles.isPinned,
+                    sortOrder = SortOrder.DESC
+                )
             }
         }
 
@@ -35,11 +39,9 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
                 val id by queryUuid
 
                 fetchResourceListing<Article> (
+                    selectCondition = { (Articles.createdBy eq id) and (Articles.isDraft eq false) },
                     orderBy = Articles.isPinned,
-                    sortOrder = SortOrder.DESC,
-                    selectCondition = {
-                        Articles.createdBy eq id
-                    }
+                    sortOrder = SortOrder.DESC
                 )
             }
         }

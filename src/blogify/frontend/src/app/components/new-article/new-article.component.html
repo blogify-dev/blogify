@@ -32,7 +32,7 @@
         >
             <fa-icon [icon]="faDraftingCompass" size="lg" [transform]="{ size: 14 }"></fa-icon>
 
-            Drafts ({{this.getAllDrafts().length}})
+            Drafts ({{this.drafts.length}})
         </span>
 
         <span [className]="result.status" id="submit-result-container">{{result.message}}</span>
@@ -50,33 +50,32 @@
         Go back
     </span>
 
-    <div class="draft" *ngFor="let article of getAllDrafts(); let i = index" (click)="useDraft(article)">
+    <div class="draft" *ngFor="let draft of drafts; let i = index" (click)="useDraft(draft)">
 
         <div class="first-line clickable no-highlight">
 
             <!-- Title -->
             <h1 class="title">
-                {{article.title}}
+                {{draft.title}}
             </h1>
         </div>
 
         <div class="second-line clickable no-highlight">
             <!-- Summary -->
-            <span class="summary">{{article.summary}}</span>
+            <span class="summary">{{draft.summary}}</span>
 
             <!-- Timestamp -->
-            <span class="posted-at">Drafted {{article.createdAt | relativeTime}}</span>
+            <span class="posted-at">Drafted {{draft.createdAt | relativeTime}}</span>
         </div>
 
         <div class="last-line">
             <!-- Categories -->
-            <div class="tags" *ngIf="article.categories.length > 0">
-                <span *ngFor="let tag of article.categories">{{tag.name}}</span>
+            <div class="tags" *ngIf="draft.categories.length > 0">
+                <span *ngFor="let tag of draft.categories">{{tag.name}}</span>
             </div>
 
             <!-- Delete button -->
-
-            <span class="__draft_box__delete text-large clickable hover-negative" (click)="deleteDraft(i)">
+            <span class="__draft_box__delete text-large clickable hover-negative" (click)="deleteDraft(draft.uuid)">
                 <fa-icon [icon]="faTrashAlt"></fa-icon>
 
                 Delete

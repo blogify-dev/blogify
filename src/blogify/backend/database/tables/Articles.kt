@@ -1,10 +1,10 @@
 package blogify.backend.database.tables
 
 import blogify.backend.appContext
+import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.extensions.strongKey
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.ResourceTable
-import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.user.User
@@ -14,8 +14,6 @@ import blogify.backend.util.Wrap
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
-import com.github.kittinunf.result.coroutines.SuspendableResult
-
 object Articles : ResourceTable.UserCreated<Article>() {
 
     val title      = text      ("title")
@@ -23,6 +21,7 @@ object Articles : ResourceTable.UserCreated<Article>() {
     val createdBy  = strongKey ("created_by", Users)
     val content    = text      ("content")
     val summary    = text      ("summary")
+    val isDraft    = bool      ("is_draft").default(false)
     val isPinned   = bool      ("is_pinned").default(false)
 
     override val authorColumn = createdBy
@@ -37,6 +36,7 @@ object Articles : ResourceTable.UserCreated<Article>() {
                     it[createdBy] = resource.createdBy.uuid
                     it[content] = resource.content
                     it[summary] = resource.summary
+                    it[isDraft] = resource.isDraft
                     it[isPinned] = resource.isPinned
                 }
             }.get()
@@ -63,6 +63,7 @@ object Articles : ResourceTable.UserCreated<Article>() {
                     it[createdBy] = resource.createdBy.uuid
                     it[content] = resource.content
                     it[summary] = resource.summary
+                    it[isDraft] = resource.isDraft
                     it[isPinned] = resource.isPinned
                 }
             }.get()
@@ -95,8 +96,8 @@ object Articles : ResourceTable.UserCreated<Article>() {
         }
 
     override suspend fun convert(requestContext: RequestContext, source: ResultRow) =
-        SuspendableResult.of<Article, Repository.Exception.Fetching> {
-            Article(
+        Wrap {
+            Article (
                 uuid = source[uuid],
                 title = source[title],
                 createdAt = source[createdAt],
@@ -104,6 +105,7 @@ object Articles : ResourceTable.UserCreated<Article>() {
                     .get(requestContext, source[createdBy]).get(),
                 content = source[content],
                 summary = source[summary],
+                isDraft = source[isDraft],
                 isPinned = source[isPinned],
                 categories = transaction {
                     Categories.select { Categories.article eq source[uuid] }.toList()
@@ -113,8 +115,8 @@ object Articles : ResourceTable.UserCreated<Article>() {
 
     object Categories : Table() {
 
-        val article = uuid("article").references(Articles.uuid, onDelete = ReferenceOption.CASCADE)
-        val name    = varchar("name", 255)
+        val article = parentKey("article", Articles)
+        val name    = text("name")
 
         override val primaryKey = PrimaryKey(
             article,
@@ -131,8 +133,8 @@ object Articles : ResourceTable.UserCreated<Article>() {
 
     object Likes: Table("article_likes") {
 
-        val user    = uuid("user").references(Users.uuid, onDelete = ReferenceOption.CASCADE)
-        val article = uuid("article").references(Articles.uuid, onDelete = ReferenceOption.CASCADE)
+        val user    = parentKey("user", Users)
+        val article = parentKey("article", Articles)
 
         override val primaryKey = PrimaryKey(
             user,

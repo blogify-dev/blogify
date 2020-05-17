@@ -149,6 +149,12 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
                 }
             }
 
+            route("drafts") {
+                get("articles") {
+                    requestContext(applicationContext, getUserDraftArticles)
+                }
+            }
+
             get("/notifications") {
                 requestContext(applicationContext) {
                     authenticated { user ->
