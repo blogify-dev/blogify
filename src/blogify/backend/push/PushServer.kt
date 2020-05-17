@@ -90,7 +90,7 @@ class PushServer(val appContext: ApplicationContext) {
             val noConnectionHandleMessage = "fatal: no connection property on class ${receivedClass.simpleName}".red()
 
             val receivedMessage = receivedClass.construct (
-                    params = bodyPayload,
+                    data = bodyPayload,
                     externallyProvided = setOf(receivedClass.propMap.ok["connection"] ?: error(noConnectionHandleMessage))
                 ).getOr {
                     it.printStackTrace()
