@@ -9,6 +9,12 @@ fun <K : Any, V : Any, R : Any> Map<K, V>.filterThenMapValues (
     return this.filterValues(predicate).mapValues(mapper)
 }
 
+/**
+ * A map of property names to associated values
+ */
 typealias Dto = Map<String, Any?>
 
+/**
+ * A map of [property handles][PropMap.PropertyHandle.Ok] to associated values
+ */
 typealias MappedData = Map<PropMap.PropertyHandle.Ok, Any?>
