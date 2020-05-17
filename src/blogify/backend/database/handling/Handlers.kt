@@ -2,6 +2,7 @@ package blogify.backend.database.handling
 
 import blogify.backend.database.DatabaseConnection
 import blogify.backend.annotations.BlogifyDsl
+import blogify.backend.util.getOr
 
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
@@ -20,7 +21,7 @@ import java.lang.Exception
  *
  * @param block the query block to execute
  *
- * @see [Dispatchers.IO]
+ * @author Benjozork
  */
 @BlogifyDsl
 suspend fun <T : Any> query(block: suspend () -> T): SuspendableResult<T, DatabaseConnection.Exception> {
@@ -29,3 +30,15 @@ suspend fun <T : Any> query(block: suspend () -> T): SuspendableResult<T, Databa
     }
         .mapError { ex -> DatabaseConnection.Exception(ex) } // We can now wrap that generic exception inside a DBex
 }
+
+/**
+ * This function executes a query asynchronously and returns its result with the resulting [SuspendableResult] forcibly unwrapped.
+ * Should be used for queries that should not fail.
+ *
+ * @param block the query block to execute
+ *
+ * @author Benjozork
+ */
+@BlogifyDsl
+suspend fun <T : Any> unwrappedQuery(block: suspend () -> T): T =
+    query(block).getOr { error("unwrapped query resulted in a failure") }
