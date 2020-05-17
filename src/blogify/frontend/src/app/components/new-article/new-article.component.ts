@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { Article } from '@blogify/models/Article';
 import { ArticleService } from '@blogify/core/services/article/article.service';
 import { User } from '@blogify/models/User';
-import { StaticFile } from '@blogify/models/Static';
 import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { faPlus, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import { Router } from '@angular/router';
+import { faArrowLeft, faDraftingCompass} from '@fortawesome/free-solid-svg-icons';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+import { filter } from "rxjs/operators";
 
 type Result = 'none' | 'success' | 'error';
 
@@ -19,21 +19,10 @@ type Result = 'none' | 'success' | 'error';
 })
 export class NewArticleComponent implements OnInit {
 
-    faPlus = faPlus;
+    faDraftingCompass = faDraftingCompass;
 
     faArrowLeft = faArrowLeft;
     faTrashAlt = faTrashAlt;
-
-    article: Article = new Article (
-        '',
-        '',
-        '',
-        '',
-        new User('', '', '', '', [], false, '', { profilePicture: new StaticFile('-1'), coverPicture: new StaticFile('-1') }),
-        Date.now(),
-        false,
-        []
-    );
 
     user: User;
     validations: object;
@@ -46,7 +35,7 @@ export class NewArticleComponent implements OnInit {
         private articleService: ArticleService,
         private authService: AuthService,
         private http: HttpClient,
-        private router: Router,
+        public router: Router,
     ) {}
 
     async ngOnInit() {
@@ -54,6 +43,17 @@ export class NewArticleComponent implements OnInit {
             if (state) this.user = this.authService.currentUser;
             else console.error('[blogifyNewArticle] must be logged in; check links to not allow unauth access to new-article');
         });
+
+        // This only collects new navigation events. not the initial ones. But that's okay, since
+        // generally you don't access the draft selection page as a new visit or a refresh.
+        this.router.events.pipe (
+            filter(e => e instanceof NavigationEnd)
+        ).subscribe(async event => {
+           const url = (event as NavigationEnd).url;
+
+           this.showingDrafts =  url.split('/').some(it => it === 'drafts');
+        })
+
         this.validations = await this.http.get<object>('/api/articles/_validations').toPromise();
     }
 
@@ -138,13 +138,8 @@ export class NewArticleComponent implements OnInit {
         input.value = '';
     }
 
-    toggleShowDrafts() {
-        this.showingDrafts = !this.showingDrafts;
-    }
 
     editDraft(draft) {
-        console.log(draft);
-        this.article.createdAt = draft.createdAt;
         this.formCategories.clear();
         this.form.patchValue({
             title: draft.title,
@@ -152,6 +147,7 @@ export class NewArticleComponent implements OnInit {
             summary: draft.summary,
         });
         draft.categories.forEach(cat => this.formCategories.push(new FormControl(cat.name)));
-        this.toggleShowDrafts();
+
+        this.router.navigateByUrl('/article/new').then();
     }
 }

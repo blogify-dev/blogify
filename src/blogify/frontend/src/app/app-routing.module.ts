@@ -24,7 +24,12 @@ const routes: Routes = [
     {
         path: paths.article,
         children: [
-            { path: 'new', component: NewArticleComponent },
+            {
+                path: 'new', component: NewArticleComponent,
+                children: [
+                    { path: 'drafts', component: NewArticleComponent }
+                ]
+            },
             { path: ':uuid', component: ShowArticleComponent },
             { path: 'update/:uuid', component: UpdateArticleComponent },
         ]
