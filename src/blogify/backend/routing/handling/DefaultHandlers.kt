@@ -53,6 +53,7 @@ import blogify.backend.util.filterThenMapValues
 import blogify.reflect.*
 import blogify.reflect.computed.models.BasicComputedProperty
 import blogify.reflect.computed.resolveComputedProps
+import blogify.reflect.extensions.klass
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.ok
@@ -224,7 +225,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
         val targetPropHandle = targetClass.propMap[target]
             ?.takeIf {
                 it is PropMap.PropertyHandle.Ok
-                        && StaticFile::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
+                        && StaticFile::class.isSuperclassOf(it.property.returnType.klass() ?: never)
             } as? PropMap.PropertyHandle.Ok
             ?: pipelineError(
                 message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass
@@ -392,7 +393,7 @@ suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
         val targetPropHandle = targetClass.propMap[target]
             ?.takeIf {
                 it is PropMap.PropertyHandle.Ok
-                        && StaticFile::class.isSuperclassOf(it.property.returnType.classifier as KClass<*>)
+                        && StaticFile::class.isSuperclassOf(it.property.returnType.klass() ?: never)
             } as? PropMap.PropertyHandle.Ok
             ?: pipelineError(
                 message = "can't find property of type StaticResourceHandle '$target' on class '${targetClass
@@ -450,9 +451,9 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
         val received = call.receive<Dto>() // Receive a resource from the request body
             .mappedByHandles(R::class, false)
             .getOrPipelineError(HttpStatusCode.BadRequest, "bad DTO format")
-            .let { dto ->
+            .let { data ->
                 R::class.construct (
-                    dto,
+                    data,
                     externalFetcher = { klass, id -> this.repository(klass).get(this, id) }
                 )
             }.getOrPipelineError(HttpStatusCode.BadRequest, "could not instantiate resource")

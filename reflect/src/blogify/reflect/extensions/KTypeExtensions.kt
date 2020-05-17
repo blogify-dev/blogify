@@ -7,6 +7,21 @@ import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
 /**
+ * Returns a [type][KType]'s [class][KClass] or `null` if the type is not representable
+ *
+ * @author Benjozork
+ */
+fun KType.klass() = this.classifier as? KClass<*>
+
+/**
+ * Returns a [type][KType]'s [class][KClass] extending [TClass] or `null` if the type is not representable or if the
+ * classifier is not a subtype of [TClass]
+ *
+ * @author Benjozork
+ */
+fun <TClass : Any> KType.safeKlass() = this.classifier as? KClass<TClass>
+
+/**
  * Returns whether a [KType] is a subtype of a class
  *
  * @author Benjozork

@@ -7,6 +7,8 @@ import blogify.backend.util.*
 import blogify.reflect.MappedData
 import blogify.reflect.unsafePropMap
 import blogify.reflect.extensions.isPrimitive
+import blogify.reflect.extensions.klass
+import blogify.reflect.extensions.safeKlass
 import blogify.reflect.extensions.subTypeOf
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
@@ -105,7 +107,7 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
                     }
                     parameter.type subTypeOf Resource::class -> { // KType of property is subtype of Resource
                         @Suppress("UNCHECKED_CAST")
-                        val keyResourceType = parameter.type.classifier as KClass<Resource>
+                        val keyResourceType = parameter.type.safeKlass<Resource>() ?: never
 
                         val valueUUID = when (value) {
                             is String -> value.toUUID()
@@ -146,11 +148,11 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
                         parameter to value
                     }
                     else -> { // It's some other type, so we need to extract a JavaType from the parameter and make Jackson deserialize it
-                        val baseTypeClass = (parameter.type.classifier as? KClass<*>)?.java
+                        val baseTypeClass = parameter.type.klass()?.java
                             ?: error("fatal: found non-class base type when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
 
                         val typeParameters = parameter.type.arguments.map {
-                            (it.type?.classifier as? KClass<*>)?.java
+                            it.type?.klass()?.java
                                 ?: error("fatal: found non-class type parameter when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
                         }.toTypedArray()
 
