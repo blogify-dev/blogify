@@ -23,6 +23,15 @@ export class ArticleService {
         private userService: UserService
     ) {}
 
+    private get HTTP_OPTIONS(): HttpHeaders {
+        return this.authService.currentUser?.token ? new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authService.currentUser.token}`
+        }) : new HttpHeaders({
+            'Content-Type': 'application/json',
+        });
+    }
+
     private async fetchUserObjects(articles: Article[]): Promise<Article[]> {
         return Promise.all(articles.map(async article => {
             return this.userService.getUser(article.createdBy as string)
@@ -37,15 +46,9 @@ export class ArticleService {
                 return article;
             });
         }
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.currentUser.token}`
-            }),
-        };
 
         return Promise.all(articles.map(async a => {
-            return this.httpClient.get<boolean>(`/api/articles/${a.uuid}/like`, httpOptions).toPromise()
+            return this.httpClient.get<boolean>(`/api/articles/${a.uuid}/like`, { headers: this.HTTP_OPTIONS }).toPromise()
                 .then(likeStatus => ({ ...a, likedByUser: likeStatus }));
         }));
     }
@@ -56,7 +59,9 @@ export class ArticleService {
     }
 
     async queryArticleListing(listing: ListingQuery<Article>): Promise<ListingResult> {
-        const listingResultPromise = this.httpClient.get<ListingResult>(`/api/articles/?quantity=${listing.quantity}&page=${listing.page}`).toPromise();
+        const listingResultPromise = this.httpClient.get<ListingResult> (
+            `/api/articles/?quantity=${listing.quantity}&page=${listing.page}`, { headers: this.HTTP_OPTIONS }
+        ).toPromise();
 
         return listingResultPromise.then(async it => {
             const listingResult: ListingResult = { data: await this.prepareArticleData(it.data), moreAvailable: it.moreAvailable };
@@ -99,23 +104,15 @@ export class ArticleService {
             })
         };
 
-
         const newArticle: Article = { ...article, createdBy: this.authService.currentUser.uuid };
 
         return this.httpClient.post<any>('/api/articles/', newArticle, httpOptions).toPromise();
     }
 
     updateArticle(article: Article): Promise<Article> {
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.currentUser.token}`
-            })
-        };
-
         const newArticle: Article = { ...article, createdBy: this.authService.currentUser.uuid };
 
-        return this.httpClient.patch<any>(`/api/articles/${article.uuid}`, newArticle, httpOptions).toPromise();
+        return this.httpClient.patch<any>(`/api/articles/${article.uuid}`, newArticle, { headers: this.HTTP_OPTIONS }).toPromise();
     }
 
     deleteArticle(articleUuid: string): Promise<any> {
@@ -143,29 +140,15 @@ export class ArticleService {
     }
 
     likeArticle(article: Article): Promise<HttpResponse<object>> {
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.currentUser.token}`
-            }),
-            observe: 'response',
-        };
-
-        // TypeScript bug with method overloads.
-        // @ts-ignore
-        // noinspection TypeScriptValidateTypes
-        return this.httpClient.post<HttpResponse<object>>(`/api/articles/${article.uuid}/like`, null, httpOptions).toPromise();
+        return this.httpClient.post<HttpResponse<object>> (
+            `/api/articles/${article.uuid}/like`, null, { headers: this.HTTP_OPTIONS }
+        ).toPromise();
     }
 
     pinArticle(articleUuid: string): Promise<any> {
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${this.authService.currentUser.token}`
-            })
-        };
-
-        return this.httpClient.post(`/api/articles/${articleUuid}/pin`, null, httpOptions).toPromise();
+        return this.httpClient.post (
+            `/api/articles/${articleUuid}/pin`, null, { headers: this.HTTP_OPTIONS }
+        ).toPromise();
     }
 
 }
