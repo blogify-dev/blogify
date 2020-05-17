@@ -5,10 +5,10 @@ import { User } from '@blogify/models/User';
 import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { faArrowLeft, faDraftingCompass} from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faDraftingCompass } from '@fortawesome/free-solid-svg-icons';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-import { filter } from "rxjs/operators";
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
+import { filter } from 'rxjs/operators';
 
 type Result = 'none' | 'success' | 'error';
 
@@ -25,7 +25,7 @@ export class NewArticleComponent implements OnInit {
     faTrashAlt = faTrashAlt;
 
     user: User;
-    validations: object;
+    validations: object; // TODO Make this strongly-typed -- Ben
 
     result: { status: Result, message: string } = { status: 'none', message: null };
 
@@ -35,24 +35,31 @@ export class NewArticleComponent implements OnInit {
         private articleService: ArticleService,
         private authService: AuthService,
         private http: HttpClient,
+        private activatedRoute: ActivatedRoute,
         public router: Router,
     ) {}
 
     async ngOnInit() {
+        // This needs to go. TODO implement route guards. -- Ben
         this.authService.observeIsLoggedIn().subscribe(state => {
             if (state) this.user = this.authService.currentUser;
             else console.error('[blogifyNewArticle] must be logged in; check links to not allow unauth access to new-article');
         });
 
-        // This only collects new navigation events. not the initial ones. But that's okay, since
-        // generally you don't access the draft selection page as a new visit or a refresh.
+        // We need to listen to `activatedRoute.firstChild.url`, but that seems to only exist
+        // on an initial page load for some reason. -- Ben
+        this.activatedRoute.firstChild?.url.subscribe(fragments => {
+            this.showingDrafts = fragments.some(it => it.path === 'drafts');
+        });
+
+        // This only collects new navigation events. not the initial ones. So this takes care of in-visit navigation. -- Ben
         this.router.events.pipe (
             filter(e => e instanceof NavigationEnd)
         ).subscribe(async event => {
-           const url = (event as NavigationEnd).url;
+            const url = (event as NavigationEnd).url;
 
-           this.showingDrafts =  url.split('/').some(it => it === 'drafts');
-        })
+            this.showingDrafts =  url.split('/').some(it => it === 'drafts');
+        });
 
         this.validations = await this.http.get<object>('/api/articles/_validations').toPromise();
     }
@@ -88,19 +95,24 @@ export class NewArticleComponent implements OnInit {
         'categories': this.formCategories
     });
 
-    // noinspection JSMethodCanBeStatic
-    transformArticleData(form: FormGroup): object {
-        const article = form.value;
-        article['categories'] = (<FormArray>form.controls['categories']).controls.map(it => <string> it.value)
-            // .filter((cat: string) => cat.match(/\\s/) !== null)
-            .map(cat => { return { name: cat };});
-        console.table(article);
-        return article;
+    addCategory(input: HTMLInputElement) {
+        if (input.value.trim() === '') return;
+
+        this.formCategories.push(new FormControl(input.value));
+        input.value = '';
+    }
+
+    get articleData(): object {
+        return {
+            ...this.form.value,
+            categories: this.form['categories'] = (this.form.controls['categories'] as FormArray).controls
+                .map(control => ({ name: control.value as string }))
+        };
     }
 
     createNewArticle() {
         this.articleService.createNewArticle (
-            (<Article> this.transformArticleData(this.form))
+            (<Article> this.articleData)
         ).then(async (article: object) => {
             const uuid = article['uuid'];
             this.result = { status: 'success', message: 'Article created successfully' };
@@ -116,30 +128,23 @@ export class NewArticleComponent implements OnInit {
     }
 
     saveDraft() {
-        const data = <Article> this.transformArticleData(this.form);
+        const data = <Article> this.articleData;
 
         const parsed = this.getAllDrafts();
         parsed.push({ ...data, createdAt: Date.now() / 1000 });
+
         localStorage.setItem('drafts', JSON.stringify(parsed));
     }
 
     deleteDraft(index: number) {
         const parsed = this.getAllDrafts();
 
-        parsed.splice(index, 1)
+        parsed.splice(index, 1);
 
-        localStorage.setItem('drafts', JSON.stringify(parsed))
+        localStorage.setItem('drafts', JSON.stringify(parsed));
     }
 
-    addCategory(input: HTMLInputElement) {
-        if (input.value.trim() === '') return;
-
-        this.formCategories.push(new FormControl(input.value));
-        input.value = '';
-    }
-
-
-    editDraft(draft) {
+    useDraft(draft: Article) {
         this.formCategories.clear();
         this.form.patchValue({
             title: draft.title,
@@ -150,4 +155,5 @@ export class NewArticleComponent implements OnInit {
 
         this.router.navigateByUrl('/article/new').then();
     }
+
 }
