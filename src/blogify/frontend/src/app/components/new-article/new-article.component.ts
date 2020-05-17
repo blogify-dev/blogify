@@ -57,12 +57,8 @@ export class NewArticleComponent implements OnInit {
         // This only collects new navigation events. not the initial ones. So this takes care of in-visit navigation. -- Ben
         this.router.events.pipe (
             filter(e => e instanceof NavigationEnd),
-            tap(event => {
-                const url = (event as NavigationEnd).url;
-
-                this.showingDrafts =  url.split('/').some(it => it === 'drafts');
-                this.result = { status: 'none', message: '' };
-            })
+            map(e => (e as NavigationEnd).url.split('/').some(it => it === 'drafts')),
+            tap(state => this.showingDrafts = state)
         ).subscribe();
 
         // Get all drafts for user if logged in
