@@ -36,7 +36,7 @@
             Drafts ({{this.drafts.length}})
         </span>
 
-        <span [className]="result.status" id="submit-result-container">{{result.message}}</span>
+        <span class="text-medium" [className]="result.status" id="submit-result-container">{{result.message}}</span>
 
          <button [disabled]="!form.valid" class="positive rounded hollow" (click)="saveDraft()">Save Draft</button>
          <button [disabled]="!form.valid" class="positive rounded" (click)="createNewArticle()">Submit</button>

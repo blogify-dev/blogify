@@ -44,6 +44,9 @@
     </span>
 
     <span class="data-row" id="submit-row">
+
+        <span class="text-medium" [className]="result.status" id="submit-result-container">{{result.message}}</span>
+
          <button [disabled]="!form.valid" class="positive rounded hollow" (click)="updateArticle()">Save draft</button>
          <button [disabled]="!form.valid" class="positive rounded" (click)="updateArticle()">Submit Changes</button>
     </span>

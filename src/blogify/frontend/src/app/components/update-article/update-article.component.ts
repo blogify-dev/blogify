@@ -112,7 +112,7 @@ export class UpdateArticleComponent implements OnInit {
         ).then(async () => {
             await this.router.navigateByUrl(`/article/${(this.article.uuid)}`);
         }).catch(() =>
-            this.result = { status: 'error', message: 'Error while creating article' }
+            this.result = { status: 'error', message: 'Error while updating article' }
         );
     }
 
