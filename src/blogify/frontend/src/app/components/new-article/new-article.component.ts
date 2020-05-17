@@ -61,6 +61,7 @@ export class NewArticleComponent implements OnInit {
                 const url = (event as NavigationEnd).url;
 
                 this.showingDrafts =  url.split('/').some(it => it === 'drafts');
+                this.result = { status: 'none', message: '' };
             })
         ).subscribe();
 
@@ -129,14 +130,20 @@ export class NewArticleComponent implements OnInit {
         this.articleService.createNewArticle (
             { ...(this.articleData as Article), isDraft: asDraft }
         ).then(async (article: object) => {
-            const uuid = article['uuid'];
-            this.result = { status: 'success', message: (asDraft ? 'Draft' : 'Article') + ' created successfully' };
+            this.result = {
+                status: 'success',
+                message: (asDraft ? 'Draft' : 'Article') + ' created successfully'
+            };
 
             if (!asDraft)
-                await this.router.navigateByUrl(`/article/${uuid}`);
-        }).catch(() =>
-            this.result = { status: 'error', message: 'Error while creating article' }
-        );
+                await this.router.navigateByUrl(`/article/${article['uuid']}`);
+            else this.drafts.push(article as Article);
+        }).catch(() => {
+            this.result = {
+                status: 'error',
+                message: 'Error while creating article'
+            };
+        });
     }
 
     saveDraft() {
