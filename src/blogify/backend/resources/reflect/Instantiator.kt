@@ -1,8 +1,8 @@
 package blogify.backend.resources.reflect
 
+import blogify.backend.appContext
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticFile
-import blogify.backend.search.models.Template
 import blogify.backend.util.*
 import blogify.reflect.MappedData
 import blogify.reflect.unsafePropMap
@@ -31,9 +31,6 @@ import java.lang.IllegalStateException
 
 import com.andreapivetta.kolor.red
 
-//suspend inline fun <reified TMapped : Resource> KClass<TMapped>.from(dto: blogify.reflect.Dto, requestContext: RequestContext)
-//        = this.doInstantiate(dto) { requestContext.repository<TMapped>().get(requestContext, it) }
-
 private class MissingArgumentsException(vararg val parameters: KParameter)
     : IllegalArgumentException("missing value(s) for parameter(s) ${parameters.joinToString(prefix = "[", postfix = "]") { it.name.toString() }}")
 
@@ -41,28 +38,12 @@ private val noExternalFetcherMessage =
     "fatal: tried to instantiate an object with references to resources but no external fetcher was provided".red()
 
 /**
- * This is fine, it's thread safe
- */
-private val objectMapper = jacksonObjectMapper().apply {
-    val instantiatorModule = SimpleModule()
-
-    instantiatorModule.addSerializer(Resource.ResourceIdSerializer)
-    instantiatorModule.addSerializer(Template.Field.Serializer)
-    instantiatorModule.addSerializer(ContentTypeSerializer)
-    instantiatorModule.addSerializer(InstantSerializer)
-
-    instantiatorModule.addDeserializer(ContentType::class.java, ContentTypeDeserializer)
-
-    registerModule(instantiatorModule)
-}
-
-/**
  * Instantiates the class in receiver position using a [Map] of [property handles][PropMap.PropertyHandle] and
  * associated values.
  *
  * @receiver the [KClass] we wish to instantiate
  *
- * @param params          the map of property handles to values we are going to be using to instantiate the object.
+ * @param data          the [data][MappedData] we are going to be using to instantiate the object.
  *                        All non-optional primary constructor properties must be present or else the returned [Sr] will be a failure.
  * @param externalFetcher a function that is used to fetch other [resources][Resource] requires by the instantiated objects.
  *                        Takes the type of the property and an [UUID].
@@ -73,8 +54,8 @@ private val objectMapper = jacksonObjectMapper().apply {
  */
 @Suppress("UNCHECKED_CAST")
 suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
-    params:             MappedData,
-    externalFetcher:    suspend (KClass<Resource>, UUID) -> Sr<Any> = { _, _ -> error(noExternalFetcherMessage) },
+    data:               MappedData,
+    externalFetcher:    suspend (KClass<Resource>, UUID) -> Sr<Resource> = { _, _ -> error(noExternalFetcherMessage) },
     externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
 ): Sr<TMapped> {
 
@@ -86,12 +67,12 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
 
     // We make this a function so that Wrap {} catches any error in it
     suspend fun makeParamMap(): Map<KParameter, Any?> {
-        return ((propMap.ok.values intersect params.keys))
+        return ((propMap.ok.values intersect data.keys))
             // For now, associate each propHandle to the constructor param with the same name
             .associateWith { targetCtor.parameters.firstOrNull { p -> p.name == it.name } }
             .withoutNullValues() // Drop properties not in our ctor
             // Then map it to the given value in params
-            .map { (it.value to it.key) to params[it.key] }
+            .map { (it.value to it.key) to data[it.key] }
             .map { (parameterAndHandle, value) -> // Do some known obvious conversions
                 val (parameter, handle) = parameterAndHandle
 
@@ -100,6 +81,8 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
                         return@map parameter to null
                     else error("fatal: null value provided for non-nullable type of parameter ${parameter.name}")
                 }
+
+                val objectMapper = appContext.objectMapper
 
                 when {
                     handle in externallyProvided -> { // Do not deserialize, it's provided !

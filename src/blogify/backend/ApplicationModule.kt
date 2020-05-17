@@ -23,10 +23,7 @@ import blogify.backend.routing.makeStaticRoutes
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Template
-import blogify.backend.util.ContentTypeSerializer
-import blogify.backend.util.InstantSerializer
-import blogify.backend.util.SinglePageApplication
-import blogify.backend.util.matches
+import blogify.backend.util.*
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 import io.ktor.application.call
@@ -71,6 +68,8 @@ private var objectMapper = jacksonObjectMapper().apply {
     blogifyModule.addSerializer(Template.Field.Serializer)
     blogifyModule.addSerializer(ContentTypeSerializer)
     blogifyModule.addSerializer(InstantSerializer)
+
+    blogifyModule.addDeserializer(ContentType::class.java, ContentTypeDeserializer)
 
     registerModule(blogifyModule)
 }

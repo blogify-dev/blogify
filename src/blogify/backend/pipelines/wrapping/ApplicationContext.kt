@@ -42,7 +42,7 @@ class ApplicationContext (
             val params = source.parseJsonHandleMap(UserSettings::class).get()
 
             T::class.construct (
-                params = params,
+                data = params,
                 externalFetcher = { klass, id -> appContext.repository(klass).get(id = id) }
             ).get()
         }
