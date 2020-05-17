@@ -105,7 +105,7 @@ export class NewArticleComponent implements OnInit {
     get articleData(): object {
         return {
             ...this.form.value,
-            categories: this.form['categories'] = (this.form.controls['categories'] as FormArray).controls
+            categories: (this.form.controls['categories'] as FormArray).controls
                 .map(control => ({ name: control.value as string }))
         };
     }
