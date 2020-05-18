@@ -8,8 +8,8 @@ val kolor_version: String by project
 plugins {
     kotlin("jvm")
 }
-group = "blogify"
 
+group = "blogify"
 version = "0.4.0"
 
 repositories {
@@ -41,9 +41,6 @@ dependencies {
     // Kolor
 
     implementation("com.andreapivetta.kolor", "kolor", kolor_version)
-    // Kolor
-
-    implementation("com.andreapivetta.kolor:kolor:0.0.2")
 
     // Logback
 
