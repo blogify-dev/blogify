@@ -8,6 +8,7 @@ val logback_version:   String by project
 val pg_driver_version: String by project
 val exposed_version:   String by project
 val hikari_version:    String by project
+val kolor_version:     String by project
 val spring_security_core_version: String by project
 
 plugins {
@@ -89,7 +90,7 @@ dependencies {
 
     // Kolor
 
-    implementation("com.andreapivetta.kolor:kolor:0.0.2")
+    implementation("com.andreapivetta", "kolor", kolor_version)
 
     // Result
 
