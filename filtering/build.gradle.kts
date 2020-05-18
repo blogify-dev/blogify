@@ -1,10 +1,15 @@
+@file:Suppress("PropertyName")
+
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+val jackson_version: String by project
+val kolor_version: String by project
 
 plugins {
     kotlin("jvm")
 }
-
 group = "blogify"
+
 version = "0.4.0"
 
 repositories {
@@ -15,7 +20,6 @@ repositories {
     maven { url = uri("https://dl.bintray.com/kittinunf/maven") }
     maven { url = uri("https://kotlin.bintray.com/ktor") }
 }
-
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
@@ -26,9 +30,16 @@ dependencies {
 
     implementation(project(":reflect"))
 
+    // Jackson
+
+    implementation("com.fasterxml.jackson.core", "jackson-core", jackson_version)
+    implementation("com.fasterxml.jackson.core", "jackson-annotations", jackson_version)
+    implementation("com.fasterxml.jackson.core", "jackson-databind", jackson_version)
+    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", jackson_version)
+
     // Kolor
 
-    implementation("com.andreapivetta.kolor:kolor:0.0.2")
+    implementation("com.andreapivetta", "kolor", kolor_version)
 
     // Logback
 
