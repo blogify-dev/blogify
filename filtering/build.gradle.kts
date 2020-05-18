@@ -20,6 +20,7 @@ repositories {
     maven { url = uri("https://dl.bintray.com/kittinunf/maven") }
     maven { url = uri("https://kotlin.bintray.com/ktor") }
 }
+
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
@@ -40,6 +41,9 @@ dependencies {
     // Kolor
 
     implementation("com.andreapivetta.kolor", "kolor", kolor_version)
+    // Kolor
+
+    implementation("com.andreapivetta.kolor:kolor:0.0.2")
 
     // Logback
 
