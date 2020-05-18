@@ -60,7 +60,7 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
 ): Sr<TMapped> {
 
     // We use unsafe because we have to give the @Invisible values too
-    val propMap = this.unsafePropMap()
+    val propMap = this.unsafePropMap
 
     // We use the first ctor to instantiate the object
     val targetCtor = this.constructors.first()
