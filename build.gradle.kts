@@ -90,7 +90,7 @@ dependencies {
 
     // Kolor
 
-    implementation("com.andreapivetta", "kolor", kolor_version)
+    implementation("com.andreapivetta.kolor", "kolor", kolor_version)
 
     // Result
 
