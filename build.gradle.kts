@@ -50,6 +50,7 @@ dependencies {
     // Submodules
 
     implementation(project(":reflect"))
+    implementation(project(":filtering"))
 
     // Ktor
 
