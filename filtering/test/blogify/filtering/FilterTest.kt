@@ -6,7 +6,7 @@ import blogify.reflect.models.Mapped
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
-import java.lang.IllegalStateException
+import java.lang.AssertionError
 
 class FilterTest {
 
@@ -28,7 +28,7 @@ class FilterTest {
     @Test fun `should not be able to create filter for invalid handle`() {
         class Test(@Hidden val x: String) : Mapped()
 
-        assertThrows(IllegalStateException::class.java) {
+        assertThrows(AssertionError::class.java) {
             Filter.IsValue(Test::x, "hi !")
         }
     }
