@@ -25,7 +25,7 @@ class UpdaterTests {
             get() = setOf()
     }
 
-    val propMap = TestClass::class.unsafePropMap()
+    val propMap = TestClass::class.unsafePropMap
     val testObject = TestClass("abc", 17, "whatever")
     val testUpdateData = mapOf (
         propMap.ok["name"]!!     to "steven",

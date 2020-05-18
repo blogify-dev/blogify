@@ -144,12 +144,13 @@ val <M : Mapped> M.unsafePropMap: PropMap
  *
  * @author Benjozork
  */
-fun <M : Mapped> KClass<M>.unsafePropMap(): PropMap {
-    var cached: PropMap? = unsafePropMapCache[this]
-    if (cached == null) {
-        cached = this.buildPropMap(unsafe = true)
-        unsafePropMapCache[this] = cached
-    }
+val <M : Mapped> KClass<M>.unsafePropMap: PropMap
+    get() {
+        var cached: PropMap? = unsafePropMapCache[this]
+        if (cached == null) {
+            cached = this.buildPropMap(unsafe = true)
+            unsafePropMapCache[this] = cached
+        }
 
-    return cached
-}
+        return cached
+    }
