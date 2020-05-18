@@ -14,13 +14,13 @@ abstract class Filter<TMapped : Mapped, TProperty : Any?>(val property: KPropert
         assert(property.handle is PropMap.PropertyHandle.Valid) { "cannot create a filter for a property that doesn't have a Valid handle in a safe propMap" }
     }
 
-    abstract infix fun matchesFor(value: TProperty): Boolean
+    abstract infix fun matchesForValue(value: TProperty): Boolean
 
     @Suppress("UNCHECKED_CAST")
     infix fun matchesFor(instance: TMapped): Boolean {
         return when (val valueOnInstance = getPropValueOnInstance(instance, property.name)) {
-            is SlicedProperty.Value -> matchesFor(valueOnInstance.value as TProperty)
-            is SlicedProperty.NullableValue -> matchesFor(valueOnInstance.value as TProperty)
+            is SlicedProperty.Value -> matchesForValue(valueOnInstance.value as TProperty)
+            is SlicedProperty.NullableValue -> matchesForValue(valueOnInstance.value as TProperty)
             else -> false
         }
     }
@@ -30,7 +30,7 @@ abstract class Filter<TMapped : Mapped, TProperty : Any?>(val property: KPropert
         val value: TProperty
     ) : Filter<TMapped, TProperty>(property) {
 
-        override fun matchesFor(value: TProperty) = this.value == value
+        override fun matchesForValue(value: TProperty) = this.value == value
 
     }
 
@@ -39,7 +39,25 @@ abstract class Filter<TMapped : Mapped, TProperty : Any?>(val property: KPropert
         val value: TProperty
     ) : Filter<TMapped, TProperty>(property) {
 
-        override fun matchesFor(value: TProperty) = this.value != value
+        override fun matchesForValue(value: TProperty) = this.value != value
+
+    }
+
+    class IsOneOf<TMapped : Mapped, TProperty : Any?> (
+        property: KProperty1<TMapped, TProperty>,
+        val values: Collection<TProperty>
+    ) : Filter<TMapped, TProperty>(property) {
+
+        override fun matchesForValue(value: TProperty) = value in values
+
+    }
+
+    class IsNotOneOf<TMapped : Mapped, TProperty : Any?> (
+        property: KProperty1<TMapped, TProperty>,
+        val values: Collection<TProperty>
+    ) : Filter<TMapped, TProperty>(property) {
+
+        override fun matchesForValue(value: TProperty) = value !in values
 
     }
 
