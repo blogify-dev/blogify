@@ -42,12 +42,16 @@ export class ArticleService {
     private async fetchLikeStatus(articles: Article[]): Promise<Article[]> {
         if (this.authService.currentUser === null) {
             return articles.map(article => {
+                if (article.isDraft) return article;
+
                 article.likedByUser = false;
                 return article;
             });
         }
 
         return Promise.all(articles.map(async a => {
+            if (a.isDraft) return a;
+
             return this.httpClient.get<boolean>(`/api/articles/${a.uuid}/like`, { headers: this.HTTP_OPTIONS }).toPromise()
                 .then(likeStatus => ({ ...a, likedByUser: likeStatus }));
         }));
