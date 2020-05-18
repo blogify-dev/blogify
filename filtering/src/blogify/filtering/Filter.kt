@@ -1,7 +1,7 @@
 package blogify.filtering
 
 import blogify.reflect.SlicedProperty
-import blogify.reflect.extensions.okHandle
+import blogify.reflect.extensions.handle
 import blogify.reflect.getPropValueOnInstance
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
@@ -11,7 +11,7 @@ import kotlin.reflect.KProperty1
 abstract class Filter<TMapped : Mapped, TProperty : Any?>(val property: KProperty1<TMapped, TProperty>) {
 
     init {
-        assert(property.okHandle is PropMap.PropertyHandle.Valid) { "cannot create a filter for a property that doesn't have a Valid handle in a safe propMap" }
+        assert(property.handle is PropMap.PropertyHandle.Valid) { "cannot create a filter for a property that doesn't have a Valid handle in a safe propMap" }
     }
 
     abstract infix fun matchesFor(value: TProperty): Boolean
