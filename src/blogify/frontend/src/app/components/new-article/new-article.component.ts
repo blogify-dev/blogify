@@ -29,8 +29,8 @@ export class NewArticleComponent implements OnInit {
 
     result: { status: Result, message: string } = { status: 'none', message: null };
 
-    draftState: { available: Article[], areShowing: boolean } =
-        { available: [], areShowing: false }
+    draftState: { available: Article[], areShowing: boolean, isEditing: Article | null } =
+        { available: [], areShowing: false, isEditing: null }
 
     constructor (
         private articleService: ArticleService,
@@ -68,7 +68,8 @@ export class NewArticleComponent implements OnInit {
                 this.articleService.queryArticleDraftsForUser ({
                     quantity: 15,
                     page: 0,
-                    byUser: this.authService.currentUser
+                    byUser: this.authService.currentUser,
+                    fields: ['title', 'summary', 'content', 'categories', 'createdBy', 'createdAt', 'isDraft']
                 }).then(it => this.draftState.available = it.data);
             })
         ).subscribe();
@@ -142,8 +143,20 @@ export class NewArticleComponent implements OnInit {
         });
     }
 
-    saveDraft() {
-        this.createNewArticle(true);
+    saveOrUpdateDraft() {
+        if (this.draftState.isEditing) {
+            this.draftState.isEditing = {
+                ...this.form.value,
+                uuid: this.draftState.isEditing.uuid,
+                categories: this.formCategories.controls.map(control => ({ name: control.value }))
+            };
+
+            this.articleService.updateArticle(this.draftState.isEditing)
+                .then(() => this.result = { status: 'success', message: 'Draft updated successfully' })
+                .catch(() => this.result = { status: 'error', message: 'Error while updating draft' });
+        } else {
+            this.createNewArticle(true);
+        }
     }
 
     deleteDraft(uuid: string) {
@@ -154,13 +167,15 @@ export class NewArticleComponent implements OnInit {
     useDraft(draft: Article) {
         this.formCategories.clear();
 
-        this.form.patchValue({
+        this.form.patchValue ({
             title: draft.title,
             content: draft.content,
             summary: draft.summary,
         });
 
         draft.categories.forEach(cat => this.formCategories.push(new FormControl(cat.name)));
+
+        this.draftState.isEditing = draft;
 
         this.router.navigateByUrl('/article/new').then();
     }
