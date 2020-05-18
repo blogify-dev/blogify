@@ -1,5 +1,5 @@
 <!--suppress HtmlFormInputWithoutLabel -->
-<div id="new-article" *ngIf="user != undefined && !showingDrafts" [formGroup]="form">
+<div id="new-article" *ngIf="user != undefined && !draftState.areShowing" [formGroup]="form">
 
     <div class="data-row" id="categories-row" formArrayName="categories">
 
@@ -29,11 +29,11 @@
                 class="clickable text-large"
                 id="__categories_row_drafts"
                 routerLink="./drafts"
-                *ngIf="this.drafts.length"
+                *ngIf="this.draftState.available.length"
         >
             <fa-icon [icon]="faDraftingCompass" size="lg" [transform]="{ size: 14 }"></fa-icon>
 
-            Drafts ({{this.drafts.length}})
+            Drafts ({{this.draftState.available.length}})
         </span>
 
         <span class="text-medium" [className]="result.status" id="submit-result-container">{{result.message}}</span>
@@ -44,14 +44,14 @@
 
 </div>
 
-<div class="drafts" *ngIf="user != undefined && showingDrafts">
+<div class="drafts" *ngIf="user != undefined && draftState.areShowing">
     <span class="clickable" id="__drafts_go_back" (click)="this.router.navigateByUrl('/article/new')">
         <fa-icon [icon]="faArrowLeft" size="lg"></fa-icon>
 
         Go back
     </span>
 
-    <div class="draft" *ngFor="let draft of drafts; let i = index" (click)="useDraft(draft)">
+    <div class="draft" *ngFor="let draft of draftState.available; let i = index" (click)="useDraft(draft)">
 
         <div class="first-line clickable no-highlight">
 

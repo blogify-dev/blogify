@@ -29,8 +29,8 @@ export class NewArticleComponent implements OnInit {
 
     result: { status: Result, message: string } = { status: 'none', message: null };
 
-    drafts: Article[] = [];
-    showingDrafts = false
+    draftState: { available: Article[], areShowing: boolean } =
+        { available: [], areShowing: false }
 
     constructor (
         private articleService: ArticleService,
@@ -51,14 +51,14 @@ export class NewArticleComponent implements OnInit {
         // on an initial page load for some reason. -- Ben
         this.activatedRoute.firstChild?.url.pipe (
             map(fragments => fragments.some(it => it.path === 'drafts')),
-            tap(state => this.showingDrafts = state)
+            tap(state => this.draftState.areShowing = state)
         ).subscribe();
 
         // This only collects new navigation events. not the initial ones. So this takes care of in-visit navigation. -- Ben
         this.router.events.pipe (
             filter(e => e instanceof NavigationEnd),
             map(e => (e as NavigationEnd).url.split('/').some(it => it === 'drafts')),
-            tap(state => this.showingDrafts = state)
+            tap(state => this.draftState.areShowing = state)
         ).subscribe();
 
         // Get all drafts for user if logged in
@@ -69,7 +69,7 @@ export class NewArticleComponent implements OnInit {
                     quantity: 15,
                     page: 0,
                     byUser: this.authService.currentUser
-                }).then(it => this.drafts = it.data);
+                }).then(it => this.draftState.available = it.data);
             })
         ).subscribe();
 
@@ -128,16 +128,16 @@ export class NewArticleComponent implements OnInit {
         ).then(async (article: object) => {
             this.result = {
                 status: 'success',
-                message: (asDraft ? 'Draft' : 'Article') + ' created successfully'
+                message: `${asDraft ? 'Draft' : 'Article'} created successfully`
             };
 
             if (!asDraft)
                 await this.router.navigateByUrl(`/article/${article['uuid']}`);
-            else this.drafts.push(article as Article);
+            else this.draftState.available.push(article as Article);
         }).catch(() => {
             this.result = {
                 status: 'error',
-                message: 'Error while creating article'
+                message: `Error while creating ${asDraft ? 'article' : 'draft'}`
             };
         });
     }
@@ -148,16 +148,18 @@ export class NewArticleComponent implements OnInit {
 
     deleteDraft(uuid: string) {
         this.articleService.deleteArticle(uuid)
-            .then(() => this.drafts.splice(this.drafts.findIndex(it => it.uuid === uuid)));
+            .then(() => this.draftState.available.splice(this.draftState.available.findIndex(it => it.uuid === uuid), 1));
     }
 
     useDraft(draft: Article) {
         this.formCategories.clear();
+
         this.form.patchValue({
             title: draft.title,
             content: draft.content,
             summary: draft.summary,
         });
+
         draft.categories.forEach(cat => this.formCategories.push(new FormControl(cat.name)));
 
         this.router.navigateByUrl('/article/new').then();
