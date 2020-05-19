@@ -161,7 +161,10 @@ export class NewArticleComponent implements OnInit {
 
     deleteDraft(uuid: string) {
         this.articleService.deleteArticle(uuid)
-            .then(() => this.draftState.available.splice(this.draftState.available.findIndex(it => it.uuid === uuid), 1));
+            .then(() => {
+                this.draftState.available.splice(this.draftState.available.findIndex(it => it.uuid === uuid), 1);
+                this.draftState.isEditing = null;
+            });
     }
 
     useDraft(draft: Article) {
