@@ -38,10 +38,23 @@
 
         <span class="text-medium" [className]="result.status" id="submit-result-container">{{result.message}}</span>
 
-         <button class="positive rounded hollow" [disabled]="!form.valid" (click)="saveOrUpdateDraft()">
+         <button
+                 class="positive rounded hollow"
+                 [ngClass]="{ disabled: !form.valid }"
+                 [disabled]="!form.valid"
+                 (click)="saveOrUpdateDraft()"
+         >
              {{this.draftState.isEditing ? 'Update' : 'Create'}} Draft
          </button>
-         <button [disabled]="!form.valid" class="positive rounded" (click)="createNewArticle()">Submit</button>
+
+         <button
+                 [disabled]="!form.valid"
+                 [ngClass]="{ disabled: !form.valid }"
+                 class="positive rounded"
+                 (click)="createNewArticle()"
+         >
+             Submit
+         </button>
     </span>
 
 </div>
