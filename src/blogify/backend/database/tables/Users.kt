@@ -3,6 +3,7 @@ package blogify.backend.database.tables
 import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.extensions.weakKeyFrom
 import blogify.backend.database.handling.query
+import blogify.backend.database.handling.unwrappedQuery
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
@@ -83,33 +84,32 @@ object Users : ResourceTable<User>() {
         }.get() == 1
     }
 
-    override suspend fun convert(requestContext: RequestContext, source: ResultRow) =
-        SuspendableResult.of<User, Repository.Exception.Fetching> {
-            User (
-                uuid = source[uuid],
-                username = source[username],
-                password = source[password],
-                name = source[name],
-                email = source[email],
-                isAdmin = source[isAdmin],
-                biography = source[biography],
-                profilePicture = source[profilePicture]?.let {
-                    transaction {
-                        Uploadables.select { Uploadables.fileId eq source[profilePicture]!! }
-                                .limit(1).single()
-                    }.let {
-                        Uploadables.convert(requestContext, it).get()
-                    }
-                } ?: StaticFile.None(ContentType.Any),
-                coverPicture = source[coverPicture]?.let {
-                    transaction {
-                        Uploadables.select { Uploadables.fileId eq source[coverPicture]!! }
-                                .limit(1).single()
-                    }.let {
-                        Uploadables.convert(requestContext, it).get()
-                    }
-                } ?: StaticFile.None(ContentType.Any)
-            )
-        }
+    override suspend fun convert(requestContext: RequestContext, source: ResultRow) = Wrap {
+        User (
+            uuid = source[uuid],
+            username = source[username],
+            password = source[password],
+            name = source[name],
+            email = source[email],
+            isAdmin = source[isAdmin],
+            biography = source[biography],
+            profilePicture = source[profilePicture]?.let {
+                unwrappedQuery {
+                    Uploadables.select { Uploadables.fileId eq source[profilePicture]!! }
+                            .limit(1).single()
+                }.let {
+                    Uploadables.convert(requestContext, it).get()
+                }
+            } ?: StaticFile.None(ContentType.Any),
+            coverPicture = source[coverPicture]?.let {
+                unwrappedQuery {
+                    Uploadables.select { Uploadables.fileId eq source[coverPicture]!! }
+                            .limit(1).single()
+                }.let {
+                    Uploadables.convert(requestContext, it).get()
+                }
+            } ?: StaticFile.None(ContentType.Any)
+        )
+    }
 
 }

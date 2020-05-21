@@ -17,8 +17,6 @@ import java.lang.Exception
 /**
  * This function executes a query asynchronously and returns its result.
  *
- * **DO NOT USE THIS IN A NESTED QUERY ! (EXPOSED BUG)**
- *
  * @param block the query block to execute
  *
  * @author Benjozork
@@ -33,7 +31,7 @@ suspend fun <T : Any> query(block: suspend () -> T): SuspendableResult<T, Databa
 
 /**
  * This function executes a query asynchronously and returns its result with the resulting [SuspendableResult] forcibly unwrapped.
- * Should be used for queries that should not fail.
+ * Should be used for queries that should not fail in a normal situation, even if their proper use can include failures such as not found errors.
  *
  * @param block the query block to execute
  *

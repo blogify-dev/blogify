@@ -1,23 +1,63 @@
 package blogify.backend.database.models
 
+import blogify.backend.database.binding.SqlBinding
 import blogify.backend.database.handling.query
+import blogify.backend.database.handling.unwrappedQuery
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.UserCreatedResource
-import blogify.backend.util.Sr
-import blogify.backend.util.SrList
-import blogify.backend.util.Wrap
+import blogify.backend.resources.reflect.MissingArgumentsException
+import blogify.backend.resources.reflect.construct
+import blogify.backend.util.*
+import blogify.reflect.SlicedProperty
+import blogify.reflect.extensions.klass
+import blogify.reflect.extensions.okHandle
+import blogify.reflect.getPropValueOnInstance
 
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.statements.UpdateBuilder
 
 import epgx.models.PgTable
 
+import com.github.kittinunf.result.coroutines.map
+import com.github.kittinunf.result.coroutines.mapError
+
 import java.util.*
+
+import kotlin.reflect.KProperty1
 
 abstract class ResourceTable<TResource : Resource> : PgTable() {
 
+    val bindings = mutableListOf<SqlBinding<TResource, out Any?, *>>()
+
     abstract class UserCreated<TResource : UserCreatedResource> : ResourceTable<TResource>() {
         abstract val authorColumn: Column<UUID>
+    }
+
+    // Different return types, because generics and nullability doesn't affect JVM signatures, so they can't just be overloads.
+
+    /**
+     * Creates a binding between [column] and [property]
+     */
+    fun <TProperty : Any?> bind(column: Column<TProperty>, property: KProperty1<TResource, TProperty>): SqlBinding.Value<TResource, TProperty> {
+        return SqlBinding.Value(this@ResourceTable, column, property)
+            .also { this.bindings += it }
+    }
+
+    /**
+     * Creates a binding between [column] and [property]
+     */
+    fun <TProperty : Resource?> bind(column: Column<UUID?>, property: KProperty1<TResource, TProperty>): SqlBinding.NullableReference<TResource, TProperty> {
+        return SqlBinding.NullableReference(this@ResourceTable, column, property)
+            .also { this.bindings += it }
+    }
+
+    /**
+     * Creates a binding between [column] and [property]
+     */
+    fun <TProperty : Resource> bind(column: Column<UUID>, property: KProperty1<TResource, TProperty>): SqlBinding.Reference<TResource, TProperty> {
+        return SqlBinding.Reference(this@ResourceTable, column, property)
+            .also { this.bindings += it }
     }
 
     suspend fun obtainAll(requestContext: RequestContext, limit: Int): SrList<TResource> = Wrap {
@@ -51,19 +91,65 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
             .let { this.convert(requestContext, it).get() }
     }
 
-    abstract suspend fun convert(requestContext: RequestContext, source: ResultRow): Sr<TResource>
+    open suspend fun convert(requestContext: RequestContext, source: ResultRow): Sr<TResource> {
+        val bindingsData = bindings.map {
+            (it.property.okHandle ?: never) to source[it.column]
+        }.toMap()
 
-    abstract suspend fun insert(resource: TResource): Sr<TResource>
+        // hacky ; try to find the class using bindings
+        val klass = bindings.firstOrNull()?.property?.klass
+            ?: error("at least one column-property binding is necessary to call default impl of convert()")
 
-    abstract suspend fun update(resource: TResource): Boolean
+        return klass.construct(bindingsData, requestContext)
+            .mapError { e ->
+                if (e is MissingArgumentsException)
+                    IllegalStateException("there were missing arguments when calling construct() during SQL conversion - " +
+                            "you might want to implement convert() yourself", e)
+                else e
+            }
+    }
 
-    open suspend fun delete(resource: TResource): Sr<Boolean> = Wrap {
-        query {
+    @Suppress("UNCHECKED_CAST")
+    private fun <TResource : Resource, TProperty : Any?> applyBindingToInsertOrUpdate (
+        resource: TResource,
+        insertStatement: UpdateBuilder<Number>,
+        binding: SqlBinding<TResource, TProperty, *>
+    ) {
+        val slicedProperty = getPropValueOnInstance(resource, binding.property.name, unsafe = true)
+        val value = when (slicedProperty) {
+            is SlicedProperty.Value -> slicedProperty.value
+            is SlicedProperty.NullableValue -> slicedProperty.value
+            else -> never
+        } as TProperty
+
+        binding.applyToUpdateOrInsert(insertStatement, value)
+    }
+
+    open suspend fun insert(resource: TResource): Sr<TResource> {
+        return query {
+            this.insert {
+                for (binding in bindings) {
+                    applyBindingToInsertOrUpdate(resource, it, binding)
+                }
+            }
+        }.map { resource }
+    }
+
+    open suspend fun update(resource: TResource): Boolean {
+        return query {
+            this.update({ uuid eq resource.uuid }) {
+                for (binding in bindings) {
+                    applyBindingToInsertOrUpdate(resource, it, binding)
+                }
+            }
+        }.asBoolean()
+    }
+
+    open suspend fun delete(resource: TResource): Boolean = Wrap {
+        unwrappedQuery {
             this.deleteWhere { uuid eq resource.uuid }
         }
-
-        true
-    }
+    }.asBoolean()
 
     val uuid = uuid("uuid")
 

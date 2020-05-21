@@ -1,6 +1,8 @@
 package blogify.backend.resources.reflect
 
 import blogify.backend.appContext
+import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.pipelines.wrapping.RequestContextFunction
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.util.*
@@ -19,11 +21,7 @@ import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 
-import com.fasterxml.jackson.databind.module.SimpleModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-
-import io.ktor.http.ContentType
 
 import com.github.kittinunf.result.coroutines.mapError
 
@@ -31,7 +29,7 @@ import java.lang.IllegalStateException
 
 import com.andreapivetta.kolor.red
 
-private class MissingArgumentsException(vararg val parameters: KParameter)
+class MissingArgumentsException(vararg val parameters: KParameter)
     : IllegalArgumentException("missing value(s) for parameter(s) ${parameters.joinToString(prefix = "[", postfix = "]") { it.name.toString() }}")
 
 private val noExternalFetcherMessage =
@@ -43,7 +41,7 @@ private val noExternalFetcherMessage =
  *
  * @receiver the [KClass] we wish to instantiate
  *
- * @param data          the [data][MappedData] we are going to be using to instantiate the object.
+ * @param data            the [data][MappedData] we are going to be using to instantiate the object.
  *                        All non-optional primary constructor properties must be present or else the returned [Sr] will be a failure.
  * @param externalFetcher a function that is used to fetch other [resources][Resource] requires by the instantiated objects.
  *                        Takes the type of the property and an [UUID].
@@ -158,3 +156,11 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
             else IllegalStateException("exception while instantiating class ${this.simpleName}", error.cause ?: error)
         }
 }
+
+@Suppress("UNCHECKED_CAST")
+suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
+    data:               MappedData,
+    requestContext:     RequestContext,
+    externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
+): Sr<TMapped> = this.construct(data, { klass, uuid -> requestContext.repository(klass).get(id = uuid) }, externallyProvided)
+

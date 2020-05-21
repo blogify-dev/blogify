@@ -61,6 +61,6 @@ open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repos
     }
 
     override suspend fun delete(res: R): Sr<UUID>
-            = this.table.delete(res).map { res.uuid }
+            = this.table.delete(res).let { Wrap { res.uuid } }
 
 }

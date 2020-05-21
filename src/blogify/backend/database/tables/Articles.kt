@@ -3,16 +3,19 @@ package blogify.backend.database.tables
 import blogify.backend.appContext
 import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.extensions.strongKey
-import blogify.backend.database.handling.query
+import blogify.backend.database.handling.unwrappedQuery
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.user.User
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
+import blogify.backend.util.asBoolean
+import blogify.backend.util.asResult
 
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
+
+import com.github.kittinunf.result.coroutines.map
 
 object Articles : ResourceTable.UserCreated<Article>() {
 
@@ -26,102 +29,74 @@ object Articles : ResourceTable.UserCreated<Article>() {
 
     override val authorColumn = createdBy
 
-    override suspend fun insert(resource: Article): Sr<Article> {
-        return Wrap {
-            query {
-                this.insert {
-                    it[uuid] = resource.uuid
-                    it[title] = resource.title
-                    it[createdAt] = resource.createdAt
-                    it[createdBy] = resource.createdBy.uuid
-                    it[content] = resource.content
-                    it[summary] = resource.summary
-                    it[isDraft] = resource.isDraft
-                    it[isPinned] = resource.isPinned
-                }
-            }.get()
-
-            query {
-                Categories.batchInsert(resource.categories) {
-                    this[Categories.article] = resource.uuid
-                    this[Categories.name] = it.name
-                }
-            }.get()
-
-            return@Wrap resource
-        }
+    init {
+        bind (uuid,      Article::uuid)
+        bind (title,     Article::title)
+        bind (createdAt, Article::createdAt)
+        bind (createdBy, Article::createdBy)
+        bind (content,   Article::content)
+        bind (summary,   Article::summary)
+        bind (isDraft,   Article::isDraft)
+        bind (isPinned,  Article::isPinned)
     }
 
-    override suspend fun update(resource: Article): Boolean {
-        return try {
+    override suspend fun insert(resource: Article): Sr<Article> = Wrap {
+        super.insert(resource).get()
 
-            query {
-                this.update(where = { uuid eq resource.uuid }) {
-                    it[uuid] = resource.uuid
-                    it[title] = resource.title
-                    it[createdAt] = resource.createdAt
-                    it[createdBy] = resource.createdBy.uuid
-                    it[content] = resource.content
-                    it[summary] = resource.summary
-                    it[isDraft] = resource.isDraft
-                    it[isPinned] = resource.isPinned
-                }
-            }.get()
-
-            query {
-                Categories.deleteWhere { Categories.article eq resource.uuid } == 1
-            }.get()
-
-            query {
-                Categories.batchInsert(resource.categories) {
-                    this[Categories.article] = resource.uuid
-                    this[Categories.name] = it.name
-                }
-            }.get()
-
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    override suspend fun delete(resource: Article) =
-        Wrap {
-            super.delete(resource)
-            query {
-                Categories.deleteWhere { Categories.article eq resource.uuid } == 1
+        unwrappedQuery {
+            Categories.batchInsert(resource.categories) {
+                this[Categories.article] = resource.uuid
+                this[Categories.name] = it.name
             }
+        }
+    }.map { resource }
 
-            true
+    override suspend fun update(resource: Article): Boolean = Wrap {
+        super.update(resource).asResult()
+
+        unwrappedQuery {
+            Categories.deleteWhere { Categories.article eq resource.uuid } == 1
         }
 
-    override suspend fun convert(requestContext: RequestContext, source: ResultRow) =
-        Wrap {
-            Article (
-                uuid = source[uuid],
-                title = source[title],
-                createdAt = source[createdAt],
-                createdBy = appContext.repository<User>()
-                    .get(requestContext, source[createdBy]).get(),
-                content = source[content],
-                summary = source[summary],
-                isDraft = source[isDraft],
-                isPinned = source[isPinned],
-                categories = transaction {
-                    Categories.select { Categories.article eq source[uuid] }.toList()
-                }.map { Categories.convert(it) }
-            )
+        unwrappedQuery {
+            Categories.batchInsert(resource.categories) {
+                this[Categories.article] = resource.uuid
+                this[Categories.name] = it.name
+            }
         }
+    }.asBoolean()
+
+    override suspend fun delete(resource: Article) = Wrap {
+        super.delete(resource).asResult().get()
+
+        unwrappedQuery {
+            Categories.deleteWhere { Categories.article eq resource.uuid } == 1
+        }
+    }.asBoolean()
+
+    override suspend fun convert(requestContext: RequestContext, source: ResultRow) = Wrap {
+        Article (
+            uuid = source[uuid],
+            title = source[title],
+            createdAt = source[createdAt],
+            createdBy = appContext.repository<User>()
+                .get(requestContext, source[createdBy]).get(),
+            content = source[content],
+            summary = source[summary],
+            isDraft = source[isDraft],
+            isPinned = source[isPinned],
+            categories = unwrappedQuery {
+                Categories.select { Categories.article eq source[uuid] }.toList()
+            }.map { Categories.convert(it) }
+        )
+    }
 
     object Categories : Table() {
 
         val article = parentKey("article", Articles)
         val name    = text("name")
 
-        override val primaryKey = PrimaryKey(
-            article,
-            name
-        )
+        override val primaryKey = PrimaryKey(article, name)
 
         @Suppress("RedundantSuspendModifier")
         suspend fun convert(source: ResultRow) =
