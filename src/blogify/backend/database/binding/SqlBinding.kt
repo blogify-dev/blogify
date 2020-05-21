@@ -13,6 +13,11 @@ import kotlin.reflect.KProperty1
 /**
  * Represents a binding between a [property] of [TResource]`::class and it's storage in the database
  *
+ * @see Value
+ * @see Reference
+ * @see NullableReference
+ * @see ReferenceToMany
+ *
  * @author Benjozork
  *
  * @property table    the table for [TResource]
