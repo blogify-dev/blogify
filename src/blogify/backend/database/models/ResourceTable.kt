@@ -28,6 +28,9 @@ import kotlin.reflect.KProperty1
 
 abstract class ResourceTable<TResource : Resource> : PgTable() {
 
+    /**
+     * A list of all [bindings][SqlBinding] present for this table
+     */
     val bindings = mutableListOf<SqlBinding<TResource, out Any?, *>>()
 
     abstract class UserCreated<TResource : UserCreatedResource> : ResourceTable<TResource>() {
@@ -35,31 +38,45 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
     }
 
     /**
-     * Creates a binding between [column] and [property]
+     * Creates a binding between [column] and a [property] containing simple values
+     *
+     * @param column   the column in which UUIDs of instances of [property] are stored
+     * @param property the property of [TResource]`::class` to bind
      */
     fun <TProperty : Any?> bind(column: Column<TProperty>, property: KProperty1<TResource, TProperty>): SqlBinding.Value<TResource, TProperty> {
-        return SqlBinding.Value(this@ResourceTable, column, property)
+        return SqlBinding.Value(this@ResourceTable, property, column)
             .also { this.bindings += it }
     }
 
     /**
-     * Creates a binding between [column] and [property]
+     * Creates a binding between [column] and a [property] containing nullable references to [resources][Resource]
+     *
+     * @param column   the column in which UUIDs of instances of [property] are stored
+     * @param property the property of [TResource]`::class` to bind
      */
     fun <TProperty : Resource?> bind(column: Column<UUID?>, property: KProperty1<TResource, TProperty>): SqlBinding.NullableReference<TResource, TProperty> {
-        return SqlBinding.NullableReference(this@ResourceTable, column, property)
+        return SqlBinding.NullableReference(this@ResourceTable, property, column)
             .also { this.bindings += it }
     }
 
     /**
-     * Creates a binding between [column] and [property]
+     * Creates a binding between [column] and a [property] containing references to [resources][Resource]
+     *
+     * @param column   the column in which UUIDs of instances of [property] are stored
+     * @param property the property of [TResource]`::class` to bind
      */
     fun <TProperty : Resource> bind(column: Column<UUID>, property: KProperty1<TResource, TProperty>): SqlBinding.Reference<TResource, TProperty> {
-        return SqlBinding.Reference(this@ResourceTable, column, property)
+        return SqlBinding.Reference(this@ResourceTable, property, column)
             .also { this.bindings += it }
     }
 
     /**
-     * Creates a binding between [table] and [property]
+     * Creates a binding between [table] and a [property]
+     *
+     * @param table              the table in which instances of [property] are stored for `this` table
+     * @param property           the property of [TResource]`::class` to bind
+     * @param conversionFunction the function used to convert rows of [table] into instances of [TProperty]
+     * @param insertionFunction  the function used to on an [UpdateBuilder] to insert instances of [TProperty] into [table]
      */
     fun <TProperty : Any> bind (
         table: Table,
@@ -105,21 +122,18 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
     open suspend fun convert(requestContext: RequestContext, source: ResultRow): Sr<TResource> {
         val bindingsData = bindings.map {
             when (val binding = it) {
-                is SqlBinding.Value<*, *>,
-                is SqlBinding.Reference,
-                is SqlBinding.NullableReference -> {
-                    (binding.property.okHandle ?: never) to source[binding.column!!]
+                is SqlBinding.HasColumn<*> -> {
+                    (binding.property.okHandle ?: never) to source[binding.column]
                 }
                 is SqlBinding.ReferenceToMany<*, *> -> {
                     val resourceUuid = source[this.uuid]
 
-                    // We could potentially make selectSubQuery more specific (where condition instead of full-blown Query ?)
-                    // which would allow us to run this in obtainAll phase and greatly reduce the number of queries
-
                     (binding.property.okHandle ?: never) to unwrappedQuery {
-                        binding.selectSubQuery(resourceUuid).toSet().map { row -> binding.conversionFunction(row) }
+                        binding.otherTable.select { binding.otherTableFkToPkCol eq resourceUuid }
+                            .toSet().map { row -> binding.conversionFunction(row) }
                     }
                 }
+                else -> never
             }
 
         }.toMap()
@@ -169,11 +183,12 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
             val instances = binding.property.get(resource)
             val bindingTable = binding.otherTable
 
-            unwrappedQuery {
+            query {
                 bindingTable.batchInsert(instances) { item ->
                     binding.insertionFunction(resource, item, this)
                 }
-            }
+            }.mapError { IllegalStateException("error occurred during update in ReferenceToMany table", it) }
+                .get()
         }
     }.map { resource }
 
@@ -190,13 +205,15 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
         for (binding in bindings.filterIsInstance<SqlBinding.ReferenceToMany<TResource, Any>>()) {
             val newInstances = binding.property.get(resource)
 
-            unwrappedQuery {
+            query {
                 binding.otherTable.deleteWhere { binding.otherTableFkToPkCol eq resource.uuid }
-            }
+            }.mapError { IllegalStateException("error occurred during update in ReferenceToMany table", it) }
+                .get()
 
-            unwrappedQuery {
+            query {
                 binding.otherTable.batchInsert(newInstances) { item -> binding.insertionFunction(resource, item, this) }
-            }
+            }.mapError { IllegalStateException("error occurred during update in ReferenceToMany table", it) }
+                .get()
         }
     }.asBoolean()
 
