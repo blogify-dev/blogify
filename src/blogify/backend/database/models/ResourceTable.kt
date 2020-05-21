@@ -177,16 +177,28 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
         }
     }.map { resource }
 
-    // TODO teach this to understand ReferenceToMany bindings
-    open suspend fun update(resource: TResource): Boolean {
-        return query {
+    open suspend fun update(resource: TResource): Boolean = Wrap {
+        unwrappedQuery {
             this.update({ uuid eq resource.uuid }) {
                 for (binding in bindings) {
-                    applyBindingToInsertOrUpdate(resource, it, binding)
+                    if (binding !is SqlBinding.ReferenceToMany<*, *>)
+                        applyBindingToInsertOrUpdate(resource, it, binding)
                 }
             }
-        }.asBoolean()
-    }
+        }
+
+        for (binding in bindings.filterIsInstance<SqlBinding.ReferenceToMany<TResource, Any>>()) {
+            val newInstances = binding.property.get(resource)
+
+            unwrappedQuery {
+                binding.otherTable.deleteWhere { binding.otherTableFkToPkCol eq resource.uuid }
+            }
+
+            unwrappedQuery {
+                binding.otherTable.batchInsert(newInstances) { item -> binding.insertionFunction(resource, item, this) }
+            }
+        }
+    }.asBoolean()
 
     open suspend fun delete(resource: TResource): Boolean = Wrap {
         unwrappedQuery {

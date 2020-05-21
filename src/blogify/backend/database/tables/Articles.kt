@@ -2,12 +2,8 @@ package blogify.backend.database.tables
 
 import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.extensions.strongKey
-import blogify.backend.database.handling.unwrappedQuery
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.resources.Article
-import blogify.backend.util.Wrap
-import blogify.backend.util.asBoolean
-import blogify.backend.util.asResult
 
 import org.jetbrains.exposed.sql.*
 
@@ -43,21 +39,6 @@ object Articles : ResourceTable.UserCreated<Article>() {
             }
         )
     }
-
-    override suspend fun update(resource: Article): Boolean = Wrap {
-        super.update(resource).asResult()
-
-        unwrappedQuery {
-            Categories.deleteWhere { Categories.article eq resource.uuid } == 1
-        }
-
-        unwrappedQuery {
-            Categories.batchInsert(resource.categories) {
-                this[Categories.article] = resource.uuid
-                this[Categories.name] = it.name
-            }
-        }
-    }.asBoolean()
 
     object Categories : Table() {
 

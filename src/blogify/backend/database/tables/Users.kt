@@ -5,7 +5,6 @@ import blogify.backend.database.extensions.weakKeyFrom
 import blogify.backend.database.handling.query
 import blogify.backend.database.handling.unwrappedQuery
 import blogify.backend.database.models.ResourceTable
-import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.user.User
 import blogify.backend.resources.static.models.StaticFile
@@ -14,9 +13,6 @@ import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
-
-import com.github.kittinunf.result.coroutines.SuspendableResult
 
 import io.ktor.http.ContentType
 

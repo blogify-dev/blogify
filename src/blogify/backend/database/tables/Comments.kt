@@ -33,8 +33,8 @@ object Comments : ResourceTable.UserCreated<Comment>() {
 
     object Likes : Table("comment_likes") {
 
-        val user    = parentKey("user", Users)
-        val comment = parentKey("comment", Comments)
+        val user    = parentKey ("user", Users)
+        val comment = parentKey ("comment", Comments)
 
         override val primaryKey = PrimaryKey(user, comment)
     }
