@@ -188,7 +188,6 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
         }.asBoolean()
     }
 
-    // TODO teach this to understand ReferenceToMany bindings
     open suspend fun delete(resource: TResource): Boolean = Wrap {
         unwrappedQuery {
             this.deleteWhere { uuid eq resource.uuid }

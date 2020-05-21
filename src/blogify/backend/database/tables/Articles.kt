@@ -59,14 +59,6 @@ object Articles : ResourceTable.UserCreated<Article>() {
         }
     }.asBoolean()
 
-    override suspend fun delete(resource: Article) = Wrap {
-        super.delete(resource).asResult().get()
-
-        unwrappedQuery {
-            Categories.deleteWhere { Categories.article eq resource.uuid } == 1
-        }
-    }.asBoolean()
-
     object Categories : Table() {
 
         val article = parentKey("article", Articles)
