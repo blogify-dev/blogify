@@ -5,14 +5,11 @@ import blogify.backend.database.extensions.strongKey
 import blogify.backend.database.handling.unwrappedQuery
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.resources.Article
-import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 import blogify.backend.util.asBoolean
 import blogify.backend.util.asResult
 
 import org.jetbrains.exposed.sql.*
-
-import com.github.kittinunf.result.coroutines.map
 
 object Articles : ResourceTable.UserCreated<Article>() {
 
@@ -36,21 +33,16 @@ object Articles : ResourceTable.UserCreated<Article>() {
         bind (isDraft,   Article::isDraft)
         bind (isPinned,  Article::isPinned)
 
-        bind (Categories, Article::categories) { row ->
-            Article.Category(row[Categories.name])
-        }
-    }
-
-    override suspend fun insert(resource: Article): Sr<Article> = Wrap {
-        super.insert(resource).get()
-
-        unwrappedQuery {
-            Categories.batchInsert(resource.categories) {
-                this[Categories.article] = resource.uuid
-                this[Categories.name] = it.name
+        bind (Categories, Article::categories,
+            conversionFunction = { row ->
+                Article.Category(row[Categories.name])
+            },
+            insertionFunction = { article, category, insert ->
+                insert[Categories.article] = article.uuid
+                insert[Categories.name] = category.name
             }
-        }
-    }.map { resource }
+        )
+    }
 
     override suspend fun update(resource: Article): Boolean = Wrap {
         super.update(resource).asResult()
@@ -82,12 +74,6 @@ object Articles : ResourceTable.UserCreated<Article>() {
 
         override val primaryKey = PrimaryKey(article, name)
 
-        @Suppress("RedundantSuspendModifier")
-        suspend fun convert(source: ResultRow) =
-            Article.Category(
-                name = source[name]
-            )
-
     }
 
     object Likes: Table("article_likes") {
@@ -95,10 +81,7 @@ object Articles : ResourceTable.UserCreated<Article>() {
         val user    = parentKey("user", Users)
         val article = parentKey("article", Articles)
 
-        override val primaryKey = PrimaryKey(
-            user,
-            article
-        )
+        override val primaryKey = PrimaryKey(user, article)
 
     }
 

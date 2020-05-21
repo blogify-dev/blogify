@@ -47,16 +47,17 @@ sealed class SqlBinding<TResource : Resource, TProperty : Any?, TColumn : Any?> 
     class ReferenceToMany<TResource : Resource, TProperty : Any> (
         table: ResourceTable<TResource>,
         property: KProperty1<TResource, Collection<TProperty>>,
-        otherTable: Table,
-        val conversionFunction: (ResultRow) -> TProperty
+        val otherTable: Table,
+        val conversionFunction: (ResultRow) -> TProperty,
+        val insertionFunction: (TResource, TProperty, UpdateBuilder<Number>) -> Unit
     ) : SqlBinding<TResource, Collection<TProperty>, UUID>(table, null, property) {
 
         @Suppress("UNCHECKED_CAST")
-        private val otherTableFktoPkCol = otherTable.columns.firstOrNull { it.referee == table.uuid } as? Column<UUID>
+        private val otherTableFkToPkCol = otherTable.columns.firstOrNull { it.referee == table.uuid } as? Column<UUID>
             ?: error("cannot make a ReferenceToMany SqlBinding: no foreign key from target table to PK of origin table")
 
         override val selectSubQuery: (UUID) -> Query =
-            { uuid -> otherTable.select { otherTableFktoPkCol eq uuid } }
+            { uuid -> otherTable.select { otherTableFkToPkCol eq uuid } }
 
     }
 

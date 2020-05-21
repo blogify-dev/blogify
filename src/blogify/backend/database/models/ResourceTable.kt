@@ -34,8 +34,6 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
         abstract val authorColumn: Column<UUID>
     }
 
-    // Different return types, because generics and nullability doesn't affect JVM signatures, so they can't just be overloads.
-
     /**
      * Creates a binding between [column] and [property]
      */
@@ -60,8 +58,16 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
             .also { this.bindings += it }
     }
 
-    fun <TProperty : Any> bind(table: Table, property: KProperty1<TResource, Collection<TProperty>>, conversionFunction: (ResultRow) -> TProperty): SqlBinding.ReferenceToMany<TResource, TProperty> {
-        return SqlBinding.ReferenceToMany(this@ResourceTable, property, table, conversionFunction)
+    /**
+     * Creates a binding between [table] and [property]
+     */
+    fun <TProperty : Any> bind (
+        table: Table,
+        property: KProperty1<TResource, Collection<TProperty>>,
+        conversionFunction: (ResultRow) -> TProperty,
+        insertionFunction: (TResource, TProperty, UpdateBuilder<Number>) -> Unit
+    ): SqlBinding.ReferenceToMany<TResource, TProperty> {
+        return SqlBinding.ReferenceToMany(this@ResourceTable, property, table, conversionFunction, insertionFunction)
             .also { this.bindings += it }
     }
 
@@ -137,6 +143,8 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
         insertStatement: UpdateBuilder<Number>,
         binding: SqlBinding<TResource, TProperty, *>
     ) {
+        assert(binding !is SqlBinding.ReferenceToMany<*, *>) { "applyBindingToInsertOrUpdate should not be called on SqlBinding.ReferenceToMany" }
+
         val slicedProperty = getPropValueOnInstance(resource, binding.property.name, unsafe = true)
         val value = when (slicedProperty) {
             is SlicedProperty.Value -> slicedProperty.value
@@ -147,16 +155,27 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
         binding.applyToUpdateOrInsert(insertStatement, value)
     }
 
-    // TODO teach this to understand ReferenceToMany bindings
-    open suspend fun insert(resource: TResource): Sr<TResource> {
-        return query {
+    open suspend fun insert(resource: TResource): Sr<TResource> = Wrap {
+        unwrappedQuery {
             this.insert {
                 for (binding in bindings) {
-                    applyBindingToInsertOrUpdate(resource, it, binding)
+                    if (binding !is SqlBinding.ReferenceToMany<*, *>)
+                        applyBindingToInsertOrUpdate(resource, it, binding)
                 }
             }
-        }.map { resource }
-    }
+        }
+
+        for (binding in bindings.filterIsInstance<SqlBinding.ReferenceToMany<TResource, Any>>()) {
+            val instances = binding.property.get(resource)
+            val bindingTable = binding.otherTable
+
+            unwrappedQuery {
+                bindingTable.batchInsert(instances) { item ->
+                    binding.insertionFunction(resource, item, this)
+                }
+            }
+        }
+    }.map { resource }
 
     // TODO teach this to understand ReferenceToMany bindings
     open suspend fun update(resource: TResource): Boolean {
