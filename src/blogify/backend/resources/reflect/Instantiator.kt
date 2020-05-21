@@ -162,5 +162,4 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
     data:               MappedData,
     requestContext:     RequestContext,
     externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
-): Sr<TMapped> = this.construct(data, { klass, uuid -> requestContext.repository(klass).get(id = uuid) }, externallyProvided)
-
+): Sr<TMapped> = this.construct(data, { klass, uuid -> requestContext.repository(klass).get(request = requestContext, id = uuid) }, externallyProvided)
