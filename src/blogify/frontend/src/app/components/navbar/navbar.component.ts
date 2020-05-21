@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { User } from '@blogify/models/User';
 import { faBell, faMoon, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { ThemeService } from '@blogify/core/services/theme/theme.service';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-navbar',
@@ -15,6 +16,8 @@ export class NavbarComponent implements OnInit {
     user: User;
 
     areNotificationsShowing = false;
+
+    faUser = faUser;
 
     faSignOutAlt = faSignOutAlt;
     faBell = faBell;

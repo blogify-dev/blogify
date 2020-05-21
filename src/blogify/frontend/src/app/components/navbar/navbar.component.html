@@ -40,24 +40,30 @@
             <span class="separator" *ngIf="authService.observeIsLoggedIn() | async"></span>
 
             <span id="notifications" class="clickable hover-mild" [ngClass]="this.areNotificationsShowing ? 'mild' : ''" *ngIf="authService.observeIsLoggedIn() | async" (click)="toggleNotifications()">
-                <fa-icon size="lg" [icon]="faBell" [transform]="{ y: 0, size: 16 }"></fa-icon>
+                <fa-icon size="lg" [icon]="faBell" [transform]="{ size: 16 }"></fa-icon>
             </span>
 
             <b-notifications-popover (needsToClose)="this.toggleNotifications()" *ngIf="this.areNotificationsShowing"></b-notifications-popover>
 
             <span id="theme-switch" class="clickable" (click)="toggleDarkMode()">
-                <fa-icon size="lg" [icon]="faMoon" [transform]="{ y: 0, size: 14 }"></fa-icon>
+                <fa-icon size="lg" [icon]="faMoon" [transform]="{ size: 14 }"></fa-icon>
             </span>
 
             <span class="separator" *ngIf="authService.observeIsLoggedIn() | async"></span>
 
             <span id="logout" class="clickable hover-negative" *ngIf="authService.observeIsLoggedIn() | async" (click)="logout()">
-                <fa-icon size="lg" [icon]="faSignOutAlt" [transform]="{ y: 0, x: 2, size: 17 }"></fa-icon>
+                <fa-icon size="lg" [icon]="faSignOutAlt" [transform]="{ x: 2, size: 17 }"></fa-icon>
             </span>
 
-            <span id="login" class="clickable" *ngIf="!(authService.observeIsLoggedIn() | async)" (click)="navigateToLogin()">
-                Login
-            </span>
+            <ng-container *ngIf="!(authService.observeIsLoggedIn() | async)">
+                <span class="separator" style="height: 30px"></span>
+
+                <span id="login" class="clickable" (click)="navigateToLogin()">
+                    <fa-icon [icon]="faUser" size="lg" [transform]="{ size: 14 }"></fa-icon>
+
+                    Login
+                </span>
+            </ng-container>
 
         </span>
 

@@ -1,6 +1,6 @@
-@import "../../../styles/fonts";
-@import "../../../styles/colours";
-@import "../../../styles/mixins";
+@import "src/styles/fonts";
+@import "src/styles/colours";
+@import "src/styles/mixins";
 @import "src/styles/layouts";
 
 :host {
@@ -87,6 +87,14 @@ nav {
                 font-weight: 400;
             }
 
+            #logout {
+
+            }
+
+            #login {
+                font-weight: bold;
+            }
+
         }
 
         #profile {
@@ -104,10 +112,6 @@ nav {
 
             margin-right: .25em;
         }
-
-        /* #logout {
-            &:hover { color: var(--accent-negative); }
-        } */
 
     }
 
