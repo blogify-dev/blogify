@@ -3,7 +3,7 @@ package blogify.backend.database.binding
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.resources.models.Resource
 
-import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 
 import java.util.*
@@ -12,11 +12,13 @@ import kotlin.reflect.KProperty1
 
 sealed class SqlBinding<TResource : Resource, TProperty : Any?, TColumn : Any?> (
     val table: ResourceTable<TResource>,
-    val column: Column<TColumn>,
+    val column: Column<TColumn>?,
     val property: KProperty1<TResource, TProperty>
 ) {
 
-    abstract fun applyToUpdateOrInsert(builder: UpdateBuilder<Number>, value: TProperty)
+    open fun applyToUpdateOrInsert(builder: UpdateBuilder<Number>, value: TProperty) {}
+
+    open val selectSubQuery: (UUID) -> Query = { TODO() }
 
     class Value<TResource : Resource, TProperty : Any?> (
         table: ResourceTable<TResource>,
@@ -25,7 +27,7 @@ sealed class SqlBinding<TResource : Resource, TProperty : Any?, TColumn : Any?> 
     ) : SqlBinding<TResource, TProperty, TProperty>(table, column, property) {
 
         override fun applyToUpdateOrInsert(builder: UpdateBuilder<Number>, value: TProperty) {
-            builder[column] = value
+            builder[column!!] = value
         }
 
     }
@@ -37,8 +39,24 @@ sealed class SqlBinding<TResource : Resource, TProperty : Any?, TColumn : Any?> 
     ) : SqlBinding<TResource, TProperty, UUID>(table, column, property) {
 
         override fun applyToUpdateOrInsert(builder: UpdateBuilder<Number>, value: TProperty) {
-            builder[column] = value.uuid
+            builder[column!!] = value.uuid
         }
+
+    }
+
+    class ReferenceToMany<TResource : Resource, TProperty : Any> (
+        table: ResourceTable<TResource>,
+        property: KProperty1<TResource, Collection<TProperty>>,
+        otherTable: Table,
+        val conversionFunction: (ResultRow) -> TProperty
+    ) : SqlBinding<TResource, Collection<TProperty>, UUID>(table, null, property) {
+
+        @Suppress("UNCHECKED_CAST")
+        private val redTableIdentityCol = otherTable.columns.firstOrNull { it.referee == table.uuid } as? Column<UUID>
+            ?: error("cannot make a ReferenceToMany SqlBinding: no foreign key from target table to PK of origin table")
+
+        override val selectSubQuery: (UUID) -> Query =
+            { uuid -> otherTable.select { redTableIdentityCol eq uuid } }
 
     }
 
@@ -49,7 +67,7 @@ sealed class SqlBinding<TResource : Resource, TProperty : Any?, TColumn : Any?> 
     ) : SqlBinding<TResource, TProperty, UUID?>(table, column, property) {
 
         override fun applyToUpdateOrInsert(builder: UpdateBuilder<Number>, value: TProperty) {
-            builder[column] = value?.uuid
+            builder[column!!] = value?.uuid
         }
 
     }

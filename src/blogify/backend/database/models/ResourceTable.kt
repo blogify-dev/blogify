@@ -60,6 +60,11 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
             .also { this.bindings += it }
     }
 
+    fun <TProperty : Any> bind(table: Table, property: KProperty1<TResource, Collection<TProperty>>, conversionFunction: (ResultRow) -> TProperty): SqlBinding.ReferenceToMany<TResource, TProperty> {
+        return SqlBinding.ReferenceToMany(this@ResourceTable, property, table, conversionFunction)
+            .also { this.bindings += it }
+    }
+
     suspend fun obtainAll(requestContext: RequestContext, limit: Int): SrList<TResource> = Wrap {
         query { this.selectAll().limit(limit).toSet() }.get()
             .map { this.convert(requestContext, it).get() }
@@ -93,7 +98,24 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
 
     open suspend fun convert(requestContext: RequestContext, source: ResultRow): Sr<TResource> {
         val bindingsData = bindings.map {
-            (it.property.okHandle ?: never) to source[it.column]
+            when (val binding = it) {
+                is SqlBinding.Value<*, *>,
+                is SqlBinding.Reference,
+                is SqlBinding.NullableReference -> {
+                    (binding.property.okHandle ?: never) to source[binding.column!!]
+                }
+                is SqlBinding.ReferenceToMany<*, *> -> {
+                    val resourceUuid = source[this.uuid]
+
+                    // We could potentially make selectSubQuery more specific (where condition instead of full-blown Query ?)
+                    // which would allow us to run this in obtainAll phase and greatly reduce the number of queries
+
+                    (binding.property.okHandle ?: never) to unwrappedQuery {
+                        binding.selectSubQuery(resourceUuid).toSet().map { row -> binding.conversionFunction(row) }
+                    }
+                }
+            }
+
         }.toMap()
 
         // hacky ; try to find the class using bindings
@@ -125,6 +147,7 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
         binding.applyToUpdateOrInsert(insertStatement, value)
     }
 
+    // TODO teach this to understand ReferenceToMany bindings
     open suspend fun insert(resource: TResource): Sr<TResource> {
         return query {
             this.insert {
@@ -135,6 +158,7 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
         }.map { resource }
     }
 
+    // TODO teach this to understand ReferenceToMany bindings
     open suspend fun update(resource: TResource): Boolean {
         return query {
             this.update({ uuid eq resource.uuid }) {
@@ -145,6 +169,7 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
         }.asBoolean()
     }
 
+    // TODO teach this to understand ReferenceToMany bindings
     open suspend fun delete(resource: TResource): Boolean = Wrap {
         unwrappedQuery {
             this.deleteWhere { uuid eq resource.uuid }

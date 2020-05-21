@@ -1,13 +1,10 @@
 package blogify.backend.database.tables
 
-import blogify.backend.appContext
 import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.extensions.strongKey
 import blogify.backend.database.handling.unwrappedQuery
 import blogify.backend.database.models.ResourceTable
-import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.Article
-import blogify.backend.resources.user.User
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 import blogify.backend.util.asBoolean
@@ -38,6 +35,10 @@ object Articles : ResourceTable.UserCreated<Article>() {
         bind (summary,   Article::summary)
         bind (isDraft,   Article::isDraft)
         bind (isPinned,  Article::isPinned)
+
+        bind (Categories, Article::categories) { row ->
+            Article.Category(row[Categories.name])
+        }
     }
 
     override suspend fun insert(resource: Article): Sr<Article> = Wrap {
@@ -73,23 +74,6 @@ object Articles : ResourceTable.UserCreated<Article>() {
             Categories.deleteWhere { Categories.article eq resource.uuid } == 1
         }
     }.asBoolean()
-
-    override suspend fun convert(requestContext: RequestContext, source: ResultRow) = Wrap {
-        Article (
-            uuid = source[uuid],
-            title = source[title],
-            createdAt = source[createdAt],
-            createdBy = appContext.repository<User>()
-                .get(requestContext, source[createdBy]).get(),
-            content = source[content],
-            summary = source[summary],
-            isDraft = source[isDraft],
-            isPinned = source[isPinned],
-            categories = unwrappedQuery {
-                Categories.select { Categories.article eq source[uuid] }.toList()
-            }.map { Categories.convert(it) }
-        )
-    }
 
     object Categories : Table() {
 

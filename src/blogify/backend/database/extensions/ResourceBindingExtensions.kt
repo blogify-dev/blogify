@@ -15,6 +15,6 @@ val <TResource : Resource, TProperty : Any?> KProperty1<TResource, TProperty>.bi
     get() = this.klass.table.bindings.firstOrNull { it.property == this } as? SqlBinding<TResource, TProperty, *>
         ?: never
 
-@Suppress("UNCHECKED_CAST")
-val <TResource : Resource, TProperty : Any?> KProperty1<TResource, TProperty>.column: Column<*>
-    get() = this.binding.column
+//@Suppress("UNCHECKED_CAST")
+//val <TResource : Resource, TProperty : Any?> KProperty1<TResource, TProperty>.column: Column<*>
+//    get() = this.binding.column
