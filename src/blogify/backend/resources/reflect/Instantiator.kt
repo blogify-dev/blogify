@@ -87,7 +87,9 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
                         parameter to value
                     }
                     parameter.type subTypeOf Resource::class -> { // KType of property is subtype of Resource
-                        @Suppress("UNCHECKED_CAST")
+                        if (value is Resource)
+                            return@map parameter to value
+
                         val keyResourceType = parameter.type.safeKlass<Resource>() ?: never
 
                         val valueUUID = when (value) {
