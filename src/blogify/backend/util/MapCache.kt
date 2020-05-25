@@ -1,7 +1,7 @@
 package blogify.backend.util
 
 /**
- * A simple [MutableMap]-based cache
+ * A simple [java.util.concurrent.ConcurrentHashMap]-based cache
  *
  * @author Benjozork
  */
