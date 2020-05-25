@@ -60,8 +60,8 @@ private suspend fun <A : Any, B : Any, C : Any> getAllReferences (
 ) : Sr<Map<A, Set<C>>> {
     return query {
         originField.table.join ( referenceTargetField.table, JoinType.LEFT,
-                onColumn = originField, otherColumn = referenceTargetField
-            )
+            onColumn = originField, otherColumn = referenceTargetField
+        )
             .slice(originField, returnedTargetField)
             .select(where)
             .map       { it[originField] to it.getOrNull(returnedTargetField) }
