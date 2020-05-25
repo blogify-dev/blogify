@@ -3,7 +3,6 @@ package blogify.backend.persistence.postgres
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.resources.models.Resource
-import blogify.reflect.models.PropMap
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.update
@@ -16,8 +15,6 @@ import blogify.reflect.MappedData
 import org.jetbrains.exposed.sql.*
 
 import io.ktor.http.HttpStatusCode
-
-import com.github.kittinunf.result.coroutines.map
 
 import java.util.*
 
