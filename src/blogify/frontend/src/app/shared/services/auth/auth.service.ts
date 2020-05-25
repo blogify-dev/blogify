@@ -31,6 +31,7 @@ export class AuthService {
             }).toPromise().then(currentUser => {
                 this.currentUserSubject.next({ ...currentUser, token: cachedToken });
                 this.isLoggedInSubject.next(true);
+                this.stateService.cacheUser(currentUser);
                 console.log('pushing');
             })
                 .catch(error => {
