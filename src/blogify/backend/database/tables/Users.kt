@@ -31,6 +31,14 @@ object Users : ResourceTable<User>() {
 
     init {
         index(true, username)
+
+        bind (uuid, User::uuid)
+        bind (username, User::username)
+        bind (password, User::password)
+        bind (email, User::email)
+        bind (name, User::name)
+        bind (isAdmin, User::isAdmin)
+        bind (biography, User::biography)
     }
 
     object Follows : Table() {
@@ -80,26 +88,32 @@ object Users : ResourceTable<User>() {
         }.get() == 1
     }
 
-    override suspend fun convert(requestContext: RequestContext, source: ResultRow) = Wrap {
+    override suspend fun convert (
+        requestContext: RequestContext,
+        source: ResultRow,
+        aliasToUse: Alias<ResourceTable<User>>?
+    ): Sr<User> = Wrap {
+        fun <T> get(column: Column<T>) = if (aliasToUse != null) source[aliasToUse[column]] else source[column]
+
         User (
-            uuid = source[uuid],
-            username = source[username],
-            password = source[password],
-            name = source[name],
-            email = source[email],
-            isAdmin = source[isAdmin],
-            biography = source[biography],
-            profilePicture = source[profilePicture]?.let {
+            uuid = get(uuid),
+            username = get(username),
+            password = get(password),
+            name = get(name),
+            email = get(email),
+            isAdmin = get(isAdmin),
+            biography = get(biography),
+            profilePicture = get(profilePicture)?.let {
                 unwrappedQuery {
-                    Uploadables.select { Uploadables.fileId eq source[profilePicture]!! }
+                    Uploadables.select { Uploadables.fileId eq get(profilePicture)!! }
                             .limit(1).single()
                 }.let {
                     Uploadables.convert(requestContext, it).get()
                 }
             } ?: StaticFile.None(ContentType.Any),
-            coverPicture = source[coverPicture]?.let {
+            coverPicture = get(coverPicture)?.let {
                 unwrappedQuery {
-                    Uploadables.select { Uploadables.fileId eq source[coverPicture]!! }
+                    Uploadables.select { Uploadables.fileId eq get(coverPicture)!! }
                             .limit(1).single()
                 }.let {
                     Uploadables.convert(requestContext, it).get()

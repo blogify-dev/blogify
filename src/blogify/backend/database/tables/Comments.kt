@@ -3,14 +3,9 @@ package blogify.backend.database.tables
 import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.extensions.weaKey
 import blogify.backend.database.models.ResourceTable
-import blogify.backend.persistence.models.Repository
-import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.Article
 import blogify.backend.resources.Comment
 
 import org.jetbrains.exposed.sql.*
-
-import com.github.kittinunf.result.coroutines.SuspendableResult
 
 object Comments : ResourceTable.UserCreated<Comment>() {
 

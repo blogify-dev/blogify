@@ -3,6 +3,7 @@ package blogify.backend.database.models
 import blogify.backend.database.binding.SqlBinding
 import blogify.backend.database.handling.query
 import blogify.backend.database.handling.unwrappedQuery
+import blogify.backend.database.optimizer.QueryOptimizer
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.UserCreatedResource
@@ -103,13 +104,14 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
     ): Sr<Pair<List<TResource>, Boolean>> = Wrap {
 
         query {
-            this.select(selectCondition)
+            QueryOptimizer.optimize(this.bindings.first().property.klass, selectCondition)
                 .orderBy(orderBy, sortOrder)
                 //               v-- We add one to check if we reached the end
                 .limit(quantity + 1, (page * quantity).toLong())
                 .toList()
         }.get().let { results ->
-            results.take(quantity).map { this.convert(requestContext, it).get() } to (results.size - 1 == quantity)
+            QueryOptimizer.convertOptimizedRows(requestContext, bindings.first().property.klass, results)
+                .take(quantity) to (results.size - 1 == quantity)
         }
 
     }
@@ -119,14 +121,20 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
             .let { this.convert(requestContext, it).get() }
     }
 
-    open suspend fun convert(requestContext: RequestContext, source: ResultRow): Sr<TResource> {
+    open suspend fun convert (
+        requestContext: RequestContext,
+        source: ResultRow,
+        aliasToUse: Alias<ResourceTable<TResource>>? = null
+    ): Sr<TResource> {
+        fun <T> get(column: Column<T>) = if (aliasToUse != null) source[aliasToUse[column]] else source[column]
+
         val bindingsData = bindings.map {
             when (val binding = it) {
                 is SqlBinding.HasColumn<*> -> {
-                    (binding.property.okHandle ?: never) to source[binding.column]
+                    (binding.property.okHandle ?: never) to get(binding.column)
                 }
                 is SqlBinding.ReferenceToMany<*, *> -> {
-                    val resourceUuid = source[this.uuid]
+                    val resourceUuid = get(this.uuid)
 
                     (binding.property.okHandle ?: never) to unwrappedQuery {
                         binding.otherTable.select { binding.otherTableFkToPkCol eq resourceUuid }
