@@ -1,6 +1,7 @@
 package blogify.backend.database.models
 
 import blogify.backend.database.binding.SqlBinding
+import blogify.backend.database.extensions.klass
 import blogify.backend.database.handling.query
 import blogify.backend.database.handling.unwrappedQuery
 import blogify.backend.database.optimizer.QueryOptimizer
@@ -104,13 +105,13 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
     ): Sr<Pair<List<TResource>, Boolean>> = Wrap {
 
         query {
-            QueryOptimizer.optimize(this.bindings.first().property.klass, selectCondition)
+            QueryOptimizer.optimize(this.klass, selectCondition)
                 .orderBy(orderBy, sortOrder)
                 //               v-- We add one to check if we reached the end
                 .limit(quantity + 1, (page * quantity).toLong())
                 .toList()
         }.get().let { results ->
-            QueryOptimizer.convertOptimizedRows(requestContext, bindings.first().property.klass, results)
+            QueryOptimizer.convertOptimizedRows(requestContext, klass, results)
                 .take(quantity) to (results.size - 1 == quantity)
         }
 
