@@ -1,6 +1,8 @@
 package blogify.backend.database.extensions
 
 import blogify.backend.database.models.ResourceTable
+import blogify.backend.resources.models.Resource
+
 import blogify.reflect.extensions.klass
 
 /**
@@ -9,4 +11,4 @@ import blogify.reflect.extensions.klass
  *
  * @author Benjozork
  */
-val ResourceTable<*>.klass get() = this.bindings.first().property.klass
+val <TResource : Resource> ResourceTable<TResource>.klass get() = this.bindings.first().property.klass
