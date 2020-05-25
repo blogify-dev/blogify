@@ -102,19 +102,15 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
         page: Int,
         orderBy: Column<*>,
         sortOrder: SortOrder = SortOrder.ASC
-    ): Sr<Pair<List<TResource>, Boolean>> = Wrap {
-
-        query {
-            QueryOptimizer.optimize(this.klass, selectCondition)
-                .orderBy(orderBy, sortOrder)
-                //               v-- We add one to check if we reached the end
-                .limit(quantity + 1, (page * quantity).toLong())
-                .toList()
-        }.get().let { results ->
-            QueryOptimizer.convertOptimizedRows(requestContext, klass, results)
-                .take(quantity) to (results.size - 1 == quantity)
-        }
-
+    ): Sr<Pair<List<TResource>, Boolean>> = query {
+        QueryOptimizer.optimize(this.klass, selectCondition)
+            .orderBy(orderBy, sortOrder)
+            //               v-- We add one to check if we reached the end
+            .limit(quantity + 1, (page * quantity).toLong())
+            .toList()
+    }.map { results ->
+        QueryOptimizer.convertOptimizedRows(requestContext, klass, results)
+            .take(quantity) to (results.size - 1 == quantity)
     }
 
     suspend fun obtain(requestContext: RequestContext, id: UUID): Sr<TResource> = Wrap {
