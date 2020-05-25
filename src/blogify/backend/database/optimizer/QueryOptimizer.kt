@@ -29,8 +29,11 @@ import java.util.*
  */
 object QueryOptimizer {
 
+    private val classJoinCache = MapCache<KClass<out Resource>, ColumnSet>()
+
     fun <TResource : Resource> optimize(klass: KClass<TResource>, condition: SqlExpressionBuilder.() -> Op<Boolean>): Query {
-        val mainJoin = makeJoinForClass(klass)
+        val mainJoin = classJoinCache.findOr(klass) { makeJoinForClass(klass) }
+            .assertGet()
 
         return mainJoin.select(condition)
     }
