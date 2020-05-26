@@ -53,18 +53,18 @@ object BlogifyApplicationBootstrapper {
 
     private fun doLoadConfiguration(): StartConfiguration {
         val startHost = System.getenv("BLOGIFY_HOST")?.trim()
-            ?: error("fatal: BLOGIFY_HOST must be set")
-
-        val startPort = System.getenv("BLOGIFY_PORT")?.trim()
-            ?.toIntOrNull()
-            ?.takeIf { it in 0..65535 }
-            ?: error("fatal: BLOGIFY_PORT must be set and in 0..65535")
+            ?: "0.0.0.0"
 
         val tlsEnabled = System.getenv("BLOGIFY_TLS_ENABLED")?.trim()
             ?.toIntOrNull()
             ?.takeIf { it in 0..1 }
             ?.let { it == 1 }
-            ?: error("fatal: BLOGIFY_TLS_ENABLED must be set and be either 0 or 1")
+            ?: false
+
+        val startPort = System.getenv("BLOGIFY_PORT")?.trim()
+            ?.toIntOrNull()
+            ?.takeIf { it in 0..65535 }
+            ?: if (tlsEnabled) 443 else 80
 
         val tlsConfig = if (tlsEnabled) { // Very temporary and insecure
             fun error(envVar: String): Nothing = kotlin.error("$envVar must be set and valid if BLOGIFY_ENABLE_TLS is set to 1")
