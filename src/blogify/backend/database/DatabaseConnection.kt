@@ -36,12 +36,6 @@ object DatabaseConnection {
 
     fun connect() = Database.connect(configureHikariCP(config))
 
-    open class Exception(causedBy: kotlin.Exception) : BException(causedBy) {
-
-        class NotFound(causedBy: BException) : Exception(causedBy)
-
-        class MultipleFound(causedBy: BException) : Exception(causedBy)
-
-    }
+    open class Exception(causedBy: kotlin.Exception) : BException(causedBy)
 
 }

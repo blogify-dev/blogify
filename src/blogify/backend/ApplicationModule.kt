@@ -61,7 +61,7 @@ private val dataStore = PostgresDataStore {
 
 }
 
-private var objectMapper = jacksonObjectMapper().apply {
+private val objectMapper = jacksonObjectMapper().apply {
     val blogifyModule = SimpleModule()
 
     blogifyModule.addSerializer(Resource.ResourceIdSerializer)
