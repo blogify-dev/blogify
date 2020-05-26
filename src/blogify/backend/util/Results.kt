@@ -71,6 +71,15 @@ fun <V : Any, E : Exception> SuspendableResult<V, E>.getOrPipelineError (
     }
 }
 
+
+/**
+ * Fetches the value of a [Result]. Responds with 404 if a result is not found.
+ * If the result is a [Result.Failure], throws a [PipelineException]
+ *
+ * @throws PipelineException
+ *
+ * @author hamza1311
+ */
 suspend fun <V : Any, E : Exception> SuspendableResult<V, E>.getOr404OrPipelineError(
     ctx: RequestContext,
     code:    HttpStatusCode = HttpStatusCode.InternalServerError,
