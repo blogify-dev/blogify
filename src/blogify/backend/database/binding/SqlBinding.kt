@@ -1,5 +1,6 @@
 package blogify.backend.database.binding
 
+import blogify.backend.database.extensions.foreignKeyTo
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.resources.models.Resource
 
@@ -96,7 +97,7 @@ sealed class SqlBinding<TResource : Resource, TProperty : Any?, TColumn : Any?> 
     ) : SqlBinding<TResource, Collection<TProperty>, UUID>(table, property) {
 
         @Suppress("UNCHECKED_CAST")
-        val otherTableFkToPkCol = otherTable.columns.firstOrNull { it.referee == table.uuid } as? Column<UUID>
+        val otherTableFkToPkCol = otherTable.foreignKeyTo(table)
             ?: error("cannot make a ReferenceToMany SqlBinding: no foreign key from target table to PK of origin table")
 
     }
