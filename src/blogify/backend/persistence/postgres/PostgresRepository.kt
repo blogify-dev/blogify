@@ -6,10 +6,7 @@ import blogify.backend.resources.models.Resource
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.update
-import blogify.backend.util.Sr
-import blogify.backend.util.Wrap
-import blogify.backend.util.SrList
-import blogify.backend.util.getOrPipelineError
+import blogify.backend.util.*
 import blogify.reflect.MappedData
 
 import org.jetbrains.exposed.sql.*
@@ -50,7 +47,7 @@ open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repos
         val new = res.update (
             rawData,
             fetcher = { type, uuid -> request.repository(type).get(request, uuid) }
-        ).getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't update resource")
+        ).getOr404OrPipelineError(request, HttpStatusCode.InternalServerError, "couldn't update resource")
 
         this.table.update(new)
 

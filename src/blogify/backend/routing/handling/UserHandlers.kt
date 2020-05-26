@@ -5,6 +5,7 @@ import blogify.backend.auth.handling.authenticated
 import blogify.backend.pipelines.queryUuid
 import blogify.backend.pipelines.wrapping.RequestContextFunction
 import blogify.backend.resources.user.User
+import blogify.backend.util.getOr404OrPipelineError
 import blogify.backend.util.getOrPipelineError
 
 import io.ktor.http.HttpStatusCode
@@ -18,7 +19,7 @@ val toggleUserAdmin: RequestContextFunction<Unit> = {
     val id by queryUuid
 
     val user = repository<User>().get(this, id)
-        .getOrPipelineError(HttpStatusCode.NotFound)
+        .getOr404OrPipelineError(this)
 
     authenticated({ it.isAdmin && it != user }) {
         repository<User>().updateWithProperties (

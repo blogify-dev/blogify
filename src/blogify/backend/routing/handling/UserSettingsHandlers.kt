@@ -27,7 +27,7 @@ val getSettings: RequestContextFunction<Unit> = {
             Users.slice(Users.settings)
                 .select { Users.uuid eq user.uuid }
                 .single().let { it[Users.settings] }
-        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't get settings data")
+        }.getOr404OrPipelineError(this, HttpStatusCode.InternalServerError, "couldn't get settings data")
 
         call.respond(userSettings)
     }
@@ -43,7 +43,7 @@ val updateSettings: RequestContextFunction<Unit> = {
             Users.slice(Users.settings)
                 .select { Users.uuid eq user.uuid }
                 .single().let { it[Users.settings] }
-        }.getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't get settings data")
+        }.getOr404OrPipelineError(this, HttpStatusCode.InternalServerError, "couldn't get settings data")
 
         val newSettings = Wrap {
             val updateObject = call.receive<Dto>().mappedByHandles(UserSettings::class).get()

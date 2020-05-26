@@ -5,7 +5,7 @@ import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.pipelines.wrapping.RequestContextFunction
 import blogify.backend.resources.models.Resource
-import blogify.backend.util.getOrPipelineError
+import blogify.backend.util.getOr404OrPipelineError
 import blogify.backend.util.reason
 import blogify.backend.util.toUUIDOrNull
 
@@ -109,7 +109,7 @@ inline val RequestContext.queryUuid get() = object : ReadOnlyProperty<Nothing?, 
 @PipelinesDsl
 suspend inline fun <reified R : Resource> RequestContext.obtainResource(id: UUID): R {
     return (repository<R>()::get)(this, id)
-        .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
+        .getOr404OrPipelineError(this, HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 
 /**
@@ -118,7 +118,7 @@ suspend inline fun <reified R : Resource> RequestContext.obtainResource(id: UUID
 @PipelinesDsl
 suspend inline fun <reified R : Resource> RequestContext.obtainResources(limit: Int = 25): List<R> {
     return (repository<R>()::getAll)(this, limit)
-        .getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
+        .getOr404OrPipelineError(this, HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 
 /**
@@ -140,4 +140,20 @@ fun pipelineError(code: HttpStatusCode = HttpStatusCode.BadRequest, message: Str
     )
     rootException?.printStackTrace()
     throw PipelineException(code, message)
+}
+
+/**
+ *  This calls [pipelineError] with [HttpStatusCode.InternalServerError] as `code`,
+ *  message of [exception] as `message` and [exception] as `rootException`
+ *
+ *  @param exception The exception that occurred
+ *
+ *  @author hamza1311
+ */
+fun pipelineError(exception: Exception) {
+    pipelineError(
+        code = HttpStatusCode.InternalServerError,
+        message = exception.message ?: "An error occurred",
+        rootException = exception
+    )
 }
