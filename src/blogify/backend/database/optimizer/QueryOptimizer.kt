@@ -5,6 +5,7 @@ import blogify.reflect.extensions.safeKlass
 import blogify.backend.annotations.table
 import blogify.backend.database.binding.SqlBinding
 import blogify.backend.database.handling.query
+import blogify.backend.database.models.ResourceTable
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.reflect.construct
@@ -115,7 +116,7 @@ object QueryOptimizer {
     }
 
     private suspend fun resolveManyRefItems (
-        requestContext: RequestContext,
+        request: RequestContext,
         binding: SqlBinding.ReferenceToMany<*, *>,
         withId: UUID
     ): SrList<Any> = query { // Run a query to select the ManyRef items
