@@ -143,10 +143,6 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
 
         }.toMap()
 
-        // hacky ; try to find the class using bindings
-        val klass = bindings.firstOrNull()?.property?.klass
-            ?: error("at least one column-property binding is necessary to call default impl of convert()")
-
         return klass.construct(bindingsData, requestContext)
             .mapError { e ->
                 if (e is MissingArgumentsException)
