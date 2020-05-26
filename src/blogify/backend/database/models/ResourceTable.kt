@@ -106,11 +106,25 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
             .also { this.bindings += it }
     }
 
+    /**
+     * Returns an arbitrary list of [limit] items from the table
+     */
+    @Deprecated(message = "please use obtainListing() instead")
     suspend fun obtainAll(requestContext: RequestContext, limit: Int): SrList<TResource> = Wrap {
         query { this.selectAll().limit(limit).toSet() }.get()
             .map { this.convert(requestContext, it).get() }
     }
 
+    /**
+     * Queries the table using a listing specification
+     *
+     * @param requestContext  [RequestContext] for caching
+     * @param selectCondition the `where` condition to apply in the query
+     * @param quantity        the quantity of items to fetch
+     * @param page            the page number
+     * @param orderBy         which column to specify in the `order by` clause
+     * @param sortOrder       the sort order [SortOrder] (`order by desc / asc`)
+     */
     suspend fun obtainListing (
         requestContext: RequestContext,
         selectCondition: SqlExpressionBuilder.() -> Op<Boolean>,
@@ -129,12 +143,26 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
             .take(quantity) to (results.size - 1 == quantity)
     }
 
+    /**
+     * Returns a specific entity with a certain UUID from the table
+     *
+     * @param requestContext [RequestContext] for caching
+     * @param id             the [UUID] of the entity
+     */
     suspend fun obtain(requestContext: RequestContext, id: UUID): Sr<TResource> = Wrap {
         query { this.select { uuid eq id }.single() }.get()
             .let { this.convert(requestContext, it).get() }
     }
 
-    open suspend fun convert (
+    /**
+     * Performs the conversion between a single [ResultRow] and an instance of [TResource]. Should not be used directly.
+     *
+     * @param requestContext  [RequestContext] for caching
+     * @param source          the result row to get the data from
+     * @param aliasToUse      a [table alias][Alias] to specify which columns should be used when data for multiple
+     *                        instances of [TResource] might be present in a single row
+     */
+    internal open suspend fun convert (
         requestContext: RequestContext,
         source: ResultRow,
         aliasToUse: Alias<ResourceTable<TResource>>? = null
@@ -168,6 +196,13 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
             }
     }
 
+    /**
+     * Applies a value of the binding's property for [resource] on an [`insert` / `update` statement][insertStatement]
+     *
+     * @param resource        the instance on which the value of [binding]'s property should be collected
+     * @param insertStatement an [UpdateBuilder] on which to set the binding's column to the value
+     * @param binding         the [SqlBinding] we are working with
+     */
     @Suppress("UNCHECKED_CAST")
     private fun <TResource : Resource, TProperty : Any?> applyBindingToInsertOrUpdate (
         resource: TResource,
@@ -186,6 +221,11 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
         binding.applyToUpdateOrInsert(insertStatement, value)
     }
 
+    /**
+     * Inserts [resource] into the table
+     *
+     * @return the resource itself if the insert was successful
+     */
     open suspend fun insert(resource: TResource): Sr<TResource> = Wrap {
         unwrappedQuery {
             this.insert {
@@ -209,6 +249,11 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
         }
     }.map { resource }
 
+    /**
+     * Updates [resource] into the table using it's uuid for finding the old version
+     *
+     * @return whether or not the update was successful
+     */
     open suspend fun update(resource: TResource): Boolean = Wrap {
         unwrappedQuery {
             this.update({ uuid eq resource.uuid }) {
@@ -234,6 +279,11 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
         }
     }.asBoolean()
 
+    /**
+     * Deletes [resource] from table using it's uuid for finding the item to delete
+     *
+     * @return whether or not the deletion was successful
+     */
     open suspend fun delete(resource: TResource): Boolean = Wrap {
         unwrappedQuery {
             this.deleteWhere { uuid eq resource.uuid }
