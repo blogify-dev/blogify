@@ -49,8 +49,9 @@ const routes: Routes = [
                 return null;
             }
         },
-        component: PageNotFoundFallbackComponent,
+        redirectTo: '/404'
     },
+    { path: '404', component: PageNotFoundFallbackComponent }
 ];
 
 @NgModule({
