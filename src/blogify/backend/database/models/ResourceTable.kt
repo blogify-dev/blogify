@@ -12,7 +12,6 @@ import blogify.backend.resources.reflect.MissingArgumentsException
 import blogify.backend.resources.reflect.construct
 import blogify.backend.util.*
 import blogify.reflect.SlicedProperty
-import blogify.reflect.extensions.klass
 import blogify.reflect.extensions.okHandle
 import blogify.reflect.getPropValueOnInstance
 
@@ -28,6 +27,23 @@ import java.util.*
 
 import kotlin.reflect.KProperty1
 
+/**
+ * Generic table for storing [resources][Resource] inside a postgres table.
+ *
+ * Using [SQL bindings][SqlBinding], this takes care of automagically running CRUD operations to and from the database.
+ *
+ * For example, if you provide all necessary bindings for a class, simply calling [ResourceTable.insert] should be
+ * enough to store an instance of [TResource] in the table. Likewise for [delete], [update], [obtain], [obtainListing]
+ * and [obtainAll].
+ *
+ * @param TResource the type of [Resource] to be stored
+ *
+ * @see PgTable
+ * @see Resource
+ * @see SqlBinding
+ *
+ * @author Benjozork, hamza1311
+ */
 abstract class ResourceTable<TResource : Resource> : PgTable() {
 
     /**
