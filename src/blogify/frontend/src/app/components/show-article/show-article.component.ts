@@ -43,10 +43,16 @@ export class ShowArticleComponent implements OnInit {
     isAdmin = false;
 
     ngOnInit() {
-        this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(async map => {
+        this.routeMapSubscription = this.activatedRoute.paramMap.subscribe(map => {
             const articleUUID = map.get('uuid');
 
-            this.article = await this.articleService.getArticle(articleUUID);
+            this.articleService.getArticle(articleUUID).then(resp => {
+                this.article = resp;
+            }).catch(async err => {
+                if (err.status === 404) {
+                    await this.router.navigateByUrl('/404');
+                }
+            });
 
             this.authService.observeIsLoggedIn().subscribe(async state => {
                 if (state) {
