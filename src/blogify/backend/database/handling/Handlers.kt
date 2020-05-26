@@ -22,11 +22,10 @@ import java.lang.Exception
  * @author Benjozork
  */
 @BlogifyDsl
-suspend fun <T : Any> query(block: suspend () -> T): SuspendableResult<T, DatabaseConnection.Exception> {
+suspend fun <T : Any> query(block: suspend () -> T): SuspendableResult<T, Exception> {
     return SuspendableResult.of<T, Exception> { // The transaction can throw any Exception; specify that
         withContext(Dispatchers.IO) { newSuspendedTransaction { block() } } // Run the transaction
     }
-        .mapError { ex -> DatabaseConnection.Exception(ex) } // We can now wrap that generic exception inside a DBex
 }
 
 /**

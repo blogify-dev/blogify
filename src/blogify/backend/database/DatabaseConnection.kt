@@ -2,7 +2,6 @@ package blogify.backend.database
 
 import blogify.backend.config.Configs
 import blogify.backend.config.DatabaseConfig
-import blogify.backend.util.BException
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -35,7 +34,5 @@ object DatabaseConnection {
     }
 
     fun connect() = Database.connect(configureHikariCP(config))
-
-    open class Exception(causedBy: kotlin.Exception) : BException(causedBy)
 
 }

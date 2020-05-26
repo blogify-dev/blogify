@@ -11,8 +11,6 @@ import com.github.kittinunf.result.coroutines.SuspendableResult
 import kotlinx.coroutines.runBlocking
 import java.lang.IllegalStateException
 
-open class BException(causedBy: Exception) : Exception(causedBy)
-
 typealias Sr<V> = SuspendableResult<V, Exception>
 typealias SrList<V> = SuspendableResult<List<V>, Exception>
 

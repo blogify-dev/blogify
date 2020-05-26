@@ -33,7 +33,6 @@ private suspend fun <A : Any> countReferences (
     return query {
         referenceField.table.select { referenceField eq referenceValue and where() }.count().toInt()
     }
-        .mapError { e -> Repository.Exception(e) }
 }
 
 private suspend fun <A : Any> countAllReferences (

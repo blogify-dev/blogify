@@ -115,12 +115,4 @@ interface Repository<R : Resource> {
      */
     suspend fun delete(res: R): Sr<UUID>
 
-    // Service exceptions
-
-    open class Exception(causedBy: BException) : BException(causedBy) {
-
-        class Fetching(causedBy: BException) : Exception(causedBy)
-
-    }
-
 }
