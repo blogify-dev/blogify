@@ -62,7 +62,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
                 val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
                 val matchingUser = repository<User>().getOneMatching(this) { Users.username eq username }
-                    .getOr404OrPipelineError(this)
+                    .getOr404OrPipelineError()
 
                 optionallyAuthenticated { user ->
                     applyDefaultComputedPropertyResolver(matchingUser, user)

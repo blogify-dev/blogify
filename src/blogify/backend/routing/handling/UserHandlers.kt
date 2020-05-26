@@ -19,7 +19,7 @@ val toggleUserAdmin: RequestContextFunction<Unit> = {
     val id by queryUuid
 
     val user = repository<User>().get(this, id)
-        .getOr404OrPipelineError(this)
+        .getOr404OrPipelineError()
 
     authenticated({ it.isAdmin && it != user }) {
         repository<User>().updateWithProperties (

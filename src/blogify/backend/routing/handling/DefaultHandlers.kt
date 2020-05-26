@@ -42,7 +42,6 @@ import blogify.backend.auth.handling.optionallyAuthenticated
 import blogify.backend.database.tables.ImageUploadablesMetadata
 import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.RequestContext
-
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.Article
 import blogify.backend.resources.reflect.*
@@ -159,7 +158,7 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing (
     val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
     val results = repo.queryListing(this, selectCondition, quantity, page, orderBy, sortOrder)
-        .getOr404OrPipelineError(this, HttpStatusCode.InternalServerError, "couldn't query listing")
+        .getOr404OrPipelineError(HttpStatusCode.InternalServerError, "couldn't query listing")
 
     optionallyAuthenticated { user ->
         for (resource in results.first) {
@@ -289,7 +288,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
                     it[fileId]      = newHandle.fileId
                     it[contentType] = newHandle.contentType.toString()
                 }
-            }.getOr404OrPipelineError(this, HttpStatusCode.InternalServerError, "error while writing static resource to db")
+            }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing static resource to db")
 
             // Is it an image ? If so, create and store metadata
             if (fileContentType matches ContentType.Image.Any) {
@@ -315,7 +314,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
                         }
                         else -> {
                             val exif = metadata.getFirstDirectoryOfType(ExifImageDirectory::class.java)
-                                ?: pipelineError(
+                                ?: pipelineError (
                                     HttpStatusCode.UnsupportedMediaType,
                                     "image must be png, jpeg or contain exif"
                                 )
@@ -336,11 +335,17 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
                         it[width]    = imageMetadata.width
                         it[height]   = imageMetadata.height
                     }
-                }.getOr404OrPipelineError(this, HttpStatusCode.InternalServerError, "error while writing image metadata to db")
+                }.getOrPipelineError (
+                    HttpStatusCode.InternalServerError,
+                    "error while writing image metadata to db"
+                )
             }
 
             repository<R>().update(this, targetResource, mapOf(targetPropHandle to newHandle))
-                .getOr404OrPipelineError(this, HttpStatusCode.InternalServerError, "error while updating resource ${targetResource.uuid.short()} with new information")
+                .getOrPipelineError (
+                    HttpStatusCode.InternalServerError,
+                    "error while updating resource ${targetResource.uuid.short()} with new information"
+                )
 
             call.respond(newHandle.toString())
 
@@ -352,7 +357,10 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
 
                 query {
                     Uploadables.deleteWhere { Uploadables.fileId eq idToDelete }
-                }.getOr404OrPipelineError(this, HttpStatusCode.InternalServerError, "could not delete stale static resource $idToDelete from db")
+                }.getOrPipelineError (
+                    HttpStatusCode.InternalServerError,
+                    "could not delete stale static resource $idToDelete from db"
+                )
 
                 // Delete in FS
 
@@ -449,13 +457,13 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
 
         val received = call.receive<Dto>() // Receive a resource from the request body
             .mappedByHandles(R::class, false)
-            .getOr404OrPipelineError(this, HttpStatusCode.BadRequest, "bad DTO format")
+            .getOrPipelineError(HttpStatusCode.BadRequest, "bad DTO format")
             .let { data ->
                 R::class.construct (
                     data,
                     externalFetcher = { klass, id -> this.repository(klass).get(this, id) }
                 )
-            }.getOr404OrPipelineError(this, HttpStatusCode.BadRequest, "could not instantiate resource")
+            }.getOrPipelineError(HttpStatusCode.BadRequest, "could not instantiate resource")
 
         val firstInvalidValue = received.verify().entries.firstOrNull { !it.value }
         if (firstInvalidValue != null) { // Check for any invalid data
@@ -536,11 +544,11 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
     val current = obtainResource<R>(id)
 
     val rawData = replacement.mappedByHandles(R::class)
-        .getOr404OrPipelineError(this, HttpStatusCode.BadRequest,"bad update object (invalid properties)")
+        .getOr404OrPipelineError(HttpStatusCode.BadRequest, "bad update object (invalid properties)")
 
     maybeAuthenticated(wrapPredicate(authPredicate, current)) {
         val updatedResource = repository<R>().update(this, current, rawData)
-            .getOr404OrPipelineError(this, message = "couldn't update resource")
+            .getOrPipelineError(message = "couldn't update resource")
 
         call.respond(HttpStatusCode.OK)
 

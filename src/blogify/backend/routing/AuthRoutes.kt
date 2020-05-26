@@ -80,7 +80,7 @@ fun Route.makeAuthRoutes(applicationContext: ApplicationContext) {
             requestContext(applicationContext) {
                 val credentials = call.receive<LoginCredentials>()
                 val dbCredentials = repository<User>().getOneMatching(this) { Users.username eq credentials.username }
-                    .getOr404OrPipelineError(this)
+                    .getOr404OrPipelineError()
 
                 if (credentials.matchFor(dbCredentials)) {
                     val token = generateJWT(dbCredentials)

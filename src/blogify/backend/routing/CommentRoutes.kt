@@ -78,7 +78,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
             return GlobalScope.async { // We use async because inlining a suspending local function crashes the compiler
                 val rootDto = fields?.let { comment.slice(it) } ?: comment.sanitize()
                 val result = request.repository<Comment>().queryListing(request, { Comments.parentComment eq comment.uuid }, quantity, page, Comments.createdAt, SortOrder.DESC)
-                    .getOr404OrPipelineError(request, HttpStatusCode.InternalServerError, "error while expanding listing node")
+                    .getOrPipelineError(HttpStatusCode.InternalServerError, "error while expanding listing node")
 
                 val children = if (depth > 0)
                     result.first.map { expandCommentNodeAsync(request, it, fields, quantity, page, depth - 1).await() } to result.second
@@ -102,7 +102,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
                 val fields   = optionalParam("fields")?.split(',')?.toSet()
 
                 val root = repo.get(this, commentId)
-                    .getOr404OrPipelineError(this, HttpStatusCode.InternalServerError, "error while querying listing")
+                    .getOr404OrPipelineError(HttpStatusCode.InternalServerError, "error while querying listing")
 
                 val expandedComments = expandCommentNodeAsync(this, root, fields, quantity, page, depth - 1).await()
 
@@ -122,7 +122,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
                 val fields   = optionalParam("fields")?.split(',')?.toSet()
 
                 val root = repo.queryListing(this, { (Comments.article eq articleId) and Comments.parentComment.isNull() }, quantity, page, Comments.createdAt, SortOrder.DESC)
-                    .getOr404OrPipelineError(this, HttpStatusCode.InternalServerError, "error while querying listing")
+                    .getOr404OrPipelineError(HttpStatusCode.InternalServerError, "error while querying listing")
 
                 val expandedComments = root.first.map { expandCommentNodeAsync(this, it, fields, quantity, 0, depth - 1).await() }
 

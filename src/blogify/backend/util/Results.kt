@@ -3,12 +3,10 @@ package blogify.backend.util
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.pipelines.PipelineException
 import blogify.backend.pipelines.pipelineError
-import blogify.backend.pipelines.wrapping.RequestContext
 
 import io.ktor.http.HttpStatusCode
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
-import io.ktor.response.respond
 
 import kotlinx.coroutines.runBlocking
 import java.lang.IllegalStateException
@@ -61,6 +59,7 @@ fun Boolean.asResult(): Sr<Unit> {
  *
  * @author Benjozork
  */
+@BlogifyDsl
 fun <V : Any, E : Exception> SuspendableResult<V, E>.getOrPipelineError (
     code:    HttpStatusCode = HttpStatusCode.InternalServerError,
     message: String = "error while fetching generic result"
@@ -80,19 +79,20 @@ fun <V : Any, E : Exception> SuspendableResult<V, E>.getOrPipelineError (
  *
  * @author hamza1311
  */
-suspend fun <V : Any, E : Exception> SuspendableResult<V, E>.getOr404OrPipelineError(
-    ctx: RequestContext,
-    code:    HttpStatusCode = HttpStatusCode.InternalServerError,
+@BlogifyDsl
+fun <V : Any, E : Exception> SuspendableResult<V, E>.getOr404OrPipelineError (
+    code: HttpStatusCode = HttpStatusCode.InternalServerError,
     message: String = "error while fetching generic result"
 ): V {
     when (this) {
         is SuspendableResult.Success -> return this.get()
         is SuspendableResult.Failure -> {
-            val ex = this.getException()
-            if (ex is NoSuchElementException) {
-                ctx.call.respond(HttpStatusCode.NotFound, reason("Requested resource not found"))
-            } // TODO: not throw error for 404
-            pipelineError(code, message, this.error)
+            val exception = this.getException()
+
+            if (exception is NoSuchElementException) {
+                pipelineError(HttpStatusCode.NotFound, "Requested resource not found")
+            }
+            else pipelineError(code, message, this.error)
         }
     }
 }

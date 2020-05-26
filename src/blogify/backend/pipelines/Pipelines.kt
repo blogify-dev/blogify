@@ -109,7 +109,7 @@ inline val RequestContext.queryUuid get() = object : ReadOnlyProperty<Nothing?, 
 @PipelinesDsl
 suspend inline fun <reified R : Resource> RequestContext.obtainResource(id: UUID): R {
     return (repository<R>()::get)(this, id)
-        .getOr404OrPipelineError(this, HttpStatusCode.InternalServerError, "couldn't fetch resource")
+        .getOr404OrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 
 /**
@@ -118,7 +118,7 @@ suspend inline fun <reified R : Resource> RequestContext.obtainResource(id: UUID
 @PipelinesDsl
 suspend inline fun <reified R : Resource> RequestContext.obtainResources(limit: Int = 25): List<R> {
     return (repository<R>()::getAll)(this, limit)
-        .getOr404OrPipelineError(this, HttpStatusCode.InternalServerError, "couldn't fetch resource")
+        .getOr404OrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 
 /**

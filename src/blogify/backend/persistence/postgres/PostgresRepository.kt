@@ -47,7 +47,7 @@ open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repos
         val new = res.update (
             rawData,
             fetcher = { type, uuid -> request.repository(type).get(request, uuid) }
-        ).getOr404OrPipelineError(request, HttpStatusCode.InternalServerError, "couldn't update resource")
+        ).getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't update resource")
 
         this.table.update(new)
 
