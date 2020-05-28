@@ -2,8 +2,8 @@ package blogify.reflect.analysis.metadata
 
 import blogify.reflect.analysis.extensions.descriptor
 import blogify.reflect.analysis.models.PropertyDescriptor
-import blogify.reflect.analysis.models.metadata.Metadata
 import blogify.reflect.analysis.models.metadata.MetadataProvider
+import blogify.reflect.analysis.models.metadata.PropertyMetadata
 import blogify.reflect.models.Mapped
 
 import kotlin.reflect.KProperty
@@ -20,7 +20,7 @@ class CustomMetadataTest {
 
     private class TestMetadata (
         val isImportant: Boolean
-    ) : Metadata<KProperty<*>> {
+    ) : PropertyMetadata {
 
         object Provider : MetadataProvider<TestMetadata, KProperty<*>> {
             override fun provideFor(element: KProperty<*>): TestMetadata =
