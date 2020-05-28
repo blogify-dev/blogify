@@ -136,6 +136,30 @@ fun <M : Mapped> getPropValueOnInstance (
 }
 
 /**
+ * Reads a property from an instance of [M] using reflection
+ *
+ * Shamelessly stolen from: [https://stackoverflow.com/a/35539628]
+ *
+ * @param instance               instance of [M] to read property from
+ * @param propertyHandle         handle of the property to read
+ * @param unsafe                 whether or not to use an [unsafe propMap][unsafePropMap]
+ * @param keepComputedContainers whether or not properties with [ComputedPropContainer] type should be left as-is or throw an error.
+ *                               Should only be set to `true` internally. Can be used to be able to analyze properties in computed prop resolve code.
+ *
+ * @return a [SlicedProperty] representing the result of the query. Can be either [SlicedProperty.Value] for success,
+ * [SlicedProperty.NotFound] for an unknown property or [SlicedProperty.AccessNotAllowed] for a property that cannot
+ * be accessed for security policy reasons (in which case, of course, that incident would be reported).
+ *
+ * @author Benjozork
+ */
+fun <M : Mapped> getPropValueOnInstance (
+    instance: M,
+    propertyHandle: PropMap.PropertyHandle,
+    unsafe: Boolean = false,
+    keepComputedContainers: Boolean = false
+) = getPropValueOnInstance(instance, propertyHandle.name, unsafe, keepComputedContainers)
+
+/**
  * Slices a [mapped object][Mapped] with a set of provided properties that should be kept
  *
  * @param selectedPropertyNames the properties that should be kept on the returned [Dto]

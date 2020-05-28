@@ -12,6 +12,7 @@ import blogify.backend.resources.reflect.MissingArgumentsException
 import blogify.backend.resources.reflect.construct
 import blogify.backend.util.*
 import blogify.reflect.SlicedProperty
+import blogify.reflect.extensions.handle
 import blogify.reflect.extensions.okHandle
 import blogify.reflect.getPropValueOnInstance
 
@@ -211,7 +212,12 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
     ) {
         assert(binding !is SqlBinding.ReferenceToMany<*, *>) { "applyBindingToInsertOrUpdate should not be called on SqlBinding.ReferenceToMany" }
 
-        val slicedProperty = getPropValueOnInstance(resource, binding.property.name, unsafe = true)
+        val slicedProperty = getPropValueOnInstance (
+            instance = resource,
+            propertyHandle = binding.property.handle,
+            unsafe = true
+        )
+
         val value = when (slicedProperty) {
             is SlicedProperty.Value -> slicedProperty.value
             is SlicedProperty.NullableValue -> slicedProperty.value
