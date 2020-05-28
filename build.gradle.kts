@@ -1,6 +1,8 @@
 @file:Suppress("SpellCheckingInspection", "PropertyName")
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileToContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
 
 val ktor_version:      String by project
 val kotlin_version:    String by project
@@ -18,6 +20,7 @@ plugins {
 
     id("com.github.johnrengelman.shadow") version "5.1.0"
     id("com.avast.gradle.docker-compose") version "0.9.4"
+    id("com.bmuschko.docker-remote-api") version "6.4.0"
 }
 
 group   = "blogify"
@@ -146,7 +149,7 @@ tasks.withType<Jar> {
 }
 
 dockerCompose {
-    useComposeFiles = mutableListOf("./docker-compose.yml")
+    useComposeFiles = mutableListOf("test/docker-compose.yml")
 
     projectName = "blogify"
 
@@ -168,3 +171,29 @@ tasks.register("blogifyDeploy", GradleBuild::class) {
 tasks.register("localTestDeploy", GradleBuild::class) {
     tasks = mutableListOf("shadowJar", "composeUp")
 }
+
+val containerName = "blogify_test_db"
+tasks.register("copySeedFile", DockerCopyFileToContainer::class) {
+    targetContainerId(containerName)
+    withFile("test/seed.sql", "/var/")
+}
+
+tasks.register("runSeedFile", DockerExecContainer::class) {
+    targetContainerId(containerName)
+
+    withCommand("psql -U postgres -f /var/seed.sql")
+}
+
+tasks.register("seedDb", GradleBuild::class) {
+    tasks = listOf("copySeedFile", "runSeedFile")
+}
+
+tasks.register("runCypress", Exec::class) {
+    workingDir = File("src/blogify/frontend")
+    commandLine = listOf("npm", "run", "cypress:run")
+}
+
+tasks.register("blogifyTest", GradleBuild::class) {
+    tasks = listOf(/*"buildAngularProd", */"shadowJar", "composeUp", "seedDb" /*, "runCypress"*/)
+}
+//psql -U postgres -1 -c "${File("test/seed.sql").readText()}"

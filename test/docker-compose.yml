@@ -1,0 +1,36 @@
+version: '3.6'
+services:
+  web:
+    build: ../
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - db
+      - ts
+    network_mode: 'host'
+    volumes:
+      - './config:/var/server/config'
+    environment:
+      - BLOGIFY_CONFIG_DIRECTORY=/var/server/config
+    container_name: 'blogify_test_web'
+
+  db:
+    image: 'postgres'
+    ports:
+      - '5432:5432'
+    command:
+      --track_commit_timestamp=true
+    network_mode: 'host'
+    container_name: 'blogify_test_db'
+
+  ts:
+    image: 'typesense/typesense:0.11.0'
+    ports:
+      - '8108:8108'
+    command:
+      --data-dir /data --api-key=Hu52dwsas2AdxdE
+    network_mode: 'host'
+    tmpfs:
+      - /data
+    container_name: 'blogify_test_ts'
