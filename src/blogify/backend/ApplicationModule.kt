@@ -14,15 +14,9 @@ import blogify.backend.database.tables.*
 import blogify.backend.persistence.postgres.PostgresDataStore
 import blogify.backend.pipelines.GenericCallPipeline
 import blogify.backend.pipelines.wrapping.ApplicationContext
-import blogify.backend.resources.Article
-import blogify.backend.resources.user.User
 import blogify.backend.resources.models.Resource
-import blogify.backend.routing.admin.makeAdminRoutes
 import blogify.backend.routing.makePushServerRoutes
 import blogify.backend.routing.makeStaticRoutes
-import blogify.backend.search.Typesense
-import blogify.backend.search.ext._searchTemplate
-import blogify.backend.search.models.Template
 import blogify.backend.util.*
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
@@ -65,7 +59,6 @@ private val objectMapper = jacksonObjectMapper().apply {
     val blogifyModule = SimpleModule()
 
     blogifyModule.addSerializer(Resource.ResourceIdSerializer)
-    blogifyModule.addSerializer(Template.Field.Serializer)
     blogifyModule.addSerializer(ContentTypeSerializer)
     blogifyModule.addSerializer(InstantSerializer)
 
@@ -170,11 +163,6 @@ fun Application.blogifyMainModule(configuration: BlogifyApplicationBootstrapper.
             )
         }
 
-        // Submit search templates
-
-        Typesense.submitResourceTemplate(Article::class._searchTemplate)
-        Typesense.submitResourceTemplate(User::class._searchTemplate)
-
     }
 
     // Initialize routes
@@ -186,7 +174,6 @@ fun Application.blogifyMainModule(configuration: BlogifyApplicationBootstrapper.
             makeUserRoutes(appContext)
             makeAuthRoutes(appContext)
             makeStaticRoutes(appContext)
-            makeAdminRoutes(appContext)
         }
 
         makePushServerRoutes()

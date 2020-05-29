@@ -45,8 +45,6 @@ import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.Article
 import blogify.backend.resources.reflect.*
-import blogify.backend.search.Typesense
-import blogify.backend.search.ext.asSearchView
 import blogify.backend.util.*
 import blogify.backend.util.filterThenMapValues
 import blogify.reflect.*
@@ -515,8 +513,6 @@ suspend inline fun <reified R: Resource> RequestContext.deleteResource (
         repository<R>().delete(toDelete).fold (
             success = {
                 call.respond(HttpStatusCode.OK)
-
-                launch { Typesense.deleteResource<R>(toDelete.uuid) }
             },
             failure = call::respondExceptionMessage
         )
@@ -551,16 +547,12 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
             .getOrPipelineError(message = "couldn't update resource")
 
         call.respond(HttpStatusCode.OK)
-
-        launch { Typesense.updateResource(updatedResource) }
     }
 
 }
 
 suspend inline fun <reified R : Resource> RequestContext.search(filters: Map<PropMap.PropertyHandle.Ok, Any> = emptyMap()) {
-    val query = param("q")
-    val view = Typesense.search<Article>(query, filters).asSearchView(this)
-    call.respond(view)
+    TODO()
 }
 
 /**

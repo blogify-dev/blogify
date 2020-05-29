@@ -12,7 +12,6 @@ import blogify.backend.events.models.Event
 import blogify.backend.events.models.EventType
 import blogify.backend.resources.models.UserCreatedResource
 import blogify.backend.resources.user.User
-import blogify.reflect.annotations.search.*
 import blogify.reflect.computed.models.Computed
 
 import java.time.Instant
@@ -31,29 +30,22 @@ import java.util.UUID
 @SqlTable(Articles::class)
 data class Article (
 
-    @QueryByField
     val title: @check("^.{0,512}") String,
 
-    @SearchDefaultSort
     val createdAt: Int = Instant.now().epochSecond.toInt(),
 
-    val createdBy: @DelegatedSearch User,
+    val createdBy: User,
 
-    @QueryByField
     val content: String,
 
     val summary: String,
 
-    @NoSearch
-    val categories: @DelegatedSearch List<Category>,
+    val categories: List<Category>,
 
-    @NoSearch
     val isDraft: Boolean = false,
 
-    @NoSearch
     val isPinned: Boolean = false,
 
-    @NoSearch
     override val uuid: UUID = UUID.randomUUID()
 
 ) : UserCreatedResource(uuid) {
@@ -68,7 +60,7 @@ data class Article (
      *
      * @property name The name content of the category.
      */
-    data class Category(@DelegatedSearchReceiver val name: String)
+    data class Category(val name: String)
 
     @Hidden
     override val creator = createdBy

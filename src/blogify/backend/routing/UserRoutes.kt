@@ -9,8 +9,6 @@ import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.user.User
 import blogify.reflect.sanitize
 import blogify.reflect.slice
-import blogify.backend.search.Typesense
-import blogify.backend.search.ext.asSearchView
 import blogify.backend.pipelines.*
 import blogify.backend.routing.handling.*
 import blogify.backend.util.*
@@ -92,9 +90,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
         get("/search") {
             requestContext(applicationContext) {
-                val query = param("q")
-
-                call.respond(Typesense.search<User>(query).asSearchView(this))
+                TODO()
             }
         }
 

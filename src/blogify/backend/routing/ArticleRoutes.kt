@@ -9,11 +9,8 @@ import blogify.backend.resources.Article
 import blogify.backend.routing.handling.flipArticleLike
 import blogify.backend.routing.handling.flipArticlePin
 import blogify.backend.routing.handling.getArticleLikeStatus
-import blogify.backend.search.Typesense
-import blogify.backend.search.ext.asSearchView
-import blogify.reflect.extensions.okHandle
 import blogify.backend.routing.handling.*
-import blogify.backend.util.*
+import io.ktor.http.HttpStatusCode
 
 import io.ktor.routing.*
 import io.ktor.response.respond
@@ -87,15 +84,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
         get("/search") {
             requestContext(applicationContext) {
-                val query = param("q")
-                val user = optionalParam("byUser")?.toUUID()
-
-                if (user != null) {
-                    val userHandle = Article::createdBy.okHandle ?: never
-                    call.respond(Typesense.search<Article>(query, mapOf(userHandle to user)).asSearchView(this))
-                } else {
-                    call.respond(Typesense.search<Article>(query).asSearchView(this))
-                }
+                TODO()
             }
         }
 

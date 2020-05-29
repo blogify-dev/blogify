@@ -1,7 +1,6 @@
 package blogify.reflect
 
 import blogify.reflect.annotations.Undisplayed
-import blogify.reflect.annotations.search.NoSearch
 import blogify.reflect.computed.models.ComputedPropContainer
 import blogify.reflect.computed.models.ComputedPropertyDelegate
 import blogify.reflect.extensions.subTypeOf
@@ -211,8 +210,7 @@ fun <M : Mapped> M.sanitize(excludeNoSearch: Boolean = false, excludeUndisplayed
     val sanitizedClassProps = this::class.propMap.valid
         .asSequence()
         .filter {
-            (!excludeNoSearch || it.value.property.findAnnotation<NoSearch>() == null)
-                    && (!excludeUndisplayed || it.value.property.findAnnotation<Undisplayed>() == null)
+            !excludeUndisplayed || it.value.property.findAnnotation<Undisplayed>() == null
         }
         .map { it.key }
         .toSet()

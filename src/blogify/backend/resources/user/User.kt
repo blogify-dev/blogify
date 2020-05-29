@@ -3,10 +3,6 @@ package blogify.backend.resources.user
 import blogify.reflect.annotations.Hidden
 import blogify.backend.annotations.SqlTable
 import blogify.reflect.annotations.Undisplayed
-import blogify.reflect.annotations.search.NoSearch
-import blogify.reflect.annotations.search.DelegatedSearchReceiver
-import blogify.reflect.annotations.search.QueryByField
-import blogify.reflect.annotations.search.SearchDefaultSort
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
 import blogify.backend.database.tables.Users
@@ -31,25 +27,20 @@ import kotlin.random.Random
 
 @SqlTable(Users::class)
 data class User (
-    @QueryByField
-    @DelegatedSearchReceiver
     val username: String,
 
     @Hidden
     val password: String, // IMPORTANT : DO NOT EVER REMOVE THIS ANNOTATION !
 
-    @QueryByField
     val name: String,
 
     val email: String,
 
-    @NoSearch
     val profilePicture:
         @type("image/*")
         @maxByteSize(500_000)
         StaticFile,
 
-    @NoSearch
     val coverPicture:
         @type("image/*")
         @maxByteSize(1_000_000)
@@ -60,10 +51,8 @@ data class User (
     val biography: String = "",
 
     @Undisplayed
-    @SearchDefaultSort
     val dsf: Int = Random.nextInt(),
 
-    @NoSearch
     override val uuid: UUID = UUID.randomUUID()
 
 ) : Resource(uuid), EventEmitter, EventTarget {

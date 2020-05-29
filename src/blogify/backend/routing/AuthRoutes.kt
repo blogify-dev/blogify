@@ -9,7 +9,6 @@ import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.user.User
 import blogify.backend.resources.static.models.StaticFile
-import blogify.backend.search.Typesense
 import blogify.backend.util.*
 
 import io.ktor.http.ContentType
@@ -61,7 +60,7 @@ data class RegisterCredentials (
         )
 
         requestContext.repository<User>().add(created).fold (
-            success = { user -> Typesense.uploadResource(user) },
+            success = {  },
             failure = {
                 error("$created: signup couldn't create user\nError:$it")
             }
