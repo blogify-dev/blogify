@@ -17,7 +17,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 
 import epgx.models.PgTable
-import epgx.types.Jsonb
+import epgx.types.JsonbColumnType
 
 import com.github.kittinunf.result.coroutines.map
 
@@ -26,7 +26,7 @@ import java.time.Instant
 @Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER")
 object Events : PgTable("notifications") {
 
-    private val dataConverter = object : Jsonb.Converter<Dto> {
+    private val dataConverter = object : JsonbColumnType.Converter<Dto> {
 
         private val objectMapper = jacksonObjectMapper().apply {
             val resourceModule = SimpleModule()

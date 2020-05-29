@@ -5,7 +5,7 @@ import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.resources.user.annotations.MaxFileSize
 import blogify.reflect.models.Mapped
 
-import epgx.types.Jsonb
+import epgx.types.JsonbColumnType
 
 import io.ktor.http.ContentType
 
@@ -18,5 +18,5 @@ data class UserSettings (
     val coverPictureFile: StaticFile = StaticFile.None(ContentType.Image.Any)
 
 ) : Mapped() {
-    companion object : Jsonb.Converter<UserSettings> by appContext.createJsonbConverter()
+    companion object : JsonbColumnType.Converter<UserSettings> by appContext.createJsonbConverter()
 }

@@ -13,7 +13,7 @@ import blogify.reflect.models.Mapped
 
 import com.fasterxml.jackson.databind.ObjectMapper
 
-import epgx.types.Jsonb
+import epgx.types.JsonbColumnType
 
 import kotlinx.coroutines.runBlocking
 
@@ -30,12 +30,12 @@ class ApplicationContext (
 ) {
 
     /**
-     * Creates an implementation of [Jsonb.Converter] for [T], using [Mapped.sanitizeToString] for serialization
+     * Creates an implementation of [JsonbColumnType.Converter] for [T], using [Mapped.sanitizeToString] for serialization
      * and [blogify.backend.resources.reflect.construct] for deserialization
      *
      * @author Benjozork
      */
-    inline fun <reified T : Mapped> createJsonbConverter(): Jsonb.Converter<T> = object : Jsonb.Converter<T> {
+    inline fun <reified T : Mapped> createJsonbConverter(): JsonbColumnType.Converter<T> = object : JsonbColumnType.Converter<T> {
         override fun serializer(instance: T) = instance.sanitizeToString()
 
         override fun deserializer(source: String): T = runBlocking {
