@@ -2,6 +2,7 @@
 
 package blogify.backend.routing
 
+import blogify.backend.database.handling.query
 import blogify.backend.database.tables.Articles
 import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.ApplicationContext
@@ -10,6 +11,10 @@ import blogify.backend.routing.handling.flipArticleLike
 import blogify.backend.routing.handling.flipArticlePin
 import blogify.backend.routing.handling.getArticleLikeStatus
 import blogify.backend.routing.handling.*
+import blogify.backend.util.getOr404OrPipelineError
+import blogify.reflect.sanitize
+import epgx.functions.`@@`
+import epgx.functions.toTsQuery
 import io.ktor.http.HttpStatusCode
 
 import io.ktor.routing.*
@@ -84,7 +89,13 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
         get("/search") {
             requestContext(applicationContext) {
-                TODO()
+                val q = param("q")
+                val resp = query {
+                    Articles.select {
+                        Articles.tsvector `@@` QueryParameter(q, TextColumnType()).toTsQuery("english")
+                    }.toList().map { Articles.convert(this, it).get().sanitize() }
+                }.getOr404OrPipelineError()
+                call.respond(resp)
             }
         }
 
