@@ -89,13 +89,14 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
 
         get("/search") {
             requestContext(applicationContext) {
-                val q = param("q")
-                val resp = query {
-                    Articles.select {
-                        Articles.tsvector `@@` QueryParameter(q, TextColumnType()).toTsQuery("english")
-                    }.toList().map { Articles.convert(this, it).get().sanitize() }
-                }.getOr404OrPipelineError()
-                call.respond(resp)
+                val query = param("q")
+                fetchResourceListing<Article> (
+                    selectCondition = {
+                        Articles.tsvector `@@` QueryParameter(query, TextColumnType()).toTsQuery("english")
+                    },
+                    orderBy = Articles.createdAt,
+                    sortOrder = SortOrder.DESC
+                )
             }
         }
 
