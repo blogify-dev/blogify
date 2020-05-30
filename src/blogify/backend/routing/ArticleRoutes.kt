@@ -7,14 +7,18 @@ import blogify.backend.database.tables.Articles
 import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
+import blogify.backend.resources.user.User
 import blogify.backend.routing.handling.flipArticleLike
 import blogify.backend.routing.handling.flipArticlePin
 import blogify.backend.routing.handling.getArticleLikeStatus
 import blogify.backend.routing.handling.*
 import blogify.backend.util.getOr404OrPipelineError
+import blogify.backend.util.toUUID
+import blogify.backend.util.toUUIDOrNull
 import blogify.reflect.sanitize
 import epgx.functions.`@@`
 import epgx.functions.toTsQuery
+import epgx.functions.webSearchToTsQuery
 import io.ktor.http.HttpStatusCode
 
 import io.ktor.routing.*
@@ -90,9 +94,12 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         get("/search") {
             requestContext(applicationContext) {
                 val query = param("q")
+                val byUser = optionalParam("byUser")?.toUUIDOrNull()
+
                 fetchResourceListing<Article> (
                     selectCondition = {
-                        Articles.tsvector `@@` QueryParameter(query, TextColumnType()).toTsQuery("english")
+                        Articles.tsvector `@@` QueryParameter(query, TextColumnType()).webSearchToTsQuery("english") and
+                        if (byUser == null) { Op.TRUE } else { Articles.createdBy eq byUser }
                     },
                     orderBy = Articles.createdAt,
                     sortOrder = SortOrder.DESC
