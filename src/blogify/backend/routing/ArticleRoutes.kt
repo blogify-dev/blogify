@@ -2,27 +2,20 @@
 
 package blogify.backend.routing
 
-import blogify.backend.database.handling.query
 import blogify.backend.database.tables.Articles
 import blogify.backend.pipelines.*
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
-import blogify.backend.resources.user.User
 import blogify.backend.routing.handling.flipArticleLike
 import blogify.backend.routing.handling.flipArticlePin
 import blogify.backend.routing.handling.getArticleLikeStatus
 import blogify.backend.routing.handling.*
-import blogify.backend.util.getOr404OrPipelineError
-import blogify.backend.util.toUUID
 import blogify.backend.util.toUUIDOrNull
-import blogify.reflect.sanitize
+
 import epgx.functions.`@@`
-import epgx.functions.toTsQuery
 import epgx.functions.webSearchToTsQuery
-import io.ktor.http.HttpStatusCode
 
 import io.ktor.routing.*
-import io.ktor.response.respond
 
 import org.jetbrains.exposed.sql.*
 

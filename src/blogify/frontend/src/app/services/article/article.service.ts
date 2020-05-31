@@ -4,7 +4,6 @@ import { Article } from '@blogify/models/Article';
 import { ListingQuery } from '@blogify/models/ListingQuery';
 import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { User } from '@blogify/models/User';
-import { SearchView } from '@blogify/models/SearchView';
 import { idOf, Shadow } from '@blogify/models/Shadow';
 import { StateService } from '@blogify/shared/services/state/state.service';
 import { UserService } from '@blogify/shared/services/user-service/user.service';
@@ -143,18 +142,18 @@ export class ArticleService {
         return this.httpClient.delete<any>(`/api/articles/${articleUuid}`, httpOptions).toPromise();
     }
 
-    search(query: string, fields: (keyof Article)[], byUser: User | null = null) {
-        const byUserString = (byUser ? `&byUser=${byUser.uuid}` : '');
-        const url = `/api/articles/search/?q=${query}&fields=${fields.join(',')}${byUserString}`;
-        return this.httpClient.get<SearchView<Article>>(url)
-            .toPromise()
-            .then(hits => {
-                if (hits != null) {
-                    return this.prepareArticleData(hits.hits.map(hit => hit.document));
-                } else {
-                    return Promise.all([]);
-                }
-            }); // Make sure user data is present
+    async search(listing: ListingQuery<Article> & { query: string, fields: (keyof Article)[], byUser?: Shadow<User> }): Promise<ListingResult> {
+        const byUserString = (listing.byUser ? `&byUser=${idOf(listing.byUser)}` : '');
+
+        const url = `/api/articles/search/?q=${listing.query}`
+            + `&quantity=${listing.quantity}`
+            + `&page=${listing.page}`
+            + `&fields=${listing.fields.join(',')}${byUserString}`;
+
+        const listingObservable = this.httpClient.get<ListingResult>(url);
+        const result = await listingObservable.toPromise();
+
+        return { data: await this.prepareArticleData(result.data), moreAvailable: result.moreAvailable };
     }
 
     likeArticle(article: Article): Promise<HttpResponse<object>> {

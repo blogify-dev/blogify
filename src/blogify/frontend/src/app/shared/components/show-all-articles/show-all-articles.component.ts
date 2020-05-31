@@ -22,6 +22,8 @@ export class ShowAllArticlesComponent implements OnInit {
     private readonly REQUIRED_FIELDS: (keyof Article)[] =
         ['title', 'summary', 'createdAt', 'createdBy', 'categories', 'likeCount', 'commentCount'];
 
+    private readonly DEFAULT_QUANTITY = 15;
+
     faSearch = faSearch;
     faPencil = faPencilAlt;
     faArrowLeft = faArrowLeft;
@@ -29,7 +31,7 @@ export class ShowAllArticlesComponent implements OnInit {
     faArrowDown = faArrowDown;
 
     @Input() title = 'Articles';
-    @Input() listingQuery: ListingQuery<Article> & { byUser?: Shadow<User> } = new ListingQuery(10, 0, this.REQUIRED_FIELDS);
+    @Input() listingQuery: ListingQuery<Article> & { byUser?: Shadow<User> } = new ListingQuery(this.DEFAULT_QUANTITY, 0, this.REQUIRED_FIELDS);
     @Input() noContentMessage = 'Nothing to see here !';
     @Input() noResultsMessage = 'No search results :(';
     @Input() allowCreate = true;
@@ -103,23 +105,13 @@ export class ShowAllArticlesComponent implements OnInit {
     }
 
     private async startSearch() {
-        // this.articleService.getArticlesByListing(this.REQUIRED_FIELDS, new ListingQuery<Article>(this.listing.quantity, this.listing.page, this.listing.forUser, 'oooooooooo'))
-        //     .then(result => {
-        //         this.articles = [];
-        //         this.articles.push(...result.data);
-        //         this.moreAvailable = result.moreAvailable;
-        //     });
         this.articleService.search (
-            this.searchQuery,
-            ['title', 'summary', 'createdBy', 'categories', 'createdAt'],
-        ).then((result: Article[]) => {
-            this.searchResults = result;
+            { ...this.listingQuery, query: this.searchQuery, fields: this.REQUIRED_FIELDS }
+        ).then((result: { data: Article[], moreAvailable: boolean }) => {
+            this.searchResults = result.data;
             this.showingSearchResults = true;
             this.forceNoAllowCreate = true;
-
-        }).catch((err: Error) => {
-            console.error(`[blogifySearch] Error during search: ${err.name}: ${err.message}`);
-        });
+        }).catch(e => console.error(`[blogifySearch] Error during search: ${e}`));
     }
 
     async stopSearch() {
