@@ -4,6 +4,7 @@ import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.extensions.strongKey
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.resources.Article
+import epgx.functions.`||`
 import epgx.functions.toTsVector
 
 import org.jetbrains.exposed.sql.*
@@ -19,7 +20,7 @@ object Articles : ResourceTable.UserCreated<Article>() {
     val isPinned   = bool      ("is_pinned").default(false)
 
     val tsvector = tsvector("tsvector")
-        .generated { content.toTsVector("english") }
+        .generated { (title `||` " " `||` content `||` " " `||` summary).toTsVector("english") }
 
     override val authorColumn = createdBy
 
