@@ -18,7 +18,8 @@ object Articles : ResourceTable.UserCreated<Article>() {
     val isDraft    = bool      ("is_draft").default(false)
     val isPinned   = bool      ("is_pinned").default(false)
 
-    val tsvector = tsvector("tsvector").generated { (content).toTsVector("english") }
+    val tsvector = tsvector("tsvector")
+        .generated { content.toTsVector("english") }
 
     override val authorColumn = createdBy
 
