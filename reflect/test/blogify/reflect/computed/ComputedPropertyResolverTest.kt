@@ -1,9 +1,9 @@
-package blogify.reflect
+package blogify.reflect.computed
 
 import blogify.reflect.computed.extensions.computed
 import blogify.reflect.computed.models.ComputedPropContainer
-import blogify.reflect.computed.resolveComputedProps
 import blogify.reflect.models.Mapped
+import blogify.reflect.sanitize
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
@@ -30,7 +30,8 @@ class ComputedPropertyResolverTest {
     @Test fun should_throw_an_error_given_custom_container_without_providing_a_custom_resolver() {
         val testObject = object : Mapped() {
             val name: String = ""
-            val computed = CustomContainer<Mapped>(this)
+            val computed =
+                CustomContainer<Mapped>(this)
         }
 
         assertThrows(IllegalStateException::class.java) {
@@ -41,7 +42,8 @@ class ComputedPropertyResolverTest {
     @Test fun should_use_custom_resolver_to_handle_custom_container() {
         val testObject = object : Mapped() {
             val name: String = ""
-            val computed = CustomContainer<Mapped>(this)
+            val computed =
+                CustomContainer<Mapped>(this)
         }
 
         val resolved = resolveComputedProps(testObject) {

@@ -1,10 +1,9 @@
-package blogify.reflect
+package blogify.reflect.computed
 
 import blogify.reflect.computed.extensions.computed
 import blogify.reflect.computed.models.ComputedPropContainer
-import blogify.reflect.computed.resolveComputedProps
-import blogify.reflect.computed.resolveComputedPropsAsync
 import blogify.reflect.models.Mapped
+import blogify.reflect.propMap
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
