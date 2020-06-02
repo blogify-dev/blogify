@@ -16,7 +16,7 @@ class EntityMetadataTest {
     @Test fun `should find @Hidden annotation on EntityMetadata on property`() {
         val descriptor = A::name.descriptor
 
-        assertTrue(descriptor.entity.hidden)
+        assertTrue(descriptor.entity.isVisible)
     }
 
 }

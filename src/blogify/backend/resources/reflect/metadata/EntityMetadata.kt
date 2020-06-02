@@ -12,18 +12,18 @@ import kotlin.reflect.full.findAnnotation
  *
  * @author Benjozork
  *
- * @property hidden is `true` when this element should be prohibited from appearing in DTOs or be accepted
+ * @property isVisible is `false` when this element should be prohibited from appearing in DTOs or be accepted
  *                  during entity creation or update
  */
 class EntityMetadata (
-    val hidden: Boolean
+    val isVisible: Boolean
 ) : PropertyMetadata {
 
     object Provider : MetadataProvider<EntityMetadata, KProperty<*>> {
 
         override fun provideFor(element: KProperty<*>): EntityMetadata =
             EntityMetadata (
-                hidden = element.isHidden
+                isVisible = !element.isHidden
             )
 
         private val KProperty<*>.isHidden get() = this.findAnnotation<Hidden>() != null
