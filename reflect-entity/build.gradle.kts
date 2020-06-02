@@ -1,4 +1,8 @@
+@file:Suppress("SpellCheckingInspection", "PropertyName")
+
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+val kolor_version: String by project
 
 plugins {
     kotlin("jvm")
@@ -27,7 +31,7 @@ dependencies {
 
     // Kolor
 
-    implementation("com.andreapivetta.kolor:kolor:0.0.2")
+    implementation("com.andreapivetta.kolor", "kolor", kolor_version)
 
     // Logback
 
