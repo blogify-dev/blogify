@@ -5,7 +5,6 @@ plugins {
 }
 
 group = "blogify"
-version = "0.1.0"
 
 repositories {
     mavenCentral()
