@@ -1,4 +1,4 @@
-package blogify.backend.resources.reflect.metadata
+package blogify.reflect.entity.metadata
 
 import blogify.reflect.analysis.extensions.descriptor
 import blogify.reflect.annotations.Hidden

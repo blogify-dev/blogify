@@ -1,4 +1,4 @@
-package blogify.backend.resources.reflect
+package blogify.reflect.entity.slicer
 
 import blogify.reflect.models.Mapped
 import blogify.reflect.annotations.Hidden
@@ -6,7 +6,7 @@ import blogify.reflect.annotations.Hidden
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
-class NewSlicerTests {
+class SlicerTest {
 
     class A (
         val name: String,

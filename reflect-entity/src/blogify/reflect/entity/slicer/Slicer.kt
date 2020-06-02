@@ -1,6 +1,6 @@
-package blogify.backend.resources.reflect
+package blogify.reflect.entity.slicer
 
-import blogify.backend.resources.reflect.metadata.entity
+import blogify.reflect.entity.metadata.entity
 import blogify.reflect.Dto
 import blogify.reflect.analysis.extensions.descriptor
 import blogify.reflect.models.Mapped
