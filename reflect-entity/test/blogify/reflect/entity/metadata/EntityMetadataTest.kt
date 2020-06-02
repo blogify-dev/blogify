@@ -13,10 +13,10 @@ class EntityMetadataTest {
         @Hidden val name: String
     ) : Mapped()
 
-    @Test fun `should find @Hidden annotation on EntityMetadata on property`() {
+    @Test fun `should find property with @Hidden annotation to not be visible`() {
         val descriptor = A::name.descriptor
 
-        assertTrue(descriptor.entity.isVisible)
+        assertFalse(descriptor.entity.isVisible)
     }
 
 }
