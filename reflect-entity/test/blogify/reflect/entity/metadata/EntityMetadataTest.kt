@@ -16,6 +16,12 @@ class EntityMetadataTest {
         @NotUpdatable val truth: String
     ) : Mapped()
 
+    @Test fun `should find property without @Hidden annotation to be visible`() {
+        val descriptor = A::age.descriptor
+
+        assertTrue(descriptor.entity.isVisible)
+    }
+
     @Test fun `should find property with @Hidden annotation to not be visible`() {
         val descriptor = A::name.descriptor
 
