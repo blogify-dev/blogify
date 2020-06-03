@@ -3,6 +3,7 @@ package blogify.reflect.entity.metadata
 import blogify.reflect.analysis.models.metadata.MetadataProvider
 import blogify.reflect.analysis.models.metadata.PropertyMetadata
 import blogify.reflect.annotations.Hidden
+import blogify.reflect.entity.annotations.NotUpdatable
 
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.findAnnotation
@@ -16,17 +17,21 @@ import kotlin.reflect.full.findAnnotation
  *                  during entity creation or update
  */
 class EntityMetadata (
-    val isVisible: Boolean
+    val isVisible: Boolean,
+    val isUpdatable: Boolean
 ) : PropertyMetadata {
 
     object Provider : MetadataProvider<EntityMetadata, KProperty<*>> {
 
         override fun provideFor(element: KProperty<*>): EntityMetadata =
             EntityMetadata (
-                isVisible = !element.isHidden
+                isVisible = !element.isHidden,
+                isUpdatable = !element.isUpdatable && !element.isHidden
             )
 
         private val KProperty<*>.isHidden get() = this.findAnnotation<Hidden>() != null
+
+        private val KProperty<*>.isUpdatable get() = this.findAnnotation<NotUpdatable>() != null
 
     }
 
