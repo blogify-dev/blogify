@@ -49,7 +49,7 @@ const routes: Routes = [
                 return null;
             }
         },
-        redirectTo: '/404'
+        component: PageNotFoundFallbackComponent,
     },
     { path: '404', component: PageNotFoundFallbackComponent }
 ];
