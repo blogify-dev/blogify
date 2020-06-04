@@ -31,6 +31,8 @@ html {
     @media (min-width: $query-desktop) {
         font-size: 12px;
     }
+
+    filter: saturate(0%) brightness(70%);
 }
 
 #parent {
