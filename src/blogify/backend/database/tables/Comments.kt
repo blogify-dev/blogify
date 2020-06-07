@@ -7,15 +7,13 @@ import blogify.backend.resources.Comment
 
 import org.jetbrains.exposed.sql.*
 
-object Comments : ResourceTable.UserCreated<Comment>() {
+object Comments : ResourceTable<Comment>() {
 
     val commenter     =  parentKey ("commenter", Users)
     val article       =  parentKey ("article", Articles)
     val content       =  text      ("content")
     val parentComment =  weaKey    ("parent_comment", Comments)
     val createdAt     =  integer   ("created_at")
-
-    override val authorColumn = commenter
 
     init {
         bind (uuid, Comment::uuid)

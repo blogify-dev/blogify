@@ -7,7 +7,7 @@ import blogify.backend.resources.Article
 
 import org.jetbrains.exposed.sql.*
 
-object Articles : ResourceTable.UserCreated<Article>() {
+object Articles : ResourceTable<Article>() {
 
     val title      = text      ("title")
     val createdAt  = integer   ("created_at")
@@ -16,8 +16,6 @@ object Articles : ResourceTable.UserCreated<Article>() {
     val summary    = text      ("summary")
     val isDraft    = bool      ("is_draft").default(false)
     val isPinned   = bool      ("is_pinned").default(false)
-
-    override val authorColumn = createdBy
 
     init {
         bind (uuid,      Article::uuid)

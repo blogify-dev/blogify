@@ -6,7 +6,6 @@ import blogify.backend.database.handling.query
 import blogify.backend.database.handling.unwrappedQuery
 import blogify.backend.database.optimizer.QueryOptimizer
 import blogify.reflect.entity.Entity
-import blogify.backend.resources.models.UserCreatedResource
 import blogify.backend.resources.reflect.MissingArgumentsException
 import blogify.backend.resources.reflect.construct
 import blogify.backend.util.*
@@ -54,10 +53,6 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
      * A list of all [bindings][SqlBinding] present for this table
      */
     val bindings = mutableListOf<SqlBinding<TResource, out Any?, *>>()
-
-    abstract class UserCreated<TResource : UserCreatedResource> : ResourceTable<TResource>() {
-        abstract val authorColumn: Column<UUID>
-    }
 
     /**
      * Creates a binding between [column] and a [property] containing simple values
