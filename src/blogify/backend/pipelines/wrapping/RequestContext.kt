@@ -2,7 +2,7 @@ package blogify.backend.pipelines.wrapping
 
 import blogify.backend.database.models.QueryContext
 import blogify.backend.entity.Resource
-import blogify.backend.persistence.models.Repository
+import blogify.backend.database.persistence.models.Repository
 import blogify.backend.util.MapCache
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap

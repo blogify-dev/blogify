@@ -1,6 +1,6 @@
-package blogify.backend.persistence.models
+package blogify.backend.database.persistence.models
 
-import blogify.backend.entity.Resource
+import blogify.reflect.entity.Entity
 
 import kotlin.reflect.KClass
 
@@ -10,7 +10,7 @@ abstract class DataStore (
 
     val name = configuration.name
 
-    abstract fun <R : Resource> getRepository(klass: KClass<R>): Repository<R>
+    abstract fun <R : Entity> getRepository(klass: KClass<R>): Repository<R>
 
     open class Configuration {
         var name: String? = null

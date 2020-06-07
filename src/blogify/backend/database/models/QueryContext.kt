@@ -1,8 +1,8 @@
 package blogify.backend.database.models
 
 import blogify.backend.annotations.table
-import blogify.backend.persistence.models.Repository
-import blogify.backend.persistence.postgres.PostgresRepository
+import blogify.backend.database.persistence.models.Repository
+import blogify.backend.database.persistence.postgres.PostgresRepository
 import blogify.backend.util.MapCache
 import blogify.backend.util.Sr
 import blogify.backend.util.SrList

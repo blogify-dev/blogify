@@ -11,7 +11,7 @@ import blogify.backend.routing.makeUserRoutes
 import blogify.backend.routing.makeAuthRoutes
 import blogify.backend.database.handling.query
 import blogify.backend.database.tables.*
-import blogify.backend.persistence.postgres.PostgresDataStore
+import blogify.backend.database.persistence.postgres.PostgresDataStore
 import blogify.backend.pipelines.GenericCallPipeline
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article

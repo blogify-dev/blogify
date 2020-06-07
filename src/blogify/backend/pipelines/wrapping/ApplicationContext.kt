@@ -2,9 +2,9 @@ package blogify.backend.pipelines.wrapping
 
 import blogify.backend.appContext
 import blogify.backend.database.models.QueryContext
-import blogify.backend.persistence.models.DataStore
+import blogify.backend.database.persistence.models.DataStore
 import blogify.backend.entity.Resource
-import blogify.backend.persistence.models.Repository
+import blogify.backend.database.persistence.models.Repository
 import blogify.backend.push.PushServer
 import blogify.backend.resources.reflect.construct
 import blogify.backend.resources.reflect.extensions.sanitizeToString

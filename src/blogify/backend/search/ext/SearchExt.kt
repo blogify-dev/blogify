@@ -5,7 +5,7 @@ import blogify.backend.entity.Resource
 import blogify.reflect.sanitize
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.SearchView
-import blogify.backend.persistence.models.Repository
+import blogify.backend.database.persistence.models.Repository
 import blogify.backend.util.Sr
 import blogify.backend.util.toUUID
 

@@ -1,4 +1,4 @@
-package blogify.backend.persistence.models
+package blogify.backend.database.persistence.models
 
 import blogify.backend.database.models.QueryContext
 import blogify.backend.entity.Resource

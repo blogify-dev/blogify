@@ -1,19 +1,16 @@
-package blogify.backend.persistence.postgres
+package blogify.backend.database.persistence.postgres
 
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.QueryContext
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.database.models.repository
-import blogify.backend.entity.Resource
-import blogify.backend.persistence.models.Repository
+import blogify.backend.database.persistence.models.Repository
 import blogify.backend.resources.reflect.update
 import blogify.backend.util.*
 import blogify.reflect.MappedData
 import blogify.reflect.entity.Entity
 
 import org.jetbrains.exposed.sql.*
-
-import io.ktor.http.HttpStatusCode
 
 import java.util.*
 
@@ -49,7 +46,7 @@ open class PostgresRepository<R : Entity>(val table: ResourceTable<R>) : Reposit
         val new = res.update (
             rawData,
             fetcher = { type, uuid -> request.repository(type).get(request, uuid) }
-        ).getOrPipelineError(HttpStatusCode.InternalServerError, "couldn't update resource")
+        ).get()
 
         this.table.update(new)
 
