@@ -2,7 +2,7 @@ package blogify.backend.database.binding
 
 import blogify.backend.database.extensions.foreignKeyTo
 import blogify.backend.database.models.ResourceTable
-import blogify.backend.entity.Resource
+import blogify.reflect.entity.Entity
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
@@ -24,7 +24,7 @@ import kotlin.reflect.KProperty1
  * @property table    the table for [TResource]
  * @property property the [property][KProperty1] we are binding
  */
-sealed class SqlBinding<TResource : Resource, TProperty : Any?, TColumn : Any?> (
+sealed class SqlBinding<TResource : Entity, TProperty : Any?, TColumn : Any?> (
     val table: ResourceTable<TResource>,
     val property: KProperty1<TResource, TProperty>
 ) {
@@ -41,7 +41,7 @@ sealed class SqlBinding<TResource : Resource, TProperty : Any?, TColumn : Any?> 
     /**
      * Binds [property] to a column of [table]
      */
-    class Value<TResource : Resource, TProperty : Any?> (
+    class Value<TResource : Entity, TProperty : Any?> (
         table: ResourceTable<TResource>,
         property: KProperty1<TResource, TProperty>,
         override val column: Column<TProperty>
@@ -56,7 +56,7 @@ sealed class SqlBinding<TResource : Resource, TProperty : Any?, TColumn : Any?> 
     /**
      * Binds [property] to a column of [table] containing UUIDs
      */
-    class Reference<TResource : Resource, TProperty : Resource> (
+    class Reference<TResource : Entity, TProperty : Entity> (
         table: ResourceTable<TResource>,
         property: KProperty1<TResource, TProperty>,
         override val column: Column<UUID>
@@ -71,7 +71,7 @@ sealed class SqlBinding<TResource : Resource, TProperty : Any?, TColumn : Any?> 
     /**
      * Binds [property] to a nullable column of [table] containing UUIDs
      */
-    class NullableReference<TResource : Resource, TProperty : Resource?> (
+    class NullableReference<TResource : Entity, TProperty : Entity?> (
         table: ResourceTable<TResource>,
         property: KProperty1<TResource, TProperty>,
         override val column: Column<UUID?>
@@ -88,7 +88,7 @@ sealed class SqlBinding<TResource : Resource, TProperty : Any?, TColumn : Any?> 
      *
      * note: [otherTable] must contain one and only one FK from one if its columns with UUID type to the PK of [table]
      */
-    class ReferenceToMany<TResource : Resource, TProperty : Any> (
+    class ReferenceToMany<TResource : Entity, TProperty : Any> (
         table: ResourceTable<TResource>,
         property: KProperty1<TResource, Collection<TProperty>>,
         val otherTable: Table,

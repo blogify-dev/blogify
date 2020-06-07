@@ -5,7 +5,7 @@ import blogify.backend.database.extensions.klass
 import blogify.backend.database.handling.query
 import blogify.backend.database.handling.unwrappedQuery
 import blogify.backend.database.optimizer.QueryOptimizer
-import blogify.backend.entity.Resource
+import blogify.reflect.entity.Entity
 import blogify.backend.resources.models.UserCreatedResource
 import blogify.backend.resources.reflect.MissingArgumentsException
 import blogify.backend.resources.reflect.construct
@@ -32,7 +32,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
 /**
- * Generic table for storing [resources][Resource] inside a postgres table.
+ * Generic table for storing [entity][Entity] inside a postgres table.
  *
  * Using [SQL bindings][SqlBinding], this takes care of automagically running CRUD operations to and from the database.
  *
@@ -40,15 +40,15 @@ import kotlin.reflect.KProperty1
  * enough to store an instance of [TResource] in the table. Likewise for [delete], [update], [obtain], [obtainListing]
  * and [obtainAll].
  *
- * @param TResource the type of [Resource] to be stored
+ * @param TResource the type of [Entity] to be stored
  *
  * @see PgTable
- * @see Resource
+ * @see Entity
  * @see SqlBinding
  *
  * @author Benjozork, hamza1311
  */
-abstract class ResourceTable<TResource : Resource> : PgTable() {
+abstract class ResourceTable<TResource : Entity> : PgTable() {
 
     /**
      * A list of all [bindings][SqlBinding] present for this table
@@ -71,23 +71,23 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
     }
 
     /**
-     * Creates a binding between [column] and a [property] containing nullable references to [resources][Resource]
+     * Creates a binding between [column] and a [property] containing nullable references to [entity][Entity]
      *
      * @param column   the column in which UUIDs of instances of [property] are stored
      * @param property the property of [TResource]`::class` to bind
      */
-    fun <TProperty : Resource?> bind(column: Column<UUID?>, property: KProperty1<TResource, TProperty>): SqlBinding.NullableReference<TResource, TProperty> {
+    fun <TProperty : Entity?> bind(column: Column<UUID?>, property: KProperty1<TResource, TProperty>): SqlBinding.NullableReference<TResource, TProperty> {
         return SqlBinding.NullableReference(this@ResourceTable, property, column)
             .also { this.bindings += it }
     }
 
     /**
-     * Creates a binding between [column] and a [property] containing references to [resources][Resource]
+     * Creates a binding between [column] and a [property] containing references to [entity][Entity]
      *
      * @param column   the column in which UUIDs of instances of [property] are stored
      * @param property the property of [TResource]`::class` to bind
      */
-    fun <TProperty : Resource> bind(column: Column<UUID>, property: KProperty1<TResource, TProperty>): SqlBinding.Reference<TResource, TProperty> {
+    fun <TProperty : Entity> bind(column: Column<UUID>, property: KProperty1<TResource, TProperty>): SqlBinding.Reference<TResource, TProperty> {
         return SqlBinding.Reference(this@ResourceTable, property, column)
             .also { this.bindings += it }
     }
@@ -208,7 +208,7 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
      * @param binding         the [SqlBinding] we are working with
      */
     @Suppress("UNCHECKED_CAST")
-    private fun <TResource : Resource, TProperty : Any?> applyBindingToInsertOrUpdate (
+    private fun <TResource : Entity, TProperty : Any?> applyBindingToInsertOrUpdate (
         resource: TResource,
         insertStatement: UpdateBuilder<Number>,
         binding: SqlBinding<TResource, TProperty, *>

@@ -1,13 +1,13 @@
 package blogify.backend.annotations
 
 import blogify.backend.database.models.ResourceTable
-import blogify.backend.entity.Resource
+import blogify.reflect.entity.Entity
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 /**
- * Associates a [Resource] class to a [ResourceTable] when using a [blogify.backend.persistence.PostgresDataStore]
+ * Associates a [Entity] class to a [ResourceTable] when using a [blogify.backend.persistence.PostgresDataStore]
  *
  * @param table the class of the table in which instances of this class are stored
  *
@@ -18,8 +18,8 @@ annotation class SqlTable (
 )
 
 /**
- * Computed value that finds the [ResourceTable] for a given subclass of [Resource] using the [SqlTable] annotation
+ * Computed value that finds the [ResourceTable] for a given subclass of [Entity] using the [SqlTable] annotation
  */
-val <R : Resource> KClass<R>.table: ResourceTable<R>
+val <R : Entity> KClass<R>.table: ResourceTable<R>
     get() = (this.findAnnotation<SqlTable>()?.table?.objectInstance ?: error("no @SqlTable annotation on class ${this.simpleName}"))
             as ResourceTable<R>

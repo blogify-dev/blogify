@@ -1,11 +1,13 @@
 package blogify.reflect.analysis.metadata
 
 import blogify.reflect.analysis.extensions.descriptor
+import blogify.reflect.analysis.models.PropertyDescriptor
 import blogify.reflect.models.Mapped
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertDoesNotThrow
+import kotlin.reflect.KProperty1
 
 class ClassDescriptorTest {
 
@@ -24,7 +26,7 @@ class ClassDescriptorTest {
         val descriptor = A::class.descriptor
 
         arrayOf(A::name, A::age).forEach { property ->
-            assertTrue(descriptor.propertyDescriptors.contains(property))
+            assertTrue(descriptor.propertyDescriptors.contains<KProperty1<*, *>, PropertyDescriptor>(property))
         }
     }
 

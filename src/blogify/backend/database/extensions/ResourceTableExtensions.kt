@@ -2,6 +2,7 @@ package blogify.backend.database.extensions
 
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.entity.Resource
+import blogify.reflect.entity.Entity
 
 import blogify.reflect.extensions.klass
 
@@ -16,7 +17,7 @@ import java.util.*
  *
  * @author Benjozork
  */
-val <TResource : Resource> ResourceTable<TResource>.klass get() = this.bindings.first().property.klass
+val <TResource : Entity> ResourceTable<TResource>.klass get() = this.bindings.first().property.klass
 
 /**
  * Returns the column in the left side table with a foreign key to [other]'s `uuid` column, or null if none or multiple exist.

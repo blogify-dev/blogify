@@ -7,9 +7,9 @@ import blogify.backend.database.binding.SqlBinding
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.QueryContext
 import blogify.backend.database.models.construct
-import blogify.backend.entity.Resource
 import blogify.backend.util.*
 import blogify.reflect.MappedData
+import blogify.reflect.entity.Entity
 import blogify.reflect.extensions.klass
 
 import org.jetbrains.exposed.sql.*
@@ -29,9 +29,9 @@ import java.util.*
  */
 object QueryOptimizer {
 
-    private val classJoinCache = MapCache<KClass<out Resource>, ColumnSet>()
+    private val classJoinCache = MapCache<KClass<out Entity>, ColumnSet>()
 
-    fun <TResource : Resource> optimize(klass: KClass<TResource>, condition: SqlExpressionBuilder.() -> Op<Boolean>): Query {
+    fun <TResource : Entity> optimize(klass: KClass<TResource>, condition: SqlExpressionBuilder.() -> Op<Boolean>): Query {
         val mainJoin = classJoinCache.findOr(klass) { makeJoinForClass(klass) }
             .assertGet()
 
@@ -51,7 +51,7 @@ object QueryOptimizer {
      * @param klass          the class associated with [TResource], used for reflection purposes
      * @param rows           a set of [result rows][ResultRow], each to be converted to instances of [TResource]
      */
-    suspend fun <TResource : Resource> convertOptimizedRows (
+    suspend fun <TResource : Entity> convertOptimizedRows (
         queryContext: QueryContext,
         klass: KClass<TResource>,
         rows: List<ResultRow>
@@ -96,8 +96,8 @@ object QueryOptimizer {
         queryContext: QueryContext,
         binding: SqlBinding<*, *, *>,
         row: ResultRow
-    ): Sr<Resource> {
-        val bindingRightTable = binding.property.returnType.safeKlass<Resource>()?.table ?: never
+    ): Sr<Entity> {
+        val bindingRightTable = binding.property.returnType.safeKlass<Entity>()?.table ?: never
         val rightTableAlias = bindingRightTable.alias("${binding.property.klass.simpleName}->${binding.property.name}")
 
         // If row[bindingRightTable.uuid] is null, the item is null, so we should return a failure accordingly
