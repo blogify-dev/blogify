@@ -90,7 +90,7 @@ fun Application.blogifyMainModule(configuration: BlogifyApplicationBootstrapper.
         register(ContentType.Application.Json, JacksonConverter(objectMapper))
     }
 
-    // Initialize HTTPS refirection if TLS is enabled
+    // Initialize HTTPS redirection if TLS is enabled
 
     if (configuration.tlsConfig != null) {
         install(HttpsRedirect) {
