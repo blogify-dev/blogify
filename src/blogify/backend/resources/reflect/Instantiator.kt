@@ -1,10 +1,7 @@
 package blogify.backend.resources.reflect
 
 import blogify.backend.appContext
-import blogify.backend.database.models.QueryContext
-import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.pipelines.wrapping.RequestContextFunction
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.util.*
 import blogify.reflect.MappedData

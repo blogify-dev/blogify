@@ -2,7 +2,7 @@ package blogify.backend.persistence.postgres
 
 import blogify.backend.annotations.table
 import blogify.backend.persistence.models.DataStore
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.persistence.models.Repository
 import blogify.backend.util.MapCache
 

@@ -1,27 +1,26 @@
 package blogify.backend.search.ext
 
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.reflect.sanitize
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.SearchView
 import blogify.backend.persistence.models.Repository
-import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
 import blogify.backend.util.Sr
 import blogify.backend.util.toUUID
 
 import java.lang.Exception
 import java.lang.IllegalStateException
 
-suspend inline fun <reified T : Resource> Search.Hit.fetchResource(repository: Repository<T>): Sr<T> {
+suspend inline fun <reified T : Resource> Search.Hit.fetchResource(requestContext: RequestContext, repository: Repository<T>): Sr<T> {
     val resourceUUID = (this.document["uuid"] as String).toUUID()
-    return repository.get(FakeRequestContext, resourceUUID)
+    return repository.get(requestContext, resourceUUID)
 }
 
 suspend inline fun <reified R: Resource> Search<R>.asSearchView(requestContext: RequestContext): SearchView {
     val processedHits = try {
         this.hits?.map {
-            SearchView.Hit(it.fetchResource<R>(requestContext.repository<R>()).get().sanitize(), it.highlights)
+            SearchView.Hit(it.fetchResource(requestContext, requestContext.repository<R>()).get().sanitize(), it.highlights)
         } ?: emptyList()
     } catch (e: Exception) {
         throw IllegalStateException("error while parsing search results: ${e::class.simpleName}: ${e.message}", e)

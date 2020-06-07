@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.search.Typesense
 import blogify.backend.search.autogen.AutogenClassVisitor
 import blogify.backend.search.ext.TEMPLATE_DEFAULT_DSF

@@ -4,9 +4,8 @@ import blogify.backend.database.handling.query
 import blogify.backend.database.models.QueryContext
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.database.models.repository
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.persistence.models.Repository
-import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.reflect.update
 import blogify.backend.util.*
 import blogify.reflect.MappedData

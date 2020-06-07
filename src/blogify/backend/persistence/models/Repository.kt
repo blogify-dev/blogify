@@ -1,7 +1,7 @@
 package blogify.backend.persistence.models
 
 import blogify.backend.database.models.QueryContext
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.util.*
 import blogify.reflect.MappedData
 import blogify.reflect.models.PropMap

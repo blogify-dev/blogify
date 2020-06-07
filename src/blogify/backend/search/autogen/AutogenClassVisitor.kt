@@ -2,7 +2,7 @@ package blogify.backend.search.autogen
 
 import blogify.reflect.annotations.search.NoSearch
 import blogify.reflect.computed.models.Computed
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.reflect.propMap
 import blogify.reflect.models.extensions.ok
 import blogify.backend.search.models.Template

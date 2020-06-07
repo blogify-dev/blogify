@@ -5,7 +5,7 @@ import blogify.backend.database.extensions.klass
 import blogify.backend.database.handling.query
 import blogify.backend.database.handling.unwrappedQuery
 import blogify.backend.database.optimizer.QueryOptimizer
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.resources.models.UserCreatedResource
 import blogify.backend.resources.reflect.MissingArgumentsException
 import blogify.backend.resources.reflect.construct

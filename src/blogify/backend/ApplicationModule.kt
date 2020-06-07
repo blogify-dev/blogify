@@ -16,7 +16,8 @@ import blogify.backend.pipelines.GenericCallPipeline
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.user.User
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
+import blogify.backend.resources.models.ResourceIdSerializer
 import blogify.backend.routing.admin.makeAdminRoutes
 import blogify.backend.routing.makePushServerRoutes
 import blogify.backend.routing.makeStaticRoutes
@@ -64,7 +65,7 @@ private val dataStore = PostgresDataStore {
 private val objectMapper = jacksonObjectMapper().apply {
     val blogifyModule = SimpleModule()
 
-    blogifyModule.addSerializer(Resource.ResourceIdSerializer)
+    blogifyModule.addSerializer(ResourceIdSerializer)
     blogifyModule.addSerializer(Template.Field.Serializer)
     blogifyModule.addSerializer(ContentTypeSerializer)
     blogifyModule.addSerializer(InstantSerializer)

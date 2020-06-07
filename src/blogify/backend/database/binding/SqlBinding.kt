@@ -2,7 +2,7 @@ package blogify.backend.database.binding
 
 import blogify.backend.database.extensions.foreignKeyTo
 import blogify.backend.database.models.ResourceTable
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder

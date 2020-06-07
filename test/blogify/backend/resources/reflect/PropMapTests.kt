@@ -1,6 +1,6 @@
 package blogify.backend.resources.reflect
 
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.events.models.EventTarget
 import blogify.reflect.computed.models.Computed
 import blogify.reflect.annotations.Hidden

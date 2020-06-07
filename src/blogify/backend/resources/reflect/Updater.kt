@@ -4,7 +4,7 @@ import blogify.backend.database.models.QueryContext
 import blogify.backend.database.models.repository
 import blogify.backend.util.Sr
 import blogify.reflect.unsafePropMap
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.reflect.MappedData
 
 import blogify.reflect.models.Mapped

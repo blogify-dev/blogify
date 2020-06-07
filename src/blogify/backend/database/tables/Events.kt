@@ -4,7 +4,7 @@ import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.QueryContext
 import blogify.backend.events.models.Event
-import blogify.backend.resources.models.Resource
+import blogify.backend.resources.models.ResourceIdSerializer
 import blogify.reflect.sanitize
 import blogify.backend.util.*
 import blogify.reflect.Dto
@@ -30,7 +30,7 @@ object Events : PgTable("notifications") {
 
         private val objectMapper = jacksonObjectMapper().apply {
             val resourceModule = SimpleModule()
-            resourceModule.addSerializer(Resource.ResourceIdSerializer)
+            resourceModule.addSerializer(ResourceIdSerializer)
 
             registerModule(resourceModule)
         }

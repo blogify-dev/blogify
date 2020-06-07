@@ -1,7 +1,7 @@
 package blogify.backend.search.autogen
 
 import blogify.reflect.annotations.search.DelegatedSearch
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.reflect.models.PropMap
 import blogify.backend.search.models.Template
 import blogify.backend.util.never

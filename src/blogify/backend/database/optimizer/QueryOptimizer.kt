@@ -7,7 +7,7 @@ import blogify.backend.database.binding.SqlBinding
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.QueryContext
 import blogify.backend.database.models.construct
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.util.*
 import blogify.reflect.MappedData
 import blogify.reflect.extensions.klass

@@ -20,7 +20,7 @@ import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.push.Message
 import blogify.reflect.computed.compound
 import blogify.reflect.computed.models.Computed
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.resources.static.models.StaticFile
 
 import kotlinx.coroutines.GlobalScope

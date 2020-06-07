@@ -3,7 +3,7 @@ package blogify.backend.pipelines.wrapping
 import blogify.backend.appContext
 import blogify.backend.database.models.QueryContext
 import blogify.backend.persistence.models.DataStore
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.persistence.models.Repository
 import blogify.backend.push.PushServer
 import blogify.backend.resources.reflect.construct
@@ -45,7 +45,7 @@ class ApplicationContext (
             val params = source.parseJsonHandleMap(UserSettings::class).get()
 
             val queryContext = object : QueryContext {
-                override val repositoryCache = MapCache<KClass<out Resource>, Repository<Resource>>()
+                override val repositoryCache = MapCache<KClass<out Resource>, Repository<out Resource>>()
 
                 override val entityCache = MapCache<UUID, Resource>()
             }

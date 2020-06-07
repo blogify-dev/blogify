@@ -1,7 +1,8 @@
 package blogify.backend.push
 
 import blogify.reflect.annotations.Hidden
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
+import blogify.backend.resources.models.ResourceIdSerializer
 import blogify.reflect.models.Mapped
 import blogify.reflect.sanitize
 import blogify.reflect.slice
@@ -13,7 +14,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.http.cio.websocket.Frame
 
 private val objectMapper = jacksonObjectMapper().apply {
-    registerModule(SimpleModule().apply { addSerializer(Resource.ResourceIdSerializer) })
+    registerModule(SimpleModule().apply { addSerializer(ResourceIdSerializer) })
 }
 
 /**

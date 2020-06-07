@@ -30,7 +30,7 @@ package blogify.backend.routing.handling
 import blogify.backend.database.tables.Uploadables
 import blogify.backend.database.handling.query
 import blogify.backend.resources.user.User
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.resources.static.file.StaticFileHandler
 import blogify.backend.resources.static.models.StaticData
 import blogify.backend.resources.static.models.StaticFile

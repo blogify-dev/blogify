@@ -1,6 +1,6 @@
 package blogify.backend.resources.reflect.extensions
 
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.resources.reflect.UserSpecificPropertyContainer
 import blogify.backend.resources.user.User
 

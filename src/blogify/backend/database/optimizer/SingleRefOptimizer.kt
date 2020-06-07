@@ -2,7 +2,7 @@ package blogify.backend.database.optimizer
 
 import blogify.backend.annotations.table
 import blogify.backend.database.binding.SqlBinding
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.util.never
 import blogify.reflect.extensions.safeKlass
 

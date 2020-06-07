@@ -1,7 +1,7 @@
 package blogify.backend.annotations
 
 import blogify.backend.database.models.ResourceTable
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation

@@ -3,7 +3,7 @@ package blogify.backend.resources.reflect
 import blogify.reflect.annotations.Hidden
 import blogify.backend.events.models.EventTarget
 import blogify.reflect.computed.models.Computed
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.extensions.valid
 

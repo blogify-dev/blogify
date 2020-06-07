@@ -2,7 +2,7 @@ package blogify.backend.search.ext
 
 import blogify.reflect.annotations.search.QueryByField
 import blogify.reflect.annotations.search.SearchDefaultSort
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.search.models.Template
 import blogify.reflect.propMap
 import blogify.reflect.models.extensions.ok

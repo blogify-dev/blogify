@@ -1,7 +1,7 @@
 package blogify.backend.database.extensions
 
 import blogify.backend.database.models.ResourceTable
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 
 import blogify.reflect.extensions.klass
 

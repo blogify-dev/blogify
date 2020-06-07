@@ -6,7 +6,7 @@ import blogify.reflect.annotations.check
 import blogify.backend.database.tables.Articles
 import blogify.backend.database.tables.Comments
 import blogify.reflect.computed.compound
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.database.countReferredToBy
 import blogify.backend.events.models.Event
 import blogify.backend.events.models.EventType

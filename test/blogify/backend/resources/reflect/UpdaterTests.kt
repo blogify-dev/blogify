@@ -2,7 +2,7 @@ package blogify.backend.resources.reflect
 
 import blogify.reflect.annotations.Hidden
 import blogify.backend.events.models.EventTarget
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.reflect.models.extensions.ok
 import blogify.backend.util.Sr
 

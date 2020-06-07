@@ -4,7 +4,7 @@ import blogify.backend.annotations.PipelinesDsl
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.pipelines.wrapping.RequestContextFunction
-import blogify.backend.resources.models.Resource
+import blogify.backend.entity.Resource
 import blogify.backend.util.getOr404OrPipelineError
 import blogify.backend.util.reason
 import blogify.backend.util.toUUIDOrNull
