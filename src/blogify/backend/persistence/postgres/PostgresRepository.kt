@@ -9,6 +9,7 @@ import blogify.backend.persistence.models.Repository
 import blogify.backend.resources.reflect.update
 import blogify.backend.util.*
 import blogify.reflect.MappedData
+import blogify.reflect.entity.Entity
 
 import org.jetbrains.exposed.sql.*
 
@@ -16,7 +17,7 @@ import io.ktor.http.HttpStatusCode
 
 import java.util.*
 
-open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repository<R> {
+open class PostgresRepository<R : Entity>(val table: ResourceTable<R>) : Repository<R> {
 
     override suspend fun getAll(request: QueryContext, limit: Int): SrList<R>
             = this.table.obtainAll(request, limit)

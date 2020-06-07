@@ -1,7 +1,7 @@
 package blogify.backend.database.extensions
 
 import blogify.backend.database.models.ResourceTable
-import blogify.backend.entity.Resource
+import blogify.reflect.entity.Entity
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ForeignKeyConstraint
@@ -9,7 +9,7 @@ import org.jetbrains.exposed.sql.ReferenceOption
 
 import java.util.*
 
-infix fun <T : Resource, C : Column<UUID?>> C.nullableKeyOf(resourceTable: ResourceTable<T>): C = apply {
+infix fun <T : Entity, C : Column<UUID?>> C.nullableKeyOf(resourceTable: ResourceTable<T>): C = apply {
     this.foreignKey = ForeignKeyConstraint (
         target = resourceTable.uuid,
         from = this,
@@ -19,7 +19,7 @@ infix fun <T : Resource, C : Column<UUID?>> C.nullableKeyOf(resourceTable: Resou
     )
 }
 
-infix fun <T : Resource, C : Column<UUID>> C.keyOf(resourceTable: ResourceTable<T>): C = apply {
+infix fun <T : Entity, C : Column<UUID>> C.keyOf(resourceTable: ResourceTable<T>): C = apply {
     this.foreignKey = ForeignKeyConstraint (
         target = resourceTable.uuid,
         from = this,
@@ -28,7 +28,7 @@ infix fun <T : Resource, C : Column<UUID>> C.keyOf(resourceTable: ResourceTable<
         name = null
     )}
 
-infix fun <T : Resource, C : Column<UUID>> C.dependentKeyOf(resourceTable: ResourceTable<T>): C = apply {
+infix fun <T : Entity, C : Column<UUID>> C.dependentKeyOf(resourceTable: ResourceTable<T>): C = apply {
     this.foreignKey = ForeignKeyConstraint (
         target = resourceTable.uuid,
         from = this,

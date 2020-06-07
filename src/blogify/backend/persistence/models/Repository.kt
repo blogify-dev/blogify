@@ -4,6 +4,7 @@ import blogify.backend.database.models.QueryContext
 import blogify.backend.entity.Resource
 import blogify.backend.util.*
 import blogify.reflect.MappedData
+import blogify.reflect.entity.Entity
 import blogify.reflect.models.PropMap
 import blogify.reflect.extensions.okHandle
 
@@ -21,7 +22,7 @@ import kotlin.reflect.KProperty1
 /**
  * Service interface for fetching, creating, updating and deleting [resources][Resource].
  */
-interface Repository<R : Resource> {
+interface Repository<R : Entity> {
 
     /**
      * Obtains all instances of [R] in the database

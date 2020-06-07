@@ -3,11 +3,11 @@ package blogify.backend.database.models
 import blogify.backend.annotations.table
 import blogify.backend.persistence.models.Repository
 import blogify.backend.persistence.postgres.PostgresRepository
-import blogify.backend.entity.Resource
 import blogify.backend.util.MapCache
 import blogify.backend.util.Sr
 import blogify.backend.util.SrList
 import blogify.backend.util.assertGet
+import blogify.reflect.entity.Entity
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Op
@@ -20,19 +20,19 @@ import kotlin.reflect.KClass
 
 interface QueryContext {
 
-    val repositoryCache: MapCache<KClass<out Resource>, Repository<out Resource>>
+    val repositoryCache: MapCache<KClass<out Entity>, Repository<out Entity>>
 
-    val entityCache: MapCache<UUID, Resource>
+    val entityCache: MapCache<UUID, Entity>
 
-    suspend fun <TResource : Resource> Repository<TResource>.obtainAll(limit: Int): SrList<TResource> =
+    suspend fun <TResource : Entity> Repository<TResource>.obtainAll(limit: Int): SrList<TResource> =
         this.getAll(this@QueryContext, limit)
 
-    suspend fun <TResource : Resource> Repository<TResource>.obtain(id: UUID): Sr<Resource> =
+    suspend fun <TResource : Entity> Repository<TResource>.obtain(id: UUID): Sr<Entity> =
         this@QueryContext.entityCache.findOrAsync(id) {
             this.get(this@QueryContext, id).get()
         }
 
-    suspend fun <TResource : Resource> Repository<TResource>.obtainListing (
+    suspend fun <TResource : Entity> Repository<TResource>.obtainListing (
         selectCondition: SqlExpressionBuilder.() -> Op<Boolean>,
         quantity: Int,
         page: Int,
@@ -44,13 +44,13 @@ interface QueryContext {
 }
 
 @Suppress("UNCHECKED_CAST")
-inline fun <reified TResource : Resource> QueryContext.repository(): Repository<TResource> =
+inline fun <reified TResource : Entity> QueryContext.repository(): Repository<TResource> =
     this.repositoryCache.findOr(TResource::class) {
         PostgresRepository(TResource::class.table)
     }.assertGet()
 
 @Suppress("UNCHECKED_CAST")
-fun <TResource : Resource> QueryContext.repository(klass: KClass<out TResource>): Repository<out TResource> =
+fun <TResource : Entity> QueryContext.repository(klass: KClass<out TResource>): Repository<out TResource> =
     this.repositoryCache.findOr(klass) {
         PostgresRepository(klass.table)
     }.assertGet()
