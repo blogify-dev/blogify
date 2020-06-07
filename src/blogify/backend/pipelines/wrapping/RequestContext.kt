@@ -104,7 +104,7 @@ class RequestContext (
      *
      * @author Benjozork
      */
-    fun <TResource : Resource> repository(klass: KClass<TResource>): Repository<TResource> {
+    fun <TResource : Entity> repository(klass: KClass<TResource>): Repository<TResource> {
         return this.appContext.dataStore.getRepository(klass)
     }
 

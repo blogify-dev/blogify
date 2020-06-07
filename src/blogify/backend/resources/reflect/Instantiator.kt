@@ -1,7 +1,7 @@
 package blogify.backend.resources.reflect
 
 import blogify.backend.appContext
-import blogify.backend.entity.Resource
+import blogify.reflect.entity.Entity
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.util.*
 import blogify.reflect.MappedData
@@ -41,7 +41,7 @@ private val noExternalFetcherMessage =
  *
  * @param data            the [data][MappedData] we are going to be using to instantiate the object.
  *                        All non-optional primary constructor properties must be present or else the returned [Sr] will be a failure.
- * @param externalFetcher a function that is used to fetch other [resources][Resource] requires by the instantiated objects.
+ * @param externalFetcher a function that is used to fetch other [resources][Entity] requires by the instantiated objects.
  *                        Takes the type of the property and an [UUID].
  *
  * @return the instantiated object
@@ -51,7 +51,7 @@ private val noExternalFetcherMessage =
 @Suppress("UNCHECKED_CAST")
 suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
     data:               MappedData,
-    externalFetcher:    suspend (KClass<Resource>, UUID) -> Sr<Resource> = { _, _ -> error(noExternalFetcherMessage) },
+    externalFetcher:    suspend (KClass<Entity>, UUID) -> Sr<Entity> = { _, _ -> error(noExternalFetcherMessage) },
     externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
 ): Sr<TMapped> {
 
@@ -84,11 +84,11 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
                     handle in externallyProvided -> { // Do not deserialize, it's provided !
                         parameter to value
                     }
-                    parameter.type subTypeOf Resource::class -> { // KType of property is subtype of Resource
-                        if (value is Resource)
+                    parameter.type subTypeOf Entity::class -> { // KType of property is subtype of Resource
+                        if (value is Entity)
                             return@map parameter to value
 
-                        val keyResourceType = parameter.type.safeKlass<Resource>() ?: never
+                        val keyResourceType = parameter.type.safeKlass<Entity>() ?: never
 
                         val valueUUID = when (value) {
                             is String -> value.toUUID()

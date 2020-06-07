@@ -4,7 +4,7 @@ import blogify.backend.database.models.QueryContext
 import blogify.backend.database.models.repository
 import blogify.backend.util.Sr
 import blogify.reflect.unsafePropMap
-import blogify.backend.entity.Resource
+import blogify.reflect.entity.Entity
 import blogify.reflect.MappedData
 
 import blogify.reflect.models.Mapped
@@ -17,9 +17,9 @@ import java.util.UUID
 import kotlin.reflect.KClass
 
 /**
- * Updates a [Resource] using a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
+ * Updates a [Entity] using a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
  *
- * @receiver the [Resource] to update
+ * @receiver the [Entity] to update
  *
  * @param R       the class associated with [this]
  * @param rawData a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
@@ -30,7 +30,7 @@ import kotlin.reflect.KClass
  */
 suspend fun <R : Mapped> R.update (
     rawData: MappedData,
-    fetcher: suspend (KClass<Resource>, UUID) -> Sr<Resource>
+    fetcher: suspend (KClass<Entity>, UUID) -> Sr<Entity>
 ): Sr<R> {
 
     val targetPropMap = this.unsafePropMap // Get unsafe handles too
@@ -56,9 +56,9 @@ suspend fun <R : Mapped> R.update (
 }
 
 /**
- * Updates a [Resource] using a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
+ * Updates a [Entity] using a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
  *
- * @receiver the [Resource] to update
+ * @receiver the [Entity] to update
  *
  * @param R       the class associated with [this]
  * @param rawData a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
