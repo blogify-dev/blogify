@@ -42,15 +42,14 @@ open class PostgresRepository<R : Entity>(val table: ResourceTable<R>) : Reposit
 
     override suspend fun add(res: R): Sr<R> = this.table.insert(res)
 
-    override suspend fun update(request: QueryContext, res: R, rawData: MappedData): Sr<R> {
-        val new = res.update (
+    override suspend fun update(request: QueryContext, res: R, rawData: MappedData): Sr<R> = Wrap {
+        val new = res.update(
             rawData,
             fetcher = { type, uuid -> request.repository(type).get(request, uuid) }
         ).get()
-
         this.table.update(new)
 
-        return Wrap { new }
+        return@Wrap new
     }
 
     override suspend fun delete(res: R): Sr<UUID>
