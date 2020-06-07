@@ -11,6 +11,7 @@ import blogify.backend.resources.reflect.extensions.sanitizeToString
 import blogify.backend.resources.user.UserSettings
 import blogify.backend.util.MapCache
 import blogify.backend.util.parseJsonHandleMap
+import blogify.reflect.entity.Entity
 import blogify.reflect.models.Mapped
 
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -45,9 +46,9 @@ class ApplicationContext (
             val params = source.parseJsonHandleMap(UserSettings::class).get()
 
             val queryContext = object : QueryContext {
-                override val repositoryCache = MapCache<KClass<out Resource>, Repository<out Resource>>()
+                override val repositoryCache = MapCache<KClass<out Entity>, Repository<out Entity>>()
 
-                override val entityCache = MapCache<UUID, Resource>()
+                override val entityCache = MapCache<UUID, Entity>()
             }
 
             T::class.construct (

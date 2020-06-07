@@ -11,6 +11,7 @@ import blogify.backend.entity.Resource
 import blogify.backend.resources.user.User
 import blogify.backend.util.MapCache
 import blogify.backend.util.getOrNull
+import blogify.reflect.entity.Entity
 
 import com.andreapivetta.kolor.red
 
@@ -43,9 +44,9 @@ fun Route.makePushServerRoutes() {
                     return@consumeEach
 
                 val queryContext = object : QueryContext {
-                    override val repositoryCache = MapCache<KClass<out Resource>, Repository<out Resource>>()
+                    override val repositoryCache = MapCache<KClass<out Entity>, Repository<out Entity>>()
 
-                    override val entityCache = MapCache<UUID, Resource>()
+                    override val entityCache = MapCache<UUID, Entity>()
                 }
 
                 if (authenticatedUser == null) {

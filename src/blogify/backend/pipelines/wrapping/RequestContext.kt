@@ -7,6 +7,7 @@ import blogify.backend.util.MapCache
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
 import blogify.backend.util.WrapBlocking
+import blogify.reflect.entity.Entity
 
 import io.ktor.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
@@ -41,9 +42,9 @@ class RequestContext (
     enableCaching: Boolean = true
 ) : CoroutineScope by coroutineScope, QueryContext {
 
-    override val entityCache: RequestCache<UUID, Resource> = RequestCache(enableCaching)
+    override val entityCache: RequestCache<UUID, Entity> = RequestCache(enableCaching)
 
-    override val repositoryCache = MapCache<KClass<out Resource>, Repository<out Resource>>()
+    override val repositoryCache = MapCache<KClass<out Entity>, Repository<out Entity>>()
 
     class RequestCache<K : Any, V : Any>(private val enableCaching: Boolean) : MapCache<K, V>() {
 
