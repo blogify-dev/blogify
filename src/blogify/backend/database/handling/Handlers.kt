@@ -1,7 +1,7 @@
 package blogify.backend.database.handling
 
 import blogify.backend.database.DatabaseConnection
-import blogify.backend.annotations.BlogifyDsl
+import blogify.backend.database.annotations.DatabaseDsl
 import blogify.backend.util.getOr
 
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -21,7 +21,7 @@ import java.lang.Exception
  *
  * @author Benjozork
  */
-@BlogifyDsl
+@DatabaseDsl
 suspend fun <T : Any> query(block: suspend () -> T): SuspendableResult<T, Exception> {
     return SuspendableResult.of<T, Exception> { // The transaction can throw any Exception; specify that
         withContext(Dispatchers.IO) { newSuspendedTransaction { block() } } // Run the transaction
@@ -36,6 +36,6 @@ suspend fun <T : Any> query(block: suspend () -> T): SuspendableResult<T, Except
  *
  * @author Benjozork
  */
-@BlogifyDsl
+@DatabaseDsl
 suspend fun <T : Any> unwrappedQuery(block: suspend () -> T): T =
     query(block).getOr { error("unwrapped query resulted in a failure") }
