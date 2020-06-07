@@ -43,7 +43,7 @@ class RequestContext (
 
     override val entityCache: RequestCache<UUID, Resource> = RequestCache(enableCaching)
 
-    override val repositoryCache = MapCache<KClass<out Resource>, Repository<Resource>>()
+    override val repositoryCache = MapCache<KClass<out Resource>, Repository<out Resource>>()
 
     class RequestCache<K : Any, V : Any>(private val enableCaching: Boolean) : MapCache<K, V>() {
 

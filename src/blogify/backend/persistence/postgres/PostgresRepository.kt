@@ -3,6 +3,7 @@ package blogify.backend.persistence.postgres
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.QueryContext
 import blogify.backend.database.models.ResourceTable
+import blogify.backend.database.models.repository
 import blogify.backend.resources.models.Resource
 import blogify.backend.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
@@ -18,11 +19,11 @@ import java.util.*
 
 open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repository<R> {
 
-    override suspend fun getAll(request: RequestContext, limit: Int): SrList<R>
+    override suspend fun getAll(request: QueryContext, limit: Int): SrList<R>
             = this.table.obtainAll(request, limit)
 
     override suspend fun queryListing (
-        request: RequestContext,
+        request: QueryContext,
         selectCondition: SqlExpressionBuilder.() -> Op<Boolean>,
         quantity: Int,
         page: Int,
@@ -44,7 +45,7 @@ open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repos
 
     override suspend fun add(res: R): Sr<R> = this.table.insert(res)
 
-    override suspend fun update(request: RequestContext, res: R, rawData: MappedData): Sr<R> {
+    override suspend fun update(request: QueryContext, res: R, rawData: MappedData): Sr<R> {
         val new = res.update (
             rawData,
             fetcher = { type, uuid -> request.repository(type).get(request, uuid) }

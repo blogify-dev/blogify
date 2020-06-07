@@ -268,7 +268,7 @@ object Typesense {
      * @author hamza1311
      */
     suspend inline fun <reified R: Resource> refreshIndex(requestContext: RequestContext): HttpStatement {
-        val resources = requestContext.repository<R>().getAll().get()
+        val resources = requestContext.repository<R>().getAll(requestContext).get()
         val docs = resources.map { this.makeDocument(it) }
 
         deleteCollection<R>()

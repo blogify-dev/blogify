@@ -1,9 +1,7 @@
 package blogify.backend.persistence.models
 
 import blogify.backend.database.models.QueryContext
-import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
 import blogify.backend.util.*
 import blogify.reflect.MappedData
 import blogify.reflect.models.PropMap
@@ -33,7 +31,7 @@ interface Repository<R : Resource> {
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun getAll(request: RequestContext = FakeRequestContext, limit: Int = 256): SrList<R>
+    suspend fun getAll(request: QueryContext, limit: Int = 256): SrList<R>
 
     /**
      * Obtains an instance of [R] with a specific [id][UUID] ]in the database
@@ -47,7 +45,7 @@ interface Repository<R : Resource> {
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun queryListing(request: RequestContext,
+    suspend fun queryListing(request: QueryContext,
                              selectCondition: SqlExpressionBuilder.() -> Op<Boolean>,
                              quantity: Int,
                              page: Int,
@@ -92,7 +90,7 @@ interface Repository<R : Resource> {
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun update(request: RequestContext, res: R, rawData: MappedData): Sr<R>
+    suspend fun update(request: QueryContext, res: R, rawData: MappedData): Sr<R>
 
     /**
      * Updates an instance of [R] in the database
@@ -104,8 +102,8 @@ interface Repository<R : Resource> {
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun updateWithProperties(request: RequestContext, resource: R, data: Map<KProperty1<R, Any>, Any>): Sr<R>
-            = update(request, resource, data.mapKeys { it.key.okHandle ?: error("update with a <KProperty1. Any> map cannot resolve to non-ok handles") })
+    suspend fun updateWithProperties(request: QueryContext, resource: R, data: Map<KProperty1<R, Any>, Any>): Sr<R>
+            = update(request, resource, data.mapKeys { it.key.okHandle ?: error("update with a <KProperty1, Any> map cannot resolve to non-ok handles") })
 
     /**
      * Deletes an instance of [R] from the database
