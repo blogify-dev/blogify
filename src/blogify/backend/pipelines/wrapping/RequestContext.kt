@@ -1,5 +1,6 @@
 package blogify.backend.pipelines.wrapping
 
+import blogify.backend.database.models.QueryContext
 import blogify.backend.resources.models.Resource
 import blogify.backend.persistence.models.Repository
 import blogify.backend.util.MapCache
@@ -30,7 +31,6 @@ import java.util.UUID
  * @property appContext     the [ApplicationContext] in which this request is executing
  * @property coroutineScope the [CoroutineScope] that is used for dispatching coroutines started in the request
  * @property call           the [ApplicationCall] that originated in the request
- * @property cache          the [MapCache] to be used to cache resources during the request
  *
  * @author Benjozork
  */
@@ -39,11 +39,13 @@ class RequestContext (
     val coroutineScope: CoroutineScope,
     val call: ApplicationCall,
     enableCaching: Boolean = true
-) : CoroutineScope by coroutineScope {
+) : CoroutineScope by coroutineScope, QueryContext {
 
-    val cache: RequestCache<UUID, Resource> = RequestCache(enableCaching)
+    override val entityCache: RequestCache<UUID, Resource> = RequestCache(enableCaching)
 
-    class RequestCache<K : Any, V : Any>(val enableCaching: Boolean) : MapCache<K, V>() {
+    override val repositoryCache = MapCache<KClass<out Resource>, Repository<Resource>>()
+
+    class RequestCache<K : Any, V : Any>(private val enableCaching: Boolean) : MapCache<K, V>() {
 
         private val logger = LoggerFactory.getLogger("blogify-request")
 

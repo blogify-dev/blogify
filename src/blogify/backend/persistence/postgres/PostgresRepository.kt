@@ -1,6 +1,7 @@
 package blogify.backend.persistence.postgres
 
 import blogify.backend.database.handling.query
+import blogify.backend.database.models.QueryContext
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.resources.models.Resource
 import blogify.backend.persistence.models.Repository
@@ -30,15 +31,15 @@ open class PostgresRepository<R : Resource>(val table: ResourceTable<R>) : Repos
     ): Sr<Pair<List<R>, Boolean>>
             = this.table.obtainListing(request, selectCondition, quantity, page, orderBy, sortOrder)
 
-    override suspend fun get(request: RequestContext, id: UUID): Sr<R>
-            = request.cache.findOrAsync(id) { table.obtain(request, id).get() }
+    override suspend fun get(queryContext: QueryContext, id: UUID): Sr<R>
+            = queryContext.entityCache.findOrAsync(id) { table.obtain(queryContext, id).get() }
 
     override suspend fun getOneMatching (
-        request: RequestContext,
+        queryContext: QueryContext,
         selectCondition: SqlExpressionBuilder.() -> Op<Boolean>
     ): Sr<R> = query {
         this.table.select(selectCondition).limit(1).single()
-            .let { this.table.convert(request, it).get() }
+            .let { this.table.convert(queryContext, it).get() }
     }
 
     override suspend fun add(res: R): Sr<R> = this.table.insert(res)

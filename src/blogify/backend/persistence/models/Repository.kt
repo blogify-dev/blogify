@@ -1,5 +1,6 @@
 package blogify.backend.persistence.models
 
+import blogify.backend.database.models.QueryContext
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
@@ -56,22 +57,22 @@ interface Repository<R : Resource> {
     /**
      * Obtains an instance of [R] with a specific [id][UUID] ]in the database
      *
-     * @param request the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
-     * @param id      the [UUID] of the resource to fetch
+     * @param queryContext the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
+     * @param id           the [UUID] of the resource to fetch
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun get(request: RequestContext = FakeRequestContext, id: UUID): Sr<R>
+    suspend fun get(queryContext: QueryContext, id: UUID): Sr<R>
 
     /**
      * Obtains an instance of [R] matching a specific SQL predicate
      *
-     * @param request         the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
+     * @param queryContext    the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
      * @param selectCondition the SQL predicate to match rows with
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun getOneMatching(request: RequestContext, selectCondition: SqlExpressionBuilder.() -> Op<Boolean>): Sr<R>
+    suspend fun getOneMatching(queryContext: QueryContext, selectCondition: SqlExpressionBuilder.() -> Op<Boolean>): Sr<R>
 
     /**
      * Adds an instance of [R] to the database

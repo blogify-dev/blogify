@@ -36,7 +36,7 @@ val getUserDraftArticles: RequestContextFunction<Unit> = {
 
         val drafts = unwrappedQuery {
             Articles.obtainListing (
-                requestContext = this,
+                queryContext = this,
                 selectCondition = { (Articles.createdBy eq user.uuid) and (Articles.isDraft eq true) },
                 quantity = quantity,
                 page = page,

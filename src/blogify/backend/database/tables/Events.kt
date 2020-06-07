@@ -2,8 +2,8 @@ package blogify.backend.database.tables
 
 import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.handling.query
+import blogify.backend.database.models.QueryContext
 import blogify.backend.events.models.Event
-import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
 import blogify.reflect.sanitize
 import blogify.backend.util.*
@@ -46,7 +46,7 @@ object Events : PgTable("notifications") {
     val emitter   = parentKey ("emitter", Users)
     val data      = jsonb     ("data", dataConverter)
 
-    suspend fun convert(request: RequestContext, source: ResultRow): Map<String, Any?> {
+    suspend fun convert(queryContext: QueryContext, source: ResultRow): Map<String, Any?> {
         return mutableMapOf (
             "data"      to source[data],
             "emitter"   to source[emitter],

@@ -1,6 +1,6 @@
 package blogify.backend.database.tables
 
-import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.database.models.QueryContext
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.util.Wrap
@@ -20,7 +20,7 @@ object Uploadables : Table() {
 
     override val primaryKey = PrimaryKey(fileId)
 
-    suspend fun convert(@Suppress("UNUSED_PARAMETER") requestContext: RequestContext, source: ResultRow) =
+    suspend fun convert(@Suppress("UNUSED_PARAMETER") queryContext: QueryContext, source: ResultRow) =
         Wrap {
 
             // Parse the content type
@@ -31,7 +31,7 @@ object Uploadables : Table() {
                     contentType = contentType,
                     fileId = source[fileId],
                     metadata = ImageUploadablesMetadata.obtain(
-                        requestContext,
+                        queryContext,
                         source[fileId]
                     )
                         .getOrElse(ImageMetadata(0, 0))

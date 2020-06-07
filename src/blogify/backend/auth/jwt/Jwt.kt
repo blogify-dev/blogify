@@ -1,8 +1,8 @@
 package blogify.backend.auth.jwt
 
-import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.database.models.QueryContext
+import blogify.backend.database.models.repository
 import blogify.backend.resources.user.User
-import blogify.backend.resources.models.Resource.ObjectResolver.FakeRequestContext
 import blogify.backend.util.Sr
 import blogify.backend.util.short
 import blogify.backend.util.toUUID
@@ -50,7 +50,7 @@ fun generateJWT(user: User) = Jwts
 /**
 * Validates a JWT, returning a [Sr] accordingly
  */
-suspend fun validateJwt(requestContext: RequestContext = FakeRequestContext, token: String): Sr<User> {
+suspend fun validateJwt(queryContext: QueryContext, token: String): Sr<User> {
     var jwsClaims: Jws<Claims>? = null
 
     try {
@@ -69,7 +69,7 @@ suspend fun validateJwt(requestContext: RequestContext = FakeRequestContext, tok
         e.printStackTrace()
     }
 
-    val user = requestContext.repository<User>().get(requestContext, jwsClaims?.body?.subject?.toUUID() ?: error("malformed uuid in jwt"))
+    val user = queryContext.repository<User>().get(queryContext, jwsClaims?.body?.subject?.toUUID() ?: error("malformed uuid in jwt"))
     logger.debug("got valid JWT for user {${user.get().uuid.short()}...}".green())
 
     return user

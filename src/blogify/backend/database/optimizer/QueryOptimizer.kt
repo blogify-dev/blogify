@@ -5,10 +5,9 @@ import blogify.reflect.extensions.safeKlass
 import blogify.backend.annotations.table
 import blogify.backend.database.binding.SqlBinding
 import blogify.backend.database.handling.query
-import blogify.backend.database.models.ResourceTable
-import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.database.models.QueryContext
+import blogify.backend.database.models.construct
 import blogify.backend.resources.models.Resource
-import blogify.backend.resources.reflect.construct
 import blogify.backend.util.*
 import blogify.reflect.MappedData
 import blogify.reflect.extensions.klass
@@ -48,12 +47,12 @@ object QueryOptimizer {
      * This takes care of feeding the columns to the convert() functions of the [tables][blogify.backend.database.models.ResourceTable] for
      * the classes of the different properties of [TResource], and of running additional queries for [x-to-many references][SqlBinding.ReferenceToMany] if needed.
      *
-     * @param requestContext the [RequestContext] for caching
+     * @param queryContext the [QueryContext] for caching
      * @param klass          the class associated with [TResource], used for reflection purposes
      * @param rows           a set of [result rows][ResultRow], each to be converted to instances of [TResource]
      */
     suspend fun <TResource : Resource> convertOptimizedRows (
-        requestContext: RequestContext,
+        queryContext: QueryContext,
         klass: KClass<TResource>,
         rows: List<ResultRow>
     ): List<TResource> {
@@ -63,10 +62,10 @@ object QueryOptimizer {
                     when (binding) {
                         is SqlBinding.Reference<*, *>,
                         is SqlBinding.NullableReference<*, *> ->
-                            resolveSingleRefInstance(requestContext, binding, row)
+                            resolveSingleRefInstance(queryContext, binding, row)
                                 .get()
                         is SqlBinding.ReferenceToMany<*, *> -> {
-                            resolveManyRefItems(requestContext, binding, row[binding.table.uuid])
+                            resolveManyRefItems(queryContext, binding, row[binding.table.uuid])
                                 .get()
                         }
                         is SqlBinding.HasColumn<*> -> // Get the data directly from the row
@@ -89,12 +88,12 @@ object QueryOptimizer {
                 }
             }
 
-            klass.construct(bindingsData, requestContext).get() // Finally, construct the class
+            klass.construct(bindingsData, queryContext).get() // Finally, construct the class
         }
     }
 
     private suspend fun resolveSingleRefInstance (
-        requestContext: RequestContext,
+        queryContext: QueryContext,
         binding: SqlBinding<*, *, *>,
         row: ResultRow
     ): Sr<Resource> {
@@ -109,14 +108,14 @@ object QueryOptimizer {
 
         // Call convert() on the property's table with the row; it contains its data too
         return bindingRightTable.convert (
-            requestContext = requestContext,
+            queryContext = queryContext,
             source = row,
             aliasToUse = bindingRightTable.alias("${binding.property.klass.simpleName}->${binding.property.name}")
         )
     }
 
     private suspend fun resolveManyRefItems (
-        request: RequestContext,
+        request: QueryContext,
         binding: SqlBinding.ReferenceToMany<*, *>,
         withId: UUID
     ): SrList<Any> = query { // Run a query to select the ManyRef items

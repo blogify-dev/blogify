@@ -1,6 +1,7 @@
 package blogify.backend.resources.reflect
 
-import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.database.models.QueryContext
+import blogify.backend.database.models.repository
 import blogify.backend.util.Sr
 import blogify.reflect.unsafePropMap
 import blogify.backend.resources.models.Resource
@@ -68,5 +69,5 @@ suspend fun <R : Mapped> R.update (
  */
 suspend fun <R : Mapped> R.update (
     rawData: MappedData,
-    requestContext: RequestContext
-): Sr<R> = update(rawData) { klass, uuid -> requestContext.repository(klass).get(id = uuid) }
+    queryContext: QueryContext
+): Sr<R> = update(rawData) { klass, uuid -> queryContext.repository(klass).get(queryContext, uuid) }

@@ -4,8 +4,8 @@ import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.extensions.weakKeyFrom
 import blogify.backend.database.handling.query
 import blogify.backend.database.handling.unwrappedQuery
+import blogify.backend.database.models.QueryContext
 import blogify.backend.database.models.ResourceTable
-import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.user.User
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.resources.user.UserSettings
@@ -89,7 +89,7 @@ object Users : ResourceTable<User>() {
     }
 
     override suspend fun convert (
-        requestContext: RequestContext,
+        queryContext: QueryContext,
         source: ResultRow,
         aliasToUse: Alias<ResourceTable<User>>?
     ): Sr<User> = Wrap {
@@ -108,7 +108,7 @@ object Users : ResourceTable<User>() {
                     Uploadables.select { Uploadables.fileId eq get(profilePicture)!! }
                             .limit(1).single()
                 }.let {
-                    Uploadables.convert(requestContext, it).get()
+                    Uploadables.convert(queryContext, it).get()
                 }
             } ?: StaticFile.None(ContentType.Any),
             coverPicture = get(coverPicture)?.let {
@@ -116,7 +116,7 @@ object Users : ResourceTable<User>() {
                     Uploadables.select { Uploadables.fileId eq get(coverPicture)!! }
                             .limit(1).single()
                 }.let {
-                    Uploadables.convert(requestContext, it).get()
+                    Uploadables.convert(queryContext, it).get()
                 }
             } ?: StaticFile.None(ContentType.Any)
         )

@@ -5,16 +5,18 @@ import blogify.backend.database.extensions.klass
 import blogify.backend.database.handling.query
 import blogify.backend.database.handling.unwrappedQuery
 import blogify.backend.database.optimizer.QueryOptimizer
-import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.models.Resource
 import blogify.backend.resources.models.UserCreatedResource
 import blogify.backend.resources.reflect.MissingArgumentsException
 import blogify.backend.resources.reflect.construct
 import blogify.backend.util.*
+import blogify.reflect.MappedData
 import blogify.reflect.SlicedProperty
 import blogify.reflect.extensions.handle
 import blogify.reflect.extensions.okHandle
 import blogify.reflect.getPropValueOnInstance
+import blogify.reflect.models.Mapped
+import blogify.reflect.models.PropMap
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
@@ -25,6 +27,7 @@ import com.github.kittinunf.result.coroutines.map
 import com.github.kittinunf.result.coroutines.mapError
 
 import java.util.*
+import kotlin.reflect.KClass
 
 import kotlin.reflect.KProperty1
 
@@ -111,15 +114,15 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
      * Returns an arbitrary list of [limit] items from the table
      */
     @Deprecated(message = "please use obtainListing() instead")
-    suspend fun obtainAll(requestContext: RequestContext, limit: Int): SrList<TResource> = Wrap {
+    suspend fun obtainAll(queryContext: QueryContext, limit: Int): SrList<TResource> = Wrap {
         query { this.selectAll().limit(limit).toSet() }.get()
-            .map { this.convert(requestContext, it).get() }
+            .map { this.convert(queryContext, it).get() }
     }
 
     /**
      * Queries the table using a listing specification
      *
-     * @param requestContext  [RequestContext] for caching
+     * @param queryContext  [QueryContext] for caching
      * @param selectCondition the `where` condition to apply in the query
      * @param quantity        the quantity of items to fetch
      * @param page            the page number
@@ -127,7 +130,7 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
      * @param sortOrder       the sort order [SortOrder] (`order by desc / asc`)
      */
     suspend fun obtainListing (
-        requestContext: RequestContext,
+        queryContext: QueryContext,
         selectCondition: SqlExpressionBuilder.() -> Op<Boolean>,
         quantity: Int,
         page: Int,
@@ -140,31 +143,31 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
             .limit(quantity + 1, (page * quantity).toLong())
             .toList()
     }.map { results ->
-        QueryOptimizer.convertOptimizedRows(requestContext, klass, results)
+        QueryOptimizer.convertOptimizedRows(queryContext, klass, results)
             .take(quantity) to (results.size - 1 == quantity)
     }
 
     /**
      * Returns a specific entity with a certain UUID from the table
      *
-     * @param requestContext [RequestContext] for caching
+     * @param queryContext [QueryContext] for caching
      * @param id             the [UUID] of the entity
      */
-    suspend fun obtain(requestContext: RequestContext, id: UUID): Sr<TResource> = Wrap {
+    suspend fun obtain(queryContext: QueryContext, id: UUID): Sr<TResource> = Wrap {
         query { this.select { uuid eq id }.single() }.get()
-            .let { this.convert(requestContext, it).get() }
+            .let { this.convert(queryContext, it).get() }
     }
 
     /**
      * Performs the conversion between a single [ResultRow] and an instance of [TResource]. Should not be used directly.
      *
-     * @param requestContext  [RequestContext] for caching
+     * @param queryContext  [QueryContext] for caching
      * @param source          the result row to get the data from
      * @param aliasToUse      a [table alias][Alias] to specify which columns should be used when data for multiple
      *                        instances of [TResource] might be present in a single row
      */
     internal open suspend fun convert (
-        requestContext: RequestContext,
+        queryContext: QueryContext,
         source: ResultRow,
         aliasToUse: Alias<ResourceTable<TResource>>? = null
     ): Sr<TResource> {
@@ -188,7 +191,7 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
 
         }.toMap()
 
-        return klass.construct(bindingsData, requestContext)
+        return klass.construct(bindingsData, queryContext)
             .mapError { e ->
                 if (e is MissingArgumentsException)
                     IllegalStateException("there were missing arguments when calling construct() during SQL conversion - " +
@@ -301,3 +304,10 @@ abstract class ResourceTable<TResource : Resource> : PgTable() {
     override val primaryKey = PrimaryKey(uuid)
 
 }
+
+@Suppress("UNCHECKED_CAST")
+suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
+    data:               MappedData,
+    queryContext:     QueryContext,
+    externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
+): Sr<TMapped> = this.construct(data, { klass, uuid -> queryContext.repository(klass).get(queryContext = queryContext, id = uuid) }, externallyProvided)

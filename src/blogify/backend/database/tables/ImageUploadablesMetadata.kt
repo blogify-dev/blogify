@@ -1,7 +1,7 @@
 package blogify.backend.database.tables
 
 import blogify.backend.database.handling.query
-import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.backend.database.models.QueryContext
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.util.Sr
 import blogify.backend.util.Wrap
@@ -17,18 +17,18 @@ object ImageUploadablesMetadata : Table("image_metadata") {
     val width    = integer ("width").default(0)
     val height   = integer ("height").default(0)
 
-    suspend fun obtain(requestContext: RequestContext, id: String): Sr<ImageMetadata> =
+    suspend fun obtain(queryContext: QueryContext, id: String): Sr<ImageMetadata> =
         Wrap {
             query { this.select { handleId eq id }.single() }.get()
                 .let {
                     convert(
-                        requestContext,
+                        queryContext,
                         it
                     ).get()
                 }
         }
 
-    private suspend fun convert(@Suppress("UNUSED_PARAMETER") requestContext: RequestContext, source: ResultRow) =
+    private suspend fun convert(@Suppress("UNUSED_PARAMETER") queryContext: QueryContext, source: ResultRow) =
         Wrap {
             ImageMetadata(
                 source[width],

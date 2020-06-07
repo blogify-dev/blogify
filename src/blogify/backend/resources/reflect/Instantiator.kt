@@ -1,6 +1,7 @@
 package blogify.backend.resources.reflect
 
 import blogify.backend.appContext
+import blogify.backend.database.models.QueryContext
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.pipelines.wrapping.RequestContextFunction
 import blogify.backend.resources.models.Resource
@@ -158,10 +159,3 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
             else IllegalStateException("exception while instantiating class ${this.simpleName}", error.cause ?: error)
         }
 }
-
-@Suppress("UNCHECKED_CAST")
-suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
-    data:               MappedData,
-    requestContext:     RequestContext,
-    externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
-): Sr<TMapped> = this.construct(data, { klass, uuid -> requestContext.repository(klass).get(request = requestContext, id = uuid) }, externallyProvided)
