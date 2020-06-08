@@ -20,6 +20,10 @@ internal object PolymorphicTypeResolver {
      * This basically looks for properties in [dto] that are not declared in the superclass to find the right
      * type the Dto could instantiate.
      *
+     * Constructor parameters that are not properties are not analyzed at the moment, so a subclass that populates
+     * one of the superclass' properties with a non-property constructor parameter is not selected for a DTO that contains
+     * a value with the same name.
+     *
      * Throws an [IllegalStateException] if there are zero or multiple matching types with the given properties.
      *
      * @param dto         the data to look for properties in
