@@ -12,7 +12,7 @@ import kotlin.reflect.full.memberProperties
  *
  * @author Benjozork
  */
-internal object PolymorphicTypeResolver {
+object PolymorphicTypeResolver {
 
     /**
      * Finds a sealed subtype of [sealedClass] as candidate for instantiation using the data in [Dto].
