@@ -27,7 +27,7 @@ import kotlin.reflect.KProperty1
 /**
  * Interface that allows creating a context in which entities are queried, created or modified.
  *
- * Allows for in-request caching of entities by their IDs. It also brings in scope extension functions to [ResourceTable]
+ * Allows for in-request caching of entities by their IDs. It also brings in scope extension functions to [EntityTable]
  * as well as overloads for various reflection functions like [construct][blogify.reflect.entity.instantiation.construct] and
  * [update][blogify.reflect.entity.update] that allow a consumer with an implementation of this as receiver to call
  * those functions without passing in lookup functions or [QueryContext] instances.
@@ -43,23 +43,23 @@ interface QueryContext {
     val objectMapper: ObjectMapper
 
     /** See [blogify.reflect.entity.database.persistence.models.Repository.getAll] */
-    suspend fun <TResource : Entity> Repository<TResource>.obtainAll(limit: Int): SrList<TResource> =
+    suspend fun <TEntity : Entity> Repository<TEntity>.obtainAll(limit: Int): SrList<TEntity> =
         this.getAll(this@QueryContext, limit)
 
     /** See [blogify.reflect.entity.database.persistence.models.Repository.get] */
-    suspend fun <TResource : Entity> Repository<TResource>.obtain(id: UUID): Sr<TResource> =
+    suspend fun <TEntity : Entity> Repository<TEntity>.obtain(id: UUID): Sr<TEntity> =
         this@QueryContext.entityCache.findOrAsync(id) {
             this.get(this@QueryContext, id).get()
         }
 
     /** See [blogify.reflect.entity.database.persistence.models.Repository.get] */
-    suspend fun <TResource : Entity> Repository<TResource>.obtainListing (
+    suspend fun <TEntity : Entity> Repository<TEntity>.obtainListing (
         selectCondition: SqlExpressionBuilder.() -> Op<Boolean>,
         quantity: Int,
         page: Int,
         orderBy: Column<*>,
         sortOrder: SortOrder = SortOrder.ASC
-    ): Sr<Pair<List<TResource>, Boolean>> =
+    ): Sr<Pair<List<TEntity>, Boolean>> =
         this.queryListing(this@QueryContext, selectCondition, quantity, page, orderBy, sortOrder)
 
 
@@ -69,10 +69,10 @@ interface QueryContext {
 
     /** See [blogify.reflect.entity.database.persistence.models.Repository.updateWithProperties] */
     suspend fun <TEntity : Entity> Repository<TEntity>.updateWithProperties (
-        resource: TEntity,
+        entity: TEntity,
         data: Map<out KProperty1<TEntity, Any>, Any>
     ): Sr<TEntity> =
-        this.updateWithProperties(this@QueryContext, resource, data)
+        this.updateWithProperties(this@QueryContext, entity, data)
 
     /** See [blogify.reflect.entity.instantiation.construct] */
     suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (

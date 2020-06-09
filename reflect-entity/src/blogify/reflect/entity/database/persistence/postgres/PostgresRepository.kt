@@ -7,14 +7,14 @@ import blogify.reflect.MappedData
 import blogify.reflect.entity.Entity
 import blogify.reflect.entity.database.handling.query
 import blogify.reflect.entity.database.QueryContext
-import blogify.reflect.entity.database.ResourceTable
+import blogify.reflect.entity.database.EntityTable
 import blogify.reflect.entity.database.persistence.models.Repository
 
 import org.jetbrains.exposed.sql.*
 
 import java.util.*
 
-open class PostgresRepository<R : Entity>(val table: ResourceTable<R>) :
+open class PostgresRepository<R : Entity>(val table: EntityTable<R>) :
     Repository<R> {
 
     override suspend fun getAll(request: QueryContext, limit: Int): SrList<R>
@@ -52,7 +52,7 @@ open class PostgresRepository<R : Entity>(val table: ResourceTable<R>) :
             this.table.update(new).get()
         }
 
-    override suspend fun delete(res: R): Sr<UUID>
-            = this.table.delete(res).let { Wrap { res.uuid } }
+    override suspend fun delete(entity: R): Sr<UUID>
+            = this.table.delete(entity).let { Wrap { entity.uuid } }
 
 }

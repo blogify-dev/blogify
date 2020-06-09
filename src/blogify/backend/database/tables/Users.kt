@@ -7,7 +7,7 @@ import blogify.reflect.entity.database.extensions.weakKeyFrom
 import blogify.reflect.entity.database.handling.query
 import blogify.reflect.entity.database.handling.unwrappedQuery
 import blogify.reflect.entity.database.QueryContext
-import blogify.reflect.entity.database.ResourceTable
+import blogify.reflect.entity.database.EntityTable
 import blogify.backend.resources.user.User
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.resources.user.UserSettings
@@ -19,7 +19,7 @@ import org.jetbrains.exposed.sql.*
 import io.ktor.http.ContentType
 
 @Suppress("DuplicatedCode")
-object Users : ResourceTable<User>() {
+object Users : EntityTable<User>() {
 
     val username       = text    ("username")
     val password       = text    ("password")
@@ -52,48 +52,48 @@ object Users : ResourceTable<User>() {
 
     }
 
-    override suspend fun insert(resource: User): Sr<User> {
+    override suspend fun insert(entity: User): Sr<User> {
         return Wrap {
             query {
                 insert {
-                    it[uuid] = resource.uuid
-                    it[username] = resource.username
-                    it[password] = resource.password
-                    it[email] = resource.email
-                    it[name] = resource.name
+                    it[uuid] = entity.uuid
+                    it[username] = entity.username
+                    it[password] = entity.password
+                    it[email] = entity.email
+                    it[name] = entity.name
                     it[profilePicture] =
-                        if (resource.profilePicture is StaticFile.Ok) resource.profilePicture.fileId else null
-                    it[isAdmin] = resource.isAdmin
-                    it[biography] = resource.biography
+                        if (entity.profilePicture is StaticFile.Ok) entity.profilePicture.fileId else null
+                    it[isAdmin] = entity.isAdmin
+                    it[biography] = entity.biography
                 }
             }
-            return@Wrap resource
+            return@Wrap entity
         }
 
     }
 
-    override suspend fun update(resource: User): Sr<User> {
+    override suspend fun update(entity: User): Sr<User> {
         return query {
-            this.update(where = { uuid eq resource.uuid }) {
-                it[uuid] = resource.uuid
-                it[username] = resource.username
-                it[password] = resource.password
-                it[email] = resource.email
-                it[name] = resource.name
+            this.update(where = { uuid eq entity.uuid }) {
+                it[uuid] = entity.uuid
+                it[username] = entity.username
+                it[password] = entity.password
+                it[email] = entity.email
+                it[name] = entity.name
                 it[profilePicture] =
-                    if (resource.profilePicture is StaticFile.Ok) resource.profilePicture.fileId else null
+                    if (entity.profilePicture is StaticFile.Ok) entity.profilePicture.fileId else null
                 it[coverPicture] =
-                    if (resource.coverPicture is StaticFile.Ok) resource.coverPicture.fileId else null
-                it[isAdmin] = resource.isAdmin
-                it[biography] = resource.biography
+                    if (entity.coverPicture is StaticFile.Ok) entity.coverPicture.fileId else null
+                it[isAdmin] = entity.isAdmin
+                it[biography] = entity.biography
             }
-        }.map { resource }
+        }.map { entity }
     }
 
     override suspend fun convert (
         queryContext: QueryContext,
         source: ResultRow,
-        aliasToUse: Alias<ResourceTable<User>>?
+        aliasToUse: Alias<EntityTable<User>>?
     ): Sr<User> = Wrap {
         fun <T> get(column: Column<T>) = if (aliasToUse != null) source[aliasToUse[column]] else source[column]
 

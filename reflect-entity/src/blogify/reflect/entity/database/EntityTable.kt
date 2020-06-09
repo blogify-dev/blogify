@@ -26,15 +26,15 @@ import java.util.*
 import kotlin.reflect.KProperty1
 
 /**
- * Generic table for storing [entity][Entity] inside a postgres table.
+ * Generic table for storing [entities][Entity] inside a postgres table.
  *
  * Using [SQL bindings][SqlBinding], this takes care of automagically running CRUD operations to and from the database.
  *
- * For example, if you provide all necessary bindings for a class, simply calling [ResourceTable.insert] should be
- * enough to store an instance of [TResource] in the table. Likewise for [delete], [update], [obtain], [obtainListing]
+ * For example, if you provide all necessary bindings for a class, simply calling [EntityTable.insert] should be
+ * enough to store an instance of [TEntity] in the table. Likewise for [delete], [update], [obtain], [obtainListing]
  * and [obtainAll].
  *
- * @param TResource the type of [Entity] to be stored
+ * @param TEntity the type of [Entity] to be stored
  *
  * @see PgTable
  * @see Entity
@@ -42,21 +42,21 @@ import kotlin.reflect.KProperty1
  *
  * @author Benjozork, hamza1311
  */
-abstract class ResourceTable<TResource : Entity> : PgTable() {
+abstract class EntityTable<TEntity : Entity> : PgTable() {
 
     /**
      * A list of all [bindings][SqlBinding] present for this table
      */
-    val bindings = mutableListOf<SqlBinding<TResource, out Any?, *>>()
+    val bindings = mutableListOf<SqlBinding<TEntity, out Any?, *>>()
 
     /**
      * Creates a binding between [column] and a [property] containing simple values
      *
      * @param column   the column in which UUIDs of instances of [property] are stored
-     * @param property the property of [TResource]`::class` to bind
+     * @param property the property of [TEntity]`::class` to bind
      */
-    fun <TProperty : Any?> bind(column: Column<TProperty>, property: KProperty1<TResource, TProperty>): SqlBinding.Value<TResource, TProperty> {
-        return SqlBinding.Value(this@ResourceTable, property, column)
+    fun <TProperty : Any?> bind(column: Column<TProperty>, property: KProperty1<TEntity, TProperty>): SqlBinding.Value<TEntity, TProperty> {
+        return SqlBinding.Value(this@EntityTable, property, column)
             .also { this.bindings += it }
     }
 
@@ -64,10 +64,10 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
      * Creates a binding between [column] and a [property] containing nullable references to [entity][Entity]
      *
      * @param column   the column in which UUIDs of instances of [property] are stored
-     * @param property the property of [TResource]`::class` to bind
+     * @param property the property of [TEntity]`::class` to bind
      */
-    fun <TProperty : Entity?> bind(column: Column<UUID?>, property: KProperty1<TResource, TProperty>): SqlBinding.NullableReference<TResource, TProperty> {
-        return SqlBinding.NullableReference(this@ResourceTable, property, column)
+    fun <TProperty : Entity?> bind(column: Column<UUID?>, property: KProperty1<TEntity, TProperty>): SqlBinding.NullableReference<TEntity, TProperty> {
+        return SqlBinding.NullableReference(this@EntityTable, property, column)
             .also { this.bindings += it }
     }
 
@@ -75,10 +75,10 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
      * Creates a binding between [column] and a [property] containing references to [entity][Entity]
      *
      * @param column   the column in which UUIDs of instances of [property] are stored
-     * @param property the property of [TResource]`::class` to bind
+     * @param property the property of [TEntity]`::class` to bind
      */
-    fun <TProperty : Entity> bind(column: Column<UUID>, property: KProperty1<TResource, TProperty>): SqlBinding.Reference<TResource, TProperty> {
-        return SqlBinding.Reference(this@ResourceTable, property, column)
+    fun <TProperty : Entity> bind(column: Column<UUID>, property: KProperty1<TEntity, TProperty>): SqlBinding.Reference<TEntity, TProperty> {
+        return SqlBinding.Reference(this@EntityTable, property, column)
             .also { this.bindings += it }
     }
 
@@ -86,17 +86,17 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
      * Creates a binding between [table] and a [property]
      *
      * @param table              the table in which instances of [property] are stored for `this` table
-     * @param property           the property of [TResource]`::class` to bind
+     * @param property           the property of [TEntity]`::class` to bind
      * @param conversionFunction the function used to convert rows of [table] into instances of [TProperty]
      * @param insertionFunction  the function used to on an [UpdateBuilder] to insert instances of [TProperty] into [table]
      */
     fun <TProperty : Any> bind (
         table: Table,
-        property: KProperty1<TResource, Collection<TProperty>>,
+        property: KProperty1<TEntity, Collection<TProperty>>,
         conversionFunction: (ResultRow) -> TProperty,
-        insertionFunction: (TResource, TProperty, UpdateBuilder<Number>) -> Unit
-    ): SqlBinding.ReferenceToMany<TResource, TProperty> {
-        return SqlBinding.ReferenceToMany(this@ResourceTable, property, table, conversionFunction, insertionFunction)
+        insertionFunction: (TEntity, TProperty, UpdateBuilder<Number>) -> Unit
+    ): SqlBinding.ReferenceToMany<TEntity, TProperty> {
+        return SqlBinding.ReferenceToMany(this@EntityTable, property, table, conversionFunction, insertionFunction)
             .also { this.bindings += it }
     }
 
@@ -104,7 +104,7 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
      * Returns an arbitrary list of [limit] items from the table
      */
     @Deprecated(message = "please use obtainListing() instead")
-    suspend fun obtainAll(queryContext: QueryContext, limit: Int): SrList<TResource> =
+    suspend fun obtainAll(queryContext: QueryContext, limit: Int): SrList<TEntity> =
         Wrap {
             query { this.selectAll().limit(limit).toSet() }.get()
                 .map { this.convert(queryContext, it).get() }
@@ -127,7 +127,7 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
         page: Int,
         orderBy: Column<*>,
         sortOrder: SortOrder = SortOrder.ASC
-    ): Sr<Pair<List<TResource>, Boolean>> = query {
+    ): Sr<Pair<List<TEntity>, Boolean>> = query {
         QueryOptimizer.optimize(this.klass, selectCondition)
             .orderBy(orderBy, sortOrder)
             //               v-- We add one to check if we reached the end
@@ -144,25 +144,25 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
      * @param queryContext [QueryContext] for caching
      * @param id             the [UUID] of the entity
      */
-    suspend fun obtain(queryContext: QueryContext, id: UUID): Sr<TResource> =
+    suspend fun obtain(queryContext: QueryContext, id: UUID): Sr<TEntity> =
         Wrap {
             query { this.select { uuid eq id }.single() }.get()
                 .let { this.convert(queryContext, it).get() }
         }
 
     /**
-     * Performs the conversion between a single [ResultRow] and an instance of [TResource]. Should not be used directly.
+     * Performs the conversion between a single [ResultRow] and an instance of [TEntity]. Should not be used directly.
      *
      * @param queryContext  [QueryContext] for caching
      * @param source          the result row to get the data from
      * @param aliasToUse      a [table alias][Alias] to specify which columns should be used when data for multiple
-     *                        instances of [TResource] might be present in a single row
+     *                        instances of [TEntity] might be present in a single row
      */
     open suspend fun convert (
         queryContext: QueryContext,
         source: ResultRow,
-        aliasToUse: Alias<ResourceTable<TResource>>? = null
-    ): Sr<TResource> {
+        aliasToUse: Alias<EntityTable<TEntity>>? = null
+    ): Sr<TEntity> {
         fun <T> get(column: Column<T>) = if (aliasToUse != null) source[aliasToUse[column]] else source[column]
 
         val bindingsData = bindings.map {
@@ -171,10 +171,10 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
                     (binding.property.okHandle ?: never) to get(binding.column)
                 }
                 is SqlBinding.ReferenceToMany<*, *> -> {
-                    val resourceUuid = get(this.uuid)
+                    val entityId = get(this.uuid)
 
                     (binding.property.okHandle ?: never) to unwrappedQuery {
-                        binding.otherTable.select { binding.otherTableFkToPkCol eq resourceUuid }
+                        binding.otherTable.select { binding.otherTableFkToPkCol eq entityId }
                             .toSet().map { row -> binding.conversionFunction(row) }
                     }
                 }
@@ -195,22 +195,22 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
     }
 
     /**
-     * Applies a value of the binding's property for [resource] on an [`insert` / `update` statement][insertStatement]
+     * Applies a value of the binding's property for [entity] on an [`insert` / `update` statement][insertStatement]
      *
-     * @param resource        the instance on which the value of [binding]'s property should be collected
+     * @param entity          the instance on which the value of [binding]'s property should be collected
      * @param insertStatement an [UpdateBuilder] on which to set the binding's column to the value
      * @param binding         the [SqlBinding] we are working with
      */
     @Suppress("UNCHECKED_CAST")
-    private fun <TResource : Entity, TProperty : Any?> applyBindingToInsertOrUpdate (
-        resource: TResource,
+    private fun <TEntity : Entity, TProperty : Any?> applyBindingToInsertOrUpdate (
+        entity: TEntity,
         insertStatement: UpdateBuilder<Number>,
-        binding: SqlBinding<TResource, TProperty, *>
+        binding: SqlBinding<TEntity, TProperty, *>
     ) {
         assert(binding !is SqlBinding.ReferenceToMany<*, *>) { "applyBindingToInsertOrUpdate should not be called on SqlBinding.ReferenceToMany" }
 
         val slicedProperty = getPropValueOnInstance (
-            instance = resource,
+            instance = entity,
             propertyHandle = binding.property.handle,
             unsafe = true
         )
@@ -225,58 +225,58 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
     }
 
     /**
-     * Inserts [resource] into the table
+     * Inserts [entity] into the table
      *
-     * @return the resource itself if the insert was successful
+     * @return the entity itself if the insert was successful
      */
-    open suspend fun insert(resource: TResource): Sr<TResource> = query {
+    open suspend fun insert(entity: TEntity): Sr<TEntity> = query {
         this.insert {
             for (binding in bindings) {
                 if (binding !is SqlBinding.ReferenceToMany<*, *>)
-                    applyBindingToInsertOrUpdate(resource, it, binding)
+                    applyBindingToInsertOrUpdate(entity, it, binding)
             }
         }
 
-        for (binding in bindings.filterIsInstance<SqlBinding.ReferenceToMany<TResource, Any>>()) {
-            val instances = binding.property.get(resource)
+        for (binding in bindings.filterIsInstance<SqlBinding.ReferenceToMany<TEntity, Any>>()) {
+            val instances = binding.property.get(entity)
             val bindingTable = binding.otherTable
 
             bindingTable.batchInsert(instances) { item ->
-                binding.insertionFunction(resource, item, this)
+                binding.insertionFunction(entity, item, this)
             }
         }
-    }.map { resource }
+    }.map { entity }
 
     /**
-     * Updates [resource] into the table using it's uuid for finding the old version
+     * Updates [entity] into the table using it's uuid for finding the old version
      *
      * @return whether or not the update was successful
      */
-    open suspend fun update(resource: TResource): Sr<TResource> = query {
-        this.update({ uuid eq resource.uuid }) {
+    open suspend fun update(entity: TEntity): Sr<TEntity> = query {
+        this.update({ uuid eq entity.uuid }) {
             for (binding in bindings) {
                 if (binding !is SqlBinding.ReferenceToMany<*, *>)
-                    applyBindingToInsertOrUpdate(resource, it, binding)
+                    applyBindingToInsertOrUpdate(entity, it, binding)
             }
         }
 
-        for (binding in bindings.filterIsInstance<SqlBinding.ReferenceToMany<TResource, Any>>()) {
-            val newInstances = binding.property.get(resource)
+        for (binding in bindings.filterIsInstance<SqlBinding.ReferenceToMany<TEntity, Any>>()) {
+            val newInstances = binding.property.get(entity)
 
-            binding.otherTable.deleteWhere { binding.otherTableFkToPkCol eq resource.uuid }
+            binding.otherTable.deleteWhere { binding.otherTableFkToPkCol eq entity.uuid }
 
-            binding.otherTable.batchInsert(newInstances) { item -> binding.insertionFunction(resource, item, this) }
+            binding.otherTable.batchInsert(newInstances) { item -> binding.insertionFunction(entity, item, this) }
         }
-    }.map { resource }
+    }.map { entity }
 
     /**
-     * Deletes [resource] from table using it's uuid for finding the item to delete
+     * Deletes [entity] from table using it's uuid for finding the item to delete
      *
      * @return whether or not the deletion was successful
      */
-    open suspend fun delete(resource: TResource): Boolean = query {
+    open suspend fun delete(entity: TEntity): Boolean = query {
         unwrappedQuery {
-            this.deleteWhere { uuid eq resource.uuid }
+            this.deleteWhere { uuid eq entity.uuid }
         }
     }.assertGet().let { true }
 

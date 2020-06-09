@@ -2,12 +2,12 @@ package blogify.backend.database.tables
 
 import blogify.reflect.entity.database.extensions.parentKey
 import blogify.reflect.entity.database.extensions.strongKey
-import blogify.reflect.entity.database.ResourceTable
+import blogify.reflect.entity.database.EntityTable
 import blogify.backend.resources.Article
 
 import org.jetbrains.exposed.sql.*
 
-object Articles : ResourceTable<Article>() {
+object Articles : EntityTable<Article>() {
 
     val title      = text      ("title")
     val createdAt  = integer   ("created_at")

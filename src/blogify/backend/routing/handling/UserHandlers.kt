@@ -23,7 +23,7 @@ val toggleUserAdmin: RequestContextFunction<Unit> = {
 
     authenticated({ it.isAdmin && it != user }) {
         repository<User>().updateWithProperties (
-            resource = user,
+            entity = user,
             data = mapOf (
                 User::isAdmin to !user.isAdmin
             )

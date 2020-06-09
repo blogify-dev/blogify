@@ -1,6 +1,6 @@
 package blogify.reflect.entity.database.extensions
 
-import blogify.reflect.entity.database.ResourceTable
+import blogify.reflect.entity.database.EntityTable
 import blogify.reflect.entity.Entity
 
 import org.jetbrains.exposed.sql.Column
@@ -9,9 +9,9 @@ import org.jetbrains.exposed.sql.ReferenceOption
 
 import java.util.*
 
-infix fun <T : Entity, C : Column<UUID?>> C.nullableKeyOf(resourceTable: ResourceTable<T>): C = apply {
+infix fun <T : Entity, C : Column<UUID?>> C.nullableKeyOf(entityTable: EntityTable<T>): C = apply {
     this.foreignKey = ForeignKeyConstraint (
-        target = resourceTable.uuid,
+        target = entityTable.uuid,
         from = this,
         onUpdate = ReferenceOption.RESTRICT,
         onDelete = ReferenceOption.SET_NULL,
@@ -19,18 +19,18 @@ infix fun <T : Entity, C : Column<UUID?>> C.nullableKeyOf(resourceTable: Resourc
     )
 }
 
-infix fun <T : Entity, C : Column<UUID>> C.keyOf(resourceTable: ResourceTable<T>): C = apply {
+infix fun <T : Entity, C : Column<UUID>> C.keyOf(entityTable: EntityTable<T>): C = apply {
     this.foreignKey = ForeignKeyConstraint (
-        target = resourceTable.uuid,
+        target = entityTable.uuid,
         from = this,
         onUpdate = ReferenceOption.RESTRICT,
         onDelete = ReferenceOption.RESTRICT,
         name = null
     )}
 
-infix fun <T : Entity, C : Column<UUID>> C.dependentKeyOf(resourceTable: ResourceTable<T>): C = apply {
+infix fun <T : Entity, C : Column<UUID>> C.dependentKeyOf(entityTable: EntityTable<T>): C = apply {
     this.foreignKey = ForeignKeyConstraint (
-        target = resourceTable.uuid,
+        target = entityTable.uuid,
         from = this,
         onUpdate = ReferenceOption.RESTRICT,
         onDelete = ReferenceOption.CASCADE,

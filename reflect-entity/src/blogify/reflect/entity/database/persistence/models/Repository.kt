@@ -39,8 +39,8 @@ interface Repository<R : Entity> {
      * @param selectCondition the SQL predicate to match rows with
      * @param quantity        the quantity of items to fetch on one page
      * @param page            the page number to fetch (group of [quantity] items)
-     * @param orderBy         the SQL column to order the resources by
-     * @param sortOrder       the sort order to sort the resources in
+     * @param orderBy         the SQL column to order the entities by
+     * @param sortOrder       the sort order to sort the entities in
      *
      * @author Benjozork, hamza1311
      */
@@ -55,7 +55,7 @@ interface Repository<R : Entity> {
      * Obtains an instance of [R] with a specific [id][UUID] ]in the database
      *
      * @param queryContext the [QueryContext] to use for this operation, for caching and querying purposes
-     * @param id           the [UUID] of the resource to fetch
+     * @param id           the [UUID] of the entity to fetch
      *
      * @author Benjozork, hamza1311
      */
@@ -74,7 +74,7 @@ interface Repository<R : Entity> {
     /**
      * Adds an instance of [R] to the database
      *
-     * @param res the resource to add
+     * @param res the entity to add
      *
      * @author Benjozork, hamza1311
      */
@@ -84,7 +84,7 @@ interface Repository<R : Entity> {
      * Updates an instance of [R] in the database
      *
      * @param request the [QueryContext] to use for this operation, for caching and querying purposes
-     * @param res     the resource to update
+     * @param res     the entity to update
      * @param rawData a map of [property handles][PropMap.PropertyHandle.Ok] to replacement values. Can omit values to not update them.
      *
      * @author Benjozork, hamza1311
@@ -95,22 +95,22 @@ interface Repository<R : Entity> {
      * Updates an instance of [R] in the database
      *
      * @param request  the [QueryContext] to use for this operation, for caching and querying purposes
-     * @param resource the resource to update
+     * @param entity   the entity to update
      * @param data     a map of [properties][KProperty1] to replacement values. Properties must resolve
      *                 to [Ok][PropMap.PropertyHandle.Ok] handles. Can omit values to not update them.
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun updateWithProperties(request: QueryContext, resource: R, data: Map<out KProperty1<R, Any>, Any>): Sr<R>
-            = update(request, resource, data.mapKeys { it.key.okHandle ?: error("update with a <KProperty1, Any> map cannot resolve to non-ok handles") })
+    suspend fun updateWithProperties(request: QueryContext, entity: R, data: Map<out KProperty1<R, Any>, Any>): Sr<R>
+            = update(request, entity, data.mapKeys { it.key.okHandle ?: error("update with a <KProperty1, Any> map cannot resolve to non-ok handles") })
 
     /**
      * Deletes an instance of [R] from the database
      *
-     * @param res the resource to delete
+     * @param entity the entity to delete
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun delete(res: R): Sr<UUID>
+    suspend fun delete(entity: R): Sr<UUID>
 
 }

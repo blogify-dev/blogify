@@ -10,20 +10,32 @@ import blogify.reflect.entity.database.persistence.postgres.PostgresRepository
 
 import kotlin.reflect.KClass
 
+/**
+ * Provides a repository for [TEntity]
+ */
 @Suppress("UNCHECKED_CAST")
-inline fun <reified TResource : Entity> DatabaseContext.repository(): Repository<TResource> =
-    this.repoCache.findOr(TResource::class) {
-        PostgresRepository(TResource::class.table) as Repository<Entity>
-    }.assertGet() as Repository<TResource>
+inline fun <reified TEntity : Entity> DatabaseContext.repository(): Repository<TEntity> =
+    this.repoCache.findOr(TEntity::class) {
+        PostgresRepository(TEntity::class.table) as Repository<Entity>
+    }.assertGet() as Repository<TEntity>
 
+/**
+ * Provides a repository for [TEntity]
+ */
 @Suppress("UNCHECKED_CAST")
-fun <TResource : Entity> DatabaseContext.repository(klass: KClass<out TResource>): Repository<TResource> =
+fun <TEntity : Entity> DatabaseContext.repository(klass: KClass<out TEntity>): Repository<TEntity> =
     this.repoCache.findOr(klass) {
         PostgresRepository(klass.table) as Repository<Entity>
-    }.assertGet() as Repository<TResource>
+    }.assertGet() as Repository<TEntity>
 
+/**
+ * Provides a repository for [TEntity]
+ */
 inline fun <reified TEntity : Entity> QueryContext.repository(): Repository<TEntity> =
     databaseContext.repository()
 
+/**
+ * Provides a repository for [TEntity]
+ */
 inline fun <reified TEntity : Entity> QueryContext.repository(klass: KClass<out TEntity>): Repository<TEntity> =
     databaseContext.repository(klass)

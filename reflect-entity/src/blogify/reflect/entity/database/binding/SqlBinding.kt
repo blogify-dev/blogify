@@ -1,7 +1,7 @@
 package blogify.reflect.entity.database.binding
 
 import blogify.reflect.entity.database.extensions.foreignKeyTo
-import blogify.reflect.entity.database.ResourceTable
+import blogify.reflect.entity.database.EntityTable
 import blogify.reflect.entity.Entity
 
 import org.jetbrains.exposed.sql.*
@@ -12,7 +12,7 @@ import java.util.*
 import kotlin.reflect.KProperty1
 
 /**
- * Represents a binding between a [property] of [TResource]`::class and it's storage in the database
+ * Represents a binding between a [property] of [TEntity]`::class and it's storage in the database
  *
  * @see Value
  * @see Reference
@@ -21,12 +21,12 @@ import kotlin.reflect.KProperty1
  *
  * @author Benjozork
  *
- * @property table    the table for [TResource]
+ * @property table    the table for [TEntity]
  * @property property the [property][KProperty1] we are binding
  */
-sealed class SqlBinding<TResource : Entity, TProperty : Any?, TColumn : Any?> (
-    val table: ResourceTable<TResource>,
-    val property: KProperty1<TResource, TProperty>
+sealed class SqlBinding<TEntity : Entity, TProperty : Any?, TColumn : Any?> (
+    val table: EntityTable<TEntity>,
+    val property: KProperty1<TEntity, TProperty>
 ) {
 
     /**
@@ -41,11 +41,11 @@ sealed class SqlBinding<TResource : Entity, TProperty : Any?, TColumn : Any?> (
     /**
      * Binds [property] to a column of [table]
      */
-    class Value<TResource : Entity, TProperty : Any?> (
-        table: ResourceTable<TResource>,
-        property: KProperty1<TResource, TProperty>,
+    class Value<TEntity : Entity, TProperty : Any?> (
+        table: EntityTable<TEntity>,
+        property: KProperty1<TEntity, TProperty>,
         override val column: Column<TProperty>
-    ) : SqlBinding<TResource, TProperty, TProperty>(table, property),
+    ) : SqlBinding<TEntity, TProperty, TProperty>(table, property),
         HasColumn<TProperty> {
 
         override fun applyToUpdateOrInsert(builder: UpdateBuilder<Number>, value: TProperty) {
@@ -57,11 +57,11 @@ sealed class SqlBinding<TResource : Entity, TProperty : Any?, TColumn : Any?> (
     /**
      * Binds [property] to a column of [table] containing UUIDs
      */
-    class Reference<TResource : Entity, TProperty : Entity> (
-        table: ResourceTable<TResource>,
-        property: KProperty1<TResource, TProperty>,
+    class Reference<TEntity : Entity, TProperty : Entity> (
+        table: EntityTable<TEntity>,
+        property: KProperty1<TEntity, TProperty>,
         override val column: Column<UUID>
-    ) : SqlBinding<TResource, TProperty, UUID>(table, property),
+    ) : SqlBinding<TEntity, TProperty, UUID>(table, property),
         HasColumn<UUID> {
 
         override fun applyToUpdateOrInsert(builder: UpdateBuilder<Number>, value: TProperty) {
@@ -73,11 +73,11 @@ sealed class SqlBinding<TResource : Entity, TProperty : Any?, TColumn : Any?> (
     /**
      * Binds [property] to a nullable column of [table] containing UUIDs
      */
-    class NullableReference<TResource : Entity, TProperty : Entity?> (
-        table: ResourceTable<TResource>,
-        property: KProperty1<TResource, TProperty>,
+    class NullableReference<TEntity : Entity, TProperty : Entity?> (
+        table: EntityTable<TEntity>,
+        property: KProperty1<TEntity, TProperty>,
         override val column: Column<UUID?>
-    ) : SqlBinding<TResource, TProperty, UUID?>(table, property),
+    ) : SqlBinding<TEntity, TProperty, UUID?>(table, property),
         HasColumn<UUID?> {
 
         override fun applyToUpdateOrInsert(builder: UpdateBuilder<Number>, value: TProperty) {
@@ -91,13 +91,13 @@ sealed class SqlBinding<TResource : Entity, TProperty : Any?, TColumn : Any?> (
      *
      * note: [otherTable] must contain one and only one FK from one if its columns with UUID type to the PK of [table]
      */
-    class ReferenceToMany<TResource : Entity, TProperty : Any> (
-        table: ResourceTable<TResource>,
-        property: KProperty1<TResource, Collection<TProperty>>,
+    class ReferenceToMany<TEntity : Entity, TProperty : Any> (
+        table: EntityTable<TEntity>,
+        property: KProperty1<TEntity, Collection<TProperty>>,
         val otherTable: Table,
         val conversionFunction: (ResultRow) -> TProperty,
-        val insertionFunction: (TResource, TProperty, UpdateBuilder<Number>) -> Unit
-    ) : SqlBinding<TResource, Collection<TProperty>, UUID>(table, property) {
+        val insertionFunction: (TEntity, TProperty, UpdateBuilder<Number>) -> Unit
+    ) : SqlBinding<TEntity, Collection<TProperty>, UUID>(table, property) {
 
         @Suppress("UNCHECKED_CAST")
         val otherTableFkToPkCol = otherTable.foreignKeyTo(table)

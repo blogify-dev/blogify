@@ -2,12 +2,12 @@ package blogify.backend.database.tables
 
 import blogify.reflect.entity.database.extensions.parentKey
 import blogify.reflect.entity.database.extensions.weaKey
-import blogify.reflect.entity.database.ResourceTable
+import blogify.reflect.entity.database.EntityTable
 import blogify.backend.resources.Comment
 
 import org.jetbrains.exposed.sql.*
 
-object Comments : ResourceTable<Comment>() {
+object Comments : EntityTable<Comment>() {
 
     val commenter     =  parentKey ("commenter", Users)
     val article       =  parentKey ("article", Articles)

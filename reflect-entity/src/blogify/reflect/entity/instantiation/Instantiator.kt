@@ -79,11 +79,11 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
                     handle in externallyProvided -> { // Do not deserialize, it's provided !
                         parameter to value
                     }
-                    parameter.type subTypeOf Entity::class -> { // KType of property is subtype of Resource
+                    parameter.type subTypeOf Entity::class -> { // KType of property is subtype of Entity
                         if (value is Entity)
                             return@map parameter to value
 
-                        val keyResourceType = parameter.type.safeKlass<Entity>() ?: never
+                        val keyEntityType = parameter.type.safeKlass<Entity>() ?: never
 
                         val valueUUID = when (value) {
                             is String -> value.toUUID()
@@ -91,7 +91,7 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
                             else -> never
                         }
 
-                        parameter to externalFetcher(keyResourceType, valueUUID).get()
+                        parameter to externalFetcher(keyEntityType, valueUUID).get()
                     }
                     parameter.type subTypeOf UUID::class -> { // KType of property is subtype of UUID
                         parameter to when (value) {
