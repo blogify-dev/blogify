@@ -6,7 +6,7 @@ import blogify.common.util.never
 import blogify.reflect.Dto
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.auth.handling.authenticated
-import blogify.backend.database.handling.query
+import blogify.reflect.entity.database.handling.query
 import blogify.backend.database.tables.Users
 import blogify.backend.pipelines.wrapping.RequestContextFunction
 import blogify.backend.resources.user.UserSettings

@@ -1,7 +1,7 @@
 package blogify.backend.database.tables
 
 import blogify.common.util.Wrap
-import blogify.backend.database.models.QueryContext
+import blogify.reflect.entity.database.QueryContext
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.util.matches

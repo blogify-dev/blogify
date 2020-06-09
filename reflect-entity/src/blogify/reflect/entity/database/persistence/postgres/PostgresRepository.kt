@@ -1,20 +1,21 @@
-package blogify.backend.database.persistence.postgres
+package blogify.reflect.entity.database.persistence.postgres
 
-import blogify.backend.database.handling.query
-import blogify.backend.database.models.QueryContext
-import blogify.backend.database.models.ResourceTable
-import blogify.backend.database.persistence.models.Repository
 import blogify.common.util.Sr
 import blogify.common.util.SrList
 import blogify.common.util.Wrap
 import blogify.reflect.MappedData
 import blogify.reflect.entity.Entity
+import blogify.reflect.entity.database.handling.query
+import blogify.reflect.entity.database.QueryContext
+import blogify.reflect.entity.database.ResourceTable
+import blogify.reflect.entity.database.persistence.models.Repository
 
 import org.jetbrains.exposed.sql.*
 
 import java.util.*
 
-open class PostgresRepository<R : Entity>(val table: ResourceTable<R>) : Repository<R> {
+open class PostgresRepository<R : Entity>(val table: ResourceTable<R>) :
+    Repository<R> {
 
     override suspend fun getAll(request: QueryContext, limit: Int): SrList<R>
             = this.table.obtainAll(request, limit)

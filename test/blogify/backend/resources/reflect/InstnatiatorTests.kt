@@ -6,7 +6,7 @@ import blogify.common.util.Wrap
 import blogify.common.util.getOr
 import blogify.common.util.never
 import blogify.common.util.assertGet
-import blogify.reflect.entity.construct
+import blogify.reflect.entity.instantiation.construct
 import blogify.backend.events.models.EventTarget
 import blogify.backend.entity.Resource
 import blogify.backend.util.*

@@ -1,7 +1,7 @@
 package blogify.backend.resources
 
 import blogify.reflect.annotations.Hidden
-import blogify.backend.annotations.SqlTable
+import blogify.reflect.entity.database.annotations.SqlTable
 import blogify.backend.database.tables.Comments
 import blogify.backend.database.countReferredToBy
 import blogify.backend.pipelines.wrapping.RequestContext

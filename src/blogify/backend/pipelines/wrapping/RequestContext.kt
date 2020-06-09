@@ -1,19 +1,20 @@
 package blogify.backend.pipelines.wrapping
 
-import blogify.backend.database.models.QueryContext
+import blogify.reflect.entity.database.QueryContext
 import blogify.backend.entity.Resource
-import blogify.backend.database.persistence.models.Repository
-import blogify.backend.util.MapCache
+import blogify.reflect.entity.database.persistence.models.Repository
+import blogify.common.util.MapCache
 import blogify.common.util.Sr
 import blogify.common.util.Wrap
 import blogify.common.util.WrapBlocking
 import blogify.reflect.entity.Entity
+import blogify.reflect.entity.database.DatabaseContext
+import blogify.reflect.entity.database.extensions.repository
 
 import io.ktor.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 
 import com.andreapivetta.kolor.green
-import com.fasterxml.jackson.databind.ObjectMapper
 
 import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
@@ -43,11 +44,11 @@ class RequestContext (
     enableCaching: Boolean = true
 ) : CoroutineScope by coroutineScope, QueryContext {
 
+    override val databaseContext: DatabaseContext get() = appContext
+
     override val objectMapper get() = appContext.objectMapper
 
     override val entityCache: RequestCache<UUID, Entity> = RequestCache(enableCaching)
-
-    override val repositoryCache = MapCache<KClass<out Entity>, Repository<out Entity>>()
 
     class RequestCache<K : Any, V : Any>(private val enableCaching: Boolean) : MapCache<K, V>() {
 
@@ -97,7 +98,7 @@ class RequestContext (
      * @author Benjozork
      */
     inline fun <reified TResource : Resource> repository(): Repository<TResource> {
-        return this.appContext.dataStore.getRepository(TResource::class)
+        return this.appContext.repository(TResource::class)
     }
 
     /**
@@ -107,8 +108,8 @@ class RequestContext (
      *
      * @author Benjozork
      */
-    fun <TResource : Entity> repository(klass: KClass<TResource>): Repository<TResource> {
-        return this.appContext.dataStore.getRepository(klass)
+    fun <TResource : Entity> repository(klass: KClass<TResource>): Repository<out TResource> {
+        return this.appContext.repository(klass)
     }
 
 }

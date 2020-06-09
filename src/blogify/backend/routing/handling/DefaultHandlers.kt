@@ -37,7 +37,7 @@ import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.ok
 import blogify.backend.database.tables.Uploadables
-import blogify.backend.database.handling.query
+import blogify.reflect.entity.database.handling.query
 import blogify.backend.resources.user.User
 import blogify.backend.entity.Resource
 import blogify.backend.resources.static.file.StaticFileHandler
@@ -286,7 +286,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
             // Write to db
             query {
                 Uploadables.insert {
-                    it[fileId]      = newHandle.fileId
+                    it[fileId] = newHandle.fileId
                     it[contentType] = newHandle.contentType.toString()
                 }
             }.getOrPipelineError(HttpStatusCode.InternalServerError, "error while writing static resource to db")
@@ -333,8 +333,8 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
                 query {
                     ImageUploadablesMetadata.insert {
                         it[handleId] = newHandle.fileId
-                        it[width]    = imageMetadata.width
-                        it[height]   = imageMetadata.height
+                        it[width] = imageMetadata.width
+                        it[height] = imageMetadata.height
                     }
                 }.getOrPipelineError (
                     HttpStatusCode.InternalServerError,

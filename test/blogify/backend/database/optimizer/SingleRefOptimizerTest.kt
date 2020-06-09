@@ -1,5 +1,6 @@
 package blogify.backend.database.optimizer
 
+import blogify.reflect.entity.database.optimizer.makeJoinForClass
 import blogify.backend.resources.Comment
 
 import org.junit.jupiter.api.Test

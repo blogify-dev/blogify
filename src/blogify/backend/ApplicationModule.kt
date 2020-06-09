@@ -4,19 +4,16 @@ import blogify.backend.bootstrap.BlogifyApplicationBootstrapper
 
 import com.fasterxml.jackson.databind.module.SimpleModule
 
-import blogify.backend.config.Configs
+import blogify.reflect.entity.database.handling.query
 import blogify.backend.database.*
 import blogify.backend.routing.makeArticleRoutes
 import blogify.backend.routing.makeUserRoutes
 import blogify.backend.routing.makeAuthRoutes
-import blogify.backend.database.handling.query
 import blogify.backend.database.tables.*
-import blogify.backend.database.persistence.postgres.PostgresDataStore
 import blogify.backend.pipelines.GenericCallPipeline
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.resources.user.User
-import blogify.backend.entity.Resource
 import blogify.backend.resources.models.ResourceIdSerializer
 import blogify.backend.routing.admin.makeAdminRoutes
 import blogify.backend.routing.makePushServerRoutes
@@ -25,7 +22,6 @@ import blogify.backend.search.Typesense
 import blogify.backend.search.ext._searchTemplate
 import blogify.backend.search.models.Template
 import blogify.backend.util.*
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 import io.ktor.application.call
 import io.ktor.response.respondRedirect
@@ -42,25 +38,13 @@ import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.websocket.WebSockets
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+
 import org.jetbrains.exposed.sql.SchemaUtils
 
 import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
-
-private val dataStore = PostgresDataStore {
-
-    val config = Configs.Database
-
-    host = config.host
-    port = config.port
-
-    username = config.username
-    password = config.password
-
-    database = config.databaseName
-
-}
 
 private val objectMapper = jacksonObjectMapper().apply {
     val blogifyModule = SimpleModule()
@@ -75,7 +59,7 @@ private val objectMapper = jacksonObjectMapper().apply {
     registerModule(blogifyModule)
 }
 
-val appContext = ApplicationContext(dataStore, objectMapper)
+val appContext = ApplicationContext(objectMapper)
 
 @property:Suppress("unused")
 val GenericCallPipeline.applicationContext
@@ -157,7 +141,7 @@ fun Application.blogifyMainModule(configuration: BlogifyApplicationBootstrapper.
 
     runBlocking {
         query {
-            SchemaUtils.createMissingTablesAndColumns (
+            SchemaUtils.createMissingTablesAndColumns(
                 Articles,
                 Articles.Categories,
                 Users,

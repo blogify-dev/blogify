@@ -1,18 +1,18 @@
-package blogify.backend.database.optimizer
+package blogify.reflect.entity.database.optimizer
 
-import blogify.backend.annotations.table
-import blogify.backend.database.binding.SqlBinding
 import blogify.common.util.never
-import blogify.reflect.entity.Entity
 import blogify.reflect.extensions.safeKlass
+import blogify.reflect.entity.database.annotations.table
+import blogify.reflect.entity.database.binding.SqlBinding
+import blogify.reflect.entity.Entity
 
 import org.jetbrains.exposed.sql.*
 
 import kotlin.reflect.KClass
 
 /**
- * Creates a [query][org.jetbrains.exposed.sql.Query] for retrieving both an instance of [TResource]
- * and all of it's [single reference][blogify.backend.database.binding.SqlBinding.Reference] properties.
+ * Creates a [query][Query] for retrieving both an instance of [TResource]
+ * and all of it's [single reference][SqlBinding.Reference] properties.
  */
 fun <TResource : Entity> makeJoinForClass(klass: KClass<TResource>): ColumnSet {
     val resourceTable = klass.table

@@ -1,15 +1,12 @@
-package blogify.backend.database.persistence.models
+package blogify.reflect.entity.database.persistence.models
 
-import blogify.backend.database.models.QueryContext
-import blogify.backend.entity.Resource
 import blogify.common.util.Sr
 import blogify.common.util.SrList
 import blogify.reflect.MappedData
-import blogify.reflect.entity.Entity
 import blogify.reflect.models.PropMap
 import blogify.reflect.extensions.okHandle
-
-import io.ktor.application.ApplicationCall
+import blogify.reflect.entity.database.QueryContext
+import blogify.reflect.entity.Entity
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Op
@@ -21,14 +18,14 @@ import java.util.*
 import kotlin.reflect.KProperty1
 
 /**
- * Service interface for fetching, creating, updating and deleting [resources][Resource].
+ * Service interface for fetching, creating, updating and deleting [entities][Entity].
  */
 interface Repository<R : Entity> {
 
     /**
      * Obtains all instances of [R] in the database
      *
-     * @param request the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
+     * @param request the [QueryContext] to use for this operation, for caching and querying purposes
      * @param limit   the max number of items to fetch. Defaults to 256.
      *
      * @author Benjozork, hamza1311
@@ -38,7 +35,7 @@ interface Repository<R : Entity> {
     /**
      * Obtains an instance of [R] with a specific [id][UUID] ]in the database
      *
-     * @param request         the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
+     * @param request         the [QueryContext] to use for this operation, for caching and querying purposes
      * @param selectCondition the SQL predicate to match rows with
      * @param quantity        the quantity of items to fetch on one page
      * @param page            the page number to fetch (group of [quantity] items)
@@ -57,7 +54,7 @@ interface Repository<R : Entity> {
     /**
      * Obtains an instance of [R] with a specific [id][UUID] ]in the database
      *
-     * @param queryContext the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
+     * @param queryContext the [QueryContext] to use for this operation, for caching and querying purposes
      * @param id           the [UUID] of the resource to fetch
      *
      * @author Benjozork, hamza1311
@@ -67,7 +64,7 @@ interface Repository<R : Entity> {
     /**
      * Obtains an instance of [R] matching a specific SQL predicate
      *
-     * @param queryContext    the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
+     * @param queryContext the [QueryContext] to use for this operation, for caching and querying purposes
      * @param selectCondition the SQL predicate to match rows with
      *
      * @author Benjozork, hamza1311
@@ -86,7 +83,7 @@ interface Repository<R : Entity> {
     /**
      * Updates an instance of [R] in the database
      *
-     * @param request the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
+     * @param request the [QueryContext] to use for this operation, for caching and querying purposes
      * @param res     the resource to update
      * @param rawData a map of [property handles][PropMap.PropertyHandle.Ok] to replacement values. Can omit values to not update them.
      *
@@ -97,10 +94,10 @@ interface Repository<R : Entity> {
     /**
      * Updates an instance of [R] in the database
      *
-     * @param request the context of the [call][ApplicationCall] resulting in this operation, used for caching purposes
-     * @param resource     the resource to update
-     * @param data a map of [properties][KProperty1] to replacement values. Properties must resolve
-     * to [Ok][PropMap.PropertyHandle.Ok] handles. Can omit values to not update them.
+     * @param request  the [QueryContext] to use for this operation, for caching and querying purposes
+     * @param resource the resource to update
+     * @param data     a map of [properties][KProperty1] to replacement values. Properties must resolve
+     *                 to [Ok][PropMap.PropertyHandle.Ok] handles. Can omit values to not update them.
      *
      * @author Benjozork, hamza1311
      */

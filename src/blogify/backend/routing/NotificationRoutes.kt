@@ -4,12 +4,12 @@ import blogify.reflect.entity.Entity
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_TOKEN
 import blogify.backend.appContext
 import blogify.backend.auth.jwt.validateJwt
-import blogify.backend.database.models.QueryContext
-import blogify.backend.database.persistence.models.Repository
+import blogify.reflect.entity.database.QueryContext
 import blogify.backend.push.PushServer
 import blogify.backend.push.PushServer.ResponseCodes.AUTH_OK
 import blogify.backend.resources.user.User
-import blogify.backend.util.MapCache
+import blogify.common.util.MapCache
+import blogify.reflect.entity.database.DatabaseContext
 
 import com.github.kittinunf.result.coroutines.getOrNull
 
@@ -29,8 +29,6 @@ import kotlinx.coroutines.channels.consumeEach
 
 import java.util.*
 
-import kotlin.reflect.KClass
-
 @Suppress("EXPERIMENTAL_API_USAGE")
 fun Route.makePushServerRoutes() {
 
@@ -46,9 +44,9 @@ fun Route.makePushServerRoutes() {
                     return@consumeEach
 
                 val queryContext = object : QueryContext {
+                    override val databaseContext: DatabaseContext get() = appContext
+
                     override val objectMapper get() = appContext.objectMapper
-                    
-                    override val repositoryCache = MapCache<KClass<out Entity>, Repository<out Entity>>()
 
                     override val entityCache = MapCache<UUID, Entity>()
                 }

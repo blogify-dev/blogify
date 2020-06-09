@@ -4,6 +4,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val kolor_version: String by project
 
+val pg_driver_version: String by project
+val exposed_version:   String by project
+val hikari_version:    String by project
+val epgx_version:      String by project
+
 plugins {
     kotlin("jvm")
 }
@@ -36,6 +41,14 @@ dependencies {
     implementation("com.fasterxml.jackson.core", "jackson-databind", "2.10.2")
     implementation("com.fasterxml.jackson.core", "jackson-annotations", "2.10.2")
     implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.10.2")
+
+    // Database stuff
+
+    implementation("org.postgresql", "postgresql", pg_driver_version)
+    implementation("org.jetbrains.exposed", "exposed-core", exposed_version)
+    implementation("org.jetbrains.exposed", "exposed-jdbc", exposed_version)
+    implementation("com.zaxxer", "HikariCP", hikari_version)
+    implementation("com.github.Benjozork", "exposed-postgres-extensions", epgx_version)
 
     // Kolor
 

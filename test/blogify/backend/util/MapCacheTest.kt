@@ -1,8 +1,8 @@
 package blogify.backend.util
 
-import blogify.backend.util.MapCache
-import org.junit.jupiter.api.Test
+import blogify.common.util.MapCache
 
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
 internal class MapCacheTest {

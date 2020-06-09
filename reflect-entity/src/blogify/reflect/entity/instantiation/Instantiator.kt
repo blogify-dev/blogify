@@ -1,7 +1,8 @@
-package blogify.reflect.entity
+package blogify.reflect.entity.instantiation
 
 import blogify.common.util.*
 import blogify.reflect.MappedData
+import blogify.reflect.entity.Entity
 import blogify.reflect.extensions.*
 import blogify.reflect.unsafePropMap
 import blogify.reflect.models.Mapped
@@ -24,7 +25,7 @@ class MissingArgumentsException(vararg val parameters: KParameter)
     : IllegalArgumentException("missing value(s) for parameter(s) ${parameters.joinToString(prefix = "[", postfix = "]") { it.name.toString() }}")
 
 private val noExternalFetcherMessage =
-    "fatal: tried to instantiate an object with references to resources but no external fetcher was provided".red()
+    "fatal: tried to instantiate an object with references to entities but no external fetcher was provided".red()
 
 /**
  * Instantiates the class in receiver position using a [Map] of [property handles][PropMap.PropertyHandle] and
@@ -34,7 +35,7 @@ private val noExternalFetcherMessage =
  *
  * @param data            the [data][MappedData] we are going to be using to instantiate the object.
  *                        All non-optional primary constructor properties must be present or else the returned [Sr] will be a failure.
- * @param externalFetcher a function that is used to fetch other [resources][Entity] requires by the instantiated objects.
+ * @param externalFetcher a function that is used to fetch other [entities][Entity] requires by the instantiated objects.
  *                        Takes the type of the property and an [UUID].
  *
  * @return the instantiated object
@@ -45,7 +46,9 @@ private val noExternalFetcherMessage =
 suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
     data:               MappedData,
     objectMapper:       ObjectMapper,
-    externalFetcher:    suspend (KClass<Entity>, UUID) -> Sr<Entity> = { _, _ -> error(noExternalFetcherMessage) },
+    externalFetcher:    suspend (KClass<Entity>, UUID) -> Sr<Entity> = { _, _ -> error(
+        noExternalFetcherMessage
+    ) },
     externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
 ): Sr<TMapped> {
 

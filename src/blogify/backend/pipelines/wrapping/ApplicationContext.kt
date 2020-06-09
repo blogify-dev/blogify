@@ -1,22 +1,22 @@
 package blogify.backend.pipelines.wrapping
 
+import blogify.common.util.MapCache
+import blogify.reflect.models.Mapped
+import blogify.reflect.entity.Entity
+import blogify.reflect.entity.database.DatabaseContext
+import blogify.reflect.entity.database.QueryContext
+import blogify.reflect.entity.database.persistence.models.Repository
+import blogify.reflect.entity.database.extensions.repository
+import blogify.reflect.entity.instantiation.construct
 import blogify.backend.appContext
-import blogify.backend.database.models.QueryContext
-import blogify.backend.database.persistence.models.DataStore
-import blogify.backend.entity.Resource
-import blogify.backend.database.persistence.models.Repository
 import blogify.backend.push.PushServer
-import blogify.reflect.entity.construct
 import blogify.backend.resources.reflect.extensions.sanitizeToString
 import blogify.backend.resources.user.UserSettings
-import blogify.backend.util.MapCache
 import blogify.backend.util.parseJsonHandleMap
-import blogify.reflect.entity.Entity
-import blogify.reflect.models.Mapped
 
 import com.fasterxml.jackson.databind.ObjectMapper
 
-import epgx.types.Jsonb
+import epgx.types.JsonbColumnType
 
 import kotlinx.coroutines.runBlocking
 import java.util.*
@@ -28,27 +28,26 @@ import kotlin.reflect.KClass
  *
  * @author Benjozork
  */
-class ApplicationContext (
-    val dataStore: DataStore,
-    val objectMapper: ObjectMapper
-) {
+class ApplicationContext(val objectMapper: ObjectMapper) : DatabaseContext {
+
+    override val repoCache = MapCache<KClass<out Entity>, Repository<Entity>>()
 
     /**
-     * Creates an implementation of [Jsonb.Converter] for [T], using [Mapped.sanitizeToString] for serialization
-     * and [blogify.backend.resources.reflect.construct] for deserialization
+     * Creates an implementation of [JsonbColumnType.Converter] for [T], using [Mapped.sanitizeToString] for serialization
+     * and [blogify.reflect.entity.instantiation.construct] for deserialization
      *
      * @author Benjozork
      */
-    inline fun <reified T : Mapped> createJsonbConverter(): Jsonb.Converter<T> = object : Jsonb.Converter<T> {
+    inline fun <reified T : Mapped> createJsonbConverter(): JsonbColumnType.Converter<T> = object : JsonbColumnType.Converter<T> {
         override fun serializer(instance: T) = instance.sanitizeToString()
 
         override fun deserializer(source: String): T = runBlocking {
             val params = source.parseJsonHandleMap(UserSettings::class).get()
 
             val queryContext = object : QueryContext {
-                override val objectMapper get() = appContext.objectMapper
+                override val databaseContext: DatabaseContext get() = this@ApplicationContext
 
-                override val repositoryCache = MapCache<KClass<out Entity>, Repository<out Entity>>()
+                override val objectMapper get() = appContext.objectMapper
 
                 override val entityCache = MapCache<UUID, Entity>()
             }
@@ -59,28 +58,6 @@ class ApplicationContext (
                 externalFetcher = { klass, id -> appContext.repository(klass).get(queryContext, id) }
             ).get()
         }
-    }
-
-    /**
-     * Provides a [Repository] object for [TResource] using the data store in context
-     *
-     * @param TResource the type of [Resource] to return a repository for
-     *
-     * @author Benjozork
-     */
-    inline fun <reified TResource : Resource> repository(): Repository<TResource> {
-        return this.dataStore.getRepository(TResource::class)
-    }
-
-    /**
-     * Provides a [Repository] object for [TResource] using the data store in context
-     *
-     * @param TResource the type of [Resource] to return a repository for
-     *
-     * @author Benjozork
-     */
-    fun <TResource : Entity> repository(klass: KClass<TResource>): Repository<TResource> {
-        return this.dataStore.getRepository(klass)
     }
 
     val pushServer = PushServer(this)

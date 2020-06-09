@@ -1,7 +1,7 @@
 package blogify.backend.resources
 
 import blogify.reflect.annotations.Hidden
-import blogify.backend.annotations.SqlTable
+import blogify.reflect.entity.database.annotations.SqlTable
 import blogify.reflect.annotations.check
 import blogify.backend.database.tables.Articles
 import blogify.backend.database.tables.Comments

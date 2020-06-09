@@ -8,6 +8,7 @@ val logback_version:   String by project
 val pg_driver_version: String by project
 val exposed_version:   String by project
 val hikari_version:    String by project
+val epgx_version:      String by project
 val kolor_version:     String by project
 val spring_security_core_version: String by project
 
@@ -83,7 +84,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     implementation("com.zaxxer:HikariCP:$hikari_version")
-    implementation("com.github.Benjozork:exposed-postgres-extensions:alpha-1")
+    implementation("com.github.Benjozork", "exposed-postgres-extensions", epgx_version)
 
     // Spring security for hashing
 

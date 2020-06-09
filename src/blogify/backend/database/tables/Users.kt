@@ -1,16 +1,17 @@
 package blogify.backend.database.tables
 
-import blogify.backend.database.extensions.parentKey
-import blogify.backend.database.extensions.weakKeyFrom
-import blogify.backend.database.handling.query
-import blogify.backend.database.handling.unwrappedQuery
-import blogify.backend.database.models.QueryContext
-import blogify.backend.database.models.ResourceTable
+import blogify.common.util.Sr
+import blogify.common.util.Wrap
+import blogify.reflect.entity.database.extensions.parentKey
+import blogify.reflect.entity.database.extensions.weakKeyFrom
+import blogify.reflect.entity.database.handling.query
+import blogify.reflect.entity.database.handling.unwrappedQuery
+import blogify.reflect.entity.database.QueryContext
+import blogify.reflect.entity.database.ResourceTable
 import blogify.backend.resources.user.User
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.resources.user.UserSettings
-import blogify.common.util.Sr
-import blogify.common.util.Wrap
+
 import com.github.kittinunf.result.coroutines.map
 
 import org.jetbrains.exposed.sql.*

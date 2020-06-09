@@ -5,29 +5,30 @@ import blogify.common.util.Wrap
 import blogify.common.util.never
 import blogify.reflect.Dto
 import blogify.reflect.sanitize
-import blogify.backend.database.extensions.parentKey
-import blogify.backend.database.handling.query
-import blogify.backend.database.models.QueryContext
+import blogify.reflect.entity.database.extensions.parentKey
+import blogify.reflect.entity.database.handling.query
+import blogify.reflect.entity.database.QueryContext
 import blogify.backend.events.models.Event
 import blogify.backend.resources.models.ResourceIdSerializer
 
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.kittinunf.result.coroutines.map
 
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 
 import epgx.models.PgTable
-import epgx.types.Jsonb
+import epgx.types.JsonbColumnType
+
+import com.github.kittinunf.result.coroutines.map
 
 import java.time.Instant
 
 @Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER")
 object Events : PgTable("notifications") {
 
-    private val dataConverter = object : Jsonb.Converter<Dto> {
+    private val dataConverter = object : JsonbColumnType.Converter<Dto> {
 
         private val objectMapper = jacksonObjectMapper().apply {
             val resourceModule = SimpleModule()

@@ -5,8 +5,8 @@ import blogify.reflect.sanitize
 import blogify.reflect.slice
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.auth.handling.authenticated
-import blogify.backend.database.handling.query
-import blogify.backend.database.handling.unwrappedQuery
+import blogify.reflect.entity.database.handling.query
+import blogify.reflect.entity.database.handling.unwrappedQuery
 import blogify.backend.database.tables.Articles
 import blogify.backend.pipelines.obtainResource
 import blogify.backend.pipelines.optionalParam
@@ -35,7 +35,7 @@ val getUserDraftArticles: RequestContextFunction<Unit> = {
         val props = optionalParam("fields")?.split(",")?.toSet()
 
         val drafts = unwrappedQuery {
-            Articles.obtainListing (
+            Articles.obtainListing(
                 queryContext = this,
                 selectCondition = { (Articles.createdBy eq user.uuid) and (Articles.isDraft eq true) },
                 quantity = quantity,
@@ -101,7 +101,7 @@ val flipArticleLike: RequestContextFunction<Unit> = {
             query {
                 likes.insert {
                     it[likes.article] = id
-                    it[likes.user]    = user.uuid
+                    it[likes.user] = user.uuid
                 }
             }.assertGet()
 

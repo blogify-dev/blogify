@@ -3,16 +3,16 @@ package blogify.backend.search.ext
 import blogify.common.util.toUUID
 import blogify.common.util.Sr
 import blogify.reflect.sanitize
+import blogify.reflect.entity.database.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.entity.Resource
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.SearchView
-import blogify.backend.database.persistence.models.Repository
 
 import java.lang.Exception
 import java.lang.IllegalStateException
 
-suspend inline fun <reified T : Resource> Search.Hit.fetchResource(requestContext: RequestContext, repository: Repository<T>): Sr<T> {
+suspend inline fun <reified T : Resource> Search.Hit.fetchResource(requestContext: RequestContext, repository: Repository<out T>): Sr<T> {
     val resourceUUID = (this.document["uuid"] as String).toUUID()
     return repository.get(requestContext, resourceUUID)
 }

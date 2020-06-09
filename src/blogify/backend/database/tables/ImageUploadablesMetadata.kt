@@ -1,7 +1,7 @@
 package blogify.backend.database.tables
 
-import blogify.backend.database.handling.query
-import blogify.backend.database.models.QueryContext
+import blogify.reflect.entity.database.handling.query
+import blogify.reflect.entity.database.QueryContext
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.common.util.Sr
 import blogify.common.util.Wrap
@@ -19,7 +19,9 @@ object ImageUploadablesMetadata : Table("image_metadata") {
 
     suspend fun obtain(queryContext: QueryContext, id: String): Sr<ImageMetadata> =
         Wrap {
-            query { this.select { handleId eq id }.single() }.get()
+            query {
+                this.select { handleId eq id }.single()
+            }.get()
                 .let {
                     convert(
                         queryContext,

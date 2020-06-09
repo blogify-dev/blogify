@@ -1,6 +1,6 @@
-package blogify.backend.database.extensions
+package blogify.reflect.entity.database.extensions
 
-import blogify.backend.database.models.ResourceTable
+import blogify.reflect.entity.database.ResourceTable
 import blogify.reflect.entity.Entity
 
 import org.jetbrains.exposed.sql.*

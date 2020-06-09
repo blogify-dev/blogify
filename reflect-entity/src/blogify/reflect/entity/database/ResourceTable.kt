@@ -1,17 +1,17 @@
-package blogify.backend.database.models
+package blogify.reflect.entity.database
 
 import blogify.common.util.*
 import blogify.reflect.entity.Entity
-import blogify.reflect.entity.MissingArgumentsException
+import blogify.reflect.entity.instantiation.MissingArgumentsException
 import blogify.reflect.SlicedProperty
 import blogify.reflect.extensions.handle
 import blogify.reflect.extensions.okHandle
 import blogify.reflect.getPropValueOnInstance
-import blogify.backend.database.binding.SqlBinding
-import blogify.backend.database.extensions.klass
-import blogify.backend.database.handling.query
-import blogify.backend.database.handling.unwrappedQuery
-import blogify.backend.database.optimizer.QueryOptimizer
+import blogify.reflect.entity.database.handling.query
+import blogify.reflect.entity.database.handling.unwrappedQuery
+import blogify.reflect.entity.database.binding.SqlBinding
+import blogify.reflect.entity.database.extensions.klass
+import blogify.reflect.entity.database.optimizer.QueryOptimizer
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
@@ -158,7 +158,7 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
      * @param aliasToUse      a [table alias][Alias] to specify which columns should be used when data for multiple
      *                        instances of [TResource] might be present in a single row
      */
-    internal open suspend fun convert (
+    open suspend fun convert (
         queryContext: QueryContext,
         source: ResultRow,
         aliasToUse: Alias<ResourceTable<TResource>>? = null

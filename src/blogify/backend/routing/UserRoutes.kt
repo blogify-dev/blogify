@@ -7,7 +7,7 @@ import blogify.backend.auth.handling.authenticated
 import blogify.backend.auth.handling.optionallyAuthenticated
 import blogify.backend.database.tables.Events
 import blogify.backend.database.tables.Users
-import blogify.backend.database.handling.query
+import blogify.reflect.entity.database.handling.query
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.user.User
 import blogify.backend.search.Typesense
@@ -119,7 +119,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
                     if (!hasAlreadyFollowed) {
                         query {
                             follows.insert {
-                                it[Users.Follows.follower] = user.uuid
+                                it[follower] = user.uuid
                                 it[Users.Follows.following] = following.uuid
                             }
                         }
@@ -163,10 +163,10 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
                         val notifications = query {
                             Events.select { Events.emitter eq user.uuid }
-                                    .orderBy(Events.timestamp, SortOrder.DESC)
-                                    .limit(count)
-                                    .map { Events.convert(this, it) }
-                                    .toList()
+                                .orderBy(Events.timestamp, SortOrder.DESC)
+                                .limit(count)
+                                .map { Events.convert(this, it) }
+                                .toList()
                         }.assertGet()
 
                         call.respond(notifications.takeIf { it.isNotEmpty() } ?: "[]")

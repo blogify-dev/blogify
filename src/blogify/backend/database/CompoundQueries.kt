@@ -1,6 +1,6 @@
 package blogify.backend.database
 
-import blogify.backend.database.handling.query
+import blogify.reflect.entity.database.handling.query
 import blogify.common.util.Sr
 
 import org.jetbrains.exposed.sql.Column
@@ -55,13 +55,14 @@ private suspend fun <A : Any, B : Any, C : Any> getAllReferences (
     where:                SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }
 ) : Sr<Map<A, Set<C>>> {
     return query {
-        originField.table.join ( referenceTargetField.table, JoinType.LEFT,
+        originField.table.join(
+            referenceTargetField.table, JoinType.LEFT,
             onColumn = originField, otherColumn = referenceTargetField
         )
             .slice(originField, returnedTargetField)
             .select(where)
-            .map       { it[originField] to it.getOrNull(returnedTargetField) }
-            .groupBy   { it.first }
+            .map { it[originField] to it.getOrNull(returnedTargetField) }
+            .groupBy { it.first }
             .mapValues { it.value.mapNotNull { pair -> pair.second }.toSet() }
     }
 }

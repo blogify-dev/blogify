@@ -1,8 +1,7 @@
-package blogify.backend.database.extensions
+package blogify.reflect.entity.database.extensions
 
-import blogify.backend.database.models.ResourceTable
-import blogify.backend.entity.Resource
 import blogify.reflect.entity.Entity
+import blogify.reflect.entity.database.ResourceTable
 
 import blogify.reflect.extensions.klass
 
@@ -12,7 +11,7 @@ import org.jetbrains.exposed.sql.Table
 import java.util.*
 
 /**
- * Returns the class of the type of Resource this table stores. Requires at least one [blogify.backend.database.binding.SqlBinding] to be
+ * Returns the class of the type of Resource this table stores. Requires at least one [blogify.reflect.entity.database.binding.SqlBinding] to be
  * declared.
  *
  * @author Benjozork

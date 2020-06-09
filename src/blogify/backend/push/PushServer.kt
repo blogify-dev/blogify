@@ -5,7 +5,7 @@ import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_MESSAGE
 import blogify.backend.push.notifications.SubscribeToNotifications
 import blogify.backend.resources.user.User
-import blogify.reflect.entity.construct
+import blogify.reflect.entity.instantiation.construct
 import blogify.reflect.propMap
 import blogify.reflect.models.extensions.ok
 import blogify.backend.routing.closeAndExit

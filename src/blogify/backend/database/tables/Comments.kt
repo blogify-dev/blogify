@@ -1,8 +1,8 @@
 package blogify.backend.database.tables
 
-import blogify.backend.database.extensions.parentKey
-import blogify.backend.database.extensions.weaKey
-import blogify.backend.database.models.ResourceTable
+import blogify.reflect.entity.database.extensions.parentKey
+import blogify.reflect.entity.database.extensions.weaKey
+import blogify.reflect.entity.database.ResourceTable
 import blogify.backend.resources.Comment
 
 import org.jetbrains.exposed.sql.*

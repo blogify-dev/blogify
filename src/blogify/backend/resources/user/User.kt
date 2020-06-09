@@ -1,7 +1,7 @@
 package blogify.backend.resources.user
 
 import blogify.reflect.annotations.Hidden
-import blogify.backend.annotations.SqlTable
+import blogify.reflect.entity.database.annotations.SqlTable
 import blogify.reflect.annotations.Undisplayed
 import blogify.reflect.annotations.search.NoSearch
 import blogify.reflect.annotations.search.DelegatedSearchReceiver

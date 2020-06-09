@@ -1,7 +1,7 @@
-package blogify.backend.database.binding
+package blogify.reflect.entity.database.binding
 
-import blogify.backend.database.extensions.foreignKeyTo
-import blogify.backend.database.models.ResourceTable
+import blogify.reflect.entity.database.extensions.foreignKeyTo
+import blogify.reflect.entity.database.ResourceTable
 import blogify.reflect.entity.Entity
 
 import org.jetbrains.exposed.sql.*
@@ -45,7 +45,8 @@ sealed class SqlBinding<TResource : Entity, TProperty : Any?, TColumn : Any?> (
         table: ResourceTable<TResource>,
         property: KProperty1<TResource, TProperty>,
         override val column: Column<TProperty>
-    ) : SqlBinding<TResource, TProperty, TProperty>(table, property), HasColumn<TProperty> {
+    ) : SqlBinding<TResource, TProperty, TProperty>(table, property),
+        HasColumn<TProperty> {
 
         override fun applyToUpdateOrInsert(builder: UpdateBuilder<Number>, value: TProperty) {
             builder[column] = value
@@ -60,7 +61,8 @@ sealed class SqlBinding<TResource : Entity, TProperty : Any?, TColumn : Any?> (
         table: ResourceTable<TResource>,
         property: KProperty1<TResource, TProperty>,
         override val column: Column<UUID>
-    ) : SqlBinding<TResource, TProperty, UUID>(table, property), HasColumn<UUID> {
+    ) : SqlBinding<TResource, TProperty, UUID>(table, property),
+        HasColumn<UUID> {
 
         override fun applyToUpdateOrInsert(builder: UpdateBuilder<Number>, value: TProperty) {
             builder[column] = value.uuid
@@ -75,7 +77,8 @@ sealed class SqlBinding<TResource : Entity, TProperty : Any?, TColumn : Any?> (
         table: ResourceTable<TResource>,
         property: KProperty1<TResource, TProperty>,
         override val column: Column<UUID?>
-    ) : SqlBinding<TResource, TProperty, UUID?>(table, property), HasColumn<UUID?> {
+    ) : SqlBinding<TResource, TProperty, UUID?>(table, property),
+        HasColumn<UUID?> {
 
         override fun applyToUpdateOrInsert(builder: UpdateBuilder<Number>, value: TProperty) {
             builder[column] = value?.uuid

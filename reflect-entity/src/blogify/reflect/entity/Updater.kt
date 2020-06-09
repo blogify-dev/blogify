@@ -3,6 +3,7 @@ package blogify.reflect.entity
 import blogify.common.util.Sr
 import blogify.reflect.unsafePropMap
 import blogify.reflect.MappedData
+import blogify.reflect.entity.instantiation.construct
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.ok
