@@ -43,3 +43,11 @@ fun KType.isPrimitive() =
     this subTypeOf String::class ||
     this subTypeOf Boolean::class ||
     this subTypeOf Char::class
+
+/**
+ * Returns whether a [KType] is a subtype of a collection class
+ *
+ * @author Benjozork
+ */
+fun KType.isCollection() =
+    this subTypeOf Collection::class
