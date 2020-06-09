@@ -2,28 +2,21 @@ package blogify.backend.resources.reflect
 
 import blogify.backend.appContext
 import blogify.reflect.entity.Entity
-import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.util.*
 import blogify.reflect.MappedData
+import blogify.reflect.extensions.*
 import blogify.reflect.unsafePropMap
-import blogify.reflect.extensions.isPrimitive
-import blogify.reflect.extensions.klass
-import blogify.reflect.extensions.safeKlass
-import blogify.reflect.extensions.subTypeOf
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.ok
 
 import java.util.UUID
+import java.lang.IllegalStateException
 
-import kotlin.reflect.KClass
-import kotlin.reflect.KParameter
-
-import com.fasterxml.jackson.module.kotlin.readValue
+import kotlin.reflect.*
+import kotlin.reflect.full.cast
 
 import com.github.kittinunf.result.coroutines.mapError
-
-import java.lang.IllegalStateException
 
 import com.andreapivetta.kolor.red
 
@@ -105,36 +98,18 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
                             else -> never
                         }
                     }
-                    parameter.type subTypeOf StaticFile::class -> { // Special case for SRH, since it's a sealed class
-                        val valueString = objectMapper.writeValueAsString(value)
-                        val valueMap = objectMapper.readValue<Map<String, Any?>>(valueString)
-
-                        /* TODO make sure we can handle those sealed classes without hard-coding them.
-                           Maybe emit class FQN ? */
-
-                        parameter to when {
-                            valueMap.containsKey("metadata") -> {
-                                objectMapper.readValue<StaticFile.Ok.Image>(valueString)
-                            }
-                            valueMap.containsKey("fileId") -> {
-                                objectMapper.readValue<StaticFile.Ok>(valueString)
-                            }
-                            valueMap.containsKey("contentType") -> {
-                                objectMapper.readValue<StaticFile.None>(valueString)
-                            }
-                            else -> never
-                        }
-                    }
-                    parameter.type.isPrimitive() -> { // KType is primitive
+                    parameter.type.isPrimitive() ||
+                    !parameter.type.isCollection() &&
+                            (letCatchingOrNull { parameter.type.klass()!!.cast(value) } != null) -> { // Value is primitive or already <: KType
                         parameter to value
                     }
-                    else -> { // It's some other type, so we need to extract a JavaType from the parameter and make Jackson deserialize it
+                    else -> { // It's some other type that isn't deserialized yet, so we need to extract a JavaType from the parameter and make Jackson deserialize it
                         val baseTypeClass = parameter.type.klass()?.java
-                            ?: error("fatal: found non-class base type when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
+                            ?: error("found non-class base type when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
 
                         val typeParameters = parameter.type.arguments.map {
                             it.type?.klass()?.java
-                                ?: error("fatal: found non-class type parameter when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
+                                ?: error("found non-class type parameter when extracting JavaType of parameter '${parameter.name}' of class '${this.simpleName}'".red())
                         }.toTypedArray()
 
                         val type = objectMapper.typeFactory.constructParametricType(baseTypeClass, *typeParameters)
