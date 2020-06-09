@@ -32,7 +32,6 @@ suspend fun <R : Mapped> R.update (
     rawData: MappedData,
     fetcher: suspend (KClass<Entity>, UUID) -> Sr<Entity>
 ): Sr<R> {
-
     val targetPropMap = this.unsafePropMap // Get unsafe handles too
 
     // Find parameters we are not changing
@@ -52,22 +51,4 @@ suspend fun <R : Mapped> R.update (
         .associateWith { rawData[it] }
 
     return this::class.construct(unchangedValues + changedValues, fetcher)
-
 }
-
-/**
- * Updates a [Entity] using a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
- *
- * @receiver the [Entity] to update
- *
- * @param R       the class associated with [this]
- * @param rawData a map of [`Ok` handles][PropMap.PropertyHandle.Ok] to new data values
- *
- * @return an updated instance of [R] with all new data from [rawData], but the same unchanged data from [this]
- *
- * @author Benjozork
- */
-suspend fun <R : Mapped> R.update (
-    rawData: MappedData,
-    queryContext: QueryContext
-): Sr<R> = update(rawData) { klass, uuid -> queryContext.repository(klass).get(queryContext, uuid) }

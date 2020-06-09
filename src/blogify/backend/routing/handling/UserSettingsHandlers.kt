@@ -5,7 +5,6 @@ import blogify.backend.auth.handling.authenticated
 import blogify.backend.database.handling.query
 import blogify.backend.database.tables.Users
 import blogify.backend.pipelines.wrapping.RequestContextFunction
-import blogify.backend.resources.reflect.update
 import blogify.backend.resources.user.UserSettings
 import blogify.backend.util.*
 import blogify.reflect.Dto
@@ -48,7 +47,7 @@ val updateSettings: RequestContextFunction<Unit> = {
         val newSettings = Wrap {
             val updateObject = call.receive<Dto>().mappedByHandles(UserSettings::class).get()
 
-            oldSettings.update(updateObject, this).get()
+            oldSettings.update(updateObject).get()
         }.getOrPipelineError(HttpStatusCode.BadRequest, "bad update object")
 
         val updated = query {

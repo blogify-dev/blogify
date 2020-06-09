@@ -186,13 +186,15 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
 
         }.toMap()
 
-        return klass.construct(bindingsData, queryContext)
-            .mapError { e ->
-                if (e is MissingArgumentsException)
-                    IllegalStateException("there were missing arguments when calling construct() during SQL conversion - " +
-                            "you might want to implement convert() yourself", e)
-                else e
-            }
+        return with(queryContext) {
+            klass.construct(bindingsData)
+                .mapError { e ->
+                    if (e is MissingArgumentsException)
+                        IllegalStateException("there were missing arguments when calling construct() during SQL conversion - " +
+                                "you might want to implement convert() yourself", e)
+                    else e
+                }
+        }
     }
 
     /**
@@ -230,13 +232,11 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
      *
      * @return the resource itself if the insert was successful
      */
-    open suspend fun insert(resource: TResource): Sr<TResource> = Wrap {
-        unwrappedQuery {
-            this.insert {
-                for (binding in bindings) {
-                    if (binding !is SqlBinding.ReferenceToMany<*, *>)
-                        applyBindingToInsertOrUpdate(resource, it, binding)
-                }
+    open suspend fun insert(resource: TResource): Sr<TResource> = query {
+        this.insert {
+            for (binding in bindings) {
+                if (binding !is SqlBinding.ReferenceToMany<*, *>)
+                    applyBindingToInsertOrUpdate(resource, it, binding)
             }
         }
 
@@ -244,12 +244,9 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
             val instances = binding.property.get(resource)
             val bindingTable = binding.otherTable
 
-            query {
-                bindingTable.batchInsert(instances) { item ->
-                    binding.insertionFunction(resource, item, this)
-                }
-            }.mapError { IllegalStateException("error occurred during update in ReferenceToMany table", it) }
-                .get()
+            bindingTable.batchInsert(instances) { item ->
+                binding.insertionFunction(resource, item, this)
+            }
         }
     }.map { resource }
 
@@ -258,51 +255,36 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
      *
      * @return whether or not the update was successful
      */
-    open suspend fun update(resource: TResource): Boolean = Wrap {
-        unwrappedQuery {
-            this.update({ uuid eq resource.uuid }) {
-                for (binding in bindings) {
-                    if (binding !is SqlBinding.ReferenceToMany<*, *>)
-                        applyBindingToInsertOrUpdate(resource, it, binding)
-                }
+    open suspend fun update(resource: TResource): Sr<TResource> = query {
+        this.update({ uuid eq resource.uuid }) {
+            for (binding in bindings) {
+                if (binding !is SqlBinding.ReferenceToMany<*, *>)
+                    applyBindingToInsertOrUpdate(resource, it, binding)
             }
         }
 
         for (binding in bindings.filterIsInstance<SqlBinding.ReferenceToMany<TResource, Any>>()) {
             val newInstances = binding.property.get(resource)
 
-            query {
-                binding.otherTable.deleteWhere { binding.otherTableFkToPkCol eq resource.uuid }
-            }.mapError { IllegalStateException("error occurred during update in ReferenceToMany table", it) }
-                .get()
+            binding.otherTable.deleteWhere { binding.otherTableFkToPkCol eq resource.uuid }
 
-            query {
-                binding.otherTable.batchInsert(newInstances) { item -> binding.insertionFunction(resource, item, this) }
-            }.mapError { IllegalStateException("error occurred during update in ReferenceToMany table", it) }
-                .get()
+            binding.otherTable.batchInsert(newInstances) { item -> binding.insertionFunction(resource, item, this) }
         }
-    }.asBoolean()
+    }.map { resource }
 
     /**
      * Deletes [resource] from table using it's uuid for finding the item to delete
      *
      * @return whether or not the deletion was successful
      */
-    open suspend fun delete(resource: TResource): Boolean = Wrap {
+    open suspend fun delete(resource: TResource): Boolean = query {
         unwrappedQuery {
             this.deleteWhere { uuid eq resource.uuid }
         }
-    }.asBoolean()
+    }.assertGet().let { true }
 
     val uuid = uuid("uuid")
 
     override val primaryKey = PrimaryKey(uuid)
 
 }
-
-@Suppress("UNCHECKED_CAST")
-suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
-    data:               MappedData,
-    queryContext:     QueryContext,
-    externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
-): Sr<TMapped> = this.construct(data, { klass, uuid -> queryContext.repository(klass).get(queryContext = queryContext, id = uuid) }, externallyProvided)

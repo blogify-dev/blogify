@@ -6,7 +6,6 @@ import blogify.backend.annotations.table
 import blogify.backend.database.binding.SqlBinding
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.QueryContext
-import blogify.backend.database.models.construct
 import blogify.backend.util.*
 import blogify.reflect.MappedData
 import blogify.reflect.entity.Entity
@@ -88,7 +87,9 @@ object QueryOptimizer {
                 }
             }
 
-            klass.construct(bindingsData, queryContext).get() // Finally, construct the class
+            with(queryContext) {
+                klass.construct(bindingsData).get() // Finally, construct the class
+            }
         }
     }
 
