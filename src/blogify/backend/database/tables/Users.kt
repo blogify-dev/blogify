@@ -9,8 +9,9 @@ import blogify.backend.database.models.ResourceTable
 import blogify.backend.resources.user.User
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.resources.user.UserSettings
-import blogify.backend.util.Sr
-import blogify.backend.util.Wrap
+import blogify.common.util.Sr
+import blogify.common.util.Wrap
+import com.github.kittinunf.result.coroutines.map
 
 import org.jetbrains.exposed.sql.*
 
@@ -70,7 +71,7 @@ object Users : ResourceTable<User>() {
 
     }
 
-    override suspend fun update(resource: User): Boolean {
+    override suspend fun update(resource: User): Sr<User> {
         return query {
             this.update(where = { uuid eq resource.uuid }) {
                 it[uuid] = resource.uuid
@@ -85,7 +86,7 @@ object Users : ResourceTable<User>() {
                 it[isAdmin] = resource.isAdmin
                 it[biography] = resource.biography
             }
-        }.get() == 1
+        }.map { resource }
     }
 
     override suspend fun convert (
@@ -95,7 +96,7 @@ object Users : ResourceTable<User>() {
     ): Sr<User> = Wrap {
         fun <T> get(column: Column<T>) = if (aliasToUse != null) source[aliasToUse[column]] else source[column]
 
-        User (
+        User(
             uuid = get(uuid),
             username = get(username),
             password = get(password),
@@ -106,7 +107,7 @@ object Users : ResourceTable<User>() {
             profilePicture = get(profilePicture)?.let {
                 unwrappedQuery {
                     Uploadables.select { Uploadables.fileId eq get(profilePicture)!! }
-                            .limit(1).single()
+                        .limit(1).single()
                 }.let {
                     Uploadables.convert(queryContext, it).get()
                 }
@@ -114,7 +115,7 @@ object Users : ResourceTable<User>() {
             coverPicture = get(coverPicture)?.let {
                 unwrappedQuery {
                     Uploadables.select { Uploadables.fileId eq get(coverPicture)!! }
-                            .limit(1).single()
+                        .limit(1).single()
                 }.let {
                     Uploadables.convert(queryContext, it).get()
                 }

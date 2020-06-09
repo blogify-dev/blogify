@@ -4,7 +4,9 @@ import blogify.backend.database.handling.query
 import blogify.backend.database.models.QueryContext
 import blogify.backend.database.models.ResourceTable
 import blogify.backend.database.persistence.models.Repository
-import blogify.backend.util.*
+import blogify.common.util.Sr
+import blogify.common.util.SrList
+import blogify.common.util.Wrap
 import blogify.reflect.MappedData
 import blogify.reflect.entity.Entity
 
@@ -40,13 +42,14 @@ open class PostgresRepository<R : Entity>(val table: ResourceTable<R>) : Reposit
 
     override suspend fun add(res: R): Sr<R> = this.table.insert(res)
 
-    override suspend fun update(request: QueryContext, res: R, rawData: MappedData): Sr<R> = Wrap {
-        val new = with(request) {
-            res.update(rawData)
-        }.get()
+    override suspend fun update(request: QueryContext, res: R, rawData: MappedData): Sr<R> =
+        Wrap {
+            val new = with(request) {
+                res.update(rawData)
+            }.get()
 
-        this.table.update(new).get()
-    }
+            this.table.update(new).get()
+        }
 
     override suspend fun delete(res: R): Sr<UUID>
             = this.table.delete(res).let { Wrap { res.uuid } }

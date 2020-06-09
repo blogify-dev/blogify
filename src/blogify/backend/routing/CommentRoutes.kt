@@ -121,8 +121,13 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
                 val depth    = optionalParam("depth")?.toIntOrNull()?.coerceAtMost(5) ?: 4
                 val fields   = optionalParam("fields")?.split(',')?.toSet()
 
-                val root = repo.queryListing(this, { (Comments.article eq articleId) and Comments.parentComment.isNull() }, quantity, page, Comments.createdAt, SortOrder.DESC)
-                    .getOr404OrPipelineError(HttpStatusCode.InternalServerError, "error while querying listing")
+                val root = repo.obtainListing (
+                    selectCondition = { (Comments.article eq articleId) and Comments.parentComment.isNull() },
+                    quantity = quantity,
+                    page = page,
+                    orderBy = Comments.createdAt,
+                    sortOrder = SortOrder.DESC
+                ).getOr404OrPipelineError(HttpStatusCode.InternalServerError, "error while querying listing")
 
                 val expandedComments = root.first.map { expandCommentNodeAsync(this, it, fields, quantity, 0, depth - 1).await() }
 

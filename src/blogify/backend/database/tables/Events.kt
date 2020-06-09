@@ -1,25 +1,26 @@
 package blogify.backend.database.tables
 
+import blogify.common.util.Sr
+import blogify.common.util.Wrap
+import blogify.common.util.never
+import blogify.reflect.Dto
+import blogify.reflect.sanitize
 import blogify.backend.database.extensions.parentKey
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.QueryContext
 import blogify.backend.events.models.Event
 import blogify.backend.resources.models.ResourceIdSerializer
-import blogify.reflect.sanitize
-import blogify.backend.util.*
-import blogify.reflect.Dto
 
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.github.kittinunf.result.coroutines.map
 
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 
 import epgx.models.PgTable
 import epgx.types.Jsonb
-
-import com.github.kittinunf.result.coroutines.map
 
 import java.time.Instant
 
@@ -59,10 +60,10 @@ object Events : PgTable("notifications") {
         return Wrap {
             query {
                 insert {
-                    it[data]      = event.sanitize()
-                    it[emitter]   = event.emitter.uuid
+                    it[data] = event.sanitize()
+                    it[emitter] = event.emitter.uuid
                     it[timestamp] = event.timestamp.epochSecond.toInt()
-                    it[klass]     = event::class.qualifiedName ?: never
+                    it[klass] = event::class.qualifiedName ?: never
                 }
             }
         }.map { event }

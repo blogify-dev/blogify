@@ -1,11 +1,11 @@
 package blogify.backend.auth.jwt
 
+import blogify.common.util.short
+import blogify.common.util.toUUID
 import blogify.backend.database.models.QueryContext
 import blogify.backend.database.models.repository
 import blogify.backend.resources.user.User
-import blogify.backend.util.Sr
-import blogify.backend.util.short
-import blogify.backend.util.toUUID
+import blogify.common.util.Sr
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 

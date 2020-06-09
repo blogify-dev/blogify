@@ -1,5 +1,6 @@
 package blogify.backend.util
 
+import blogify.common.util.never
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext

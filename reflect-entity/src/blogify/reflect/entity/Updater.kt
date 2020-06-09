@@ -1,16 +1,14 @@
-package blogify.backend.resources.reflect
+package blogify.reflect.entity
 
-import blogify.backend.database.models.QueryContext
-import blogify.backend.database.models.repository
-import blogify.backend.util.Sr
+import blogify.common.util.Sr
 import blogify.reflect.unsafePropMap
-import blogify.reflect.entity.Entity
 import blogify.reflect.MappedData
-
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.ok
 import blogify.reflect.slice
+
+import com.fasterxml.jackson.databind.ObjectMapper
 
 import java.util.UUID
 
@@ -30,6 +28,7 @@ import kotlin.reflect.KClass
  */
 suspend fun <R : Mapped> R.update (
     rawData: MappedData,
+    objectMapper: ObjectMapper,
     fetcher: suspend (KClass<Entity>, UUID) -> Sr<Entity>
 ): Sr<R> {
     val targetPropMap = this.unsafePropMap // Get unsafe handles too
@@ -50,5 +49,5 @@ suspend fun <R : Mapped> R.update (
     val changedValues = updatedParameters
         .associateWith { rawData[it] }
 
-    return this::class.construct(unchangedValues + changedValues, fetcher)
+    return this::class.construct(unchangedValues + changedValues, objectMapper, fetcher)
 }

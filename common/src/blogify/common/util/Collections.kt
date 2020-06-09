@@ -1,4 +1,4 @@
-package blogify.backend.util
+package blogify.common.util
 
 import java.util.concurrent.ConcurrentHashMap
 

@@ -4,13 +4,15 @@ import blogify.reflect.annotations.Hidden
 import blogify.backend.events.models.EventTarget
 import blogify.backend.entity.Resource
 import blogify.reflect.models.extensions.ok
-import blogify.backend.util.Sr
+import blogify.common.util.Sr
+import blogify.reflect.entity.update
 
 import kotlinx.coroutines.runBlocking
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import blogify.reflect.unsafePropMap
+import com.fasterxml.jackson.databind.ObjectMapper
 
 @Suppress("MapGetWithNotNullAssertionOperator")
 class UpdaterTests {
@@ -35,7 +37,7 @@ class UpdaterTests {
 
     @Test fun `should update mapped object`() {
         runBlocking {
-            val updated = testObject.update(testUpdateData) { _, _ -> Sr.of { error("") } }
+            val updated = testObject.update(testUpdateData, ObjectMapper()) { _, _ -> Sr.of { error("") } }
 
             assertEquals("steven", updated.get().name)
             assertEquals(18, updated.get().age)
@@ -53,7 +55,7 @@ class UpdaterTests {
 
     @Test fun `should keep unchanged values`() {
         runBlocking {
-            val updated = testObjectUnchanged.update(testUpdateDataUnchanged) { _, _ -> Sr.of { error("") } }
+            val updated = testObjectUnchanged.update(testUpdateDataUnchanged, ObjectMapper()) { _, _ -> Sr.of { error("") } }
 
             assertEquals("wow", updated.get().name)
             assertEquals(36, updated.get().age)

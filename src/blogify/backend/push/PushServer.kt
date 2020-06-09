@@ -1,14 +1,17 @@
 package blogify.backend.push
 
+import blogify.common.util.short
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_MESSAGE
 import blogify.backend.push.notifications.SubscribeToNotifications
 import blogify.backend.resources.user.User
-import blogify.backend.resources.reflect.construct
+import blogify.reflect.entity.construct
 import blogify.reflect.propMap
 import blogify.reflect.models.extensions.ok
 import blogify.backend.routing.closeAndExit
 import blogify.backend.util.*
+import blogify.common.util.concurrentMapOf
+import blogify.common.util.getOr
 
 import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.Frame
@@ -21,6 +24,7 @@ import org.slf4j.LoggerFactory
 
 import com.andreapivetta.kolor.yellow
 import com.andreapivetta.kolor.red
+import com.github.kittinunf.result.coroutines.getOrNull
 
 import kotlin.reflect.KClass
 
@@ -90,12 +94,13 @@ class PushServer(val appContext: ApplicationContext) {
             val noConnectionHandleMessage = "fatal: no connection property on class ${receivedClass.simpleName}".red()
 
             val receivedMessage = receivedClass.construct (
-                    data = bodyPayload,
-                    externallyProvided = setOf(receivedClass.propMap.ok["connection"] ?: error(noConnectionHandleMessage))
-                ).getOr {
-                    it.printStackTrace()
-                    close(INVALID_MESSAGE("couldn't instantiate message - ${it.javaClass.simpleName}: ${it.message}"))
-                }
+                objectMapper = appContext.objectMapper,
+                data = bodyPayload,
+                externallyProvided = setOf(receivedClass.propMap.ok["connection"] ?: error(noConnectionHandleMessage))
+            ).getOr {
+                it.printStackTrace()
+                close(INVALID_MESSAGE("couldn't instantiate message - ${it.javaClass.simpleName}: ${it.message}"))
+            }
 
             wsServerSession.launch { receivedMessage.onArrival() }
 

@@ -4,7 +4,7 @@ import blogify.reflect.annotations.search.DelegatedSearch
 import blogify.backend.entity.Resource
 import blogify.reflect.models.PropMap
 import blogify.backend.search.models.Template
-import blogify.backend.util.never
+import blogify.common.util.never
 import blogify.reflect.extensions.klass
 import blogify.reflect.extensions.safeKlass
 

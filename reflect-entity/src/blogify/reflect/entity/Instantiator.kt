@@ -1,8 +1,6 @@
-package blogify.backend.resources.reflect
+package blogify.reflect.entity
 
-import blogify.backend.appContext
-import blogify.reflect.entity.Entity
-import blogify.backend.util.*
+import blogify.common.util.*
 import blogify.reflect.MappedData
 import blogify.reflect.extensions.*
 import blogify.reflect.unsafePropMap
@@ -19,6 +17,8 @@ import kotlin.reflect.full.cast
 import com.github.kittinunf.result.coroutines.mapError
 
 import com.andreapivetta.kolor.red
+
+import com.fasterxml.jackson.databind.ObjectMapper
 
 class MissingArgumentsException(vararg val parameters: KParameter)
     : IllegalArgumentException("missing value(s) for parameter(s) ${parameters.joinToString(prefix = "[", postfix = "]") { it.name.toString() }}")
@@ -44,6 +44,7 @@ private val noExternalFetcherMessage =
 @Suppress("UNCHECKED_CAST")
 suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
     data:               MappedData,
+    objectMapper:       ObjectMapper,
     externalFetcher:    suspend (KClass<Entity>, UUID) -> Sr<Entity> = { _, _ -> error(noExternalFetcherMessage) },
     externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
 ): Sr<TMapped> {
@@ -70,8 +71,6 @@ suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
                         return@map parameter to null
                     else error("fatal: null value provided for non-nullable type of parameter ${parameter.name}")
                 }
-
-                val objectMapper = appContext.objectMapper
 
                 when {
                     handle in externallyProvided -> { // Do not deserialize, it's provided !

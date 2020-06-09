@@ -1,5 +1,9 @@
 package blogify.backend.database.optimizer
 
+import blogify.common.util.*
+import blogify.reflect.MappedData
+import blogify.reflect.entity.Entity
+import blogify.reflect.extensions.klass
 import blogify.reflect.extensions.okHandle
 import blogify.reflect.extensions.safeKlass
 import blogify.backend.annotations.table
@@ -7,14 +11,11 @@ import blogify.backend.database.binding.SqlBinding
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.QueryContext
 import blogify.backend.util.*
-import blogify.reflect.MappedData
-import blogify.reflect.entity.Entity
-import blogify.reflect.extensions.klass
 
 import org.jetbrains.exposed.sql.*
 
-import com.github.kittinunf.result.coroutines.mapError
 import com.github.kittinunf.result.coroutines.SuspendableResult
+import com.github.kittinunf.result.coroutines.mapError
 
 import kotlin.reflect.KClass
 

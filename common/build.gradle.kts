@@ -3,6 +3,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val kolor_version: String by project
+val result_version: String by project
 
 plugins {
     kotlin("jvm")
@@ -25,21 +26,14 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5")
 
-    // Submodules
-
-    implementation(project(":common"))
-    implementation(project(":reflect"))
-
-    // Jackson
-
-    implementation("com.fasterxml.jackson.core", "jackson-core", "2.10.2")
-    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.10.2")
-    implementation("com.fasterxml.jackson.core", "jackson-annotations", "2.10.2")
-    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.10.2")
-
     // Kolor
 
-    implementation("com.andreapivetta.kolor", "kolor", kolor_version)
+    api("com.andreapivetta.kolor", "kolor", kolor_version)
+
+    // Result
+
+    api("com.github.kittinunf.result", "result", result_version)
+    api("com.github.kittinunf.result", "result-coroutines", result_version)
 
     // Logback
 

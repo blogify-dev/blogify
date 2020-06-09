@@ -2,9 +2,16 @@ package blogify.backend.resources.reflect
 
 import blogify.reflect.annotations.Hidden
 
+import blogify.common.util.Wrap
+import blogify.common.util.getOr
+import blogify.common.util.never
+import blogify.common.util.assertGet
+import blogify.reflect.entity.construct
 import blogify.backend.events.models.EventTarget
 import blogify.backend.entity.Resource
 import blogify.backend.util.*
+
+import com.fasterxml.jackson.databind.ObjectMapper
 
 import kotlinx.coroutines.runBlocking
 
@@ -34,7 +41,7 @@ class InstantiatorTests {
     @Test fun `instantiate should create object correctly`() {
         runBlocking {
             val propHandleDto = testData.mappedByHandles(TestClass::class, unsafe = true).getOr { never }
-            val newInstance = TestClass::class.construct(propHandleDto)
+            val newInstance = TestClass::class.construct(propHandleDto, ObjectMapper())
 
             assertEquals(testObject, newInstance.get())
         }
@@ -53,7 +60,7 @@ class InstantiatorTests {
     @Test fun `instantiate should create object correctly while omitting values for default properties`() {
         runBlocking {
             val propHandleDto = testDataNoAge.mappedByHandles(TestClass::class, unsafe = true).getOr { never }
-            val newInstance = TestClass::class.construct(propHandleDto)
+            val newInstance = TestClass::class.construct(propHandleDto, ObjectMapper())
 
             assertEquals(testObjectDefaultAge, newInstance.get())
         }
@@ -80,7 +87,7 @@ class InstantiatorTests {
     @Test fun `instantiate should create object correctly with external fetching`() {
         runBlocking {
             val propHandleDto = otherTestData.mappedByHandles(OtherTestClass::class, unsafe = true).assertGet()
-            val newInstance = OtherTestClass::class.construct(propHandleDto, { _, _ -> Wrap { testObjectForOther } })
+            val newInstance = OtherTestClass::class.construct(propHandleDto, ObjectMapper(), { _, _ -> Wrap { testObjectForOther } })
 
             assertEquals(otherTestObject, newInstance.get())
         }

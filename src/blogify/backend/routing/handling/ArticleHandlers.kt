@@ -1,5 +1,8 @@
 package blogify.backend.routing.handling
 
+import blogify.common.util.assertGet
+import blogify.reflect.sanitize
+import blogify.reflect.slice
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.auth.handling.authenticated
 import blogify.backend.database.handling.query
@@ -11,10 +14,7 @@ import blogify.backend.pipelines.pipelineError
 import blogify.backend.pipelines.queryUuid
 import blogify.backend.pipelines.wrapping.RequestContextFunction
 import blogify.backend.resources.Article
-import blogify.backend.util.assertGet
 import blogify.backend.util.reason
-import blogify.reflect.sanitize
-import blogify.reflect.slice
 
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere

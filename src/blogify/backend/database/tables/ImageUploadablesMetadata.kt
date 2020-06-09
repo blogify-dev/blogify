@@ -3,8 +3,8 @@ package blogify.backend.database.tables
 import blogify.backend.database.handling.query
 import blogify.backend.database.models.QueryContext
 import blogify.backend.resources.static.image.ImageMetadata
-import blogify.backend.util.Sr
-import blogify.backend.util.Wrap
+import blogify.common.util.Sr
+import blogify.common.util.Wrap
 
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow

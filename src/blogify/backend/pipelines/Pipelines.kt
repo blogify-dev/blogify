@@ -1,5 +1,6 @@
 package blogify.backend.pipelines
 
+import blogify.common.util.toUUIDOrNull
 import blogify.backend.annotations.PipelinesDsl
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.pipelines.wrapping.RequestContext
@@ -7,7 +8,6 @@ import blogify.backend.pipelines.wrapping.RequestContextFunction
 import blogify.backend.entity.Resource
 import blogify.backend.util.getOr404OrPipelineError
 import blogify.backend.util.reason
-import blogify.backend.util.toUUIDOrNull
 
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
@@ -108,7 +108,7 @@ inline val RequestContext.queryUuid get() = object : ReadOnlyProperty<Nothing?, 
  */
 @PipelinesDsl
 suspend inline fun <reified R : Resource> RequestContext.obtainResource(id: UUID): R {
-    return (repository<R>()::get)(this, id)
+    return repository<R>().obtain(id)
         .getOr404OrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 
@@ -117,7 +117,7 @@ suspend inline fun <reified R : Resource> RequestContext.obtainResource(id: UUID
  */
 @PipelinesDsl
 suspend inline fun <reified R : Resource> RequestContext.obtainResources(limit: Int = 25): List<R> {
-    return (repository<R>()::getAll)(this, limit)
+    return repository<R>().obtainAll(limit)
         .getOr404OrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
 }
 

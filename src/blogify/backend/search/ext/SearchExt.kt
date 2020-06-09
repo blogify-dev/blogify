@@ -1,13 +1,13 @@
 package blogify.backend.search.ext
 
+import blogify.common.util.toUUID
+import blogify.common.util.Sr
+import blogify.reflect.sanitize
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.entity.Resource
-import blogify.reflect.sanitize
 import blogify.backend.search.models.Search
 import blogify.backend.search.models.SearchView
 import blogify.backend.database.persistence.models.Repository
-import blogify.backend.util.Sr
-import blogify.backend.util.toUUID
 
 import java.lang.Exception
 import java.lang.IllegalStateException

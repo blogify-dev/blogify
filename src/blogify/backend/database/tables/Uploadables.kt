@@ -1,9 +1,9 @@
 package blogify.backend.database.tables
 
+import blogify.common.util.Wrap
 import blogify.backend.database.models.QueryContext
 import blogify.backend.resources.static.image.ImageMetadata
 import blogify.backend.resources.static.models.StaticFile
-import blogify.backend.util.Wrap
 import blogify.backend.util.matches
 
 import org.jetbrains.exposed.sql.ResultRow
@@ -33,8 +33,7 @@ object Uploadables : Table() {
                     metadata = ImageUploadablesMetadata.obtain(
                         queryContext,
                         source[fileId]
-                    )
-                        .getOrElse(ImageMetadata(0, 0))
+                    ).getOrElse { ImageMetadata(0, 0) }
                 )
             } else { // If not, just return a normal handle
                 StaticFile.Ok(

@@ -1,6 +1,6 @@
 package blogify.backend.config
 
-import blogify.backend.util.env
+import blogify.common.util.env
 
 import com.typesafe.config.ConfigFactory
 

@@ -2,7 +2,8 @@ package blogify.backend.database.persistence.models
 
 import blogify.backend.database.models.QueryContext
 import blogify.backend.entity.Resource
-import blogify.backend.util.*
+import blogify.common.util.Sr
+import blogify.common.util.SrList
 import blogify.reflect.MappedData
 import blogify.reflect.entity.Entity
 import blogify.reflect.models.PropMap
@@ -103,7 +104,7 @@ interface Repository<R : Entity> {
      *
      * @author Benjozork, hamza1311
      */
-    suspend fun updateWithProperties(request: QueryContext, resource: R, data: Map<KProperty1<R, Any>, Any>): Sr<R>
+    suspend fun updateWithProperties(request: QueryContext, resource: R, data: Map<out KProperty1<R, Any>, Any>): Sr<R>
             = update(request, resource, data.mapKeys { it.key.okHandle ?: error("update with a <KProperty1, Any> map cannot resolve to non-ok handles") })
 
     /**

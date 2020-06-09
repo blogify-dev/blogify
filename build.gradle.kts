@@ -50,6 +50,7 @@ dependencies {
 
     // Submodules
 
+    implementation(project(":common"))
     implementation(project(":reflect"))
     implementation(project(":reflect-entity"))
 
@@ -91,11 +92,6 @@ dependencies {
     // Kolor
 
     implementation("com.andreapivetta.kolor", "kolor", kolor_version)
-
-    // Result
-
-    implementation("com.github.kittinunf.result:result:2.2.0")
-    implementation("com.github.kittinunf.result:result-coroutines:2.2.0")
 
     // JJWT
 

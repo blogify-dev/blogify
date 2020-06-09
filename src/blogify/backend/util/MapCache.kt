@@ -1,5 +1,10 @@
 package blogify.backend.util
 
+import blogify.common.util.Sr
+import blogify.common.util.Wrap
+import blogify.common.util.WrapBlocking
+import blogify.common.util.concurrentMapOf
+
 /**
  * A simple [java.util.concurrent.ConcurrentHashMap]-based cache
  *
@@ -26,7 +31,7 @@ open class MapCache<K : Any, V : Any> {
      */
     @Suppress("UNCHECKED_CAST")
     open fun <D : V> findOr(key: K, createNewValue: () -> D): Sr<D>
-            =  WrapBlocking { this.map.getOrPut(key, { createNewValue() }) as D }
+            = WrapBlocking { this.map.getOrPut(key, { createNewValue() }) as D }
 
     /**
      * Returns the value cached with key [key], or the result of [createNewValue] if not found.

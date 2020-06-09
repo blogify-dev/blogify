@@ -4,15 +4,16 @@ import blogify.backend.database.models.QueryContext
 import blogify.backend.entity.Resource
 import blogify.backend.database.persistence.models.Repository
 import blogify.backend.util.MapCache
-import blogify.backend.util.Sr
-import blogify.backend.util.Wrap
-import blogify.backend.util.WrapBlocking
+import blogify.common.util.Sr
+import blogify.common.util.Wrap
+import blogify.common.util.WrapBlocking
 import blogify.reflect.entity.Entity
 
 import io.ktor.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 
 import com.andreapivetta.kolor.green
+import com.fasterxml.jackson.databind.ObjectMapper
 
 import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
@@ -41,6 +42,8 @@ class RequestContext (
     val call: ApplicationCall,
     enableCaching: Boolean = true
 ) : CoroutineScope by coroutineScope, QueryContext {
+
+    override val objectMapper get() = appContext.objectMapper
 
     override val entityCache: RequestCache<UUID, Entity> = RequestCache(enableCaching)
 

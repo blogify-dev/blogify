@@ -1,13 +1,11 @@
 package blogify.backend.database.handling
 
-import blogify.backend.database.DatabaseConnection
+import blogify.common.util.getOr
 import blogify.backend.database.annotations.DatabaseDsl
-import blogify.backend.util.getOr
 
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
-import com.github.kittinunf.result.coroutines.mapError
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

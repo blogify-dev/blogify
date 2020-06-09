@@ -18,12 +18,11 @@ import io.ktor.response.respond
 val toggleUserAdmin: RequestContextFunction<Unit> = {
     val id by queryUuid
 
-    val user = repository<User>().get(this, id)
+    val user = repository<User>().obtain(id)
         .getOr404OrPipelineError()
 
     authenticated({ it.isAdmin && it != user }) {
         repository<User>().updateWithProperties (
-            this,
             resource = user,
             data = mapOf (
                 User::isAdmin to !user.isAdmin

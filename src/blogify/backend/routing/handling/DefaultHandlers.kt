@@ -27,6 +27,15 @@
 
 package blogify.backend.routing.handling
 
+import blogify.common.util.*
+import blogify.common.util.filterThenMapValues
+import blogify.reflect.*
+import blogify.reflect.computed.models.BasicComputedProperty
+import blogify.reflect.computed.resolveComputedProps
+import blogify.reflect.extensions.klass
+import blogify.reflect.models.Mapped
+import blogify.reflect.models.PropMap
+import blogify.reflect.models.extensions.ok
 import blogify.backend.database.tables.Uploadables
 import blogify.backend.database.handling.query
 import blogify.backend.resources.user.User
@@ -48,14 +57,6 @@ import blogify.backend.resources.reflect.*
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.util.*
-import blogify.backend.util.filterThenMapValues
-import blogify.reflect.*
-import blogify.reflect.computed.models.BasicComputedProperty
-import blogify.reflect.computed.resolveComputedProps
-import blogify.reflect.extensions.klass
-import blogify.reflect.models.Mapped
-import blogify.reflect.models.PropMap
-import blogify.reflect.models.extensions.ok
 
 import io.ktor.application.ApplicationCall
 import io.ktor.http.HttpStatusCode
@@ -157,7 +158,7 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing (
     val page = param("page").toIntOrNull() ?: 0
     val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
-    val results = repo.queryListing(this, selectCondition, quantity, page, orderBy, sortOrder)
+    val results = repo.obtainListing(selectCondition, quantity, page, orderBy, sortOrder)
         .getOr404OrPipelineError(HttpStatusCode.InternalServerError, "couldn't query listing")
 
     optionallyAuthenticated { user ->
@@ -458,12 +459,8 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
         val received = call.receive<Dto>() // Receive a resource from the request body
             .mappedByHandles(R::class, false)
             .getOrPipelineError(HttpStatusCode.BadRequest, "bad DTO format")
-            .let { data ->
-                R::class.construct (
-                    data,
-                    externalFetcher = { klass, id -> this.repository(klass).get(this, id) }
-                )
-            }.getOrPipelineError(HttpStatusCode.BadRequest, "could not instantiate resource")
+            .let { data -> R::class.construct(data) }
+            .getOrPipelineError(HttpStatusCode.BadRequest, "could not instantiate resource")
 
         val firstInvalidValue = received.verify().entries.firstOrNull { !it.value }
         if (firstInvalidValue != null) { // Check for any invalid data

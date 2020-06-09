@@ -6,7 +6,7 @@ import blogify.backend.database.persistence.models.DataStore
 import blogify.backend.entity.Resource
 import blogify.backend.database.persistence.models.Repository
 import blogify.backend.push.PushServer
-import blogify.backend.resources.reflect.construct
+import blogify.reflect.entity.construct
 import blogify.backend.resources.reflect.extensions.sanitizeToString
 import blogify.backend.resources.user.UserSettings
 import blogify.backend.util.MapCache
@@ -46,12 +46,15 @@ class ApplicationContext (
             val params = source.parseJsonHandleMap(UserSettings::class).get()
 
             val queryContext = object : QueryContext {
+                override val objectMapper get() = appContext.objectMapper
+
                 override val repositoryCache = MapCache<KClass<out Entity>, Repository<out Entity>>()
 
                 override val entityCache = MapCache<UUID, Entity>()
             }
 
             T::class.construct (
+                objectMapper = objectMapper,
                 data = params,
                 externalFetcher = { klass, id -> appContext.repository(klass).get(queryContext, id) }
             ).get()

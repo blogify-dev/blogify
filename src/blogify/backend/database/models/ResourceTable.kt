@@ -1,21 +1,17 @@
 package blogify.backend.database.models
 
+import blogify.common.util.*
+import blogify.reflect.entity.Entity
+import blogify.reflect.entity.MissingArgumentsException
+import blogify.reflect.SlicedProperty
+import blogify.reflect.extensions.handle
+import blogify.reflect.extensions.okHandle
+import blogify.reflect.getPropValueOnInstance
 import blogify.backend.database.binding.SqlBinding
 import blogify.backend.database.extensions.klass
 import blogify.backend.database.handling.query
 import blogify.backend.database.handling.unwrappedQuery
 import blogify.backend.database.optimizer.QueryOptimizer
-import blogify.reflect.entity.Entity
-import blogify.backend.resources.reflect.MissingArgumentsException
-import blogify.backend.resources.reflect.construct
-import blogify.backend.util.*
-import blogify.reflect.MappedData
-import blogify.reflect.SlicedProperty
-import blogify.reflect.extensions.handle
-import blogify.reflect.extensions.okHandle
-import blogify.reflect.getPropValueOnInstance
-import blogify.reflect.models.Mapped
-import blogify.reflect.models.PropMap
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
@@ -26,7 +22,6 @@ import com.github.kittinunf.result.coroutines.map
 import com.github.kittinunf.result.coroutines.mapError
 
 import java.util.*
-import kotlin.reflect.KClass
 
 import kotlin.reflect.KProperty1
 
@@ -109,10 +104,11 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
      * Returns an arbitrary list of [limit] items from the table
      */
     @Deprecated(message = "please use obtainListing() instead")
-    suspend fun obtainAll(queryContext: QueryContext, limit: Int): SrList<TResource> = Wrap {
-        query { this.selectAll().limit(limit).toSet() }.get()
-            .map { this.convert(queryContext, it).get() }
-    }
+    suspend fun obtainAll(queryContext: QueryContext, limit: Int): SrList<TResource> =
+        Wrap {
+            query { this.selectAll().limit(limit).toSet() }.get()
+                .map { this.convert(queryContext, it).get() }
+        }
 
     /**
      * Queries the table using a listing specification
@@ -148,10 +144,11 @@ abstract class ResourceTable<TResource : Entity> : PgTable() {
      * @param queryContext [QueryContext] for caching
      * @param id             the [UUID] of the entity
      */
-    suspend fun obtain(queryContext: QueryContext, id: UUID): Sr<TResource> = Wrap {
-        query { this.select { uuid eq id }.single() }.get()
-            .let { this.convert(queryContext, it).get() }
-    }
+    suspend fun obtain(queryContext: QueryContext, id: UUID): Sr<TResource> =
+        Wrap {
+            query { this.select { uuid eq id }.single() }.get()
+                .let { this.convert(queryContext, it).get() }
+        }
 
     /**
      * Performs the conversion between a single [ResultRow] and an instance of [TResource]. Should not be used directly.

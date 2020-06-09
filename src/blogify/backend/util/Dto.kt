@@ -1,6 +1,6 @@
 package blogify.backend.util
 
-import blogify.backend.appContext
+import blogify.common.util.letCatchingOrNull
 import blogify.reflect.Dto
 import blogify.reflect.MappedData
 import blogify.reflect.propMap
@@ -8,6 +8,9 @@ import blogify.reflect.unsafePropMap
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.ok
+import blogify.backend.appContext
+import blogify.common.util.Sr
+import blogify.common.util.WrapBlocking
 
 import com.fasterxml.jackson.module.kotlin.readValue
 
@@ -29,11 +32,13 @@ fun String.toDto(): Dto? =
  * @author Benjozork
  */
 fun <TMapped : Mapped> Dto.mappedByHandles(klass: KClass<TMapped>, unsafe: Boolean = false): Sr<MappedData> {
-    return WrapBlocking { this.map { (key, value) ->
-        ((if (!unsafe) klass.propMap else klass.unsafePropMap)
-            .ok.values
-            .firstOrNull { it.name == key } ?: error("unknown key '$key'")) to value
-    }.toMap() }
+    return WrapBlocking {
+        this.map { (key, value) ->
+            ((if (!unsafe) klass.propMap else klass.unsafePropMap)
+                .ok.values
+                .firstOrNull { it.name == key } ?: error("unknown key '$key'")) to value
+        }.toMap()
+    }
 }
 
 /**

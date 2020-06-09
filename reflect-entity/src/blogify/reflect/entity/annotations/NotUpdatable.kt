@@ -1,7 +1,7 @@
 package blogify.reflect.entity.annotations
 
 /**
- * Marks a property of a [blogify.reflect.models.Mapped] as not updatable
+ * Marks a property of a [blogify.reflect.entity.Entity] as not updatable
  *
  * @author Benjozork
  */
