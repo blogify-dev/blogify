@@ -6,7 +6,7 @@ All-in-one blogging engine powered by Ktor and Angular.
 
 Blogify uses `Ktor` on the backend and `Angular` on the frontend.
 
-It uses `PostgreSQL` as a database, and `typesense` for search.
+It uses `PostgreSQL` as a database, and [`Typesense`](https://github.com/typesense/typesense) for search.
 
 ## Performance
 
