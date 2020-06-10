@@ -1,8 +1,8 @@
 package blogify.reflect.entity.database.binding
 
+import blogify.reflect.entity.Entity
 import blogify.reflect.entity.database.extensions.foreignKeyTo
 import blogify.reflect.entity.database.EntityTable
-import blogify.reflect.entity.Entity
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder

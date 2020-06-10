@@ -62,7 +62,6 @@ interface QueryContext {
     ): Sr<Pair<List<TEntity>, Boolean>> =
         this.queryListing(this@QueryContext, selectCondition, quantity, page, orderBy, sortOrder)
 
-
     /** See [blogify.reflect.entity.database.persistence.models.Repository.update] */
     suspend fun <TEntity : Entity> Repository<TEntity>.update(res: TEntity, rawData: MappedData): Sr<TEntity> =
         this.update(this@QueryContext, res, rawData)
