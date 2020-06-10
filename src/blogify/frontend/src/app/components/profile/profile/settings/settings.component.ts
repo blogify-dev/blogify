@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '@blogify/shared/services/auth/auth.service';
-import {faUpload} from "@fortawesome/free-solid-svg-icons";
+import { faUpload } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'app-settings',
