@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '@blogify/shared/services/auth/auth.service';
+import {faUpload} from "@fortawesome/free-solid-svg-icons";
 
 @Component({
     selector: 'app-settings',
@@ -8,11 +9,15 @@ import { AuthService } from '@blogify/shared/services/auth/auth.service';
 })
 export class SettingsComponent implements OnInit {
 
+    faUpload = faUpload;
+
     pfpFile: File = null;
     coverFile: File = null;
 
+    notificationsAreEnabled = !(Notification.permission === 'default' || Notification.permission === 'denied');
+
     constructor (
-        private authService: AuthService,
+        public authService: AuthService,
     ) {}
 
     ngOnInit() {}
@@ -36,6 +41,7 @@ export class SettingsComponent implements OnInit {
     async requestNotificationsPermission() {
         if (Notification.permission !== 'granted') {
             await Notification.requestPermission();
+            this.notificationsAreEnabled = !(Notification.permission === 'default' || Notification.permission === 'denied');
         }
     }
 }

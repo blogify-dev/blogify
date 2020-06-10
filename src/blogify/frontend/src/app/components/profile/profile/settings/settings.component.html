@@ -1,9 +1,75 @@
-<h2>Settings</h2>
+<h1>Settings</h1>
 
-<input type="file" (change)="pfpFileChange($event)">
-<button (click)="setProfilePicture()">Set Profile Picture</button>
+<div id="__settings_cards_container">
 
-<input type="file" (change)="coverFileChange($event)">
-<button (click)="setCoverPicture()">Set Cover Picture</button>
+    <div class="setting_card">
+        <div class="card-header">
+            <h2>Profile picture</h2>
+        </div>
 
-<button (click)="requestNotificationsPermission()">Enable Notification</button>
+        <div class="card-body">
+            Make yourself recognizable with a profile picture that stands out
+
+            <label class="file-upload-label" for="profile-picture-upload">
+                <div class="file-upload-wrapper clickable highlight-border">
+                    <fa-icon [icon]="faUpload" size="2x" [transform]="{ size: 14 }"></fa-icon>
+
+                    <h4>Click to upload</h4>
+                </div>
+            </label>
+
+            <input id="profile-picture-upload" type="file" (change)="pfpFileChange($event)" />
+        </div>
+
+        <div class="card-footer">
+            <button class="hollow rounded" (click)="setProfilePicture()">Change</button>
+        </div>
+    </div>
+
+    <div class="setting_card">
+        <div class="card-header">
+            <h2>Cover picture</h2>
+        </div>
+
+        <div class="card-body">
+            Give your profile some flair with a nice cover picture
+
+            <label class="file-upload-label" for="cover-picture-upload">
+                <div class="file-upload-wrapper clickable highlight-border">
+                    <fa-icon [icon]="faUpload" size="2x" [transform]="{ size: 14 }"></fa-icon>
+
+                    <h4>Click to upload</h4>
+                </div>
+            </label>
+
+            <input id="cover-picture-upload" type="file" (change)="coverFileChange($event)" />
+        </div>
+
+        <div class="card-footer">
+            <button class="hollow rounded" (click)="setCoverPicture()">Change</button>
+        </div>
+    </div>
+
+    <div class="setting_card">
+        <div class="card-header">
+            <h2>Browser notifications</h2>
+        </div>
+
+        <div class="card-body">
+            Get notifications right on your device
+
+            <b-notification [notification]="{ icon: this.authService.currentUser.profilePicture, header: 'Example', desc: 'Example notificaiton', routerLink: '' }"></b-notification>
+        </div>
+
+        <div class="card-footer">
+            <button
+                    class="hollow rounded positive"
+                    [ngClass]="{ disabled: notificationsAreEnabled }"
+                    [disabled]="notificationsAreEnabled"
+                    (click)="requestNotificationsPermission()">
+                Enable
+            </button>
+        </div>
+    </div>
+
+</div>

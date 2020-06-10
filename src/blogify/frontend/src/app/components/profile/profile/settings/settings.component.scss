@@ -1,0 +1,79 @@
+@import "src/styles/queries";
+@import "src/styles/layouts";
+
+input[type=file] {
+    display: none;
+}
+
+h1 {
+    padding-bottom: .75em;
+}
+
+#__settings_cards_container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    @media (max-width: $query-desktop) {
+        grid-template-columns: 1fr;
+    }
+    row-gap: 1em;
+    column-gap: 1.15em;
+
+    .setting_card {
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+
+        font-size: 1.25em;
+
+        padding: 1.5em 2em;
+
+        background-color: var(--card-bg);
+
+        border-radius: $std-border-radius;
+
+        box-shadow: $std-box-shadow;
+
+        .card-header {
+            h1, h2, h3, h4, h5, h6 {
+                padding-bottom: 0;
+            }
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            row-gap: 1.15em;
+
+            flex-grow: 1;
+
+            .file-upload-label, b-notification {
+                margin-top: auto;
+            }
+
+            .file-upload-label {
+                font-size: .9em;
+            }
+
+            b-notification {
+                font-size: .85em;
+            }
+        }
+
+        .card-footer {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+
+            margin-top: auto;
+            padding-top: .5em;
+
+            button:last-child {
+                margin-left: auto;
+            }
+        }
+
+    }
+
+}

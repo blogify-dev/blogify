@@ -20,87 +20,24 @@ input, textarea {
     }
 }
 
-input[type="checkbox"]:not(.togglebox) {
-    appearance: none;
+.file-upload-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    row-gap: .2em;
 
-    flex-grow: 0 !important;
+    padding: .6em 0;
 
-    padding: .1em;
-    &.label-left  { margin-left:  .7em; }
-    &.label-right { margin-right: .7em; }
+    background-color: var(--card-ct);
+    color: var(--card-fg);
 
-    width:  1.75em;
-    height: 1.75em;
-
-    display:         flex;
-    justify-content: center;
-    align-items:     center;
-
-    border-width: 0;
-
-    &:after { content: '\2714'; font-size: 1.35em; }
-
-    color: var(--card-bg);
-    &:checked {
-        color: var(--accent-neutral);
-    }
-}
-
-//noinspection CssReplaceWithShorthandSafely
-.togglebox {
-
-    & input[type="checkbox"] {
-        display: none;
-        pointer-events: all;
-        width: 0;
-        height: 0;
-
-        &:checked + label .toggle-circle {
-            left: 29px;
-            background-color: var(--accent-neutral);
-        }
-    }
-
-    display: inline-block;
     cursor: pointer;
-    width: 4em;
-    height: 1.5em;
 
-    background-color: var(--body-bg);
+    border: 1px solid transparent;
+    border-radius: $std-border-radius;
 
-    border-top-right-radius:    15% 50%;
-    border-top-left-radius:     15% 50%;
-    border-bottom-right-radius: 15% 50%;
-    border-bottom-left-radius:  15% 50%;
-
-    & label {
-        display: inline-block;
-
-        cursor: pointer;
-
-        width: 100%;
-        height: 100%;
-
-        & .toggle-circle {
-            transition: all 100ms linear;
-
-            position: relative;
-            display: inline-block;
-
-            left: 3px;
-
-            width:   1.3em;
-            height:  1.3em;
-            margin:  0;
-            padding: 0;
-
-            top: calc(50% - .63em);
-            border-radius: 50%;
-            background-color: rgb(180, 180, 180);
-
-        }
-    }
-
+    box-shadow: $std-box-shadow;
 }
 
 button {
