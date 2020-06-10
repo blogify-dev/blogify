@@ -48,16 +48,16 @@ export class ShowArticleComponent implements OnInit {
 
             this.articleService.getArticle(articleUUID).then(resp => {
                 this.article = resp;
+
+                this.authService.observeIsLoggedIn().subscribe(async state => {
+                    if (state) {
+                        this.isLoggedInUsersArticle = idOf(this.article.createdBy) === this.authService.currentUser.uuid;
+                        this.isAdmin = this.authService.currentUser.isAdmin;
+                    }
+                });
             }).catch(async err => {
                 if (err.status === 404) {
                     await this.router.navigateByUrl('/404');
-                }
-            });
-
-            this.authService.observeIsLoggedIn().subscribe(async state => {
-                if (state) {
-                    this.isLoggedInUsersArticle = idOf(this.article.createdBy) === this.authService.currentUser.uuid;
-                    this.isAdmin = this.authService.currentUser.isAdmin;
                 }
             });
         });
