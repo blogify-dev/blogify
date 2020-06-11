@@ -16,6 +16,7 @@ import { AdminRoutingModule } from '@blogify/core/components/admin/admin/admin-r
 import { ShowAllUsersComponent } from '@blogify/shared/components/show-all-users/show-all-users.component';
 import { SingleUserBoxComponent } from '@blogify/shared/components/show-all-users/single-user-box/single-user-box.component';
 import { NotificationComponent } from '@blogify/shared/components/notification/notification.component';
+import { ContentHostDirective } from './directives/content-host/content-host.directive';
 
 @NgModule({
     declarations: [
@@ -31,6 +32,7 @@ import { NotificationComponent } from '@blogify/shared/components/notification/n
         ShowAllUsersComponent,
         SingleUserBoxComponent,
         NotificationComponent,
+        ContentHostDirective,
     ],
     imports: [
         CommonModule,

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ComponentFactoryResolver, Input, OnInit, Type, ViewChild } from '@angular/core';
 import { Article } from '@blogify/models/Article';
 import { ListingQuery } from '@blogify/models/ListingQuery';
 import { ArticleService } from '@blogify/core/services/article/article.service';
@@ -8,6 +8,12 @@ import { StaticContentService } from '@blogify/core/services/static/static-conte
 import { faArrowDown, faArrowLeft, faPencilAlt, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { User } from '@blogify/models/User';
 import { Shadow } from '@blogify/models/Shadow';
+import { ContentHostDirective } from '@blogify/shared/directives/content-host/content-host.directive';
+import { SingleArticleBoxComponent } from '@blogify/shared/components/content-feed/single-article-box/single-article-box.component';
+import { Entity } from '@blogify/models/entities/Entity';
+import { SingleCommentComponent } from '@blogify/core/components/comment/single-comment/single-comment.component';
+import { SingleUserBoxComponent } from '@blogify/shared/components/show-all-users/single-user-box/single-user-box.component';
+import { EntityRenderComponent } from '@blogify/models/entities/EntityRenderComponent';
 
 @Component({
     selector: 'b-content-feed',
@@ -20,7 +26,7 @@ export class ContentFeedComponent implements OnInit {
      * Stores the properties of {@link Article} that are needed for display in this component
      */
     private readonly REQUIRED_FIELDS: (keyof Article)[] =
-        ['title', 'summary', 'createdAt', 'createdBy', 'categories', 'likeCount', 'commentCount'];
+        ['title', 'summary', 'createdAt', 'createdBy', 'categories', 'likeCount', 'commentCount', '__type'];
 
     faSearch = faSearch;
     faPencil = faPencilAlt;
@@ -44,12 +50,29 @@ export class ContentFeedComponent implements OnInit {
     searchResults: Article[];
     showingMobileSearchBar: boolean;
 
+    @ViewChild(ContentHostDirective, { static: false }) contentHost: ContentHostDirective;
+
+    // This decides, based on the __type property of the entity, which component to use for rendering it
+    private componentRenderers = {
+        article: SingleArticleBoxComponent,
+        comment: SingleCommentComponent,
+        user: SingleUserBoxComponent
+    }
+    findRenderer = (a: Entity) => {
+        if (!a['__type']) {
+            console.error('[blogifyContentFeed] entity had no __type property');
+            return undefined;
+        }
+        return this.componentFactoryResolver.resolveComponentFactory(this.componentRenderers[a['__type']]);
+    };
+
     constructor (
         private authService: AuthService,
         private articleService: ArticleService,
         private staticContentService: StaticContentService,
         private activatedRoute: ActivatedRoute,
         private router: Router,
+        private componentFactoryResolver: ComponentFactoryResolver
     ) {}
 
     ngOnInit() {
@@ -63,16 +86,22 @@ export class ContentFeedComponent implements OnInit {
                     // noinspection JSIgnoredPromiseFromCall
                     this.startSearch();
                 }
-            } else { // We are in a regular listingl
+            } else { // We are in a regular listing
                 // noinspection JSIgnoredPromiseFromCall
                 this.stopSearch();
 
                 if (this.listingQuery.byUser)
                     this.articleService.queryArticleListingForUser(this.listingQuery)
-                        .then(result => ({ data: this.articles, moreAvailable: this.moreAvailable } = result));
+                        .then(result => {
+                            this.displayContent(result.data);
+                            this.moreAvailable = result.moreAvailable;
+                        });
                 else
                     this.articleService.queryArticleListing(this.listingQuery)
-                        .then(result => ({ data: this.articles, moreAvailable: this.moreAvailable } = result));
+                        .then(result => {
+                            this.displayContent(result.data);
+                            this.moreAvailable = result.moreAvailable;
+                        });
             }
         });
     }
@@ -83,15 +112,26 @@ export class ContentFeedComponent implements OnInit {
         if (this.listingQuery.byUser)
             this.articleService.queryArticleListingForUser(this.listingQuery)
                 .then(result => {
-                    this.articles.push(...result.data);
+                    this.displayContent(result.data);
                     this.moreAvailable = result.moreAvailable;
                 });
         else
             this.articleService.queryArticleListing(this.listingQuery)
                 .then(result => {
-                    this.articles.push(...result.data);
+                    this.displayContent(result.data);
                     this.moreAvailable = result.moreAvailable;
                 });
+    }
+
+    private displayContent<TEntity extends Entity>(content: TEntity[]) {
+        content.forEach(entity => {
+            const factory = this.findRenderer(entity);
+            if (factory) {
+                const entityComponentInstance = this.contentHost.viewContainerRef.createComponent(factory).instance as EntityRenderComponent<TEntity>;
+
+                entityComponentInstance.entity = entity;
+            }
+        });
     }
 
     async navigateToSearch() {

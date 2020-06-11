@@ -36,7 +36,7 @@
     </div>
 
     <div id="users-main" *ngIf="!showingSearchResults && users.length > 0">
-        <app-single-user-box *ngFor="let user of users" [user]="user"></app-single-user-box>
+        <app-single-user-box *ngFor="let user of users" [entity]="user"></app-single-user-box>
     </div>
 
     <div id="no-content" *ngIf="users.length == 0 && !showingSearchResults">
@@ -51,7 +51,7 @@
             <fa-icon [icon]="faTimes" size="5x"></fa-icon>
             <span id="empty-text">{{noResultsMessage}}</span>
         </div>
-        <app-single-user-box *ngFor="let user of searchResults" [user]="user"></app-single-user-box>
+        <app-single-user-box *ngFor="let user of searchResults" [entity]="user"></app-single-user-box>
     </div>
 
 </section>

@@ -5,15 +5,14 @@ import { faHeart as faHeartFilled, faThumbtack } from '@fortawesome/free-solid-s
 import { ClipboardService } from 'ngx-clipboard';
 import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { ArticleService } from '@blogify/core/services/article/article.service';
+import { EntityRenderComponent } from '@blogify/models/entities/EntityRenderComponent';
 
 @Component({
     selector: 'app-single-article-box',
     templateUrl: './single-article-box.component.html',
     styleUrls: ['./single-article-box.component.scss']
 })
-export class SingleArticleBoxComponent implements OnInit {
-
-    @Input() article: Article;
+export class SingleArticleBoxComponent extends EntityRenderComponent<Article> implements OnInit {
 
     faThumbtack = faThumbtack;
 
@@ -27,7 +26,7 @@ export class SingleArticleBoxComponent implements OnInit {
         private authService: AuthService,
         private articleService: ArticleService,
         private clipboardService: ClipboardService
-    ) {}
+    ) { super(); }
 
     loggedInObs = this.authService.observeIsLoggedIn();
 
@@ -35,12 +34,12 @@ export class SingleArticleBoxComponent implements OnInit {
 
     toggleLike() {
         this.articleService
-            .likeArticle(this.article)
+            .likeArticle(this.entity)
             .then(() => {
-                this.article.likedByUser = !this.article.likedByUser;
-                this.article.likeCount += (this.article.likedByUser ? 1 : -1);
+                this.entity.likedByUser = !this.entity.likedByUser;
+                this.entity.likeCount += (this.entity.likedByUser ? 1 : -1);
             }).catch(() => {
-                console.error(`[blogifyArticles] Couldn't like ${this.article.uuid}` );
+                console.error(`[blogifyArticles] Couldn't like ${this.entity.uuid}` );
             });
     }
 

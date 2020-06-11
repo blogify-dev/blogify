@@ -1,6 +1,7 @@
 package blogify.backend.resources.models
 
 import blogify.backend.entity.Resource
+import blogify.common.util.never
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider

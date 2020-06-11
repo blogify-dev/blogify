@@ -1,6 +1,8 @@
 import { StaticFile } from '@blogify/models/Static';
+import { Entity } from '@blogify/models/entities/Entity';
 
-export class User {
+export class User implements Entity {
+    
     constructor (
         public uuid: string,
         public username: string,
@@ -10,8 +12,10 @@ export class User {
         public isAdmin: boolean,
         public biography: string,
         public profilePicture: StaticFile,
-        public coverPicture: StaticFile
+        public coverPicture: StaticFile,
+        public __type: string,
     ) {}
+
 }
 
 export interface LoginCredentials {

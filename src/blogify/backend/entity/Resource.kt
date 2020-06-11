@@ -5,6 +5,7 @@ import blogify.reflect.entity.Entity
 import blogify.backend.events.models.EventEmitter
 import blogify.backend.events.models.EventSource
 import blogify.backend.pipelines.wrapping.RequestContext
+import blogify.common.util.never
 
 import java.util.*
 
@@ -12,6 +13,9 @@ abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : Entity(uu
     EventSource,
     EventEmitter,
     Identified {
+
+    @Suppress("PropertyName")
+    open val __type = this::class.simpleName?.toLowerCase() ?: never
 
     /**
      * This function is run when the resource is created. Not to confuse with the constructor;

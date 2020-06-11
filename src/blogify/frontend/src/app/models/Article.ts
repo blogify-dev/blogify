@@ -1,7 +1,12 @@
 import { User } from '@blogify/models/User';
+import { Entity } from '@blogify/models/entities/Entity';
+import { SingleArticleBoxComponent } from '@blogify/shared/components/content-feed/single-article-box/single-article-box.component';
+import { Type } from '@angular/core';
 
-export class Article {
+type SAB = SingleArticleBoxComponent;
 
+export class Article implements Entity {
+    
     constructor (
         public uuid: string,
         public title: string,
@@ -15,6 +20,7 @@ export class Article {
         public likedByUser: boolean | null = null,
         public likeCount: number = 0,
         public commentCount: number = 0,
+        public __type: string
     ) {}
 
 }

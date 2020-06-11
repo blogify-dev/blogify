@@ -8,13 +8,15 @@ import { faArrowDown, faHeart as faHeartFilled } from '@fortawesome/free-solid-s
 import { idOf } from '@blogify/models/Shadow';
 import { ListingQuery } from '@blogify/models/ListingQuery';
 import { UserService } from '@blogify/shared/services/user-service/user.service';
+import { EntityRenderComponent } from '@blogify/models/entities/EntityRenderComponent';
 
 @Component({
     selector: 'app-single-comment',
     templateUrl: './single-comment.component.html',
     styleUrls: ['./single-comment.component.scss'],
 })
-export class SingleCommentComponent implements OnInit {
+export class SingleCommentComponent extends EntityRenderComponent<Comment> implements OnInit {
+
     @Input() parent: Comment;
     @Input() comment: Comment;
 
@@ -41,7 +43,7 @@ export class SingleCommentComponent implements OnInit {
         private commentsService: CommentsService,
         private articleService: ArticleService,
         private userService: UserService
-    ) {}
+    ) { super(); }
 
     /**
      * Stores the properties of {@link Article} that are needed for display in this component

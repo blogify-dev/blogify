@@ -12,6 +12,7 @@ import blogify.backend.events.models.Event
 import blogify.backend.events.models.EventType
 import blogify.backend.resources.models.UserCreatedResource
 import blogify.backend.resources.user.User
+import blogify.common.util.never
 import blogify.reflect.annotations.search.*
 import blogify.reflect.computed.models.Computed
 

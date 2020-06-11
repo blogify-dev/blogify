@@ -1,4 +1,4 @@
-<section class="articles" *ngIf="articles">
+<section class="articles">
 
     <div id="articles-header">
         <!-- Back arrow, if necessary -->
@@ -42,7 +42,7 @@
     <!--<app-filtering-menu></app-filtering-menu>-->
 
     <div id="articles-main" *ngIf="!showingSearchResults">
-        <app-single-article-box *ngFor="let article of articles" [article]="article"></app-single-article-box>
+        <ng-container bContentHost></ng-container>
 
         <span id="next-page" class="clickable" (click)="loadPage()" *ngIf="moreAvailable">
             <fa-icon [icon]="faArrowDown" [transform]="{ size: 18, y: 1 }"></fa-icon>
@@ -51,7 +51,7 @@
         </span>
     </div>
 
-    <div id="no-content" *ngIf="articles.length == 0 && !showingSearchResults">
+    <div id="no-content" *ngIf="(contentHost?.viewContainerRef?.length || 0) == 0 && !showingSearchResults">
         <div id="content-empty">
             <fa-icon [icon]="faTimes" size="5x"></fa-icon>
             <span id="content-empty-text">{{noContentMessage}}</span>
@@ -63,7 +63,7 @@
             <fa-icon [icon]="faTimes" size="5x"></fa-icon>
             <span id="empty-text">No search results :(</span>
         </div>
-        <app-single-article-box *ngFor="let article of searchResults" [article]="article"></app-single-article-box>
+        <app-single-article-box *ngFor="let article of searchResults" [entity]="article"></app-single-article-box>
     </div>
 
 </section>

@@ -5,7 +5,7 @@ import { ListingQuery } from '@blogify/models/ListingQuery';
 import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { User } from '@blogify/models/User';
 import { SearchView } from '@blogify/models/SearchView';
-import { idOf, Shadow } from '@blogify/models/Shadow';
+import {idOf, obj, Shadow} from '@blogify/models/Shadow';
 import { StateService } from '@blogify/shared/services/state/state.service';
 import { UserService } from '@blogify/shared/services/user-service/user.service';
 
