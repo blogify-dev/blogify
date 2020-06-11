@@ -113,21 +113,55 @@
 
         flex-direction: row;
         justify-content: flex-end;
+        @media (max-width: $query-desktop) {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        flex-wrap: wrap;
+        gap: 1.15em;
 
         #__categories_row_drafts {
-            margin-right: auto;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            column-gap: 1.5em;
 
-            font-weight: bold;
-
-            fa-icon {
-                margin-right: .35em;
+            @media (min-width: $query-desktop) {
+                margin-right: auto;
             }
         }
 
-        #submit-result-container {
-            margin-left: auto;
-            margin-right: 1em;
+        #__draft_edit_panel {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+            column-gap: 1.75em;
 
+            min-height: 4em;
+
+            padding: .7em 1.75em;
+
+            background-color: var(--card-bg);
+
+            border-radius: $std-border-radius * 2;
+
+            box-shadow: $std-box-shadow;
+
+            span.separator {
+                margin-left: 0 !important;
+                align-self: stretch;
+            }
+
+            span:not(.separator) {
+                display: flex;
+                column-gap: .85em;
+            }
+
+        }
+
+        #submit-result-container {
             &.none {
                 display: none;
             }
@@ -141,10 +175,12 @@
             }
         }
 
-        button {
-            flex-grow: 0;
-            margin-left: .5em;
+        #submit_button, #create_draft_button {
+            align-self: stretch;
+            font-size: 1.6em;
+            padding: .51em 1.85em .51em 1.85em;
         }
+
     }
 
     .data-row {

@@ -25,36 +25,59 @@
     </span>
 
     <span class="data-row" id="submit-row">
-        <span
-                class="clickable text-large"
-                id="__categories_row_drafts"
-                routerLink="./drafts"
-                *ngIf="this.draftState.available.length"
-        >
-            <fa-icon [icon]="faDraftingCompass" size="lg" [transform]="{ size: 14 }"></fa-icon>
+        <span id="__categories_row_drafts" *ngIf="this.draftState.available.length">
+            <span class="text-large clickable" routerLink="./drafts">
+                <fa-icon [icon]="faDraftingCompass" size="lg" [transform]="{ size: 14 }"></fa-icon>
 
-            Drafts ({{this.draftState.available.length}})
+                Drafts ({{this.draftState.available.length}})
+            </span>
+
+            <span class="text-large" [className]="result.status" id="submit-result-container">{{result.message}}</span>
         </span>
 
-        <span class="text-medium" [className]="result.status" id="submit-result-container">{{result.message}}</span>
+        <div id="__draft_edit_panel" *ngIf="draftState.isEditing">
+            <span class="text-large">Editing a draft</span>
 
-         <button
-                 class="positive rounded hollow"
-                 [ngClass]="{ disabled: !form.valid }"
-                 [disabled]="!form.valid"
-                 (click)="saveOrUpdateDraft()"
-         >
-             {{this.draftState.isEditing ? 'Update' : 'Create'}} Draft
-         </button>
+            <span class="separator"></span>
 
-         <button
-                 [disabled]="!form.valid"
-                 [ngClass]="{ disabled: !form.valid }"
-                 class="positive rounded"
-                 (click)="createNewArticle()"
-         >
-             Submit
-         </button>
+            <span class="text-large bold clickable" (click)="saveOrUpdateDraft()">
+                <fa-icon [icon]="faSave" size="lg" [transform]="{ size: 14 }"></fa-icon>
+
+                Save
+            </span>
+
+            <span class="separator"></span>
+
+            <span class="text-large bold clickable hover-negative" (click)="stopUsingDraft()">
+                <fa-icon [icon]="faTimes" size="lg" [transform]="{ size: 16 }"></fa-icon>
+
+                Cancel
+            </span>
+
+        </div>
+
+        <ng-container *ngIf="!draftState.isEditing">
+            <button
+                    id="create_draft_button"
+                    class="positive rounded hollow"
+                    [ngClass]="{ disabled: !form.valid }"
+                    [disabled]="!form.valid"
+                    (click)="saveOrUpdateDraft()"
+            >
+                Create Draft
+            </button>
+        </ng-container>
+
+        <button
+                id="submit_button"
+                class="rounded positive"
+                [ngClass]="{ disabled: !form.valid }"
+                [disabled]="!form.valid"
+                (click)="createNewArticle()"
+        >
+            Publish
+        </button>
+
     </span>
 
 </div>

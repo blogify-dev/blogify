@@ -5,9 +5,9 @@ import { User } from '@blogify/models/User';
 import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { faArrowLeft, faDraftingCompass } from '@fortawesome/free-solid-svg-icons';
+import {faArrowLeft, faDraftingCompass, faInfo, faTimes} from '@fortawesome/free-solid-svg-icons';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
+import {faSave, faTrashAlt} from '@fortawesome/free-regular-svg-icons';
 import { filter, map, tap } from 'rxjs/operators';
 
 type Result = 'none' | 'success' | 'error';
@@ -23,6 +23,10 @@ export class NewArticleComponent implements OnInit {
 
     faArrowLeft = faArrowLeft;
     faTrashAlt = faTrashAlt;
+
+    faInfo = faInfo;
+    faSave = faSave;
+    faTimes = faTimes;
 
     user: User;
     validations: object; // TODO Make this strongly-typed -- Ben
@@ -152,8 +156,8 @@ export class NewArticleComponent implements OnInit {
             };
 
             this.articleService.updateArticle(this.draftState.isEditing)
-                .then(() => this.result = { status: 'success', message: 'Draft updated successfully' })
-                .catch(() => this.result = { status: 'error', message: 'Error while updating draft' });
+                .then(() => this.result = { status: 'success', message: 'Draft saved successfully' })
+                .catch(() => this.result = { status: 'error', message: 'Error while saving draft' });
         } else {
             this.createNewArticle(true);
         }
@@ -181,6 +185,18 @@ export class NewArticleComponent implements OnInit {
         this.draftState.isEditing = draft;
 
         this.router.navigateByUrl('/article/new').then();
+    }
+
+    stopUsingDraft() {
+        this.formCategories.clear();
+
+        this.form.patchValue({
+            title: '',
+            content: '',
+            summary: ''
+        });
+
+        this.draftState.isEditing = null;
     }
 
 }
