@@ -19,6 +19,7 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
 
 import org.slf4j.LoggerFactory
+import kotlin.reflect.full.memberProperties
 
 private val logger = LoggerFactory.getLogger("blogify-reflect-datamap")
 
@@ -33,7 +34,7 @@ private val logger = LoggerFactory.getLogger("blogify-reflect-datamap")
  */
 @Suppress("UNCHECKED_CAST")
 private fun <M : Mapped> KClass<M>.buildPropMap(unsafe: Boolean = false): PropMap {
-    return PropMap(this.declaredMemberProperties
+    return PropMap(this.memberProperties
         .asSequence()
         .associateBy {
             it.name
