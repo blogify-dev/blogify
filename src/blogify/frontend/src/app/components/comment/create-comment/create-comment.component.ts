@@ -35,6 +35,7 @@ export class CreateCommentComponent implements OnInit {
                 content: '',
                 uuid: '',
                 createdAt: Date.now(),
+                __type: ''
             };
         });
     }
