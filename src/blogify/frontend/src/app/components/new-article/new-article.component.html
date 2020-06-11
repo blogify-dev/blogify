@@ -25,8 +25,8 @@
     </span>
 
     <span class="data-row" id="submit-row">
-        <span id="__categories_row_drafts" *ngIf="this.draftState.available.length">
-            <span class="text-large clickable" routerLink="./drafts">
+        <span id="__left_part" *ngIf="this.draftState.available.length">
+            <span class="text-large bold clickable" routerLink="./drafts">
                 <fa-icon [icon]="faDraftingCompass" size="lg" [transform]="{ size: 14 }"></fa-icon>
 
                 Drafts ({{this.draftState.available.length}})

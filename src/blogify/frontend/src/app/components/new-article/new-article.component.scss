@@ -120,15 +120,25 @@
         flex-wrap: wrap;
         gap: 1.15em;
 
-        #__categories_row_drafts {
+        font-size: .85em;
+
+        #__left_part {
             display: flex;
             flex-direction: row;
-            justify-content: space-between;
+            justify-content:     space-between;
             align-items: center;
             column-gap: 1.5em;
 
             @media (min-width: $query-desktop) {
                 margin-right: auto;
+            }
+
+            span:first-child {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                column-gap: .75em;
             }
         }
 
