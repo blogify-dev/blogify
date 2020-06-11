@@ -10,11 +10,11 @@ import { User } from '@blogify/models/User';
 import { Shadow } from '@blogify/models/Shadow';
 
 @Component({
-    selector: 'app-show-all-articles',
-    templateUrl: './show-all-articles.component.html',
-    styleUrls: ['./show-all-articles.component.scss']
+    selector: 'b-content-feed',
+    templateUrl: './content-feed.component.html',
+    styleUrls: ['./content-feed.component.scss']
 })
-export class ShowAllArticlesComponent implements OnInit {
+export class ContentFeedComponent implements OnInit {
 
     /**
      * Stores the properties of {@link Article} that are needed for display in this component
