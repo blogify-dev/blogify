@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.random.Random
 
+@NoSearch
 @SqlTable(Users::class)
 data class User (
     @QueryByField
