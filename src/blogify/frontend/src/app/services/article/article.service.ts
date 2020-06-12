@@ -8,13 +8,15 @@ import { SearchView } from '@blogify/models/SearchView';
 import {idOf, obj, Shadow} from '@blogify/models/Shadow';
 import { StateService } from '@blogify/shared/services/state/state.service';
 import { UserService } from '@blogify/shared/services/user-service/user.service';
+import { EntityMetadata } from '@blogify/models/metadata/EntityMetadata';
+import { EntityService } from '@blogify/core/services/EntityService';
 
 interface ListingResult { data: Article[]; moreAvailable: boolean; }
 
 @Injectable({
     providedIn: 'root'
 })
-export class ArticleService {
+export class ArticleService implements EntityService {
 
     constructor (
         private httpClient: HttpClient,
@@ -169,4 +171,8 @@ export class ArticleService {
         ).toPromise();
     }
 
+    getMetadata(): Promise<EntityMetadata> {
+        return this.httpClient.get<EntityMetadata>('/api/articles/_metadata').toPromise();
+    }
+    
 }
