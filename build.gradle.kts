@@ -55,6 +55,8 @@ dependencies {
     implementation(project(":reflect"))
     implementation(project(":reflect-entity"))
 
+    implementation(project(":filtering"))
+
     // Ktor
 
     implementation("io.ktor:ktor-server-netty:$ktor_version")
