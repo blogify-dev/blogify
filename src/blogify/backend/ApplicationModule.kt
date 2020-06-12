@@ -46,27 +46,13 @@ import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
 
-private val objectMapper = jacksonObjectMapper().apply {
-    val blogifyModule = SimpleModule()
-
-    blogifyModule.addSerializer(ResourceIdSerializer)
-    blogifyModule.addSerializer(Template.Field.Serializer)
-    blogifyModule.addSerializer(ContentTypeSerializer)
-    blogifyModule.addSerializer(InstantSerializer)
-
-    blogifyModule.addDeserializer(ContentType::class.java, ContentTypeDeserializer)
-
-    registerModule(blogifyModule)
-}
-
-val appContext = ApplicationContext(objectMapper)
-
-@property:Suppress("unused")
-val GenericCallPipeline.applicationContext
-    get() = appContext
+lateinit var appContext: ApplicationContext // bad idea, i know. should be temp
 
 @KtorExperimentalAPI
 fun Application.blogifyMainModule(configuration: BlogifyApplicationBootstrapper.StartConfiguration) {
+
+    appContext = configuration.applicationContext
+    val objectMapper = appContext.objectMapper
 
     // Initialize jackson
 

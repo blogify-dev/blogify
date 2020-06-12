@@ -1,7 +1,16 @@
 package blogify.backend.bootstrap
 
 import blogify.backend.blogifyMainModule
-
+import blogify.backend.pipelines.wrapping.ApplicationContext
+import blogify.backend.resources.models.ResourceIdSerializer
+import blogify.backend.search.models.Template
+import blogify.backend.util.ContentTypeDeserializer
+import blogify.backend.util.ContentTypeSerializer
+import blogify.backend.util.InstantSerializer
+import blogify.devend.blogifyDevModule
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.ktor.http.ContentType
 import io.ktor.server.engine.*
 import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
@@ -10,6 +19,19 @@ import java.io.File
 import java.security.KeyStore
 
 import org.slf4j.LoggerFactory
+
+private val objectMapper = jacksonObjectMapper().apply {
+    val blogifyModule = SimpleModule()
+
+    blogifyModule.addSerializer(ResourceIdSerializer)
+    blogifyModule.addSerializer(Template.Field.Serializer)
+    blogifyModule.addSerializer(ContentTypeSerializer)
+    blogifyModule.addSerializer(InstantSerializer)
+
+    blogifyModule.addDeserializer(ContentType::class.java, ContentTypeDeserializer)
+
+    registerModule(blogifyModule)
+}
 
 @KtorExperimentalAPI
 object BlogifyApplicationBootstrapper {
@@ -32,7 +54,8 @@ object BlogifyApplicationBootstrapper {
     class StartConfiguration (
         val host: String,
         val port: Int,
-        val tlsConfig: Tls? = null
+        val tlsConfig: Tls? = null,
+        val applicationContext: ApplicationContext = ApplicationContext(objectMapper)
     ) {
         class Tls (
             val keyStorePath: String,
@@ -104,6 +127,7 @@ object BlogifyApplicationBootstrapper {
                 // Main application module
 
                 modules += { blogifyMainModule(configuration) }
+                modules += { blogifyDevModule(configuration) }
 
                 // Default HTTP connector
 
