@@ -167,11 +167,11 @@ fun Application.blogifyMainModule(configuration: BlogifyApplicationBootstrapper.
     routing {
 
         route("/api") {
-            makeArticleRoutes(appContext)
-            makeUserRoutes(appContext)
-            makeAuthRoutes(appContext)
-            makeStaticRoutes(appContext)
-            makeAdminRoutes(appContext)
+            makeArticleRoutes()
+            makeUserRoutes()
+            makeAuthRoutes()
+            makeStaticRoutes()
+            makeAdminRoutes()
         }
 
         makePushServerRoutes()

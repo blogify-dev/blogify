@@ -2,7 +2,6 @@ package blogify.backend.routing
 
 import blogify.backend.database.tables.Comments
 import blogify.backend.pipelines.*
-import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Comment
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.routing.handling.flipCommentLike
@@ -23,24 +22,24 @@ import kotlinx.coroutines.async
 
 import org.jetbrains.exposed.sql.*
 
-fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
+fun Route.makeArticleCommentRoutes() {
 
     route("/comments") {
 
         get("/") {
-            requestContext(applicationContext) {
+            requestContext {
                 fetchAllResources<Comment>()
             }
         }
 
         get("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 fetchResource<Comment>()
             }
         }
 
         get("/article/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 val articleId by queryUuid
 
                 fetchResourceListing<Comment>(
@@ -51,7 +50,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         }
 
         delete("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 deleteResource<Comment> (
                     authPredicate = { user, comment -> comment.commenter == user || user.isAdmin }
                 )
@@ -59,7 +58,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         }
 
         patch("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 updateResource<Comment> (
                     authPredicate = { user, comment -> comment.commenter == user }
                 )
@@ -67,7 +66,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         }
 
         post("/") {
-            requestContext(applicationContext) {
+            requestContext {
                 createResource<Comment> (
                     authPredicate = { user, comment -> comment.commenter == user && !comment.article.isDraft }
                 )
@@ -91,7 +90,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         }
 
         get("/tree/comment/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 val repo = repository<Comment>()
 
                 val commentId by queryUuid
@@ -111,7 +110,7 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         }
 
         get("/tree/article/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 val repo = repository<Comment>()
 
                 val articleId by queryUuid
@@ -136,8 +135,8 @@ fun Route.makeArticleCommentRoutes(applicationContext: ApplicationContext) {
         }
 
         route("/{uuid}/like") {
-            get  { requestContext(applicationContext, getCommentLikeStatus) }
-            post { requestContext(applicationContext, flipCommentLike) }
+            get  { requestContext(getCommentLikeStatus) }
+            post { requestContext(flipCommentLike) }
         }
 
     }

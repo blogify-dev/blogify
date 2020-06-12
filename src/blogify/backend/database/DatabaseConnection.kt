@@ -1,6 +1,6 @@
 package blogify.backend.database
 
-import blogify.backend.config.Configs
+import blogify.backend.appContext
 import blogify.backend.config.DatabaseConfig
 
 import com.zaxxer.hikari.HikariConfig
@@ -12,8 +12,6 @@ import org.jetbrains.exposed.sql.Database
  * Meta object regrouping setup and utility functions for PostgreSQL.
  */
 object DatabaseConnection {
-
-    private val config = Configs.Database
 
     private fun configureHikariCP(dbConfig: DatabaseConfig): HikariDataSource {
         val config = HikariConfig()
@@ -33,6 +31,6 @@ object DatabaseConnection {
         return HikariDataSource(config)
     }
 
-    fun connect() = Database.connect(configureHikariCP(config))
+    fun connect(config: DatabaseConfig = appContext.databaseConfig) = Database.connect(configureHikariCP(config))
 
 }

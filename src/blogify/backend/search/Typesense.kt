@@ -1,10 +1,10 @@
 package blogify.backend.search
 
+import blogify.backend.appContext
 import blogify.common.util.short
 import blogify.reflect.models.PropMap
 import blogify.reflect.sanitize
 import blogify.reflect.Dto
-import blogify.backend.config.Configs
 import blogify.backend.entity.Resource
 import blogify.backend.pipelines.pipelineError
 import blogify.backend.pipelines.wrapping.RequestContext
@@ -52,7 +52,7 @@ val tscLogger: Logger = LoggerFactory.getLogger("blogify-typesense-client")
  */
 object Typesense {
 
-    private val config = Configs.Typesense
+    private val config = appContext.typesenseConfig
 
     /**
      * Typesense REST API URL

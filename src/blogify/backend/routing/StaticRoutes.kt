@@ -1,6 +1,5 @@
 package blogify.backend.routing
 
-import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.static.file.StaticFileHandler
 import blogify.backend.pipelines.param
 import blogify.backend.pipelines.requestContext
@@ -11,11 +10,11 @@ import io.ktor.response.respondBytes
 import io.ktor.routing.Route
 import io.ktor.routing.get
 
-fun Route.makeStaticRoutes(applicationContext: ApplicationContext) {
+fun Route.makeStaticRoutes() {
 
     get("/get/{uploadableId}") {
 
-        requestContext(applicationContext) {
+        requestContext {
 
             val uploadableId = param("uploadableId")
 

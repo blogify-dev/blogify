@@ -13,13 +13,13 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 
-fun Route.makeAdminRoutes(applicationContext: ApplicationContext) {
+fun Route.makeAdminRoutes() {
 
     route("/admin/search") {
 
         get("/reindex") {
 
-            requestContext(applicationContext) {
+            requestContext {
 
                 val what = call.parameters["what"] ?: error("bruh")
 

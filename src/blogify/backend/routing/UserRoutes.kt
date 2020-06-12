@@ -8,7 +8,6 @@ import blogify.backend.auth.handling.optionallyAuthenticated
 import blogify.backend.database.tables.Events
 import blogify.backend.database.tables.Users
 import blogify.reflect.entity.database.handling.query
-import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.user.User
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
@@ -25,24 +24,24 @@ import org.jetbrains.exposed.sql.*
 /**
  * Defines the API routes for interacting with [users][User].
  */
-fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
+fun Route.makeUserRoutes() {
 
     route("/users") {
 
         get("/") {
-            requestContext(applicationContext) {
+            requestContext {
                 fetchAllResources<User>()
             }
         }
 
         get("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 fetchResource<User>()
             }
         }
 
         delete("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 deleteResource<User> (
                     authPredicate = { user, manipulated -> user == manipulated }
                 )
@@ -50,7 +49,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
         }
 
         patch("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 updateResource<User> (
                     authPredicate = { user, replaced -> user == replaced }
                 )
@@ -58,7 +57,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
         }
 
         get("/byUsername/{username}") {
-            requestContext(applicationContext) {
+            requestContext {
                 val username = param("username")
                 val selectedPropertyNames = optionalParam("fields")?.split(",")?.toSet()
 
@@ -76,23 +75,23 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
         }
 
         post("/upload/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 uploadToResource<User>(authPredicate = { user, manipulated -> user == manipulated })
             }
         }
 
         delete("/upload/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 deleteUpload<User>(authPredicate = { user, manipulated -> user == manipulated })
             }
         }
 
         post("/{uuid}/toggleAdmin") {
-            requestContext(applicationContext, toggleUserAdmin)
+            requestContext(toggleUserAdmin)
         }
 
         get("/search") {
-            requestContext(applicationContext) {
+            requestContext {
                 val query = param("q")
 
                 call.respond(Typesense.search<User>(query).asSearchView(this))
@@ -103,7 +102,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
         post("{uuid}/follow") {
             val follows = Users.Follows
 
-            requestContext(applicationContext) {
+            requestContext {
                 val id by queryUuid
 
                 val following = obtainResource<User>(id)
@@ -140,7 +139,7 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
         route("/me") {
 
             get {
-                requestContext(applicationContext) {
+                requestContext {
                     authenticated { user ->
                         applyDefaultComputedPropertyResolver(user, user)
 
@@ -152,12 +151,12 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
 
             route("drafts") {
                 get("articles") {
-                    requestContext(applicationContext, getUserDraftArticles)
+                    requestContext(getUserDraftArticles)
                 }
             }
 
             get("/notifications") {
-                requestContext(applicationContext) {
+                requestContext {
                     authenticated { user ->
                         val count = optionalParam("limit")?.toIntOrNull()?.coerceAtMost(25) ?: 25
 
@@ -175,8 +174,8 @@ fun Route.makeUserRoutes(applicationContext: ApplicationContext) {
             }
 
             route("/settings") {
-                get   { requestContext(applicationContext, function = getSettings) }
-                patch { requestContext(applicationContext, function = updateSettings) }
+                get   { requestContext(function = getSettings) }
+                patch { requestContext(function = updateSettings) }
             }
 
         }

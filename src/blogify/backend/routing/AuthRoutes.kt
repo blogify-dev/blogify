@@ -5,7 +5,6 @@ import blogify.backend.auth.encoder
 import blogify.backend.auth.jwt.generateJWT
 import blogify.backend.database.tables.Users
 import blogify.backend.pipelines.requestContext
-import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.resources.user.User
 import blogify.backend.resources.static.models.StaticFile
@@ -72,12 +71,12 @@ data class RegisterCredentials (
 
 }
 
-fun Route.makeAuthRoutes(applicationContext: ApplicationContext) {
+fun Route.makeAuthRoutes() {
 
     route("/auth") {
 
         post("/signin") {
-            requestContext(applicationContext) {
+            requestContext {
                 val credentials = call.receive<LoginCredentials>()
                 val dbCredentials = repository<User>().getOneMatching(this) { Users.username eq credentials.username }
                     .getOr404OrPipelineError()
@@ -93,7 +92,7 @@ fun Route.makeAuthRoutes(applicationContext: ApplicationContext) {
         }
 
         post("/signup") {
-            requestContext(applicationContext) {
+            requestContext {
                 val credentials = call.receive<RegisterCredentials>()
                 val createdUser = credentials.createUser(this)
 

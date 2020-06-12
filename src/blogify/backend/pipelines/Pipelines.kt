@@ -2,6 +2,7 @@ package blogify.backend.pipelines
 
 import blogify.common.util.toUUIDOrNull
 import blogify.backend.annotations.PipelinesDsl
+import blogify.backend.appContext
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.pipelines.wrapping.RequestContextFunction
@@ -55,17 +56,15 @@ class PipelineException(val code: HttpStatusCode, override val message: String) 
  *
  * @receiver a [PipelineContext] with an [ApplicationContext] as subject and [ApplicationCall] as context
  *
- * @param applicationContext the application context to use to create the request context
  * @param function              the function to be run inside the request context
  *
  * @author Benjozork
  */
 suspend fun GenericCallPipeline.requestContext (
-    applicationContext: ApplicationContext,
     function: RequestContextFunction<Unit>
 ) {
     try {
-        RequestContext(applicationContext, this, call)
+        RequestContext(appContext, this, call)
             .execute(function, Unit)
     }  catch (e: PipelineException) {
         call.respond(e.code, reason(e.message))

@@ -9,6 +9,9 @@ import blogify.reflect.entity.database.persistence.models.Repository
 import blogify.reflect.entity.database.extensions.repository
 import blogify.reflect.entity.instantiation.construct
 import blogify.backend.appContext
+import blogify.backend.config.DatabaseConfig
+import blogify.backend.config.TypesenseConfig
+import blogify.backend.config.loadConfig
 import blogify.backend.push.PushServer
 import blogify.backend.resources.reflect.extensions.sanitizeToString
 import blogify.backend.resources.user.UserSettings
@@ -31,6 +34,9 @@ import kotlin.reflect.KClass
 class ApplicationContext(val objectMapper: ObjectMapper) : DatabaseContext {
 
     override val repoCache = MapCache<KClass<out Entity>, Repository<Entity>>()
+
+    val databaseConfig = loadConfig("db", DatabaseConfig.serializer())
+    val typesenseConfig = loadConfig("ts", TypesenseConfig.serializer())
 
     /**
      * Creates an implementation of [JsonbColumnType.Converter] for [T], using [Mapped.sanitizeToString] for serialization

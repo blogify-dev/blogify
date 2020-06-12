@@ -6,7 +6,6 @@ import blogify.common.util.toUUID
 import blogify.reflect.extensions.okHandle
 import blogify.backend.database.tables.Articles
 import blogify.backend.pipelines.*
-import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.resources.Article
 import blogify.backend.routing.handling.flipArticleLike
 import blogify.backend.routing.handling.flipArticlePin
@@ -21,12 +20,12 @@ import io.ktor.response.respond
 
 import org.jetbrains.exposed.sql.*
 
-fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
+fun Route.makeArticleRoutes() {
 
     route("/articles") {
 
         get("/") {
-            requestContext(applicationContext) {
+            requestContext {
                 fetchResourceListing<Article> (
                     selectCondition = { Articles.isDraft eq false },
                     orderBy = Articles.isPinned,
@@ -36,7 +35,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         get("/user/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 val id by queryUuid
 
                 fetchResourceListing<Article> (
@@ -48,13 +47,13 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         get("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 fetchResource<Article>()
             }
         }
 
         delete("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 deleteResource<Article> (
                     authPredicate = { user, article -> article.createdBy == user }
                 )
@@ -62,7 +61,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         patch("/{uuid}") {
-            requestContext(applicationContext) {
+            requestContext {
                 updateResource<Article> (
                     authPredicate = { user, article -> article.createdBy == user }
                 )
@@ -70,7 +69,7 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         post("/") {
-            requestContext(applicationContext) {
+            requestContext {
                 createResource<Article> (
                     authPredicate = { user, article -> article.createdBy == user }
                 )
@@ -78,16 +77,16 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         post("/{uuid}/pin") {
-            requestContext(applicationContext, flipArticlePin)
+            requestContext(flipArticlePin)
         }
 
         route("/{uuid}/like") {
-            get  { requestContext(applicationContext, getArticleLikeStatus) }
-            post { requestContext(applicationContext, flipArticleLike) }
+            get  { requestContext(getArticleLikeStatus) }
+            post { requestContext(flipArticleLike) }
         }
 
         get("/search") {
-            requestContext(applicationContext) {
+            requestContext {
                 val query = param("q")
                 val user = optionalParam("byUser")?.toUUID()
 
@@ -101,16 +100,16 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
         }
 
         get("_validations") {
-            requestContext(applicationContext) {
+            requestContext {
                 getValidations<Article>()
             }
         }
 
         get("_metadata") {
-            requestContext(applicationContext, getTypeMetadata(Article::class))
+            requestContext(getTypeMetadata(Article::class))
         }
 
-        makeArticleCommentRoutes(applicationContext)
+        makeArticleCommentRoutes()
 
     }
 
