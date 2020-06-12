@@ -106,6 +106,10 @@ fun Route.makeArticleRoutes(applicationContext: ApplicationContext) {
             }
         }
 
+        get("_metadata") {
+            requestContext(applicationContext, getTypeMetadata(Article::class))
+        }
+
         makeArticleCommentRoutes(applicationContext)
 
     }
