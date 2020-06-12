@@ -8,8 +8,8 @@ val logback_version:   String by project
 val pg_driver_version: String by project
 val exposed_version:   String by project
 val hikari_version:    String by project
-val epgx_version:      String by project
 val kolor_version:     String by project
+val epgx_version:      String by project
 val spring_security_core_version: String by project
 
 plugins {
@@ -95,6 +95,12 @@ dependencies {
     // Kolor
 
     implementation("com.andreapivetta.kolor", "kolor", kolor_version)
+    implementation("com.andreapivetta.kolor", "kolor", kolor_version)
+
+    // Result
+
+    implementation("com.github.kittinunf.result:result:2.2.0")
+    implementation("com.github.kittinunf.result:result-coroutines:2.2.0")
 
     // JJWT
 
