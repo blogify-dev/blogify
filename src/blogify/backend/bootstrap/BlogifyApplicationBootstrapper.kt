@@ -55,7 +55,8 @@ object BlogifyApplicationBootstrapper {
         val host: String,
         val port: Int,
         val tlsConfig: Tls? = null,
-        val applicationContext: ApplicationContext = ApplicationContext(objectMapper)
+        val applicationContext: ApplicationContext = ApplicationContext(objectMapper),
+        val isEnvDebug: Boolean = false
     ) {
         class Tls (
             val keyStorePath: String,
@@ -89,6 +90,12 @@ object BlogifyApplicationBootstrapper {
             ?.takeIf { it in 0..65535 }
             ?: if (tlsEnabled) 443 else 80
 
+        val debug = System.getenv("BLOGIFY_ENV_DEBUG")?.trim()
+            ?.toIntOrNull()
+            ?.takeIf { it in 0..1 }
+            ?.let { it == 1 }
+            ?: false
+
         val tlsConfig = if (tlsEnabled) { // Very temporary and insecure
             fun error(envVar: String): Nothing = kotlin.error("$envVar must be set and valid if BLOGIFY_ENABLE_TLS is set to 1")
 
@@ -118,7 +125,12 @@ object BlogifyApplicationBootstrapper {
             )
         } else null
 
-        return StartConfiguration(startHost, startPort, tlsConfig)
+        return StartConfiguration(
+            host = startHost,
+            port = startPort,
+            tlsConfig = tlsConfig,
+            isEnvDebug = debug
+        )
     }
 
     private fun doStartApplication(configuration: StartConfiguration) {
@@ -127,7 +139,8 @@ object BlogifyApplicationBootstrapper {
                 // Main application module
 
                 modules += { blogifyMainModule(configuration) }
-                modules += { blogifyDevModule(configuration) }
+                if (configuration.isEnvDebug)
+                    modules += { blogifyDevModule(configuration) }
 
                 // Default HTTP connector
 
