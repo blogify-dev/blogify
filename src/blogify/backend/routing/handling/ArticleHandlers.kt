@@ -12,6 +12,7 @@ import blogify.backend.pipelines.obtainResource
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.pipelineError
 import blogify.backend.pipelines.queryUuid
+import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.pipelines.wrapping.RequestContextFunction
 import blogify.backend.resources.Article
 import blogify.backend.util.reason
@@ -23,6 +24,8 @@ import org.jetbrains.exposed.sql.select
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
+import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
 
 private val likes = Articles.Likes
 
@@ -131,6 +134,24 @@ val flipArticlePin: RequestContextFunction<Unit> = {
 
     authenticated({ it.isAdmin }) {
         Articles.update(article.copy(isPinned = !article.isPinned)).also {
+            call.respond(HttpStatusCode.OK)
+        }
+    }
+}
+
+/**
+ * Request handler for flipping article hide status
+ */
+@BlogifyDsl
+val flipArticleHideStatus: RequestContextFunction<Unit> = {
+    val id by queryUuid
+    val article = obtainResource<Article>(id)
+
+    if (article.isDraft)
+        pipelineError(HttpStatusCode.NotFound, "")
+
+    authenticated({ it.isAdmin }) {
+        Articles.update(article.copy(isHidden = !article.isHidden)).also {
             call.respond(HttpStatusCode.OK)
         }
     }

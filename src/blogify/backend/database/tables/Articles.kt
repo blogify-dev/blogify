@@ -16,6 +16,7 @@ object Articles : EntityTable<Article>() {
     val summary    = text      ("summary")
     val isDraft    = bool      ("is_draft").default(false)
     val isPinned   = bool      ("is_pinned").default(false)
+    val isHidden   = bool      ("is_shitpost").default(false)
 
     init {
         bind (uuid,      Article::uuid)
@@ -26,6 +27,7 @@ object Articles : EntityTable<Article>() {
         bind (summary,   Article::summary)
         bind (isDraft,   Article::isDraft)
         bind (isPinned,  Article::isPinned)
+        bind (isHidden,  Article::isHidden)
 
         bind (Categories, Article::categories,
             conversionFunction = { row ->

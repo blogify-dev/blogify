@@ -27,7 +27,7 @@ fun Route.makeArticleRoutes() {
         get("/") {
             requestContext {
                 fetchResourceListing<Article> (
-                    selectCondition = { Articles.isDraft eq false },
+                    selectCondition = { Articles.isDraft eq false and Articles.isHidden eq Op.FALSE },
                     orderBy = Articles.isPinned,
                     sortOrder = SortOrder.DESC
                 )
@@ -46,28 +46,6 @@ fun Route.makeArticleRoutes() {
             }
         }
 
-        get("/{uuid}") {
-            requestContext {
-                fetchResource<Article>()
-            }
-        }
-
-        delete("/{uuid}") {
-            requestContext {
-                deleteResource<Article> (
-                    authPredicate = { user, article -> article.createdBy == user }
-                )
-            }
-        }
-
-        patch("/{uuid}") {
-            requestContext {
-                updateResource<Article> (
-                    authPredicate = { user, article -> article.createdBy == user }
-                )
-            }
-        }
-
         post("/") {
             requestContext {
                 createResource<Article> (
@@ -76,13 +54,42 @@ fun Route.makeArticleRoutes() {
             }
         }
 
-        post("/{uuid}/pin") {
-            requestContext(flipArticlePin)
-        }
+        route("/{uuid}") {
 
-        route("/{uuid}/like") {
-            get  { requestContext(getArticleLikeStatus) }
-            post { requestContext(flipArticleLike) }
+            get {
+                requestContext {
+                    fetchResource<Article>()
+                }
+            }
+
+            delete {
+                requestContext {
+                    deleteResource<Article>(
+                        authPredicate = { user, article -> article.createdBy == user || user.isAdmin }
+                    )
+                }
+            }
+
+            patch {
+                requestContext {
+                    updateResource<Article>(
+                        authPredicate = { user, article -> article.createdBy == user || user.isAdmin }
+                    )
+                }
+            }
+
+            post("/pin") {
+                requestContext(flipArticlePin)
+            }
+
+            post("/hide") {
+                requestContext(flipArticleHideStatus)
+            }
+
+            route("/like") {
+                get  { requestContext(getArticleLikeStatus) }
+                post { requestContext(flipArticleLike) }
+            }
         }
 
         get("/search") {
@@ -114,3 +121,4 @@ fun Route.makeArticleRoutes() {
     }
 
 }
+

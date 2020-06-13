@@ -53,6 +53,8 @@ data class Article (
     @NoSearch
     val isPinned: Boolean = false,
 
+    val isHidden: Boolean = false,
+
     @NoSearch
     override val uuid: UUID = UUID.randomUUID()
 
