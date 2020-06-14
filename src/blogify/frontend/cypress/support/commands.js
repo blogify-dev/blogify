@@ -23,3 +23,18 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('login', () => {
+    cy.request('POST', '/test/seed/login').then(resp => {
+        const userToken = resp.body.token;
+        console.log(userToken);
+        window.localStorage.setItem('keepLoggedIn', 'true');
+        window.localStorage.setItem('userToken', userToken);
+    });
+});
+
+Cypress.Commands.add('signup', () => {
+    cy.request('POST', '/test/seed/auth/signup').then(resp => {
+        return resp.body;
+    });
+});

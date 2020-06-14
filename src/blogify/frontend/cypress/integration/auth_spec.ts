@@ -33,10 +33,12 @@ describe('Authentication Test', () => {
 
     it('should log the user in', () => {
         cy.visit('login?redirect=%2Fhome');
+        // @ts-ignore // Custom cypress command
+        cy.signup(); //  This ensures that the user exists by creating it
 
-        cy.get('#login-input-username').type(registeredUser);
+        cy.get('#login-input-username').type('test_user');
 
-        cy.get('#login-input-password').type(registeredPass);
+        cy.get('#login-input-password').type('test_pass');
 
         cy.get('button').contains('Login').click();
 
@@ -44,7 +46,7 @@ describe('Authentication Test', () => {
             .get('.user-display')
             .get('.display-info')
             .get('.primary-info')
-            .should('contain.text', registeredUser);
+            .should('contain.text', 'test_user');
     });
 
 });
