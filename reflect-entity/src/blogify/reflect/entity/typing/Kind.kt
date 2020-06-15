@@ -17,6 +17,7 @@ data class Kind (
     enum class Type {
         String,
         Number,
+        Boolean,
         Entity
     }
 

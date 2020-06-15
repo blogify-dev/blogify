@@ -7,13 +7,12 @@ import blogify.reflect.entity.metadata.entity
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
-import java.lang.IllegalStateException
-
 class KindResolverTest {
 
     class A (
         val name: String,
-        val length: Float
+        val length: Float,
+        val isTrue: Boolean
     ) : Entity()
 
     class B (
@@ -35,6 +34,10 @@ class KindResolverTest {
         assertEquals(Kind(Kind.Type.Number, false), A::length.descriptor.entity.kind)
     }
 
+    @Test fun `should find boolean on A - isTrue`() {
+        assertEquals(Kind(Kind.Type.Boolean, false), A::isTrue.descriptor.entity.kind)
+    }
+
     @Test fun `should find entity on B - a`() {
         assertEquals(Kind(Kind.Type.Entity, false), B::a.descriptor.entity.kind)
     }
@@ -45,10 +48,8 @@ class KindResolverTest {
         assertEquals(Kind(Kind.Type.Entity, true), B::setOfAs.descriptor.entity.kind)
     }
 
-    @Test fun `should throw an exception on C - x`() {
-        assertThrows(IllegalStateException::class.java) {
-            C::x.descriptor.entity.kind
-        }.also { it.printStackTrace() }
+    @Test fun `should find null on C - x`() {
+       assertNull(C::x.descriptor.entity.kind)
     }
 
 }

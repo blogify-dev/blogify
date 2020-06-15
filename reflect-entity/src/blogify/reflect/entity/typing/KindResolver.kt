@@ -30,6 +30,8 @@ internal val KProperty<*>.kind: Kind get() {
         typeToCheckAgainst subTypeOf Float::class ||
         typeToCheckAgainst subTypeOf Double::class ->
             Kind(Kind.Type.Number, isCollection)
+        typeToCheckAgainst subTypeOf Boolean::class ->
+            Kind(Kind.Type.Boolean, isCollection)
         else -> error("type ${typeToCheckAgainst.klass()?.simpleName ?: "<!!!>"} not supported as entity property kind")
     }
 
