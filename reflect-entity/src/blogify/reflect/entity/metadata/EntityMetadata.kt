@@ -1,5 +1,6 @@
 package blogify.reflect.entity.metadata
 
+import blogify.common.util.letCatchingOrNull
 import blogify.reflect.analysis.models.metadata.MetadataProvider
 import blogify.reflect.analysis.models.metadata.PropertyMetadata
 import blogify.reflect.annotations.Hidden
@@ -21,7 +22,7 @@ import kotlin.reflect.full.findAnnotation
 class EntityMetadata (
     val isVisible: Boolean,
     val isUpdatable: Boolean,
-    val kind: Kind
+    val kind: Kind?
 ) : PropertyMetadata {
 
     object Provider : MetadataProvider<EntityMetadata, KProperty<*>> {
@@ -30,7 +31,7 @@ class EntityMetadata (
             EntityMetadata (
                 isVisible = !element.isHidden,
                 isUpdatable = !element.isUpdatable && !element.isHidden,
-                kind = element.kind
+                kind = letCatchingOrNull { element.kind }
             )
 
         private val KProperty<*>.isHidden get() = this.findAnnotation<Hidden>() != null
