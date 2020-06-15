@@ -12,7 +12,8 @@ class KindResolverTest {
     class A (
         val name: String,
         val length: Float,
-        val isTrue: Boolean
+        val isTrue: Boolean,
+        val someNums: Array<Long>
     ) : Entity()
 
     class B (
@@ -40,6 +41,10 @@ class KindResolverTest {
 
     @Test fun `should find entity on B - a`() {
         assertEquals(Kind(Kind.Type.Entity, false), B::a.descriptor.entity.kind)
+    }
+
+    @Test fun `should find array of number on A - length`() {
+        assertEquals(Kind(Kind.Type.Number, true), A::someNums.descriptor.entity.kind)
     }
 
     @Test fun `should find array of entity on B - arrayOfAs, B - listOfAs, B - setOAs`() {
