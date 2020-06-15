@@ -50,4 +50,4 @@ fun KType.isPrimitive() =
  * @author Benjozork
  */
 fun KType.isCollection() =
-    this subTypeOf Collection::class
+    this subTypeOf Collection::class || this subTypeOf Array<Any?>::class
