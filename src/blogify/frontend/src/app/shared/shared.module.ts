@@ -16,6 +16,7 @@ import { ShowAllUsersComponent } from '@blogify/shared/components/show-all-users
 import { SingleUserBoxComponent } from '@blogify/shared/components/show-all-users/single-user-box/single-user-box.component';
 import { NotificationComponent } from '@blogify/shared/components/notification/notification.component';
 import { ContentHostDirective } from './directives/content-host/content-host.directive';
+import { ActiveFilterComponent } from './components/content-feed/filtering/active-filter/active-filter.component';
 
 @NgModule({
     declarations: [
@@ -31,6 +32,7 @@ import { ContentHostDirective } from './directives/content-host/content-host.dir
         SingleUserBoxComponent,
         NotificationComponent,
         ContentHostDirective,
+        ActiveFilterComponent,
     ],
     imports: [
         CommonModule,

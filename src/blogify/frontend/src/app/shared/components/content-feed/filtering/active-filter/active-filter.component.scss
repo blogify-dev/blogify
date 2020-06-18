@@ -1,0 +1,19 @@
+@import "src/styles/layouts";
+
+.active-filter {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    column-gap: .75em;
+
+    padding: .45em 1em;
+
+    background-color: var(--card-bg);
+    border-radius: $std-border-radius;
+    box-shadow: $std-box-shadow;
+
+    :last-child {
+        color: var(--accent-gray);
+    }
+}

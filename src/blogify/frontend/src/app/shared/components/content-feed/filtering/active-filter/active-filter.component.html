@@ -1,0 +1,13 @@
+<div class="active-filter">
+    <span class="bold">{{filter.property.name}}</span>
+
+    <span>lorem ipsum</span>
+
+    <fa-icon
+            class="clickable hover-negative"
+            size="lg"
+            [icon]="faTimes"
+            [transform]="{  size: 12, y: 1 }"
+            (click)="this.removed.emit()"
+    ></fa-icon>
+</div>
