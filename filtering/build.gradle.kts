@@ -30,6 +30,7 @@ dependencies {
     // Submodules
 
     implementation(project(":reflect"))
+    implementation(project(":reflect-entity"))
 
     // Jackson
 
