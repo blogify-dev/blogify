@@ -1,6 +1,7 @@
 package blogify.devend
 
 import blogify.backend.bootstrap.BlogifyApplicationBootstrapper
+import blogify.devend.routes.articleSeedRoutes
 import blogify.devend.routes.authSeedRoutes
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -21,6 +22,7 @@ fun Application.blogifyDevModule(configuration: BlogifyApplicationBootstrapper.S
 
         route("/test/seed") {
             authSeedRoutes()
+            articleSeedRoutes()
         }
     }
 }

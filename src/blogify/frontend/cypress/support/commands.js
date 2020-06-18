@@ -25,7 +25,7 @@
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('login', () => {
-    cy.request('POST', '/test/seed/login').then(resp => {
+    cy.request('POST', '/test/seed/auth/login').then(resp => {
         const userToken = resp.body.token;
         console.log(userToken);
         window.localStorage.setItem('keepLoggedIn', 'true');
