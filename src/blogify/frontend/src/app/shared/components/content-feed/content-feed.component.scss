@@ -14,6 +14,8 @@
 
         @include pageContainerHeader;
 
+        column-gap: 2em;
+
         $search-icon-break: 1300px;
 
         #header-search-back {
@@ -22,9 +24,7 @@
 
         .header-title {
             font-size: 2em;
-
             padding: 0;
-            margin-right: 1em;
         }
 
         #header-search-pad, #header-mobile-search-pad {
@@ -38,20 +38,70 @@
             }
         }
 
-        #header-search-icon {
-            margin-left: auto;
+        #header-icons {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            column-gap: 2.15em;
 
+            align-self: stretch;
+
+            padding: .5em 0;
+
+            .separator {
+                margin-left: 0 !important;
+            }
+        }
+
+        #header-search-icon {
             @media (min-width: $search-icon-break) {
                 display: none;
             }
         }
 
-        #header-create-btn {
-            margin-left: 2.35em;
-            margin-right: 1em;
+    }
 
-            cursor: pointer;
+    #filtering-menu {
+
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        row-gap: 1em;
+
+        #filtering-header {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            align-items: center;
+            column-gap: 1em;
+
+            margin-top: 1.25em;
+
+            .separator {
+                margin-left: .25em !important;
+                margin-right: .25em;
+            }
+
+            #clear-filters {
+                display: flex;
+                column-gap: .65em;
+
+                margin-right: auto;
+            }
         }
+
+        #active-filters {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: stretch;
+            flex-wrap: wrap;
+            column-gap: 1em;
+            row-gap: 1em;
+        }
+
     }
 
     #articles-main {

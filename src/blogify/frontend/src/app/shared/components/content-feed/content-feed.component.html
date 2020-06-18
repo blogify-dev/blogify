@@ -9,34 +9,91 @@
         <!-- Page title -->
         <h1 *ngIf="!showingMobileSearchBar" class="header-title">{{showingSearchResults ? 'Search results' :  title}}</h1>
 
-        <!-- Desktop search pad -->
-        <!--suppress HtmlFormInputWithoutLabel -->
-        <input [(ngModel)]="this.searchQuery"
-               *ngIf="!showingMobileSearchBar"
-               id="header-search-pad"
-               type="text" placeholder="Search / Filter ... Type '?' for help"
-               (keydown.enter)="navigateToSearch()"
-               (keydown.escape)="stopSearch()">
+        <ng-container *ngIf="entityModel.entity.isSearchable">
+            <!-- Desktop search pad -->
+            <!--suppress HtmlFormInputWithoutLabel -->
+            <input [(ngModel)]="this.searchQuery"
+                   *ngIf="!showingMobileSearchBar"
+                   id="header-search-pad"
+                   type="text" placeholder="Search / Filter ... Type '?' for help"
+                   (keydown.enter)="navigateToSearch()"
+                   (keydown.escape)="stopSearch()">
 
-        <!-- Mobile search pad -->
-        <!--suppress HtmlFormInputWithoutLabel -->
-        <input [(ngModel)]="this.searchQuery"
-               *ngIf="showingMobileSearchBar"
-               id="header-mobile-search-pad"
-               type="text" placeholder="Search / Filter ... Type '?' for help"
-               (keydown.enter)="navigateToSearch()"
-               (keydown.escape)="setShowSearchBar(false)"
-               (focusout)="setShowSearchBar(false)">
+            <!-- Mobile search pad -->
+            <!--suppress HtmlFormInputWithoutLabel -->
+            <input [(ngModel)]="this.searchQuery"
+                   *ngIf="showingMobileSearchBar"
+                   id="header-mobile-search-pad"
+                   type="text" placeholder="Search / Filter ... Type '?' for help"
+                   (keydown.enter)="navigateToSearch()"
+                   (keydown.escape)="setShowSearchBar(false)"
+                   (focusout)="setShowSearchBar(false)">
+        </ng-container>
 
-        <!-- Search icon -->
-        <a class="clickable hover-neutral" id="header-search-icon" *ngIf="!showingMobileSearchBar" (click)="setShowSearchBar(true)">
-            <fa-icon [icon]="faSearch" size="lg" [transform]="{ size: 22 }"></fa-icon>
-        </a>
+        <div id="header-icons">
+            <!-- Mobile search icon -->
+            <a class="clickable hover-neutral" id="header-search-icon" *ngIf="!showingMobileSearchBar" (click)="setShowSearchBar(true)">
+                <fa-icon [icon]="faSearch" size="lg" [transform]="{ size: 22 }"></fa-icon>
+            </a>
 
-        <!-- New article -->
-        <a id="header-create-btn" class="clickable" (click)="navigateToNewArticle()" *ngIf="allowCreate && !forceNoAllowCreate">
-            <fa-icon [icon]="faPencil" size="lg" [transform]="{ size: 22 }"></fa-icon>
-        </a>
+            <!-- Filtering icon -->
+            <a
+                    class="clickable hover-neutral"
+                    [class.neutral]="showingFilteringMenu"
+                    id="filtering-icon"
+                    (click)="toggleShowingFilteringMenu()"
+                    *ngIf="modelFilterableProps().length != 0"
+            >
+                <fa-icon [icon]="faFilter" size="lg" [transform]="{ size: 21 }"></fa-icon>
+            </a>
+
+            <!-- Sorting icon -->
+            <a
+                    class="clickable hover-neutral"
+                    id="sorting-icon"
+
+                    *ngIf="!showingMobileSearchBar"
+            >
+                <fa-icon [icon]="faSortAmountUp" size="lg" [transform]="{ size: 23 }"></fa-icon>
+            </a>
+
+            <span class="separator"></span>
+
+            <!-- New article -->
+            <a id="header-create-btn" class="clickable" (click)="navigateToNewArticle()" *ngIf="allowCreate && !forceNoAllowCreate">
+                <fa-icon [icon]="faPencil" size="lg" [transform]="{ size: 22 }"></fa-icon>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Filtering menu -->
+
+    <div id="filtering-menu" *ngIf="showingFilteringMenu">
+        <div id="filtering-header">
+            <span class="text-large">Filter Search</span>
+
+            <span class="separator"></span>
+
+            <span id="clear-filters" class="text-large bold clickable hover-negative" (click)="activeFilters = []">
+                <fa-icon [icon]="faTrashAlt"></fa-icon>
+
+                <span>Clear</span>
+            </span>
+
+            <div class="filter-element text-large" *ngFor="let element of modelFilterableProps()">
+                <span class="clickable bold" (click)="this.activeFilters.push({ property: element })">{{element.name}}</span>
+            </div>
+        </div>
+
+        <div id="active-filters" *ngIf="activeFilters.length">
+            <b-active-filter
+                    class="active-filter text-large"
+                    [filter]="filter"
+                    *ngFor="let filter of activeFilters"
+                    (removed)="activeFilters.splice(this.activeFilters.indexOf(filter), 1)"
+            ></b-active-filter>
+        </div>
     </div>
 
     <!--<app-filtering-menu></app-filtering-menu>-->

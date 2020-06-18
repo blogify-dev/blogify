@@ -5,7 +5,15 @@ import { ArticleService } from '@blogify/core/services/article/article.service';
 import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { StaticContentService } from '@blogify/core/services/static/static-content.service';
-import { faArrowDown, faArrowLeft, faPencilAlt, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
+import {
+    faArrowDown,
+    faArrowLeft, faChevronDown,
+    faFilter,
+    faPencilAlt,
+    faSearch,
+    faSortAmountUp,
+    faTimes, faTrash
+} from '@fortawesome/free-solid-svg-icons';
 import { User } from '@blogify/models/User';
 import { Shadow } from '@blogify/models/Shadow';
 import { ContentHostDirective } from '@blogify/shared/directives/content-host/content-host.directive';
@@ -14,6 +22,9 @@ import { Entity } from '@blogify/models/entities/Entity';
 import { SingleCommentComponent } from '@blogify/core/components/comment/single-comment/single-comment.component';
 import { SingleUserBoxComponent } from '@blogify/shared/components/show-all-users/single-user-box/single-user-box.component';
 import { EntityRenderComponent } from '@blogify/models/entities/EntityRenderComponent';
+import { EntityMetadata } from '@blogify/models/metadata/EntityMetadata';
+import { Filter } from '@blogify/shared/components/content-feed/filtering/Filter';
+import {faTrashAlt} from "@fortawesome/free-regular-svg-icons";
 
 @Component({
     selector: 'b-content-feed',
@@ -29,10 +40,15 @@ export class ContentFeedComponent implements OnInit {
         ['title', 'summary', 'createdAt', 'createdBy', 'categories', 'likeCount', 'commentCount', '__type'];
 
     faSearch = faSearch;
+    faFilter = faFilter;
+    faSortAmountUp = faSortAmountUp;
+
     faPencil = faPencilAlt;
     faArrowLeft = faArrowLeft;
     faTimes = faTimes;
     faArrowDown = faArrowDown;
+
+    faTrashAlt = faTrashAlt;
 
     @Input() title = 'Articles';
     @Input() listingQuery: ListingQuery<Article> & { byUser?: Shadow<User> } = new ListingQuery(10, 0, this.REQUIRED_FIELDS);
@@ -45,10 +61,25 @@ export class ContentFeedComponent implements OnInit {
 
     forceNoAllowCreate = false;
 
+    showingFilteringMenu = false;
+
     showingSearchResults = false;
     searchQuery: string;
     searchResults: Article[];
     showingMobileSearchBar: boolean;
+
+    entityModel: EntityMetadata = {
+        entity: {
+            isSearchable: false
+        },
+        properties: {},
+    };
+
+    activeFilters: Filter[] = [];
+
+    modelFilterableProps = () => Object.entries(this.entityModel.properties)
+        .filter(prop => prop[1].filtering.isFilterable)
+        .map(prop => ({ ...prop[1], name: prop[0] }))
 
     @ViewChild(ContentHostDirective, { static: false }) contentHost: ContentHostDirective;
 
@@ -76,6 +107,8 @@ export class ContentFeedComponent implements OnInit {
     ) {}
 
     ngOnInit() {
+        this.articleService.getMetadata().then(metadata => this.entityModel = metadata);
+
         this.activatedRoute.url.subscribe((it: UrlSegment[]) => {
             const isSearching = it[it.length - 1].parameters.search !== undefined;
             if (isSearching) { // We are in a search page
@@ -176,6 +209,8 @@ export class ContentFeedComponent implements OnInit {
             else this.router.navigateByUrl('/login?redirect=/article/new');
         });
     }
+
+    toggleShowingFilteringMenu = () => this.showingFilteringMenu = !this.showingFilteringMenu;
 
     setShowSearchBar(val: boolean) {
         this.showingMobileSearchBar = val;
