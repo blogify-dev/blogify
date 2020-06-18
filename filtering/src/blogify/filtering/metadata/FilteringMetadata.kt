@@ -3,6 +3,7 @@ package blogify.filtering.metadata
 import blogify.reflect.extensions.isPrimitive
 import blogify.reflect.analysis.models.metadata.MetadataProvider
 import blogify.reflect.analysis.models.metadata.PropertyMetadata
+import blogify.reflect.entity.extensions.isEntity
 
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.findAnnotation
@@ -28,7 +29,7 @@ class FilteringMetadata (
 
         val KProperty<*>.isFilterable: Boolean
             get() {
-                val isOfCompatibleType = this.returnType.isPrimitive()
+                val isOfCompatibleType = this.returnType.isPrimitive() || this.returnType.isEntity()
 
                 return isOfCompatibleType && this.findAnnotation<NotFilterable>() == null
             }
