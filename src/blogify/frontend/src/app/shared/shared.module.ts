@@ -11,7 +11,6 @@ import { DarkThemeDirective } from '@blogify/shared/directives/dark-theme/dark-t
 import { CompactDirective } from '@blogify/shared/directives/compact/compact.directive';
 import { FormsModule } from '@angular/forms';
 import { SingleArticleBoxComponent } from '@blogify/shared/components/content-feed/single-article-box/single-article-box.component';
-import { FilteringMenuComponent } from '@blogify/shared/components/content-feed/filtering-menu/filtering-menu.component';
 import { AdminRoutingModule } from '@blogify/core/components/admin/admin/admin-routing.module';
 import { ShowAllUsersComponent } from '@blogify/shared/components/show-all-users/show-all-users.component';
 import { SingleUserBoxComponent } from '@blogify/shared/components/show-all-users/single-user-box/single-user-box.component';
@@ -28,7 +27,6 @@ import { ContentHostDirective } from './directives/content-host/content-host.dir
         ContentFeedComponent,
         UserDisplayComponent,
         SingleArticleBoxComponent,
-        FilteringMenuComponent,
         ShowAllUsersComponent,
         SingleUserBoxComponent,
         NotificationComponent,
