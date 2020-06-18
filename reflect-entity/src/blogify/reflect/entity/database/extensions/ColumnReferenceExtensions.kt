@@ -1,7 +1,7 @@
 package blogify.reflect.entity.database.extensions
 
-import blogify.reflect.entity.database.EntityTable
 import blogify.reflect.entity.Entity
+import blogify.reflect.entity.database.EntityTable
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ForeignKeyConstraint

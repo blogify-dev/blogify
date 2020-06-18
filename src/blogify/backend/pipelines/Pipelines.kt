@@ -72,7 +72,7 @@ suspend fun GenericCallPipeline.requestContext (
         logger.error (
             """
                 |unhandled exception in pipeline - ${e::class.simpleName} - ${e.message}
-                |${e.stackTrace.joinToString(prefix = "\t", separator = "\n\t")}
+                |${e.stackTrace.joinToString(prefix = "\tat ", separator = "\n\tat ")}
                 """.trimMargin()
         )
         call.respond(HttpStatusCode.InternalServerError, reason("unhandled exception in pipeline"))

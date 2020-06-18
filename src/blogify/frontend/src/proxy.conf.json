@@ -1,6 +1,6 @@
 {
     "/api": {
-        "target": "https://blogify.31416.dev/",
+        "target": "http://localhost/",
         "secure": false,
         "changeOrigin": true
     }

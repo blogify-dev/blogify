@@ -4,5 +4,5 @@ import { Input } from '@angular/core';
 export abstract class EntityRenderComponent<T extends Entity> {
     
     @Input() entity: T;
-    
+
 }
