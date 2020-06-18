@@ -1,5 +1,8 @@
 describe('Articles Test', () => {
     beforeEach(() => {
+        // @ts-ignore
+        cy.resetArticles();
+        window.localStorage.clear();
         cy.viewport(1920, 1080);
     });
 
@@ -52,7 +55,6 @@ describe('Articles Test', () => {
             cy.get('#icons-left')
                 .get('.likes')
                 .should('not.have.class', 'clickable');
-            
         });
     });
 
@@ -103,15 +105,14 @@ describe('Articles Test', () => {
         cy.request('POST', '/test/seed/article/?amount=1').then(resp => {
             const uuid = resp.body.created[0];
             cy.visit(`/article/${uuid}`);
-            cy.get('#button-pin').click();
-            cy.visit('/home');
-            cy.get('#articles-main')
-                .first()
-                .get('app-single-article-box')
-                .get('h1')
-                .children().first()
-                .should('contain.html', 'svg');
-
+            cy.get('#button-pin').click().then(() => {
+                cy.visit('/home');
+                cy.get('#articles-main')
+                    .first()
+                    .get('app-single-article-box .article .first-line .title')
+                    .children().first()
+                    .should('contain.html', 'svg');
+            });
         });
     });
 });

@@ -39,3 +39,9 @@ Cypress.Commands.add('signup', () => {
         return resp.body;
     });
 });
+
+Cypress.Commands.add('resetArticles', () => {
+    cy.request('DELETE', '/test/seed/article/').then(resp => {
+        return resp.body;
+    });
+});
