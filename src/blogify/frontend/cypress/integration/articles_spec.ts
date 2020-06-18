@@ -5,6 +5,24 @@ describe('Articles Test', () => {
         window.localStorage.clear();
         cy.viewport(1920, 1080);
     });
+    // TODO FIX CACHE ASAP
+    it('Should pin article', () => {
+        // @ts-ignore
+        cy.login(true);
+        cy.request('POST', '/test/seed/article/?amount=1').then(resp => {
+            const uuid = resp.body.created[0];
+            cy.visit(`/article/${uuid}`);
+            cy.get('#button-pin').click().then(() => {
+                cy.reload();
+                cy.visit('/');
+                cy.get('#articles-main')
+                    .first()
+                    .get('app-single-article-box .article .first-line .title')
+                    .children().first()
+                    .should('contain.html', 'svg');
+            });
+        });
+    });
 
     it('5 articles should be shown properly', () => {
         cy.request('POST', '/test/seed/article?amount=5');
@@ -96,23 +114,6 @@ describe('Articles Test', () => {
             cy.get('button').contains('Submit Changes').click();
 
             cy.url().should('match', /\/article\/[a-z0-9-]+/g);
-        });
-    });
-
-    it('Should pin article', () => {
-        // @ts-ignore
-        cy.login(true);
-        cy.request('POST', '/test/seed/article/?amount=1').then(resp => {
-            const uuid = resp.body.created[0];
-            cy.visit(`/article/${uuid}`);
-            cy.get('#button-pin').click().then(() => {
-                cy.visit('/home');
-                cy.get('#articles-main')
-                    .first()
-                    .get('app-single-article-box .article .first-line .title')
-                    .children().first()
-                    .should('contain.html', 'svg');
-            });
         });
     });
 });
