@@ -6,6 +6,7 @@ import blogify.reflect.annotations.search.*
 import blogify.reflect.computed.compound
 import blogify.reflect.computed.models.Computed
 import blogify.reflect.entity.database.annotations.SqlTable
+import blogify.filtering.metadata.NotFilterable
 import blogify.backend.database.tables.Articles
 import blogify.backend.database.tables.Comments
 import blogify.backend.entity.Resource
@@ -47,12 +48,16 @@ data class Article (
     @NoSearch
     val categories: @DelegatedSearch List<Category>,
 
+    @NotFilterable
     @NoSearch
     val isDraft: Boolean = false,
 
+    @NotFilterable
     @NoSearch
     val isPinned: Boolean = false,
 
+    @NotFilterable
+    @NoSearch
     val isHidden: Boolean = false,
 
     @NoSearch
