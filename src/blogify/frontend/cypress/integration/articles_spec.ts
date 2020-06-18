@@ -96,4 +96,22 @@ describe('Articles Test', () => {
             cy.url().should('match', /\/article\/[a-z0-9-]+/g);
         });
     });
+
+    it('Should pin article', () => {
+        // @ts-ignore
+        cy.login(true);
+        cy.request('POST', '/test/seed/article/?amount=1').then(resp => {
+            const uuid = resp.body.created[0];
+            cy.visit(`/article/${uuid}`);
+            cy.get('#button-pin').click();
+            cy.visit('/home');
+            cy.get('#articles-main')
+                .first()
+                .get('app-single-article-box')
+                .get('h1')
+                .children().first()
+                .should('contain.html', 'svg');
+
+        });
+    });
 });

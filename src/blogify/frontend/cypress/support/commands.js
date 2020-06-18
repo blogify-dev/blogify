@@ -24,8 +24,9 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
-Cypress.Commands.add('login', () => {
-    cy.request('POST', '/test/seed/auth/login').then(resp => {
+Cypress.Commands.add('login', asAdmin => {
+    const admin = asAdmin ? '?asAdmin=1': '';
+    cy.request('POST', `/test/seed/auth/login/${admin}`).then(resp => {
         const userToken = resp.body.token;
         console.log(userToken);
         window.localStorage.setItem('keepLoggedIn', 'true');
