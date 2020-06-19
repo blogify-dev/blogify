@@ -6,7 +6,6 @@ import { User } from '@blogify/models/User';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { faGavel, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
 import { idOf } from '@blogify/models/Shadow';
-import { StateService } from '@blogify/shared/services/state/state.service';
 
 @Component({
     selector: 'b-manage',
@@ -26,7 +25,6 @@ export class ManageComponent implements OnInit {
       private route: ActivatedRoute,
       private authService: AuthService,
       private userService: UserService,
-      private stateService: StateService
     ) {}
 
     ngOnInit() {
@@ -43,7 +41,6 @@ export class ManageComponent implements OnInit {
         return this.userService.toggleUserAdmin(this.forUser, this.authService.currentUser.token)
             .then(_ => {
                 this.forUser.isAdmin = !this.forUser.isAdmin;
-                this.stateService.cacheUser(this.forUser);
             })
             .catch(e => console.error(`[blogifyUsers] Couldn't toggle user '${idOf(this.forUser)}' admin`, e));
     }
