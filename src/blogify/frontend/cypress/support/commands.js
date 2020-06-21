@@ -45,3 +45,19 @@ Cypress.Commands.add('resetArticles', () => {
         return resp.body;
     });
 });
+
+Cypress.Commands.add('createArticle', amount => {
+    return cy.request('POST', `/test/seed/article/?amount=${amount}`);
+});
+
+Cypress.Commands.add('createArticleWithParentComment', amount => {
+    cy.request('POST', `/test/seed/article/?amount=${amount}`).then(resp => {
+        const uuid = resp.body.created[0];
+        cy.request('POST', `test/seed/comment/article/${uuid}?amount=${amount}`).then(resp => {
+            return {
+                article: uuid,
+                created: resp.body.created
+            };
+        });
+    });
+});

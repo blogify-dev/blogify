@@ -4,18 +4,19 @@ import blogify.backend.auth.jwt.generateJWT
 import blogify.backend.database.tables.Users
 import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.requestContext
-import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.resources.user.User
 import blogify.backend.util.getOrPipelineError
-import blogify.backend.util.hash
 import blogify.common.util.toUUID
 import blogify.devend.utils.user
+import blogify.reflect.entity.database.handling.query
 import com.github.kittinunf.result.coroutines.getOrNull
-import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.Route
+import io.ktor.routing.delete
 import io.ktor.routing.post
 import io.ktor.routing.route
+import org.jetbrains.exposed.sql.deleteAll
 
 fun Route.authSeedRoutes() {
     route("/auth") {
@@ -39,6 +40,13 @@ fun Route.authSeedRoutes() {
                     val user  = createdUser
                     val token = generateJWT(createdUser)
                 })
+            }
+        }
+
+        delete {
+            requestContext {
+                val amount = query { Users.deleteAll() }.getOrPipelineError()
+                call.respond(HttpStatusCode.OK, object { val amount = amount })
             }
         }
     }
