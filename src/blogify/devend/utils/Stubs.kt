@@ -1,6 +1,7 @@
 package blogify.devend.utils
 
 import blogify.backend.resources.Article
+import blogify.backend.resources.Comment
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.resources.user.User
 import blogify.backend.util.hash
@@ -23,4 +24,11 @@ val article = Article(
     content = "Content of content. should be a lot of text",
     summary = "Article's summary, short little summary",
     categories = listOf(Article.Category("category 1"), Article.Category("category 2"))
+)
+
+val comment = Comment(
+    commenter = user,
+    article = article,
+    parentComment = null,
+    content = "This is a comment"
 )
