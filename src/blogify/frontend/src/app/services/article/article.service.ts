@@ -5,8 +5,7 @@ import { ListingQuery } from '@blogify/models/ListingQuery';
 import { AuthService } from '@blogify/shared/services/auth/auth.service';
 import { User } from '@blogify/models/User';
 import { SearchView } from '@blogify/models/SearchView';
-import {idOf, obj, Shadow} from '@blogify/models/Shadow';
-import { StateService } from '@blogify/shared/services/state/state.service';
+import { idOf, Shadow } from '@blogify/models/Shadow';
 import { UserService } from '@blogify/shared/services/user-service/user.service';
 import { EntityMetadata } from '@blogify/models/metadata/EntityMetadata';
 import { EntityService } from '@blogify/core/services/EntityService';
@@ -21,7 +20,6 @@ export class ArticleService implements EntityService {
     constructor (
         private httpClient: HttpClient,
         private authService: AuthService,
-        private state: StateService,
         private userService: UserService
     ) {}
 
@@ -72,8 +70,6 @@ export class ArticleService implements EntityService {
         return listingResultPromise.then(async it => {
             const listingResult: ListingResult = { data: await this.prepareArticleData(it.data), moreAvailable: it.moreAvailable };
 
-            listingResult.data.forEach(article => this.state.cacheArticle(article));
-
             return listingResult;
         });
     }
@@ -100,20 +96,11 @@ export class ArticleService implements EntityService {
     }
 
     async getArticle(articleUuid: string): Promise<Article> {
-        const cached = this.state.getArticle(articleUuid);
+        const fetched = await this.httpClient.get<Article>(`/api/articles/${articleUuid}`).toPromise();
 
-        if (cached) {
-            console.log(`[article ${articleUuid}]: returning from cache`);
+        console.log(`[article ${articleUuid}]: fetched`);
 
-            return cached;
-        } else {
-            const fetched = await this.httpClient.get<Article>(`/api/articles/${articleUuid}`).toPromise();
-            this.state.cacheArticle(fetched);
-
-            console.log(`[article ${articleUuid}]: fetched`);
-
-            return this.prepareArticleData([fetched]).then(arr => arr[0]);
-        }
+        return this.prepareArticleData([fetched]).then(arr => arr[0]);
     }
 
     createNewArticle(article: Article): Promise<any> {

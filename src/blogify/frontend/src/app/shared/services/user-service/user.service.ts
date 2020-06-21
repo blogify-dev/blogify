@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { User } from '@blogify/models/User';
-import { StateService } from '@blogify/shared/services/state/state.service';
 import { SearchView } from '@blogify/models/SearchView';
 import { idOf, Shadow } from '@blogify/models/Shadow';
 
@@ -10,23 +9,10 @@ import { idOf, Shadow } from '@blogify/models/Shadow';
 })
 export class UserService {
 
-    constructor(private httpClient: HttpClient, private state: StateService) {}
+    constructor(private httpClient: HttpClient) {}
 
     async getUser(userUuid: string): Promise<User> {
-        const cached = this.state.getUser(userUuid);
-
-        if (cached) {
-            console.log(`[user ${userUuid}]: returning from cache`);
-
-            return cached;
-        } else {
-            const fetched = await this.httpClient.get<User>(`/api/users/${userUuid}`).toPromise();
-            this.state.cacheUser(fetched);
-
-            console.log(`[user ${userUuid}]: fetched`);
-
-            return fetched;
-        }
+        return await this.httpClient.get<User>(`/api/users/${userUuid}`).toPromise();
     }
 
     async updateUser(user: Shadow<User>, data: { [k in keyof User]?: User[k] }, userToken: string): Promise<object> {

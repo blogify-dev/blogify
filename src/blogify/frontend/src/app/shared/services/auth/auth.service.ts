@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LoginCredentials, RegisterCredentials, User } from '@blogify/models/User';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StaticContentService } from '@blogify/core/services/static/static-content.service';
-import { StateService } from '@blogify/shared/services/state/state.service';
 
 const USER_TOKEN_KEY = 'userToken';
 const KEEP_LOGGED_IN_KEY = 'keepLoggedIn';
@@ -16,7 +15,6 @@ export class AuthService {
     constructor (
         private httpClient: HttpClient,
         private staticContentService: StaticContentService,
-        private stateService: StateService,
     ) {}
 
     private currentUserSubject = new BehaviorSubject<CurrentUser>(null);
@@ -31,8 +29,6 @@ export class AuthService {
             }).toPromise().then(currentUser => {
                 this.currentUserSubject.next({ ...currentUser, token: cachedToken });
                 this.isLoggedInSubject.next(true);
-                this.stateService.cacheUser(currentUser);
-                console.log('pushing');
             })
                 .catch(error => {
                     console.error(error);
@@ -62,7 +58,6 @@ export class AuthService {
         };
 
         const user = await this.httpClient.get<User>('/api/users/me/', httpOptions).toPromise();
-        this.stateService.cacheUser(user);
 
         const shouldKeepLoggedIn = localStorage.getItem(KEEP_LOGGED_IN_KEY) === 'true';
         if (shouldKeepLoggedIn) {

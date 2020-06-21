@@ -23,3 +23,25 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('login', asAdmin => {
+    const admin = asAdmin ? '?asAdmin=1': '';
+    cy.request('POST', `/test/seed/auth/login/${admin}`).then(resp => {
+        const userToken = resp.body.token;
+        console.log(userToken);
+        window.localStorage.setItem('keepLoggedIn', 'true');
+        window.localStorage.setItem('userToken', userToken);
+    });
+});
+
+Cypress.Commands.add('signup', () => {
+    cy.request('POST', '/test/seed/auth/signup').then(resp => {
+        return resp.body;
+    });
+});
+
+Cypress.Commands.add('resetArticles', () => {
+    cy.request('DELETE', '/test/seed/article/').then(resp => {
+        return resp.body;
+    });
+});
