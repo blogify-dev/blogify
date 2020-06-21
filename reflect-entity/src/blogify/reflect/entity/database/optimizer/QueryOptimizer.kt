@@ -80,7 +80,9 @@ object QueryOptimizer {
                                 .get()
                         }
                         is SqlBinding.HasColumn<*> -> // Get the data directly from the row
-                            row[binding.column]!!
+                            row[binding.column] ?: if (binding.property.returnType.isMarkedNullable) {
+                                throw NullValue
+                            } else error("property '${binding.property.name}' is not marked nullable but column contained null value'")
                         else -> never
                     }
                 }.mapError { exception ->
