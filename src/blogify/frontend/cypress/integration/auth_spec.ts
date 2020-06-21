@@ -1,18 +1,18 @@
 describe('Authentication Test', () => {
     beforeEach(() => {
+        cy.request('DELETE', '/test/seed/auth');
+        window.localStorage.clear();
+        cy.reload();
         cy.viewport(1920, 1080);
     });
-
-    let registeredUser: string;
-    let registeredPass: string;
 
     it('should register a new user', () => {
         cy.visit('login?redirect=%2Fhome');
 
         cy.get('h2').contains('Register').click();
 
-        registeredUser = Math.random().toString(36).substring(7);
-        registeredPass = Math.random().toString(36).substring(7);
+        const registeredUser = Math.random().toString(36).substring(7);
+        const registeredPass = Math.random().toString(36).substring(7);
 
         cy.get('#register-input-username').type(registeredUser);
 
