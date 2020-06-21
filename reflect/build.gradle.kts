@@ -5,10 +5,15 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val kolor_version: String by project
 
 plugins {
+    maven
+
+    `java-library`
+
     kotlin("jvm")
 }
 
 group = "blogify"
+version = "alpha-1"
 
 repositories {
     mavenCentral()
@@ -37,6 +42,10 @@ dependencies {
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.5.2")
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.5.2")
+}
+
+artifacts {
+    archives(tasks.kotlinSourcesJar)
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")

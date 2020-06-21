@@ -17,7 +17,7 @@ import kotlin.reflect.KClass
 inline fun <reified TEntity : Entity> DatabaseContext.repository(): Repository<TEntity> =
     this.repoCache.findOr(TEntity::class) {
         PostgresRepository(TEntity::class.table) as Repository<Entity>
-    }.assertGet() as Repository<TEntity>
+    }.get() as Repository<TEntity>
 
 /**
  * Provides a repository for [TEntity]
@@ -26,7 +26,7 @@ inline fun <reified TEntity : Entity> DatabaseContext.repository(): Repository<T
 fun <TEntity : Entity> DatabaseContext.repository(klass: KClass<out TEntity>): Repository<TEntity> =
     this.repoCache.findOr(klass) {
         PostgresRepository(klass.table) as Repository<Entity>
-    }.assertGet() as Repository<TEntity>
+    }.get() as Repository<TEntity>
 
 /**
  * Provides a repository for [TEntity]

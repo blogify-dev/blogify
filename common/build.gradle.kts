@@ -6,10 +6,15 @@ val kolor_version: String by project
 val result_version: String by project
 
 plugins {
+    maven
+
+    `java-library`
+
     kotlin("jvm")
 }
 
 group = "blogify"
+version = "alpha-1"
 
 repositories {
     mavenCentral()
@@ -28,7 +33,7 @@ dependencies {
 
     // Kolor
 
-    api("com.andreapivetta.kolor", "kolor", kolor_version)
+    implementation("com.andreapivetta.kolor", "kolor", kolor_version)
 
     // Result
 
@@ -43,6 +48,10 @@ dependencies {
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.5.2")
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.5.2")
+}
+
+artifacts {
+    archives(tasks.kotlinSourcesJar)
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")

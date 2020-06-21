@@ -10,10 +10,15 @@ val hikari_version:    String by project
 val epgx_version:      String by project
 
 plugins {
+    maven
+
+    `java-library`
+
     kotlin("jvm")
 }
 
 group = "blogify"
+version = "alpha-1"
 
 repositories {
     mavenCentral()
@@ -32,8 +37,8 @@ dependencies {
 
     // Submodules
 
-    implementation(project(":common"))
-    implementation(project(":reflect"))
+    api("blogify", "common", "alpha-1")
+    api("blogify", "reflect", "alpha-1")
 
     // Jackson
 
@@ -48,7 +53,7 @@ dependencies {
     implementation("org.jetbrains.exposed", "exposed-core", exposed_version)
     implementation("org.jetbrains.exposed", "exposed-jdbc", exposed_version)
     implementation("com.zaxxer", "HikariCP", hikari_version)
-    implementation("com.github.Benjozork", "exposed-postgres-extensions", epgx_version)
+    api("com.github.Benjozork", "exposed-postgres-extensions", epgx_version)
 
     // Kolor
 
@@ -62,6 +67,10 @@ dependencies {
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.5.2")
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.5.2")
+}
+
+artifacts {
+    archives(tasks.kotlinSourcesJar)
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
@@ -80,3 +89,5 @@ tasks {
         }
     }
 }
+
+
