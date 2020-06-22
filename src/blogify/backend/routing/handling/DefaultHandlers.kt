@@ -36,8 +36,9 @@ import blogify.reflect.extensions.klass
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.PropMap
 import blogify.reflect.models.extensions.ok
-import blogify.backend.database.tables.Uploadables
+import blogify.reflect.entity.mappedByHandles
 import blogify.reflect.entity.database.handling.query
+import blogify.backend.database.tables.Uploadables
 import blogify.backend.resources.user.User
 import blogify.backend.entity.Resource
 import blogify.backend.resources.static.file.StaticFileHandler
