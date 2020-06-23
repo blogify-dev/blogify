@@ -10,6 +10,7 @@ import blogify.reflect.entity.instantiation.construct
 import blogify.backend.events.models.EventTarget
 import blogify.backend.entity.Resource
 import blogify.backend.util.*
+import blogify.reflect.entity.mappedByHandles
 
 import com.fasterxml.jackson.databind.ObjectMapper
 
