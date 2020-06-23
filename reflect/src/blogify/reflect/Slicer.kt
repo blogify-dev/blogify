@@ -207,12 +207,19 @@ fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>, unsafe: Boolean = f
  *
  * @author Benjozork
  */
-fun <M : Mapped> M.sanitize(excludeNoSearch: Boolean = false, excludeUndisplayed: Boolean = false): Dto {
-    val sanitizedClassProps = this::class.propMap.valid
+fun <M : Mapped> M.sanitize (
+    excludeNoSearch: Boolean = false,
+    excludeUndisplayed: Boolean = false,
+    excludeComputed: Boolean = false,
+    unsafe: Boolean = false
+): Dto {
+    val sanitizedClassProps = (if (!unsafe) this::class.propMap else this::class.unsafePropMap)
+        .valid
         .asSequence()
         .filter {
-            (!excludeNoSearch || it.value.property.findAnnotation<NoSearch>() == null)
-                    && (!excludeUndisplayed || it.value.property.findAnnotation<Undisplayed>() == null)
+            (!excludeNoSearch || it.value.property.findAnnotation<NoSearch>() == null) &&
+            (!excludeUndisplayed || it.value.property.findAnnotation<Undisplayed>() == null) &&
+            (!excludeComputed || it.value !is PropMap.PropertyHandle.Computed)
         }
         .map { it.key }
         .toSet()
