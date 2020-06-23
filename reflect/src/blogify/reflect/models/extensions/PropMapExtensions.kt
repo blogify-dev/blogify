@@ -26,6 +26,18 @@ val PropMap.ok
     )
 
 /**
+ * Only returns [PropMap.PropertyHandle]s that are of type [PropMap.PropertyHandle.Computed]
+ *
+ * @author Benjozorkse
+ * 
+ */
+val PropMap.computed
+    get() = this.map.filterThenMapValues (
+        { it is PropMap.PropertyHandle.Computed },
+        { it.value as PropMap.PropertyHandle.Computed }
+    )
+
+/**
  * Only returns [PropMap.PropertyHandle]s that are of type [PropMap.PropertyHandle.AccessDenied]
  *
  * @author Benjozork
