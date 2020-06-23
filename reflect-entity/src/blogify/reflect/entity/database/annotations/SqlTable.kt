@@ -22,5 +22,9 @@ annotation class SqlTable (
  */
 @Suppress("UNCHECKED_CAST")
 val <R : Entity> KClass<R>.table: EntityTable<R>
-    get() = (this.findAnnotation<SqlTable>()?.table?.objectInstance ?: error("no @SqlTable annotation on class ${this.simpleName}"))
-            as EntityTable<R>
+    get() {
+        val annotation = this.findAnnotation<SqlTable>() ?: error("no @SqlTable annotation on class ${this.simpleName}")
+
+        return (annotation.table.objectInstance ?: error("class referenced in @SqlTable annotation must be singleton"))
+                as EntityTable<R>
+    }
