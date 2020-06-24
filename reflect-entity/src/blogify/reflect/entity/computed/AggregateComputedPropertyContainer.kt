@@ -14,7 +14,7 @@ class AggregateComputedPropertyContainer<TEntity : Entity, TProperty : Any?> (
     val aggregateExpr: Expression<TProperty>,
     val rightTable: Table,
     val rightColumn: Column<UUID>
-) : ComputedPropContainer<TEntity, TProperty>()  {
+) : ComputedPropContainer.AutomaticallyResolvable<TEntity, TProperty>()  {
 
     init {
         if (aggregateExpr !is Avg<*, *>)
@@ -24,7 +24,7 @@ class AggregateComputedPropertyContainer<TEntity : Entity, TProperty : Any?> (
             error("rightColumn must be a FK to the PK of ${obj::class.simpleName}'s EntityTable")
     }
 
-    fun computeValue(): TProperty = transaction {
+    override fun resolve(): TProperty = transaction {
         rightTable.slice(aggregateExpr).select { rightColumn eq obj.uuid }
             .singleOrNull()?.let { it[aggregateExpr] } ?: error("fuck")
     }
