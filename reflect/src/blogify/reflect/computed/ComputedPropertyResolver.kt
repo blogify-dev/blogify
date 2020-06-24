@@ -17,9 +17,11 @@ import kotlin.coroutines.EmptyCoroutineContext
 /**
  * Asynchronously evaluates the computed properties of [instance] and puts the value inside the [container][ComputedPropContainer] of each property.
  *
- * @param instance         the [mapped object][Mapped] to work on
- * @param coroutineContext a custom [CoroutineContext] to use for starting the resolution jobs
- * @param customResolver   a function that can handle custom subclasses of [ComputedPropContainer] if a library-provided subclass isn't used.
+ * @param instance                 the [mapped object][Mapped] to work on
+ * @param coroutineContext         a custom [CoroutineContext] to use for starting the resolution jobs
+ * @param customResolver           a function that can handle custom subclasses of [ComputedPropContainer] if a library-provided subclass isn't used.
+ * @param markUndefinedOnException whether or not a [container][ComputedPropContainer] should have the value of [ComputedPropContainer.Resolution.Undefined]
+ *                                 when there is an exception while resolving it
  *
  * @return a map of [valid handles][PropMap.PropertyHandle.Valid] to [their container instances][ComputedPropContainer].
  *
@@ -28,9 +30,9 @@ import kotlin.coroutines.EmptyCoroutineContext
 suspend fun <TMapped : Mapped> resolveComputedPropsAsync (
     instance: TMapped,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    markUndefinedOnException: Boolean = false,
     customResolver: (ComputedPropContainer<TMapped, *>) -> Any? =
-        { error("unknown computed property container was found, but no custom resolver was provided") },
-    markUndefinedOnException: Boolean = false
+        { error("unknown computed property container was found, but no custom resolver was provided") }
 ): Map<PropMap.PropertyHandle.Valid, ComputedPropContainer<TMapped, Any>> {
     // Find all prop containers in instance
     val allPropContainers = findAllPropContainers(instance)
@@ -62,8 +64,10 @@ suspend fun <TMapped : Mapped> resolveComputedPropsAsync (
 /**
  * Evaluates the computed properties of [instance] and puts the value inside the [container][ComputedPropContainer] of each property.
  *
- * @param instance       the [mapped object][Mapped] to work on
- * @param customResolver a function that can handle custom subclasses of [ComputedPropContainer] if a library-provided subclass isn't used.
+ * @param instance                 the [mapped object][Mapped] to work on
+ * @param customResolver           a function that can handle custom subclasses of [ComputedPropContainer] if a library-provided subclass isn't used.
+ * @param markUndefinedOnException whether or not a [container][ComputedPropContainer] should have the value of [ComputedPropContainer.Resolution.Undefined]
+ *                                 when there is an exception while resolving it
  *
  * @return a map of [valid handles][PropMap.PropertyHandle.Valid] to [their container instances][ComputedPropContainer].
  *
@@ -71,9 +75,9 @@ suspend fun <TMapped : Mapped> resolveComputedPropsAsync (
  */
 fun <TMapped : Mapped> resolveComputedProps (
     instance: TMapped,
+    markUndefinedOnException: Boolean = false,
     customResolver: (ComputedPropContainer<TMapped, *>) -> Any? =
-            { error("unknown computed property container was found, but no custom resolver was provided") },
-    markUndefinedOnException: Boolean = false
+            { error("unknown computed property container was found, but no custom resolver was provided") }
 ): Map<PropMap.PropertyHandle.Valid, ComputedPropContainer<TMapped, Any>> {
     // Find all prop containers in instance
     val allPropContainers = findAllPropContainers(instance)

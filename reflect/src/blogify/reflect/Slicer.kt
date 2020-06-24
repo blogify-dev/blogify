@@ -4,6 +4,7 @@ import blogify.reflect.annotations.Undisplayed
 import blogify.reflect.annotations.search.NoSearch
 import blogify.reflect.computed.models.ComputedPropContainer
 import blogify.reflect.computed.models.ComputedPropertyDelegate
+import blogify.reflect.computed.resolveComputedProps
 import blogify.reflect.extensions.subTypeOf
 import blogify.reflect.models.Mapped
 import blogify.reflect.models.Identified
@@ -72,6 +73,7 @@ fun <M : Mapped> getPropValueOnInstance (
     instance: M,
     propertyName: String,
     unsafe: Boolean = false,
+    sanitizeValue: Boolean = true,
     keepComputedContainers: Boolean = false
 ): SlicedProperty {
     return (if (!unsafe) instance.propMap else instance.unsafePropMap).map
@@ -89,7 +91,13 @@ fun <M : Mapped> getPropValueOnInstance (
                         SlicedProperty.Value(
                             propertyName,
                             handle,
-                            handle.property.get(instance)
+                            if (sanitizeValue && handle.property.returnType.subTypeOf(Mapped::class)) {
+                                val value = (handle.property.get(instance) as Mapped)
+                                resolveComputedProps(value, markUndefinedOnException = true) // markUndefinedOnException = true seems like a sensible default
+
+                                value.sanitize(recursive = sanitizeValue, unsafe = unsafe)
+                            } else
+                                handle.property.get(instance)
                         )
                     }
                 }
@@ -168,7 +176,11 @@ fun <M : Mapped> getPropValueOnInstance (
  *
  * @author hamza1311, Benjozork
  */
-fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>, unsafe: Boolean = false): Dto {
+fun <M : Mapped> M.slice (
+    selectedPropertyNames: Set<String>,
+    recursive: Boolean = true,
+    unsafe: Boolean = false
+): Dto {
 
     val selectedPropertiesSanitized = selectedPropertyNames.toMutableSet().apply {
         if (this@slice::class.isSubclassOf(Identified::class)) {
@@ -181,7 +193,7 @@ fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>, unsafe: Boolean = f
     val accessDeniedProperties = mutableSetOf<String>()
 
     return selectedPropertiesSanitized.associateWith { propName ->
-        when (val result = getPropValueOnInstance(this, propName, unsafe)) {
+        when (val result = getPropValueOnInstance(this, propName, unsafe, sanitizeValue = recursive)) {
             is SlicedProperty.Value -> result.value
             is SlicedProperty.NullableValue -> result.value
             is SlicedProperty.NotFound -> unknownProperties += result.name
@@ -198,16 +210,21 @@ fun <M : Mapped> M.slice(selectedPropertyNames: Set<String>, unsafe: Boolean = f
 }
 
 /**
- * Slices a resource with all of its properties except ones annotated with [@noslice][blogify.reflect.annotations.Hidden]
+ * Slices a resource with all of its properties except ones annotated with [blogify.reflect.annotations.Hidden], or according
+ * to provided parameters.
  *
  * @receiver the [mapped object][Mapped] to be sanitized
  *
+ * @param recursive          if set to `true`, [Mapped] values inside of the receiver value will also have [sanitize] called
+ *                           on them. Note: only the [unsafe] parameter is carried over to recursive calls.
  * @param excludeNoSearch    whether or not to exclude properties with a [NoSearch] annotation
  * @param excludeUndisplayed whether or not to exclude properties with an [Undisplayed] annotation
+ * @param unsafe             if an [unsafePropMap] is used
  *
  * @author Benjozork
  */
 fun <M : Mapped> M.sanitize (
+    recursive: Boolean = true,
     excludeNoSearch: Boolean = false,
     excludeUndisplayed: Boolean = false,
     excludeComputed: Boolean = false,
@@ -224,5 +241,5 @@ fun <M : Mapped> M.sanitize (
         .map { it.key }
         .toSet()
 
-    return this.slice(sanitizedClassProps)
+    return this.slice(sanitizedClassProps, recursive, unsafe)
 }
