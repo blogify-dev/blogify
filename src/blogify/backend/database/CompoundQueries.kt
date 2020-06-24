@@ -1,6 +1,6 @@
 package blogify.backend.database
 
-import blogify.reflect.entity.database.handling.query
+import blogify.database.handling.query
 import blogify.common.util.Sr
 
 import org.jetbrains.exposed.sql.Column

@@ -4,12 +4,12 @@ import blogify.reflect.entity.Entity
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_TOKEN
 import blogify.backend.appContext
 import blogify.backend.auth.jwt.validateJwt
-import blogify.reflect.entity.database.QueryContext
+import blogify.database.QueryContext
 import blogify.backend.push.PushServer
 import blogify.backend.push.PushServer.ResponseCodes.AUTH_OK
 import blogify.backend.resources.user.User
 import blogify.common.util.MapCache
-import blogify.reflect.entity.database.DatabaseContext
+import blogify.database.DatabaseContext
 
 import com.github.kittinunf.result.coroutines.getOrNull
 

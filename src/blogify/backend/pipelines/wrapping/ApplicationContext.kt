@@ -3,10 +3,10 @@ package blogify.backend.pipelines.wrapping
 import blogify.common.util.MapCache
 import blogify.reflect.models.Mapped
 import blogify.reflect.entity.Entity
-import blogify.reflect.entity.database.DatabaseContext
-import blogify.reflect.entity.database.QueryContext
-import blogify.reflect.entity.database.persistence.models.Repository
-import blogify.reflect.entity.database.extensions.repository
+import blogify.database.DatabaseContext
+import blogify.database.QueryContext
+import blogify.database.persistence.models.Repository
+import blogify.database.extensions.repository
 import blogify.reflect.entity.instantiation.construct
 import blogify.backend.appContext
 import blogify.backend.config.DatabaseConfig

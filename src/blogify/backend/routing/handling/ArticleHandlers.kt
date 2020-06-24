@@ -5,8 +5,8 @@ import blogify.reflect.sanitize
 import blogify.reflect.slice
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.auth.handling.authenticated
-import blogify.reflect.entity.database.handling.query
-import blogify.reflect.entity.database.handling.unwrappedQuery
+import blogify.database.handling.query
+import blogify.database.handling.unwrappedQuery
 import blogify.backend.database.tables.Articles
 import blogify.backend.pipelines.obtainResource
 import blogify.backend.pipelines.optionalParam

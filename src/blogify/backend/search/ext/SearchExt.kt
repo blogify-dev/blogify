@@ -3,7 +3,7 @@ package blogify.backend.search.ext
 import blogify.common.util.toUUID
 import blogify.common.util.Sr
 import blogify.reflect.sanitize
-import blogify.reflect.entity.database.persistence.models.Repository
+import blogify.database.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.entity.Resource
 import blogify.backend.search.models.Search

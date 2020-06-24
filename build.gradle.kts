@@ -53,6 +53,7 @@ dependencies {
 
     implementation(project(":common"))
     implementation(project(":reflect"))
+    implementation(project(":database"))
 
     // Ktor
 

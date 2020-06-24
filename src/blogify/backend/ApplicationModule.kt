@@ -4,7 +4,7 @@ import blogify.backend.bootstrap.BlogifyApplicationBootstrapper
 
 import com.fasterxml.jackson.databind.module.SimpleModule
 
-import blogify.reflect.entity.database.handling.query
+import blogify.database.handling.query
 import blogify.backend.database.*
 import blogify.backend.routing.makeArticleRoutes
 import blogify.backend.routing.makeUserRoutes

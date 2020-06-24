@@ -5,9 +5,9 @@ import blogify.common.util.Wrap
 import blogify.common.util.never
 import blogify.reflect.Dto
 import blogify.reflect.sanitize
-import blogify.reflect.entity.database.extensions.parentKey
-import blogify.reflect.entity.database.handling.query
-import blogify.reflect.entity.database.QueryContext
+import blogify.database.extensions.parentKey
+import blogify.database.handling.query
+import blogify.database.QueryContext
 import blogify.backend.events.models.Event
 import blogify.backend.resources.models.ResourceIdSerializer
 

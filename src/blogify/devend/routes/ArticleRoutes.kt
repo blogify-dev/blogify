@@ -8,7 +8,7 @@ import blogify.backend.resources.user.User
 import blogify.backend.util.getOrPipelineError
 import blogify.devend.utils.article
 import blogify.devend.utils.user
-import blogify.reflect.entity.database.handling.query
+import blogify.database.handling.query
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.Route

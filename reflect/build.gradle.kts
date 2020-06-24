@@ -46,14 +46,6 @@ dependencies {
     implementation("com.fasterxml.jackson.core", "jackson-annotations", "2.10.2")
     implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.10.2")
 
-    // Database stuff
-
-    implementation("org.postgresql", "postgresql", pg_driver_version)
-    implementation("org.jetbrains.exposed", "exposed-core", exposed_version)
-    implementation("org.jetbrains.exposed", "exposed-jdbc", exposed_version)
-    implementation("com.zaxxer", "HikariCP", hikari_version)
-    api("com.github.Benjozork", "exposed-postgres-extensions", epgx_version)
-
     // Kolor
 
     implementation("com.andreapivetta.kolor", "kolor", kolor_version)

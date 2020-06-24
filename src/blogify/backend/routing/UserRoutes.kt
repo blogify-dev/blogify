@@ -7,7 +7,7 @@ import blogify.backend.auth.handling.authenticated
 import blogify.backend.auth.handling.optionallyAuthenticated
 import blogify.backend.database.tables.Events
 import blogify.backend.database.tables.Users
-import blogify.reflect.entity.database.handling.query
+import blogify.database.handling.query
 import blogify.backend.resources.user.User
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView

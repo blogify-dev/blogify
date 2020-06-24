@@ -2,12 +2,12 @@ package blogify.backend.database.tables
 
 import blogify.common.util.Sr
 import blogify.common.util.Wrap
-import blogify.reflect.entity.database.extensions.parentKey
-import blogify.reflect.entity.database.extensions.weakKeyFrom
-import blogify.reflect.entity.database.handling.query
-import blogify.reflect.entity.database.handling.unwrappedQuery
-import blogify.reflect.entity.database.QueryContext
-import blogify.reflect.entity.database.EntityTable
+import blogify.database.extensions.parentKey
+import blogify.database.extensions.weakKeyFrom
+import blogify.database.handling.query
+import blogify.database.handling.unwrappedQuery
+import blogify.database.QueryContext
+import blogify.database.EntityTable
 import blogify.backend.resources.user.User
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.resources.user.UserSettings

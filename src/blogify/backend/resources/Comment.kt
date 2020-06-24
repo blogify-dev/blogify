@@ -4,7 +4,7 @@ import blogify.reflect.annotations.Hidden
 import blogify.reflect.computed.compound
 import blogify.reflect.computed.models.Computed
 import blogify.reflect.annotations.search.NoSearch
-import blogify.reflect.entity.database.annotations.SqlTable
+import blogify.database.annotations.SqlTable
 import blogify.backend.database.tables.Comments
 import blogify.backend.database.countReferredToBy
 import blogify.backend.pipelines.wrapping.RequestContext

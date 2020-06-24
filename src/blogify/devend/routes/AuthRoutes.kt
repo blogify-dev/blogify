@@ -8,7 +8,7 @@ import blogify.backend.resources.user.User
 import blogify.backend.util.getOrPipelineError
 import blogify.common.util.toUUID
 import blogify.devend.utils.user
-import blogify.reflect.entity.database.handling.query
+import blogify.database.handling.query
 import com.github.kittinunf.result.coroutines.getOrNull
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
