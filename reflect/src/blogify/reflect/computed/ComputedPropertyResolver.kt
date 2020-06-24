@@ -29,23 +29,29 @@ suspend fun <TMapped : Mapped> resolveComputedPropsAsync (
     instance: TMapped,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     customResolver: (ComputedPropContainer<TMapped, *>) -> Any? =
-        { error("unknown computed property container was found, but no custom resolver was provided") }
+        { error("unknown computed property container was found, but no custom resolver was provided") },
+    markUndefinedOnException: Boolean = false
 ): Map<PropMap.PropertyHandle.Valid, ComputedPropContainer<TMapped, Any>> {
     // Find all prop containers in instance
     val allPropContainers = findAllPropContainers(instance)
 
     val containerJobs = allPropContainers.map { (_, container) ->
-        GlobalScope.async(coroutineContext) { doResolveComputedProperty(instance, container, customResolver) }
+        GlobalScope.async(coroutineContext) { doResolveComputedProperty(container, customResolver) }
     }
 
     val completedJobs = containerJobs.awaitAll()
 
     val containersAndValues = (allPropContainers.entries zip completedJobs)
 
-    return containersAndValues.mapNotNull { (handleAndContainer, value) ->
+    return containersAndValues.mapNotNull { (handleAndContainer, valueAndException) ->
         val (handle, container) = handleAndContainer
+        val (value, exception) = valueAndException
 
-        container.resolution = ComputedPropContainer.Resolution.Value(value)
+        container.resolution = when {
+            value != null -> ComputedPropContainer.Resolution.Value(value)
+            markUndefinedOnException -> ComputedPropContainer.Resolution.Undefined
+            else -> throw IllegalStateException("exception occurred during computed property resolution and markUndefinedOnException is false", exception)
+        }
 
         if (value != null)
             handle to container
@@ -66,15 +72,20 @@ suspend fun <TMapped : Mapped> resolveComputedPropsAsync (
 fun <TMapped : Mapped> resolveComputedProps (
     instance: TMapped,
     customResolver: (ComputedPropContainer<TMapped, *>) -> Any? =
-            { error("unknown computed property container was found, but no custom resolver was provided") }
+            { error("unknown computed property container was found, but no custom resolver was provided") },
+    markUndefinedOnException: Boolean = false
 ): Map<PropMap.PropertyHandle.Valid, ComputedPropContainer<TMapped, Any>> {
     // Find all prop containers in instance
     val allPropContainers = findAllPropContainers(instance)
 
     return allPropContainers.map { (handle, container) ->
-        val value = doResolveComputedProperty(instance, container, customResolver)
+        val (value, exception) = doResolveComputedProperty(container, customResolver)
 
-         container.resolution = ComputedPropContainer.Resolution.Value(value)
+        container.resolution = when {
+            value != null -> ComputedPropContainer.Resolution.Value(value)
+            markUndefinedOnException -> ComputedPropContainer.Resolution.Undefined
+            else -> throw IllegalStateException("exception occurred during computed property resolution and markUndefinedOnException is false", exception)
+        }
 
         if (value != null)
             handle to container
@@ -102,7 +113,6 @@ private fun <TMapped : Mapped> findAllPropContainers(instance: TMapped) =
  * Attempts to find a value for [container] using a default implementation for library-provided subclasses of [ComputedPropContainer] and
  * [customResolver] for custom subclasses.
  *
- * @param instance       the [mapped object][Mapped] to work on
  * @param container      the [container][ComputedPropContainer] to resolve a value for
  * @param customResolver a function that can handle custom subclasses of [ComputedPropContainer] if a library-provided subclass isn't used.
  *                       An error is thrown if neither this implementation or [customResolver] returned a non-null value.
@@ -110,12 +120,19 @@ private fun <TMapped : Mapped> findAllPropContainers(instance: TMapped) =
  * @author Benjozork
  */
 private fun <TMapped : Mapped> doResolveComputedProperty (
-    instance: TMapped,
     container: ComputedPropContainer<TMapped, *>,
     customResolver: (ComputedPropContainer<TMapped, *>) -> Any?
-): Any? {
+): Pair<Any?, Exception?> {
     return when (container) {
-        is BasicComputedProperty<TMapped, *> -> container.function()
-        else -> customResolver(container)
+        is ComputedPropContainer.AutomaticallyResolvable -> try {
+            container.resolve() to null
+        } catch (e: Exception) {
+            null to e
+        }
+        else -> try {
+            customResolver(container) to null
+        } catch (e: Exception) {
+            null to e
+        }
     }
 }

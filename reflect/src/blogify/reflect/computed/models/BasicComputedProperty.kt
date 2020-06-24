@@ -10,4 +10,8 @@ import blogify.reflect.models.Mapped
 class BasicComputedProperty<TMapped : Mapped, TProperty : Any?> (
     override val obj: TMapped,
     val function: () -> TProperty
-) : ComputedPropContainer<TMapped, TProperty>()
+) : ComputedPropContainer.AutomaticallyResolvable<TMapped, TProperty>() {
+
+    override fun resolve() = function()
+
+}

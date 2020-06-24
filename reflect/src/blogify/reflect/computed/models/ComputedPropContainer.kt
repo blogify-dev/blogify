@@ -16,6 +16,10 @@ abstract class ComputedPropContainer<TMapped : Mapped, TProperty : Any?> {
 
     var resolution: Resolution = Resolution.Unresolved
 
+    abstract class AutomaticallyResolvable<TMapped : Mapped, TProperty : Any?> : ComputedPropContainer<TMapped, TProperty>() {
+        abstract fun resolve(): TProperty
+    }
+
     /**
      * Represents the resolution state of the computed property
      */
