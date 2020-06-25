@@ -7,6 +7,7 @@ import blogify.backend.resources.Comment
 
 import org.jetbrains.exposed.sql.*
 
+@ExperimentalStdlibApi
 object Comments : EntityTable<Comment>() {
 
     val commenter     =  parentKey ("commenter", Users)

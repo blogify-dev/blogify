@@ -2,12 +2,12 @@ package blogify.backend.resources.reflect
 
 import blogify.backend.entity.Resource
 import blogify.backend.events.models.EventTarget
-import blogify.reflect.computed.models.Computed
-import blogify.reflect.annotations.Hidden
-import blogify.reflect.annotations.check
-import blogify.reflect.models.extensions.ok
-import blogify.reflect.models.extensions.valid
-import blogify.reflect.propMap
+import reflectify.computed.models.Computed
+import reflectify.annotations.Hidden
+import reflectify.annotations.check
+import reflectify.models.extensions.ok
+import reflectify.models.extensions.valid
+import reflectify.propMap
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

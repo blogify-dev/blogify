@@ -3,8 +3,8 @@ package blogify.database.persistence.postgres
 import blogify.common.util.Sr
 import blogify.common.util.SrList
 import blogify.common.util.Wrap
-import blogify.reflect.MappedData
-import blogify.reflect.entity.Entity
+import reflectify.util.MappedData
+import reflectify.entity.Entity
 import blogify.database.handling.query
 import blogify.database.QueryContext
 import blogify.database.EntityTable
@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.*
 
 import java.util.*
 
+@ExperimentalStdlibApi
 open class PostgresRepository<R : Entity>(val table: EntityTable<R>) :
     Repository<R> {
 

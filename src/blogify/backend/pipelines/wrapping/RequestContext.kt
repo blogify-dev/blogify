@@ -7,7 +7,7 @@ import blogify.common.util.MapCache
 import blogify.common.util.Sr
 import blogify.common.util.Wrap
 import blogify.common.util.WrapBlocking
-import blogify.reflect.entity.Entity
+import reflectify.entity.Entity
 import blogify.database.DatabaseContext
 import blogify.database.extensions.repository
 
@@ -37,6 +37,7 @@ import java.util.UUID
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 class RequestContext (
     val appContext: ApplicationContext,
     val coroutineScope: CoroutineScope,
@@ -97,6 +98,7 @@ class RequestContext (
      *
      * @author Benjozork
      */
+    @ExperimentalStdlibApi
     inline fun <reified TResource : Resource> repository(): Repository<TResource> {
         return this.appContext.repository(TResource::class)
     }
@@ -108,6 +110,7 @@ class RequestContext (
      *
      * @author Benjozork
      */
+    @ExperimentalStdlibApi
     fun <TResource : Entity> repository(klass: KClass<TResource>): Repository<out TResource> {
         return this.appContext.repository(klass)
     }
@@ -119,4 +122,5 @@ class RequestContext (
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 typealias RequestContextFunction<TSubject> = suspend RequestContext.(TSubject) -> Unit

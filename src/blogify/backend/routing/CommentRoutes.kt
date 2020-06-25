@@ -6,11 +6,11 @@ import blogify.backend.resources.Comment
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.routing.handling.flipCommentLike
 import blogify.backend.routing.handling.getCommentLikeStatus
-import blogify.reflect.sanitize
-import blogify.reflect.slice
+import reflectify.sanitize
+import reflectify.slice
 import blogify.backend.routing.handling.*
 import blogify.backend.util.*
-import blogify.reflect.Dto
+import reflectify.util.Dto
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
@@ -22,6 +22,7 @@ import kotlinx.coroutines.async
 
 import org.jetbrains.exposed.sql.*
 
+@ExperimentalStdlibApi
 fun Route.makeArticleCommentRoutes() {
 
     route("/comments") {

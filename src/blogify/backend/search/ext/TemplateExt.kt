@@ -1,18 +1,20 @@
 package blogify.backend.search.ext
 
-import blogify.reflect.annotations.search.QueryByField
-import blogify.reflect.annotations.search.SearchDefaultSort
+import blogify.backend.search.annotations.QueryByField
+import blogify.backend.search.annotations.SearchDefaultSort
 import blogify.backend.entity.Resource
 import blogify.backend.search.models.Template
-import blogify.reflect.propMap
-import blogify.reflect.models.extensions.ok
+import reflectify.propMap
+import reflectify.models.extensions.ok
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
+@ExperimentalStdlibApi
 private val templateCache: MutableMap<KClass<*>, Template<*>> = mutableMapOf()
 
 @Suppress("ObjectPropertyName", "UNCHECKED_CAST")
+@ExperimentalStdlibApi
 val <R : Resource> KClass<R>._searchTemplate: Template<R> get() {
     var cached: Template<R>? = templateCache[this] as? Template<R>?
     if (cached == null) {
@@ -26,6 +28,7 @@ val <R : Resource> KClass<R>._searchTemplate: Template<R> get() {
 const val TEMPLATE_DEFAULT_DSF = "_dsf"
 
 @Suppress("FunctionName")
+@ExperimentalStdlibApi
 fun <R : Resource> KClass<R>._buildSearchTemplate(): Template<R> {
     return Template (
         klass  = this,
@@ -40,6 +43,7 @@ fun <R : Resource> KClass<R>._buildSearchTemplate(): Template<R> {
 }
 
 @Suppress("FunctionName")
+@ExperimentalStdlibApi
 fun <R : Resource> KClass<R>._rebuildSearchTemplate(): Template<R> {
 
     val template =  this._buildSearchTemplate()

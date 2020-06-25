@@ -20,6 +20,7 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
 
 @Suppress("unused")
+@ExperimentalStdlibApi
 data class Template<T : Resource>(
     @JsonIgnore
     val klass: KClass<T>,

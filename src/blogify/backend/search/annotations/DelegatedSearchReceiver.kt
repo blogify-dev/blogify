@@ -1,4 +1,4 @@
-package blogify.reflect.annotations.search
+package blogify.backend.search.annotations
 
 /**
  * Marks a property of a class as being the value by which it is represented when present in a class property marked with

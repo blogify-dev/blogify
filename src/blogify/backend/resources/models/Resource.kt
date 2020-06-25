@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 /**
  * Used to serialize [resources][Resource] by only printing their [uuid][Resource.uuid].
  */
+@ExperimentalStdlibApi
 object ResourceIdSerializer : StdSerializer<Resource>(Resource::class.java) {
 
     override fun serialize(value: Resource, gen: JsonGenerator, provider: SerializerProvider) {

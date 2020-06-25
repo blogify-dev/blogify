@@ -1,9 +1,8 @@
 package blogify.backend.resources
 
-import blogify.reflect.annotations.Hidden
-import blogify.reflect.computed.compound
-import blogify.reflect.computed.models.Computed
-import blogify.reflect.annotations.search.NoSearch
+import reflectify.annotations.Hidden
+import reflectify.computed.compound
+import reflectify.computed.models.Computed
 import blogify.database.annotations.SqlTable
 import blogify.backend.database.tables.Comments
 import blogify.backend.database.countReferredToBy
@@ -13,12 +12,14 @@ import blogify.backend.events.models.EventSource
 import blogify.backend.events.models.EventType
 import blogify.backend.resources.models.UserCreatedResource
 import blogify.backend.resources.user.User
+import reflectify.annotations.search.NoSearch
 
 import java.time.Instant
 
 import java.util.UUID
 
 @NoSearch
+@ExperimentalStdlibApi
 @SqlTable(Comments::class)
 data class Comment (
     val commenter: User,

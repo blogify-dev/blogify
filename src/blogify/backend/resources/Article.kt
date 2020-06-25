@@ -1,10 +1,10 @@
 package blogify.backend.resources
 
-import blogify.reflect.annotations.Hidden
-import blogify.reflect.annotations.check
-import blogify.reflect.annotations.search.*
-import blogify.reflect.computed.compound
-import blogify.reflect.computed.models.Computed
+import reflectify.annotations.Hidden
+import reflectify.annotations.check
+import blogify.backend.search.annotations.*
+import reflectify.computed.compound
+import reflectify.computed.models.Computed
 import blogify.database.annotations.SqlTable
 import blogify.backend.database.tables.Articles
 import blogify.backend.database.tables.Comments
@@ -14,6 +14,8 @@ import blogify.backend.events.models.Event
 import blogify.backend.events.models.EventType
 import blogify.backend.resources.models.UserCreatedResource
 import blogify.backend.resources.user.User
+import blogify.backend.search.annotations.DelegatedSearch
+import reflectify.annotations.search.NoSearch
 
 import java.time.Instant
 import java.util.UUID
@@ -28,6 +30,7 @@ import java.util.UUID
  * @property summary    The summary of the article.
  * @property categories The [categories][Article.Category] of the article.
  */
+@ExperimentalStdlibApi
 @SqlTable(Articles::class)
 data class Article (
 

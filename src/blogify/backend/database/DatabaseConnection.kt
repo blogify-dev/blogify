@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.Database
 /**
  * Meta object regrouping setup and utility functions for PostgreSQL.
  */
+@ExperimentalStdlibApi
 object DatabaseConnection {
 
     private fun configureHikariCP(dbConfig: DatabaseConfig): HikariDataSource =

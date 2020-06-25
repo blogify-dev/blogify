@@ -7,6 +7,7 @@ import blogify.backend.resources.Article
 
 import org.jetbrains.exposed.sql.*
 
+@ExperimentalStdlibApi
 object Articles : EntityTable<Article>() {
 
     val title      = text      ("title")

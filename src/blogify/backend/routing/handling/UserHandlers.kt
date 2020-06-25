@@ -15,6 +15,7 @@ import io.ktor.response.respond
  * Request handler for making a user an admin
  */
 @BlogifyDsl
+@ExperimentalStdlibApi
 val toggleUserAdmin: RequestContextFunction<Unit> = {
     val id by queryUuid
 

@@ -1,17 +1,17 @@
 package blogify.backend.resources.reflect
 
-import blogify.reflect.annotations.Hidden
+import reflectify.annotations.Hidden
 import blogify.backend.events.models.EventTarget
 import blogify.backend.entity.Resource
-import blogify.reflect.models.extensions.ok
+import reflectify.models.extensions.ok
 import blogify.common.util.Sr
-import blogify.reflect.entity.update
+import reflectify.entity.update
 
 import kotlinx.coroutines.runBlocking
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import blogify.reflect.unsafePropMap
+import reflectify.unsafePropMap
 import com.fasterxml.jackson.databind.ObjectMapper
 
 @Suppress("MapGetWithNotNullAssertionOperator")

@@ -1,12 +1,12 @@
 package blogify.backend.resources.user
 
-import blogify.reflect.annotations.Hidden
+import reflectify.annotations.Hidden
 import blogify.database.annotations.SqlTable
-import blogify.reflect.annotations.Undisplayed
-import blogify.reflect.annotations.search.NoSearch
-import blogify.reflect.annotations.search.DelegatedSearchReceiver
-import blogify.reflect.annotations.search.QueryByField
-import blogify.reflect.annotations.search.SearchDefaultSort
+import reflectify.annotations.Undisplayed
+import blogify.backend.search.annotations.DelegatedSearchReceiver
+import blogify.backend.search.annotations.QueryByField
+import blogify.backend.search.annotations.SearchDefaultSort
+import reflectify.annotations.search.NoSearch
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
 import blogify.backend.database.tables.Users
@@ -18,8 +18,8 @@ import blogify.backend.events.models.EventTarget
 import blogify.backend.events.models.EventType
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.push.Message
-import blogify.reflect.computed.compound
-import blogify.reflect.computed.models.Computed
+import reflectify.computed.compound
+import reflectify.computed.models.Computed
 import blogify.backend.entity.Resource
 import blogify.backend.resources.static.models.StaticFile
 
@@ -30,6 +30,7 @@ import java.util.*
 import kotlin.random.Random
 
 @NoSearch
+@ExperimentalStdlibApi
 @SqlTable(Users::class)
 data class User (
     @QueryByField

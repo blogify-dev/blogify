@@ -1,6 +1,6 @@
 package blogify.database.computed.extensions
 
-import blogify.reflect.entity.Entity
+import reflectify.entity.Entity
 import blogify.database.computed.AggregateComputedPropertyContainer
 
 import org.jetbrains.exposed.sql.Column
@@ -21,6 +21,7 @@ import java.util.*
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 fun <TEntity : Entity, TProperty : Any?> TEntity.aggregate (
     aggregateExpr: Expression<TProperty>,
     rightTable: Table,

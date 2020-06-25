@@ -1,13 +1,13 @@
 package blogify.backend.pipelines.wrapping
 
 import blogify.common.util.MapCache
-import blogify.reflect.models.Mapped
-import blogify.reflect.entity.Entity
+import reflectify.models.Mapped
+import reflectify.entity.Entity
 import blogify.database.DatabaseContext
 import blogify.database.QueryContext
 import blogify.database.persistence.models.Repository
 import blogify.database.extensions.repository
-import blogify.reflect.entity.instantiation.construct
+import reflectify.entity.instantiation.construct
 import blogify.backend.appContext
 import blogify.backend.config.DatabaseConfig
 import blogify.backend.config.TypesenseConfig
@@ -31,6 +31,7 @@ import kotlin.reflect.KClass
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 class ApplicationContext(val objectMapper: ObjectMapper) : DatabaseContext {
 
     override val repoCache = MapCache<KClass<out Entity>, Repository<Entity>>()

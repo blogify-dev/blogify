@@ -31,6 +31,7 @@ private val logger = LoggerFactory.getLogger("blogify-auth-token")
 /**
  * Creates a [Jws] for the specific [user].
  */
+@ExperimentalStdlibApi
 fun generateJWT(user: User) = Jwts
     .builder()
     .setSubject(user.uuid.toString())
@@ -50,6 +51,7 @@ fun generateJWT(user: User) = Jwts
 /**
 * Validates a JWT, returning a [Sr] accordingly
  */
+@ExperimentalStdlibApi
 suspend fun validateJwt(queryContext: QueryContext, token: String): Sr<User> {
     var jwsClaims: Jws<Claims>? = null
 

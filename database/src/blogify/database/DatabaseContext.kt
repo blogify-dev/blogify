@@ -1,7 +1,7 @@
 package blogify.database
 
 import blogify.common.util.MapCache
-import blogify.reflect.entity.Entity
+import reflectify.entity.Entity
 import blogify.database.persistence.models.Repository
 
 import kotlin.reflect.KClass

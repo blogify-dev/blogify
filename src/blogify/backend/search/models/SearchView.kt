@@ -1,13 +1,14 @@
 package blogify.backend.search.models
 
 import blogify.backend.search.Typesense
-import blogify.reflect.Dto
+import reflectify.util.Dto
 
 /**
  * Models for sending processed [Typesense] search results to a client
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 data class SearchView (
     val facet_counts: List<Any>?, // |\
     val found: Int?,              // | Will not appear on no results

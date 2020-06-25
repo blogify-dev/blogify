@@ -1,7 +1,7 @@
 package blogify.database.extensions
 
 import blogify.database.EntityTable
-import blogify.reflect.entity.Entity
+import reflectify.entity.Entity
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ForeignKeyConstraint
@@ -9,6 +9,7 @@ import org.jetbrains.exposed.sql.ReferenceOption
 
 import java.util.*
 
+@ExperimentalStdlibApi
 infix fun <T : Entity, C : Column<UUID?>> C.nullableKeyOf(entityTable: EntityTable<T>): C = apply {
     this.foreignKey = ForeignKeyConstraint (
         target = entityTable.uuid,
@@ -19,6 +20,7 @@ infix fun <T : Entity, C : Column<UUID?>> C.nullableKeyOf(entityTable: EntityTab
     )
 }
 
+@ExperimentalStdlibApi
 infix fun <T : Entity, C : Column<UUID>> C.keyOf(entityTable: EntityTable<T>): C = apply {
     this.foreignKey = ForeignKeyConstraint (
         target = entityTable.uuid,
@@ -28,6 +30,7 @@ infix fun <T : Entity, C : Column<UUID>> C.keyOf(entityTable: EntityTable<T>): C
         name = null
     )}
 
+@ExperimentalStdlibApi
 infix fun <T : Entity, C : Column<UUID>> C.dependentKeyOf(entityTable: EntityTable<T>): C = apply {
     this.foreignKey = ForeignKeyConstraint (
         target = entityTable.uuid,

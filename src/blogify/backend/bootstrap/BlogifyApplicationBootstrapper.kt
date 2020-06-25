@@ -20,6 +20,7 @@ import java.security.KeyStore
 
 import org.slf4j.LoggerFactory
 
+@ExperimentalStdlibApi
 private val objectMapper = jacksonObjectMapper().apply {
     val blogifyModule = SimpleModule()
 
@@ -34,6 +35,7 @@ private val objectMapper = jacksonObjectMapper().apply {
 }
 
 @KtorExperimentalAPI
+@ExperimentalStdlibApi
 object BlogifyApplicationBootstrapper {
 
     private val logger = LoggerFactory.getLogger("blogify-application-bootstrapper")

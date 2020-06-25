@@ -1,9 +1,9 @@
 package blogify.database.extensions
 
-import blogify.reflect.entity.Entity
+import reflectify.entity.Entity
 import blogify.database.EntityTable
 
-import blogify.reflect.extensions.klass
+import reflectify.extensions.klass
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Table
@@ -16,6 +16,7 @@ import java.util.*
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 val <TEntity : Entity> EntityTable<TEntity>.klass get() = this.bindings.first().property.klass
 
 /**
@@ -24,5 +25,6 @@ val <TEntity : Entity> EntityTable<TEntity>.klass get() = this.bindings.first().
  * @author Benjozork
  */
 @Suppress("UNCHECKED_CAST")
+@ExperimentalStdlibApi
 fun Table.foreignKeyTo(other: EntityTable<*>): Column<UUID>?
         = this.columns.singleOrNull { it.referee == other.uuid } as? Column<UUID>

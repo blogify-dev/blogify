@@ -1,8 +1,8 @@
 package blogify.backend.routing.handling
 
 import blogify.common.util.assertGet
-import blogify.reflect.sanitize
-import blogify.reflect.slice
+import reflectify.sanitize
+import reflectify.slice
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.auth.handling.authenticated
 import blogify.database.handling.query
@@ -27,9 +27,11 @@ import io.ktor.response.respond
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
+@ExperimentalStdlibApi
 private val likes = Articles.Likes
 
 @BlogifyDsl
+@ExperimentalStdlibApi
 val getUserDraftArticles: RequestContextFunction<Unit> = {
     authenticated { user ->
         val quantity = optionalParam(name = "quantity")?.toIntOrNull() ?: 25
@@ -63,6 +65,7 @@ val getUserDraftArticles: RequestContextFunction<Unit> = {
  * Request handler for fetching article like status
  */
 @BlogifyDsl
+@ExperimentalStdlibApi
 val getArticleLikeStatus: RequestContextFunction<Unit> = {
     val id by queryUuid
 
@@ -81,6 +84,7 @@ val getArticleLikeStatus: RequestContextFunction<Unit> = {
  * Request handler for flipping article like status
  */
 @BlogifyDsl
+@ExperimentalStdlibApi
 val flipArticleLike: RequestContextFunction<Unit> = {
     val id by queryUuid
 
@@ -125,6 +129,7 @@ val flipArticleLike: RequestContextFunction<Unit> = {
  * Request handler for flipping article pin status
  */
 @BlogifyDsl
+@ExperimentalStdlibApi
 val flipArticlePin: RequestContextFunction<Unit> = {
     val id by queryUuid
     val article = obtainResource<Article>(id)
@@ -143,6 +148,7 @@ val flipArticlePin: RequestContextFunction<Unit> = {
  * Request handler for flipping article hide status
  */
 @BlogifyDsl
+@ExperimentalStdlibApi
 val flipArticleHideStatus: RequestContextFunction<Unit> = {
     val id by queryUuid
     val article = obtainResource<Article>(id)

@@ -1,6 +1,6 @@
 package blogify.backend.search.autogen
 
-import blogify.reflect.annotations.search.DelegatedSearchReceiver
+import blogify.backend.search.annotations.DelegatedSearchReceiver
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1

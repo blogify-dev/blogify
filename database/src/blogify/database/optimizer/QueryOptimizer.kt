@@ -1,11 +1,10 @@
 package blogify.database.optimizer
 
 import blogify.common.util.*
-import blogify.reflect.MappedData
-import blogify.reflect.entity.Entity
-import blogify.reflect.extensions.klass
-import blogify.reflect.extensions.okHandle
-import blogify.reflect.extensions.safeKlass
+import reflectify.entity.Entity
+import reflectify.extensions.klass
+import reflectify.extensions.okHandle
+import reflectify.extensions.safeKlass
 import blogify.database.annotations.table
 import blogify.database.binding.SqlBinding
 import blogify.database.handling.query
@@ -15,6 +14,7 @@ import org.jetbrains.exposed.sql.*
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.mapError
+import reflectify.util.MappedData
 
 import kotlin.reflect.KClass
 
@@ -26,6 +26,7 @@ import java.util.*
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 object QueryOptimizer {
 
     private val classJoinCache = MapCache<KClass<out Entity>, ColumnSet>()
@@ -54,6 +55,7 @@ object QueryOptimizer {
      * @param klass          the class associated with [TEntity], used for reflection purposes
      * @param rows           a set of [result rows][ResultRow], each to be converted to instances of [TEntity]
      */
+    @ExperimentalStdlibApi
     suspend fun <TEntity : Entity> convertOptimizedRows (
         queryContext: QueryContext,
         klass: KClass<TEntity>,

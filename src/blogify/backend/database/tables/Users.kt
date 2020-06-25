@@ -19,6 +19,7 @@ import org.jetbrains.exposed.sql.*
 import io.ktor.http.ContentType
 
 @Suppress("DuplicatedCode")
+@ExperimentalStdlibApi
 object Users : EntityTable<User>() {
 
     val username       = text    ("username")

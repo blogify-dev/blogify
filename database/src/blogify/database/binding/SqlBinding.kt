@@ -1,6 +1,6 @@
 package blogify.database.binding
 
-import blogify.reflect.entity.Entity
+import reflectify.entity.Entity
 import blogify.database.extensions.foreignKeyTo
 import blogify.database.EntityTable
 
@@ -24,6 +24,7 @@ import kotlin.reflect.KProperty1
  * @property table    the table for [TEntity]
  * @property property the [property][KProperty1] we are binding
  */
+@ExperimentalStdlibApi
 sealed class SqlBinding<TEntity : Entity, TProperty : Any?, TColumn : Any?> (
     val table: EntityTable<TEntity>,
     val property: KProperty1<TEntity, TProperty>

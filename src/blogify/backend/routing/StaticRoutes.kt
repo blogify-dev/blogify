@@ -10,6 +10,7 @@ import io.ktor.response.respondBytes
 import io.ktor.routing.Route
 import io.ktor.routing.get
 
+@ExperimentalStdlibApi
 fun Route.makeStaticRoutes() {
 
     get("/get/{uploadableId}") {

@@ -1,12 +1,12 @@
 package blogify.database
 
 import blogify.common.util.*
-import blogify.reflect.entity.Entity
-import blogify.reflect.entity.instantiation.MissingArgumentsException
-import blogify.reflect.SlicedProperty
-import blogify.reflect.extensions.handle
-import blogify.reflect.extensions.okHandle
-import blogify.reflect.getPropValueOnInstance
+import reflectify.entity.Entity
+import reflectify.entity.instantiation.MissingArgumentsException
+import reflectify.SlicedProperty
+import reflectify.extensions.handle
+import reflectify.extensions.okHandle
+import reflectify.getPropValueOnInstance
 import blogify.database.handling.query
 import blogify.database.handling.unwrappedQuery
 import blogify.database.binding.SqlBinding
@@ -42,6 +42,7 @@ import kotlin.reflect.KProperty1
  *
  * @author Benjozork, hamza1311
  */
+@ExperimentalStdlibApi
 abstract class EntityTable<TEntity : Entity> : PgTable() {
 
     /**
@@ -158,6 +159,7 @@ abstract class EntityTable<TEntity : Entity> : PgTable() {
      * @param aliasToUse      a [table alias][Alias] to specify which columns should be used when data for multiple
      *                        instances of [TEntity] might be present in a single row
      */
+    @ExperimentalStdlibApi
     open suspend fun convert (
         queryContext: QueryContext,
         source: ResultRow,

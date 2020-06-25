@@ -1,7 +1,7 @@
 package blogify.database.computed
 
-import blogify.reflect.computed.models.ComputedPropContainer
-import blogify.reflect.entity.Entity
+import reflectify.computed.models.ComputedPropContainer
+import reflectify.entity.Entity
 import blogify.database.annotations.table
 
 import org.jetbrains.exposed.sql.*
@@ -9,6 +9,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 import java.util.*
 
+@ExperimentalStdlibApi
 class AggregateComputedPropertyContainer<TEntity : Entity, TProperty : Any?> (
     override val obj: TEntity,
     val aggregateExpr: Expression<TProperty>,

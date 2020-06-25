@@ -4,13 +4,12 @@ import blogify.common.util.Sr
 import blogify.common.util.SrList
 import blogify.common.util.MapCache
 import blogify.database.extensions.repository
-import blogify.reflect.MappedData
-import blogify.reflect.entity.Entity
-import blogify.reflect.models.Mapped
-import blogify.reflect.models.PropMap
+import reflectify.entity.Entity
+import reflectify.models.Mapped
+import reflectify.models.PropMap
 import blogify.database.persistence.models.Repository
-import blogify.reflect.entity.update
-import blogify.reflect.entity.instantiation.construct
+import reflectify.entity.update
+import reflectify.entity.instantiation.construct
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Op
@@ -18,6 +17,7 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import reflectify.util.MappedData
 
 import java.util.*
 
@@ -73,14 +73,16 @@ interface QueryContext {
     ): Sr<TEntity> =
         this.updateWithProperties(this@QueryContext, entity, data)
 
-    /** See [blogify.reflect.entity.instantiation.construct] */
+    /** See [reflectify.entity.instantiation.construct] */
+    @ExperimentalStdlibApi
     suspend fun <TMapped : Mapped> KClass<out TMapped>.construct (
         data:               MappedData,
         externallyProvided: Set<PropMap.PropertyHandle.Ok> = setOf()
     ): Sr<TMapped> =
         this.construct(data, objectMapper, { klass, uuid -> this@QueryContext.repository(klass).get(queryContext = this@QueryContext, id = uuid) }, externallyProvided)
 
-    /** See [blogify.reflect.entity.update] */
+    /** See [reflectify.entity.update] */
+    @ExperimentalStdlibApi
     suspend fun <R : Mapped> R.update(rawData: MappedData): Sr<R> =
         this.update(rawData, this@QueryContext.objectMapper, fetcher = { klass, id -> this@QueryContext.repository(klass).get(id = id, queryContext = this@QueryContext) })
 

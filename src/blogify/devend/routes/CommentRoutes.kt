@@ -13,6 +13,7 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import java.util.*
 
+@ExperimentalStdlibApi
 fun Route.commentsSeedRoutes() {
     route("/comment") {
         post("/article/{uuid}") {

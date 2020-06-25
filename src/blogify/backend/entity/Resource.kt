@@ -1,7 +1,7 @@
 package blogify.backend.entity
 
-import blogify.reflect.models.Identified
-import blogify.reflect.entity.Entity
+import reflectify.models.Identified
+import reflectify.entity.Entity
 import blogify.backend.events.models.EventEmitter
 import blogify.backend.events.models.EventSource
 import blogify.backend.pipelines.wrapping.RequestContext
@@ -9,6 +9,7 @@ import blogify.common.util.never
 
 import java.util.*
 
+@ExperimentalStdlibApi
 abstract class Resource(override val uuid: UUID = UUID.randomUUID()) : Entity(uuid),
     EventSource,
     EventEmitter,

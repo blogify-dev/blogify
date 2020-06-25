@@ -7,6 +7,7 @@ import blogify.backend.entity.Resource
 
 import java.util.*
 
+@ExperimentalStdlibApi
 abstract class UserCreatedResource(uuid: UUID) : Resource(uuid) {
 
     abstract inner class CreationEvent : Event(creator, this, EventType.Activity)

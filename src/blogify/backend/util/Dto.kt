@@ -3,13 +3,14 @@ package blogify.backend.util
 import blogify.common.util.letCatchingOrNull
 import blogify.common.util.Sr
 import blogify.common.util.WrapBlocking
-import blogify.reflect.*
-import blogify.reflect.models.Mapped
-import blogify.reflect.models.PropMap
-import blogify.reflect.entity.mappedByHandles
+import reflectify.models.Mapped
+import reflectify.models.PropMap
+import reflectify.entity.mappedByHandles
 import blogify.backend.appContext
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import reflectify.util.Dto
+import reflectify.util.MappedData
 
 import kotlin.reflect.KClass
 
@@ -18,6 +19,7 @@ import kotlin.reflect.KClass
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 fun String.toDto(): Dto? =
     letCatchingOrNull {
         appContext.objectMapper.readValue<Dto>(it)
@@ -32,6 +34,7 @@ fun String.toDto(): Dto? =
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 fun <TMapped : Mapped> String.parseJsonHandleMap(klass: KClass<TMapped>): Sr<MappedData> {
     return WrapBlocking { this.toDto()?.mappedByHandles(klass)!!.get() }
 }

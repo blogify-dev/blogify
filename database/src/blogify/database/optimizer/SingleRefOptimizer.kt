@@ -1,10 +1,10 @@
 package blogify.database.optimizer
 
 import blogify.common.util.never
-import blogify.reflect.extensions.safeKlass
+import reflectify.extensions.safeKlass
 import blogify.database.annotations.table
 import blogify.database.binding.SqlBinding
-import blogify.reflect.entity.Entity
+import reflectify.entity.Entity
 
 import org.jetbrains.exposed.sql.*
 
@@ -14,6 +14,7 @@ import kotlin.reflect.KClass
  * Creates a [query][Query] for retrieving both an instance of [TEntity]
  * and all of it's [single reference][SqlBinding.Reference] properties.
  */
+@ExperimentalStdlibApi
 fun <TEntity : Entity> makeJoinForClass(klass: KClass<TEntity>): ColumnSet {
     val entityTable = klass.table
     val tableSingleRefBindings = entityTable.bindings.filter {

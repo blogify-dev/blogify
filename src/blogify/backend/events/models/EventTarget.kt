@@ -1,7 +1,7 @@
 package blogify.backend.events.models
 
 import blogify.backend.pipelines.wrapping.ApplicationContext
-import blogify.reflect.models.Identified
+import reflectify.models.Identified
 
 /**
  * Applies to objects that receive [events][Event] when an [EventSource] object
@@ -9,6 +9,7 @@ import blogify.reflect.models.Identified
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 interface EventTarget : Identified {
 
     /**

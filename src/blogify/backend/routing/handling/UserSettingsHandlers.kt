@@ -3,9 +3,9 @@ package blogify.backend.routing.handling
 import blogify.common.util.Wrap
 import blogify.common.util.assertGet
 import blogify.common.util.never
-import blogify.reflect.Dto
+import reflectify.util.Dto
 import blogify.database.handling.query
-import blogify.reflect.entity.mappedByHandles
+import reflectify.entity.mappedByHandles
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.auth.handling.authenticated
 import blogify.backend.database.tables.Users
@@ -24,6 +24,7 @@ import org.jetbrains.exposed.sql.update
  * Request handler for fetching user settings
  */
 @BlogifyDsl
+@ExperimentalStdlibApi
 val getSettings: RequestContextFunction<Unit> = {
     authenticated { user ->
         val userSettings = query {
@@ -40,6 +41,7 @@ val getSettings: RequestContextFunction<Unit> = {
  * Request handler for updating user settings
  */
 @BlogifyDsl
+@ExperimentalStdlibApi
 val updateSettings: RequestContextFunction<Unit> = {
     authenticated { user ->
         val oldSettings = query {

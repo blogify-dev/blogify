@@ -3,8 +3,7 @@ package blogify.backend.database.tables
 import blogify.common.util.Sr
 import blogify.common.util.Wrap
 import blogify.common.util.never
-import blogify.reflect.Dto
-import blogify.reflect.sanitize
+import reflectify.sanitize
 import blogify.database.extensions.parentKey
 import blogify.database.handling.query
 import blogify.database.QueryContext
@@ -22,10 +21,12 @@ import epgx.models.PgTable
 import epgx.types.JsonbColumnType
 
 import com.github.kittinunf.result.coroutines.map
+import reflectify.util.Dto
 
 import java.time.Instant
 
 @Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER")
+@ExperimentalStdlibApi
 object Events : PgTable("notifications") {
 
     private val dataConverter = object : JsonbColumnType.Converter<Dto> {

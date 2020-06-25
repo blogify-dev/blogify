@@ -1,4 +1,4 @@
-package blogify.reflect.annotations.search
+package blogify.backend.search.annotations
 
 /**
  * Marks a property as being the default sorting field of a model class.

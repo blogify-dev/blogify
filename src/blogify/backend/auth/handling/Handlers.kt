@@ -16,6 +16,7 @@ import blogify.backend.util.reason
 /**
  * Represents a predicate applied on a [user][User].
  */
+@ExperimentalStdlibApi
 typealias UserAuthPredicate = suspend (user: User) -> Boolean
 
 /**
@@ -33,6 +34,7 @@ typealias UserAuthPredicate = suspend (user: User) -> Boolean
  */
 @Suppress("EXPERIMENTAL_API_USAGE")
 @PipelinesDsl
+@ExperimentalStdlibApi
 suspend fun RequestContext.maybeAuthenticated (
     predicate: UserAuthPredicate? = { true },
     block: RequestContextFunction<User?>
@@ -81,6 +83,7 @@ suspend fun RequestContext.maybeAuthenticated (
  * @author Benjozork
  */
 @PipelinesDsl
+@ExperimentalStdlibApi
 suspend fun RequestContext.optionallyAuthenticated (
     predicate: UserAuthPredicate? = { true },
     block: RequestContextFunction<User?>
@@ -107,6 +110,7 @@ suspend fun RequestContext.optionallyAuthenticated (
  * @author Benjozork
  */
 @PipelinesDsl
+@ExperimentalStdlibApi
 suspend fun RequestContext.authenticated (
     predicate: (suspend (User) -> Boolean) = { true },
     block: RequestContextFunction<User>

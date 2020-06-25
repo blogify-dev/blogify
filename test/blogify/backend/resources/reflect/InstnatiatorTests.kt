@@ -1,16 +1,16 @@
 package blogify.backend.resources.reflect
 
-import blogify.reflect.annotations.Hidden
+import reflectify.annotations.Hidden
 
 import blogify.common.util.Wrap
 import blogify.common.util.getOr
 import blogify.common.util.never
 import blogify.common.util.assertGet
-import blogify.reflect.entity.instantiation.construct
+import reflectify.entity.instantiation.construct
 import blogify.backend.events.models.EventTarget
 import blogify.backend.entity.Resource
 import blogify.backend.util.*
-import blogify.reflect.entity.mappedByHandles
+import reflectify.entity.mappedByHandles
 
 import com.fasterxml.jackson.databind.ObjectMapper
 

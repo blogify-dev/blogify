@@ -1,12 +1,12 @@
 package blogify.backend.search.autogen
 
-import blogify.reflect.annotations.search.DelegatedSearch
+import blogify.backend.search.annotations.DelegatedSearch
 import blogify.backend.entity.Resource
-import blogify.reflect.models.PropMap
+import reflectify.models.PropMap
 import blogify.backend.search.models.Template
 import blogify.common.util.never
-import blogify.reflect.extensions.klass
-import blogify.reflect.extensions.safeKlass
+import reflectify.extensions.klass
+import reflectify.extensions.safeKlass
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
@@ -16,6 +16,7 @@ import com.andreapivetta.kolor.green
 
 import org.slf4j.LoggerFactory
 
+@ExperimentalStdlibApi
 object AutogenPropertyVisitor {
 
     private val logger = LoggerFactory.getLogger("blogify-typesense-autogen")

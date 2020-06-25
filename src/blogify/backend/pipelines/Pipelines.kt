@@ -60,6 +60,7 @@ class PipelineException(val code: HttpStatusCode, override val message: String) 
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 suspend fun GenericCallPipeline.requestContext (
     function: RequestContextFunction<Unit>
 ) {
@@ -83,12 +84,14 @@ suspend fun GenericCallPipeline.requestContext (
  * Returns a query parameter that must exist
  */
 @PipelinesDsl
+@ExperimentalStdlibApi
 fun RequestContext.param(name: String) = call.parameters[name] ?: pipelineError(message = "query parameter $name is null")
 
 /**
  * Returns a query parameter that may or may not exist
  */
 @PipelinesDsl
+@ExperimentalStdlibApi
 fun RequestContext.optionalParam(name: String): String? =
     call.parameters[name]
 
@@ -96,6 +99,7 @@ fun RequestContext.optionalParam(name: String): String? =
  * Returns a UUID from a `{uuid}` query parameter. Responds with `Bad Request` if it is not found or invalid.
  */
 @PipelinesDsl
+@ExperimentalStdlibApi
 inline val RequestContext.queryUuid get() = object : ReadOnlyProperty<Nothing?, UUID> {
     override fun getValue(thisRef: Nothing?, property: KProperty<*>) =
         param("uuid").toUUIDOrNull()
@@ -106,6 +110,7 @@ inline val RequestContext.queryUuid get() = object : ReadOnlyProperty<Nothing?, 
  * Simplifies fetching a resource from a [RequestContext]
  */
 @PipelinesDsl
+@ExperimentalStdlibApi
 suspend inline fun <reified R : Resource> RequestContext.obtainResource(id: UUID): R {
     return repository<R>().obtain(id)
         .getOr404OrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")
@@ -115,6 +120,7 @@ suspend inline fun <reified R : Resource> RequestContext.obtainResource(id: UUID
  * Simplifies fetching resources from a [RequestContext]
  */
 @PipelinesDsl
+@ExperimentalStdlibApi
 suspend inline fun <reified R : Resource> RequestContext.obtainResources(limit: Int = 25): List<R> {
     return repository<R>().obtainAll(limit)
         .getOr404OrPipelineError(HttpStatusCode.InternalServerError, "couldn't fetch resource")

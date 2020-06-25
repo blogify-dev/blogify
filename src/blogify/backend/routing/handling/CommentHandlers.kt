@@ -17,12 +17,14 @@ import org.jetbrains.exposed.sql.insert
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 
+@ExperimentalStdlibApi
 private val likes = Comments.Likes
 
 /**
  * Request handler for fetching comment like status
  */
 @BlogifyDsl
+@ExperimentalStdlibApi
 val getCommentLikeStatus: RequestContextFunction<Unit> = {
     val id by queryUuid
 
@@ -41,6 +43,7 @@ val getCommentLikeStatus: RequestContextFunction<Unit> = {
  * Request handler for flipping comment like status
  */
 @BlogifyDsl
+@ExperimentalStdlibApi
 val flipCommentLike: RequestContextFunction<Unit> = {
     val id by queryUuid
 

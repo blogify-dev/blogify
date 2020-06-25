@@ -1,6 +1,6 @@
 package blogify.backend.routing
 
-import blogify.reflect.entity.Entity
+import reflectify.entity.Entity
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_TOKEN
 import blogify.backend.appContext
 import blogify.backend.auth.jwt.validateJwt
@@ -29,6 +29,7 @@ import kotlinx.coroutines.channels.consumeEach
 
 import java.util.*
 
+@ExperimentalStdlibApi
 @Suppress("EXPERIMENTAL_API_USAGE")
 fun Route.makePushServerRoutes() {
 
@@ -73,6 +74,7 @@ fun Route.makePushServerRoutes() {
 
 }
 
+@ExperimentalStdlibApi
 suspend fun WebSocketServerSession.send(responseCode: PushServer.ResponseCode) =
     send(Frame.Text("${responseCode.code} - ${responseCode.message}"))
 

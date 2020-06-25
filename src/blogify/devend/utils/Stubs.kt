@@ -8,6 +8,7 @@ import blogify.backend.util.hash
 import blogify.common.util.toUUID
 import io.ktor.http.ContentType
 
+@ExperimentalStdlibApi
 val user = User(
     username = "test_user",
     password = "test_pass".hash(),
@@ -18,6 +19,7 @@ val user = User(
     uuid = "3aee057d-e6e1-4b13-a0a7-0ea8f1f841f5".toUUID()
 )
 
+@ExperimentalStdlibApi
 val article = Article(
     title = "The title of article",
     createdBy = user,
@@ -26,6 +28,7 @@ val article = Article(
     categories = listOf(Article.Category("category 1"), Article.Category("category 2"))
 )
 
+@ExperimentalStdlibApi
 val comment = Comment(
     commenter = user,
     article = article,

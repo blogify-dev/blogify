@@ -1,6 +1,6 @@
 package blogify.backend.resources.user
 
-import blogify.reflect.models.Mapped
+import reflectify.models.Mapped
 import blogify.backend.appContext
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.resources.user.annotations.MaxFileSize
@@ -9,6 +9,7 @@ import epgx.types.JsonbColumnType
 
 import io.ktor.http.ContentType
 
+@ExperimentalStdlibApi
 data class UserSettings (
 
     @MaxFileSize(5.0)

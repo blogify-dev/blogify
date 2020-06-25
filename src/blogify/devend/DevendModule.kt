@@ -13,6 +13,7 @@ import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
 
 @KtorExperimentalAPI
+@ExperimentalStdlibApi
 fun Application.blogifyDevModule(configuration: BlogifyApplicationBootstrapper.StartConfiguration) {
     routing {
         route("/dev/") {

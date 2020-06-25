@@ -1,6 +1,6 @@
 package blogify.backend.events.models
 
-import blogify.reflect.models.Identified
+import reflectify.models.Identified
 
 /**
  * Applies to objects that generate [events][Event] when an [EventEmitter] interacts with them.
@@ -9,6 +9,7 @@ import blogify.reflect.models.Identified
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 interface EventSource : Identified {
 
     /**

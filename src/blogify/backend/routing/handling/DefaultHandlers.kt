@@ -29,14 +29,14 @@ package blogify.backend.routing.handling
 
 import blogify.common.util.*
 import blogify.common.util.filterThenMapValues
-import blogify.reflect.*
-import blogify.reflect.computed.models.BasicComputedProperty
-import blogify.reflect.computed.resolveComputedProps
-import blogify.reflect.extensions.klass
-import blogify.reflect.models.Mapped
-import blogify.reflect.models.PropMap
-import blogify.reflect.models.extensions.ok
-import blogify.reflect.entity.mappedByHandles
+import reflectify.*
+import reflectify.computed.models.BasicComputedProperty
+import reflectify.computed.resolveComputedProps
+import reflectify.extensions.klass
+import reflectify.models.Mapped
+import reflectify.models.PropMap
+import reflectify.models.extensions.ok
+import reflectify.entity.mappedByHandles
 import blogify.database.handling.query
 import blogify.backend.database.tables.Uploadables
 import blogify.backend.resources.user.User
@@ -86,6 +86,7 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSuperclassOf
 
 import kotlinx.coroutines.*
+import reflectify.util.Dto
 
 /**
  * Takes a predicate of type `suspend (User, R) -> Boolean` and captures it into a returned predicate of type
@@ -93,6 +94,7 @@ import kotlinx.coroutines.*
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 fun <R> wrapPredicate(basePredicate: (suspend (User, R) -> Boolean)?, resource: R): (suspend (User) -> Boolean)? {
     return if (basePredicate != null) {
         { u -> basePredicate(u, resource) }
@@ -102,10 +104,12 @@ fun <R> wrapPredicate(basePredicate: (suspend (User, R) -> Boolean)?, resource: 
 /**
  * Sends an object describing an exception as a response
  */
+@ExperimentalStdlibApi
 suspend fun ApplicationCall.respondExceptionMessage(ex: Exception) {
     respond(HttpStatusCode.InternalServerError, object { @Suppress("unused") val message = ex.message }) // Failure ? Send a simple object with the exception message.
 }
 
+@ExperimentalStdlibApi
 fun applyDefaultComputedPropertyResolver(resource: Mapped, user: User?) {
     resolveComputedProps(resource) { container ->
         when (container) {
@@ -127,6 +131,7 @@ fun applyDefaultComputedPropertyResolver(resource: Mapped, user: User?) {
  *
  * @author hamza1311, Benjozork
  */
+@ExperimentalStdlibApi
 @BlogifyDsl
 suspend inline fun <reified R : Resource> RequestContext.fetchAllResources() {
 
@@ -148,6 +153,7 @@ suspend inline fun <reified R : Resource> RequestContext.fetchAllResources() {
     }
 }
 
+@ExperimentalStdlibApi
 @BlogifyDsl
 suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing (
     orderBy: Column<*>,
@@ -186,6 +192,7 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResourceListing (
  *
  * @author Benjozork, hamza1311
  */
+@ExperimentalStdlibApi
 @BlogifyDsl
 suspend inline fun <reified R : Resource> RequestContext.fetchResource (
     noinline authPredicate: (suspend (User) -> Boolean)? = null
@@ -207,6 +214,7 @@ suspend inline fun <reified R : Resource> RequestContext.fetchResource (
 }
 
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
+@ExperimentalStdlibApi
 @BlogifyDsl
 suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
     noinline authPredicate: (suspend (User, R) -> Boolean)? = null
@@ -385,6 +393,7 @@ suspend inline fun <reified R : Resource> RequestContext.uploadToResource (
 }
 
 @BlogifyDsl
+@ExperimentalStdlibApi
 suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
     noinline authPredicate: (suspend (User, R) -> Boolean)? = null
 ) {
@@ -451,6 +460,7 @@ suspend inline fun <reified R : Resource> RequestContext.deleteUpload (
  * @author Benjozork, hamza1311
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
+@ExperimentalStdlibApi
 @BlogifyDsl
 suspend inline fun <reified R : Resource> RequestContext.createResource (
     noinline authPredicate: (suspend (User, R) -> Boolean)? = null
@@ -463,10 +473,11 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
             .let { data -> R::class.construct(data) }
             .getOrPipelineError(HttpStatusCode.BadRequest, "could not instantiate resource")
 
+        /* TODO
         val firstInvalidValue = received.verify().entries.firstOrNull { !it.value }
         if (firstInvalidValue != null) { // Check for any invalid data
             pipelineError(HttpStatusCode.BadRequest, "invalid value for property '${firstInvalidValue.key.name}'")
-        }
+        }*/
 
         maybeAuthenticated(wrapPredicate(authPredicate, received)) { user ->
             repository<R>().add(received).fold (
@@ -502,6 +513,7 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
  * @author Benjozork, hamza1311
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
+@ExperimentalStdlibApi
 @BlogifyDsl
 suspend inline fun <reified R: Resource> RequestContext.deleteResource (
     noinline authPredicate: (suspend (User, R) -> Boolean)? = null
@@ -531,6 +543,7 @@ suspend inline fun <reified R: Resource> RequestContext.deleteResource (
  * @author hamza1311
  */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
+@ExperimentalStdlibApi
 @BlogifyDsl
 suspend inline fun <reified R : Resource> RequestContext.updateResource (
     noinline authPredicate: (suspend (User, R) -> Boolean)? = null
@@ -555,6 +568,7 @@ suspend inline fun <reified R : Resource> RequestContext.updateResource (
 
 }
 
+@ExperimentalStdlibApi
 suspend inline fun <reified R : Resource> RequestContext.search(filters: Map<PropMap.PropertyHandle.Ok, Any> = emptyMap()) {
     val query = param("q")
     val view = Typesense.search<Article>(query, filters).asSearchView(this)
@@ -569,6 +583,7 @@ suspend inline fun <reified R : Resource> RequestContext.search(filters: Map<Pro
  * @author Benjozork
  */
 @BlogifyDsl
+@ExperimentalStdlibApi
 suspend inline fun <reified M : Mapped> RequestContext.getValidations() {
     call.respond (
         M::class.propMap.ok

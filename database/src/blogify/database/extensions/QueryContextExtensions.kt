@@ -1,6 +1,6 @@
 package blogify.database.extensions
 
-import blogify.reflect.entity.Entity
+import reflectify.entity.Entity
 import blogify.database.DatabaseContext
 import blogify.database.QueryContext
 import blogify.database.annotations.table
@@ -12,6 +12,8 @@ import kotlin.reflect.KClass
 /**
  * Provides a repository for [TEntity]
  */
+
+@ExperimentalStdlibApi
 @Suppress("UNCHECKED_CAST")
 inline fun <reified TEntity : Entity> DatabaseContext.repository(): Repository<TEntity> =
     this.repoCache.findOr(TEntity::class) {
@@ -21,6 +23,7 @@ inline fun <reified TEntity : Entity> DatabaseContext.repository(): Repository<T
 /**
  * Provides a repository for [TEntity]
  */
+@ExperimentalStdlibApi
 @Suppress("UNCHECKED_CAST")
 fun <TEntity : Entity> DatabaseContext.repository(klass: KClass<out TEntity>): Repository<TEntity> =
     this.repoCache.findOr(klass) {
@@ -30,11 +33,13 @@ fun <TEntity : Entity> DatabaseContext.repository(klass: KClass<out TEntity>): R
 /**
  * Provides a repository for [TEntity]
  */
+@ExperimentalStdlibApi
 inline fun <reified TEntity : Entity> QueryContext.repository(): Repository<TEntity> =
     databaseContext.repository()
 
 /**
  * Provides a repository for [TEntity]
  */
+@ExperimentalStdlibApi
 inline fun <reified TEntity : Entity> QueryContext.repository(klass: KClass<out TEntity>): Repository<TEntity> =
     databaseContext.repository(klass)

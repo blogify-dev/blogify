@@ -1,8 +1,8 @@
 package blogify.backend.routing
 
 import blogify.common.util.assertGet
-import blogify.reflect.sanitize
-import blogify.reflect.slice
+import reflectify.sanitize
+import reflectify.slice
 import blogify.backend.auth.handling.authenticated
 import blogify.backend.auth.handling.optionallyAuthenticated
 import blogify.backend.database.tables.Events
@@ -24,6 +24,7 @@ import org.jetbrains.exposed.sql.*
 /**
  * Defines the API routes for interacting with [users][User].
  */
+@ExperimentalStdlibApi
 fun Route.makeUserRoutes() {
 
     route("/users") {

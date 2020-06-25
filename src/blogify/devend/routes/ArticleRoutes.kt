@@ -18,7 +18,7 @@ import io.ktor.routing.route
 import org.jetbrains.exposed.sql.deleteAll
 import java.util.*
 
-
+@ExperimentalStdlibApi
 fun Route.articleSeedRoutes() {
     route("/article") {
         post {

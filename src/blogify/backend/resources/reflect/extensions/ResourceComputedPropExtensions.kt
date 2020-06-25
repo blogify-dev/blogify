@@ -6,6 +6,7 @@ import blogify.backend.resources.user.User
 
 import kotlinx.coroutines.runBlocking
 
+@ExperimentalStdlibApi
 fun <TResource : Resource, TProperty : Any> TResource.userSpecific(initializer: suspend (User) -> TProperty) =
     UserSpecificPropertyContainer(this) { _, u ->
         runBlocking { initializer(u) }

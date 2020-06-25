@@ -1,4 +1,4 @@
-package blogify.reflect.annotations.search
+package blogify.backend.search.annotations
 
 /**
  * Marks a property as being represented by it's UUID, and to be used as such in Typesense collections / documents

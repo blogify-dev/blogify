@@ -46,9 +46,11 @@ import kotlinx.coroutines.runBlocking
 
 import org.slf4j.event.Level
 
+@ExperimentalStdlibApi
 lateinit var appContext: ApplicationContext // bad idea, i know. should be temp
 
 @KtorExperimentalAPI
+@ExperimentalStdlibApi
 fun Application.blogifyMainModule(configuration: BlogifyApplicationBootstrapper.StartConfiguration) {
 
     appContext = configuration.applicationContext

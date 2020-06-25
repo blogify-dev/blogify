@@ -1,6 +1,6 @@
 package blogify.backend.routing
 
-import blogify.reflect.annotations.check
+import reflectify.annotations.check
 import blogify.backend.auth.encoder
 import blogify.backend.auth.jwt.generateJWT
 import blogify.backend.database.tables.Users
@@ -22,6 +22,7 @@ import io.ktor.routing.route
 /**
  * Model for login credentials
  */
+@ExperimentalStdlibApi
 data class LoginCredentials (
     val username: String,
     val password: String
@@ -49,6 +50,7 @@ data class RegisterCredentials (
      * Creates a [user][User] from the [credentials][RegisterCredentials].
      * @return The created user
      */
+    @ExperimentalStdlibApi
     suspend fun createUser(requestContext: RequestContext): User {
         val created = User(
             username = this.username,
@@ -71,6 +73,7 @@ data class RegisterCredentials (
 
 }
 
+@ExperimentalStdlibApi
 fun Route.makeAuthRoutes() {
 
     route("/auth") {

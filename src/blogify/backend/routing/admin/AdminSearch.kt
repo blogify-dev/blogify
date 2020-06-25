@@ -6,13 +6,14 @@ import blogify.backend.resources.Article
 import blogify.backend.resources.user.User
 import blogify.backend.pipelines.requestContext
 import blogify.backend.search.Typesense
-import blogify.reflect.Dto
+import reflectify.util.Dto
 
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 
+@ExperimentalStdlibApi
 fun Route.makeAdminRoutes() {
 
     route("/admin/search") {

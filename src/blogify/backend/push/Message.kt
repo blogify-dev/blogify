@@ -1,11 +1,11 @@
 package blogify.backend.push
 
-import blogify.reflect.annotations.Hidden
+import reflectify.annotations.Hidden
 import blogify.backend.entity.Resource
 import blogify.backend.resources.models.ResourceIdSerializer
-import blogify.reflect.models.Mapped
-import blogify.reflect.sanitize
-import blogify.reflect.slice
+import reflectify.models.Mapped
+import reflectify.sanitize
+import reflectify.slice
 import blogify.backend.events.models.Event as ActualNotification
 
 import com.fasterxml.jackson.databind.module.SimpleModule
@@ -13,6 +13,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 import io.ktor.http.cio.websocket.Frame
 
+@ExperimentalStdlibApi
 private val objectMapper = jacksonObjectMapper().apply {
     registerModule(SimpleModule().apply { addSerializer(ResourceIdSerializer) })
 }
@@ -22,6 +23,7 @@ private val objectMapper = jacksonObjectMapper().apply {
  *
  * @author Benjozork
  */
+@ExperimentalStdlibApi
 sealed class Message : Mapped() {
 
     /**

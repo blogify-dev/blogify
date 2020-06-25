@@ -18,6 +18,7 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import org.jetbrains.exposed.sql.deleteAll
 
+@ExperimentalStdlibApi
 fun Route.authSeedRoutes() {
     route("/auth") {
         post("/login") {
