@@ -52,7 +52,7 @@ dependencies {
     // Submodules
 
     implementation(project(":common"))
-    implementation("dev.31416", "reflectify", "0.1.0")
+    implementation("com.github.blogify-dev", "reflectify", "master-SNAPSHOT")
     implementation(project(":database"))
 
     // Ktor
