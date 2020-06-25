@@ -2,11 +2,11 @@ package blogify.database.persistence.models
 
 import blogify.common.util.Sr
 import blogify.common.util.SrList
-import reflectify.util.MappedData
-import reflectify.models.PropMap
-import reflectify.extensions.okHandle
+import reflectr.util.MappedData
+import reflectr.models.PropMap
+import reflectr.extensions.okHandle
 import blogify.database.QueryContext
-import reflectify.entity.Entity
+import reflectr.entity.Entity
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Op

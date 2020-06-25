@@ -1,8 +1,8 @@
 package blogify.backend.resources
 
-import reflectify.annotations.Hidden
-import reflectify.computed.compound
-import reflectify.computed.models.Computed
+import reflectr.annotations.Hidden
+import reflectr.computed.compound
+import reflectr.computed.models.Computed
 import blogify.database.annotations.SqlTable
 import blogify.backend.database.tables.Comments
 import blogify.backend.database.countReferredToBy
@@ -12,7 +12,7 @@ import blogify.backend.events.models.EventSource
 import blogify.backend.events.models.EventType
 import blogify.backend.resources.models.UserCreatedResource
 import blogify.backend.resources.user.User
-import reflectify.annotations.search.NoSearch
+import reflectr.annotations.search.NoSearch
 
 import java.time.Instant
 

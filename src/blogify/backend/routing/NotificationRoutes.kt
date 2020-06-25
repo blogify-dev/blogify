@@ -1,6 +1,6 @@
 package blogify.backend.routing
 
-import reflectify.entity.Entity
+import reflectr.entity.Entity
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_TOKEN
 import blogify.backend.appContext
 import blogify.backend.auth.jwt.validateJwt

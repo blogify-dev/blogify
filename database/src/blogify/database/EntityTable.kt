@@ -1,12 +1,12 @@
 package blogify.database
 
 import blogify.common.util.*
-import reflectify.entity.Entity
-import reflectify.entity.instantiation.MissingArgumentsException
-import reflectify.SlicedProperty
-import reflectify.extensions.handle
-import reflectify.extensions.okHandle
-import reflectify.getPropValueOnInstance
+import reflectr.entity.Entity
+import reflectr.entity.instantiation.MissingArgumentsException
+import reflectr.SlicedProperty
+import reflectr.extensions.handle
+import reflectr.extensions.okHandle
+import reflectr.getPropValueOnInstance
 import blogify.database.handling.query
 import blogify.database.handling.unwrappedQuery
 import blogify.database.binding.SqlBinding

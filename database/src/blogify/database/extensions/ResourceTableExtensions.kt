@@ -1,9 +1,9 @@
 package blogify.database.extensions
 
-import reflectify.entity.Entity
+import reflectr.entity.Entity
 import blogify.database.EntityTable
 
-import reflectify.extensions.klass
+import reflectr.extensions.klass
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Table

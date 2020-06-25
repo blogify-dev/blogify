@@ -1,8 +1,8 @@
 package blogify.backend.routing
 
 import blogify.common.util.assertGet
-import reflectify.sanitize
-import reflectify.slice
+import reflectr.sanitize
+import reflectr.slice
 import blogify.backend.auth.handling.authenticated
 import blogify.backend.auth.handling.optionallyAuthenticated
 import blogify.backend.database.tables.Events

@@ -1,7 +1,7 @@
 package blogify.backend.events.models
 
 import blogify.backend.pipelines.wrapping.ApplicationContext
-import reflectify.models.Identified
+import reflectr.models.Identified
 
 /**
  * Applies to objects that receive [events][Event] when an [EventSource] object

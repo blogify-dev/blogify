@@ -3,8 +3,8 @@ package blogify.database.persistence.postgres
 import blogify.common.util.Sr
 import blogify.common.util.SrList
 import blogify.common.util.Wrap
-import reflectify.util.MappedData
-import reflectify.entity.Entity
+import reflectr.util.MappedData
+import reflectr.entity.Entity
 import blogify.database.handling.query
 import blogify.database.QueryContext
 import blogify.database.EntityTable

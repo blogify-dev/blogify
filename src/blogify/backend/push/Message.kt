@@ -1,11 +1,11 @@
 package blogify.backend.push
 
-import reflectify.annotations.Hidden
+import reflectr.annotations.Hidden
 import blogify.backend.entity.Resource
 import blogify.backend.resources.models.ResourceIdSerializer
-import reflectify.models.Mapped
-import reflectify.sanitize
-import reflectify.slice
+import reflectr.models.Mapped
+import reflectr.sanitize
+import reflectr.slice
 import blogify.backend.events.models.Event as ActualNotification
 
 import com.fasterxml.jackson.databind.module.SimpleModule

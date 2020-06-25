@@ -1,6 +1,6 @@
 package blogify.backend.routing
 
-import reflectify.annotations.check
+import reflectr.annotations.check
 import blogify.backend.auth.encoder
 import blogify.backend.auth.jwt.generateJWT
 import blogify.backend.database.tables.Users

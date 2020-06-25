@@ -4,8 +4,8 @@ import blogify.backend.search.annotations.QueryByField
 import blogify.backend.search.annotations.SearchDefaultSort
 import blogify.backend.entity.Resource
 import blogify.backend.search.models.Template
-import reflectify.propMap
-import reflectify.models.extensions.ok
+import reflectr.propMap
+import reflectr.models.extensions.ok
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation

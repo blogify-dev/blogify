@@ -2,7 +2,7 @@ package blogify.backend.search.models
 
 import blogify.backend.entity.Resource
 import blogify.backend.search.Typesense
-import reflectify.util.Dto
+import reflectr.util.Dto
 
 /**
  * Models for deserializing JSON returned by [Typesense]

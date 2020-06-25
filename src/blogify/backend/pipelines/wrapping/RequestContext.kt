@@ -7,7 +7,7 @@ import blogify.common.util.MapCache
 import blogify.common.util.Sr
 import blogify.common.util.Wrap
 import blogify.common.util.WrapBlocking
-import reflectify.entity.Entity
+import reflectr.entity.Entity
 import blogify.database.DatabaseContext
 import blogify.database.extensions.repository
 

@@ -6,11 +6,11 @@ import blogify.backend.resources.Comment
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.routing.handling.flipCommentLike
 import blogify.backend.routing.handling.getCommentLikeStatus
-import reflectify.sanitize
-import reflectify.slice
+import reflectr.sanitize
+import reflectr.slice
 import blogify.backend.routing.handling.*
 import blogify.backend.util.*
-import reflectify.util.Dto
+import reflectr.util.Dto
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond

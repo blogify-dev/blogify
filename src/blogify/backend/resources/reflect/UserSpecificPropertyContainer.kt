@@ -1,8 +1,8 @@
 package blogify.backend.resources.reflect
 
 import blogify.backend.resources.user.User
-import reflectify.computed.models.ComputedPropContainer
-import reflectify.models.Mapped
+import reflectr.computed.models.ComputedPropContainer
+import reflectr.models.Mapped
 
 @ExperimentalStdlibApi
 class UserSpecificPropertyContainer<TMapped : Mapped, TProperty : Any> (

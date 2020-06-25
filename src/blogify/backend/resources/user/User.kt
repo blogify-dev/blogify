@@ -1,12 +1,12 @@
 package blogify.backend.resources.user
 
-import reflectify.annotations.Hidden
+import reflectr.annotations.Hidden
 import blogify.database.annotations.SqlTable
-import reflectify.annotations.Undisplayed
+import reflectr.annotations.Undisplayed
 import blogify.backend.search.annotations.DelegatedSearchReceiver
 import blogify.backend.search.annotations.QueryByField
 import blogify.backend.search.annotations.SearchDefaultSort
-import reflectify.annotations.search.NoSearch
+import reflectr.annotations.search.NoSearch
 import blogify.backend.annotations.maxByteSize
 import blogify.backend.annotations.type
 import blogify.backend.database.tables.Users
@@ -18,8 +18,8 @@ import blogify.backend.events.models.EventTarget
 import blogify.backend.events.models.EventType
 import blogify.backend.pipelines.wrapping.ApplicationContext
 import blogify.backend.push.Message
-import reflectify.computed.compound
-import reflectify.computed.models.Computed
+import reflectr.computed.compound
+import reflectr.computed.models.Computed
 import blogify.backend.entity.Resource
 import blogify.backend.resources.static.models.StaticFile
 

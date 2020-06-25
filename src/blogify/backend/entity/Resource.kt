@@ -1,7 +1,7 @@
 package blogify.backend.entity
 
-import reflectify.models.Identified
-import reflectify.entity.Entity
+import reflectr.models.Identified
+import reflectr.entity.Entity
 import blogify.backend.events.models.EventEmitter
 import blogify.backend.events.models.EventSource
 import blogify.backend.pipelines.wrapping.RequestContext

@@ -3,7 +3,7 @@
 package blogify.backend.routing
 
 import blogify.common.util.toUUID
-import reflectify.extensions.okHandle
+import reflectr.extensions.okHandle
 import blogify.backend.database.tables.Articles
 import blogify.backend.pipelines.*
 import blogify.backend.resources.Article

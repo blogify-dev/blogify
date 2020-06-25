@@ -1,6 +1,6 @@
 package blogify.database.annotations
 
-import reflectify.entity.Entity
+import reflectr.entity.Entity
 import blogify.database.EntityTable
 
 import kotlin.reflect.KClass

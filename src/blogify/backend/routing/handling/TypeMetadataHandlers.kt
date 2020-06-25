@@ -1,8 +1,8 @@
 package blogify.backend.routing.handling
 
-import reflectify.entity.Entity
-import reflectify.entity.metadata.entity
-import reflectify.analysis.extensions.descriptor
+import reflectr.entity.Entity
+import reflectr.entity.metadata.entity
+import reflectr.analysis.extensions.descriptor
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.pipelines.wrapping.RequestContextFunction
 

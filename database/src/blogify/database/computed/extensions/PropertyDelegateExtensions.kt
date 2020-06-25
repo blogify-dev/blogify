@@ -1,6 +1,6 @@
 package blogify.database.computed.extensions
 
-import reflectify.entity.Entity
+import reflectr.entity.Entity
 import blogify.database.computed.AggregateComputedPropertyContainer
 
 import org.jetbrains.exposed.sql.Column

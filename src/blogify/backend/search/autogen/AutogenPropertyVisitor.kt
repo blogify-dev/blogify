@@ -2,11 +2,11 @@ package blogify.backend.search.autogen
 
 import blogify.backend.search.annotations.DelegatedSearch
 import blogify.backend.entity.Resource
-import reflectify.models.PropMap
+import reflectr.models.PropMap
 import blogify.backend.search.models.Template
 import blogify.common.util.never
-import reflectify.extensions.klass
-import reflectify.extensions.safeKlass
+import reflectr.extensions.klass
+import reflectr.extensions.safeKlass
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1

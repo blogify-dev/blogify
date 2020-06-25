@@ -1,7 +1,7 @@
 package blogify.backend.events.models
 
 import blogify.common.util.assertGet
-import reflectify.models.Mapped
+import reflectr.models.Mapped
 import blogify.backend.database.tables.Events
 import blogify.backend.pipelines.wrapping.RequestContext
 

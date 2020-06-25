@@ -3,9 +3,9 @@ package blogify.backend.routing.handling
 import blogify.common.util.Wrap
 import blogify.common.util.assertGet
 import blogify.common.util.never
-import reflectify.util.Dto
+import reflectr.util.Dto
 import blogify.database.handling.query
-import reflectify.entity.mappedByHandles
+import reflectr.entity.mappedByHandles
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.auth.handling.authenticated
 import blogify.backend.database.tables.Users

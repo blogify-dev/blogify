@@ -3,7 +3,7 @@ package blogify.backend.database.tables
 import blogify.common.util.Sr
 import blogify.common.util.Wrap
 import blogify.common.util.never
-import reflectify.sanitize
+import reflectr.sanitize
 import blogify.database.extensions.parentKey
 import blogify.database.handling.query
 import blogify.database.QueryContext
@@ -21,7 +21,7 @@ import epgx.models.PgTable
 import epgx.types.JsonbColumnType
 
 import com.github.kittinunf.result.coroutines.map
-import reflectify.util.Dto
+import reflectr.util.Dto
 
 import java.time.Instant
 

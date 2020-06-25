@@ -1,8 +1,8 @@
 package blogify.backend.resources.reflect.extensions
 
 import blogify.backend.appContext
-import reflectify.models.Mapped
-import reflectify.sanitize
+import reflectr.models.Mapped
+import reflectr.sanitize
 
 /**
  * Runs [Mapped.sanitize] and turns the resulting [blogify.reflect.Dto] into a JSON string

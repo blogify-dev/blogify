@@ -3,14 +3,14 @@ package blogify.backend.util
 import blogify.common.util.letCatchingOrNull
 import blogify.common.util.Sr
 import blogify.common.util.WrapBlocking
-import reflectify.models.Mapped
-import reflectify.models.PropMap
-import reflectify.entity.mappedByHandles
+import reflectr.models.Mapped
+import reflectr.models.PropMap
+import reflectr.entity.mappedByHandles
 import blogify.backend.appContext
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import reflectify.util.Dto
-import reflectify.util.MappedData
+import reflectr.util.Dto
+import reflectr.util.MappedData
 
 import kotlin.reflect.KClass
 

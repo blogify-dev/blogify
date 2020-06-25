@@ -1,7 +1,7 @@
 package blogify.optimizer
 
 import blogify.database.optimizer.makeJoinForClass
-import reflectify.entity.Entity
+import reflectr.entity.Entity
 import blogify.database.EntityTable
 import blogify.database.annotations.SqlTable
 

@@ -1,10 +1,10 @@
 package blogify.database.optimizer
 
 import blogify.common.util.*
-import reflectify.entity.Entity
-import reflectify.extensions.klass
-import reflectify.extensions.okHandle
-import reflectify.extensions.safeKlass
+import reflectr.entity.Entity
+import reflectr.extensions.klass
+import reflectr.extensions.okHandle
+import reflectr.extensions.safeKlass
 import blogify.database.annotations.table
 import blogify.database.binding.SqlBinding
 import blogify.database.handling.query
@@ -14,7 +14,7 @@ import org.jetbrains.exposed.sql.*
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 import com.github.kittinunf.result.coroutines.mapError
-import reflectify.util.MappedData
+import reflectr.util.MappedData
 
 import kotlin.reflect.KClass
 

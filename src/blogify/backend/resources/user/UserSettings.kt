@@ -1,6 +1,6 @@
 package blogify.backend.resources.user
 
-import reflectify.models.Mapped
+import reflectr.models.Mapped
 import blogify.backend.appContext
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.resources.user.annotations.MaxFileSize

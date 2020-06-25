@@ -38,7 +38,8 @@ dependencies {
     // Submodules
 
     api("blogify", "common", "alpha-1")
-    implementation("com.github.blogify-dev", "reflectify", "master-SNAPSHOT")
+//    api("dev.31416", "reflectr", "0.1.0")
+    implementation("com.github.blogify-dev", "reflectr", "master-SNAPSHOT")
 
     // Jackson
 

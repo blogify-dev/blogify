@@ -1,10 +1,10 @@
 package blogify.backend.resources
 
-import reflectify.annotations.Hidden
-import reflectify.annotations.check
+import reflectr.annotations.Hidden
+import reflectr.annotations.check
 import blogify.backend.search.annotations.*
-import reflectify.computed.compound
-import reflectify.computed.models.Computed
+import reflectr.computed.compound
+import reflectr.computed.models.Computed
 import blogify.database.annotations.SqlTable
 import blogify.backend.database.tables.Articles
 import blogify.backend.database.tables.Comments
@@ -15,7 +15,7 @@ import blogify.backend.events.models.EventType
 import blogify.backend.resources.models.UserCreatedResource
 import blogify.backend.resources.user.User
 import blogify.backend.search.annotations.DelegatedSearch
-import reflectify.annotations.search.NoSearch
+import reflectr.annotations.search.NoSearch
 
 import java.time.Instant
 import java.util.UUID

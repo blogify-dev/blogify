@@ -1,10 +1,10 @@
 package blogify.backend.search.autogen
 
-import reflectify.annotations.search.NoSearch
-import reflectify.computed.models.Computed
+import reflectr.annotations.search.NoSearch
+import reflectr.computed.models.Computed
 import blogify.backend.entity.Resource
-import reflectify.propMap
-import reflectify.models.extensions.ok
+import reflectr.propMap
+import reflectr.models.extensions.ok
 import blogify.backend.search.models.Template
 import blogify.common.util.filterThenMapValues
 

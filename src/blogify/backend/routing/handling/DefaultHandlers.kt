@@ -29,14 +29,14 @@ package blogify.backend.routing.handling
 
 import blogify.common.util.*
 import blogify.common.util.filterThenMapValues
-import reflectify.*
-import reflectify.computed.models.BasicComputedProperty
-import reflectify.computed.resolveComputedProps
-import reflectify.extensions.klass
-import reflectify.models.Mapped
-import reflectify.models.PropMap
-import reflectify.models.extensions.ok
-import reflectify.entity.mappedByHandles
+import reflectr.*
+import reflectr.computed.models.BasicComputedProperty
+import reflectr.computed.resolveComputedProps
+import reflectr.extensions.klass
+import reflectr.models.Mapped
+import reflectr.models.PropMap
+import reflectr.models.extensions.ok
+import reflectr.entity.mappedByHandles
 import blogify.database.handling.query
 import blogify.backend.database.tables.Uploadables
 import blogify.backend.resources.user.User
@@ -86,7 +86,7 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSuperclassOf
 
 import kotlinx.coroutines.*
-import reflectify.util.Dto
+import reflectr.util.Dto
 
 /**
  * Takes a predicate of type `suspend (User, R) -> Boolean` and captures it into a returned predicate of type
@@ -473,11 +473,10 @@ suspend inline fun <reified R : Resource> RequestContext.createResource (
             .let { data -> R::class.construct(data) }
             .getOrPipelineError(HttpStatusCode.BadRequest, "could not instantiate resource")
 
-        /* TODO
         val firstInvalidValue = received.verify().entries.firstOrNull { !it.value }
         if (firstInvalidValue != null) { // Check for any invalid data
             pipelineError(HttpStatusCode.BadRequest, "invalid value for property '${firstInvalidValue.key.name}'")
-        }*/
+        }
 
         maybeAuthenticated(wrapPredicate(authPredicate, received)) { user ->
             repository<R>().add(received).fold (

@@ -1,10 +1,10 @@
 package blogify.database.optimizer
 
 import blogify.common.util.never
-import reflectify.extensions.safeKlass
+import reflectr.extensions.safeKlass
 import blogify.database.annotations.table
 import blogify.database.binding.SqlBinding
-import reflectify.entity.Entity
+import reflectr.entity.Entity
 
 import org.jetbrains.exposed.sql.*
 

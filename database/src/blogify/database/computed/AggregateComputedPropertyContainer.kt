@@ -1,7 +1,7 @@
 package blogify.database.computed
 
-import reflectify.computed.models.ComputedPropContainer
-import reflectify.entity.Entity
+import reflectr.computed.models.ComputedPropContainer
+import reflectr.entity.Entity
 import blogify.database.annotations.table
 
 import org.jetbrains.exposed.sql.*

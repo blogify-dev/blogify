@@ -1,6 +1,6 @@
 package blogify.database.extensions
 
-import reflectify.entity.Entity
+import reflectr.entity.Entity
 import blogify.database.DatabaseContext
 import blogify.database.QueryContext
 import blogify.database.annotations.table

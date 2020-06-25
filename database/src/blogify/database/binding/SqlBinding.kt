@@ -1,6 +1,6 @@
 package blogify.database.binding
 
-import reflectify.entity.Entity
+import reflectr.entity.Entity
 import blogify.database.extensions.foreignKeyTo
 import blogify.database.EntityTable
 
