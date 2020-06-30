@@ -1,12 +1,11 @@
 package blogify.backend.pipelines.wrapping
 
-import blogify.common.util.MapCache
 import reflectr.models.Mapped
 import reflectr.entity.Entity
-import blogify.database.DatabaseContext
-import blogify.database.QueryContext
-import blogify.database.persistence.models.Repository
-import blogify.database.extensions.repository
+import krate.DatabaseContext
+import krate.QueryContext
+import krate.persistence.models.Repository
+import krate.extensions.repository
 import reflectr.entity.instantiation.construct
 import blogify.backend.appContext
 import blogify.backend.config.DatabaseConfig
@@ -23,7 +22,7 @@ import epgx.types.JsonbColumnType
 
 import kotlinx.coroutines.runBlocking
 import java.util.*
-
+import krate.util.MapCache
 import kotlin.reflect.KClass
 
 /**
@@ -41,7 +40,7 @@ class ApplicationContext(val objectMapper: ObjectMapper) : DatabaseContext {
 
     /**
      * Creates an implementation of [JsonbColumnType.Converter] for [T], using [Mapped.sanitizeToString] for serialization
-     * and [blogify.reflect.entity.instantiation.construct] for deserialization
+     * and [reflectr.entity.instantiation.construct] for deserialization
      *
      * @author Benjozork
      */

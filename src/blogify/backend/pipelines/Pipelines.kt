@@ -1,6 +1,6 @@
 package blogify.backend.pipelines
 
-import blogify.common.util.toUUIDOrNull
+import blogify.util.toUUIDOrNull
 import blogify.backend.annotations.PipelinesDsl
 import blogify.backend.appContext
 import blogify.backend.pipelines.wrapping.ApplicationContext

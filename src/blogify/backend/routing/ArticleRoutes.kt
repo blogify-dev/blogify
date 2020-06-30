@@ -2,7 +2,7 @@
 
 package blogify.backend.routing
 
-import blogify.common.util.toUUID
+import blogify.util.toUUID
 import reflectr.extensions.okHandle
 import blogify.backend.database.tables.Articles
 import blogify.backend.pipelines.*
@@ -13,7 +13,7 @@ import blogify.backend.routing.handling.getArticleLikeStatus
 import blogify.backend.search.Typesense
 import blogify.backend.search.ext.asSearchView
 import blogify.backend.routing.handling.*
-import blogify.common.util.never
+import blogify.util.never
 
 import io.ktor.routing.*
 import io.ktor.response.respond

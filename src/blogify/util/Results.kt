@@ -1,4 +1,4 @@
-package blogify.common.util
+package blogify.util
 
 import com.github.kittinunf.result.coroutines.SuspendableResult
 
@@ -71,4 +71,4 @@ suspend fun <V : Any, E : Exception> SuspendableResult<V, E>.getOr(block: suspen
  * @author Benjozork
  */
 fun <V : Any, E : Exception> SuspendableResult<V, E>.assertGet(): V =
-    if (this is SuspendableResult.Success) get() else blogify.common.util.never
+    if (this is SuspendableResult.Success) get() else blogify.util.never

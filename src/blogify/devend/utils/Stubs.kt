@@ -5,7 +5,7 @@ import blogify.backend.resources.Comment
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.resources.user.User
 import blogify.backend.util.hash
-import blogify.common.util.toUUID
+import blogify.util.toUUID
 import io.ktor.http.ContentType
 
 @ExperimentalStdlibApi

@@ -8,6 +8,7 @@ val logback_version:   String by project
 val pg_driver_version: String by project
 val exposed_version:   String by project
 val hikari_version:    String by project
+val result_version:    String by project
 val epgx_version:      String by project
 val kolor_version:     String by project
 val spring_security_core_version: String by project
@@ -51,10 +52,8 @@ dependencies {
 
     // Submodules
 
-    implementation(project(":common"))
-//    implementation("dev.31416", "reflectr", "0.1.0")
     implementation("com.github.blogify-dev", "reflectr", "master-SNAPSHOT")
-    implementation(project(":database"))
+    implementation("com.github.blogify-dev", "krate", "master-SNAPSHOT")
 
     // Ktor
 
@@ -94,6 +93,15 @@ dependencies {
     // Kolor
 
     implementation("com.andreapivetta.kolor", "kolor", kolor_version)
+
+    // Result
+
+    implementation("com.github.kittinunf.result", "result", result_version)
+    implementation("com.github.kittinunf.result", "result-coroutines", result_version)
+
+    // Logback
+
+    implementation("ch.qos.logback:logback-classic:1.2.3")
 
     // JJWT
 

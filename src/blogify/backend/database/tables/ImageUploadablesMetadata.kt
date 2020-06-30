@@ -1,10 +1,10 @@
 package blogify.backend.database.tables
 
-import blogify.database.handling.query
-import blogify.database.QueryContext
+import krate.handling.query
+import krate.QueryContext
 import blogify.backend.resources.static.image.ImageMetadata
-import blogify.common.util.Sr
-import blogify.common.util.Wrap
+import blogify.util.Sr
+import blogify.util.Wrap
 
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow

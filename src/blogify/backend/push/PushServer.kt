@@ -1,8 +1,8 @@
 package blogify.backend.push
 
-import blogify.common.util.short
-import blogify.common.util.concurrentMapOf
-import blogify.common.util.getOr
+import blogify.util.short
+import blogify.util.concurrentMapOf
+import blogify.util.getOr
 import reflectr.propMap
 import reflectr.models.extensions.ok
 import reflectr.entity.instantiation.construct

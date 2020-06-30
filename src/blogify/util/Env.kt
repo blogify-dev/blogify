@@ -1,4 +1,4 @@
-package blogify.common.util
+package blogify.util
 
 /**
  * Returns the content of an environment variable, or `null` if it's empty / non-existent

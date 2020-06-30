@@ -1,7 +1,7 @@
 package blogify.backend.database
 
-import blogify.database.handling.query
-import blogify.common.util.Sr
+import krate.handling.query
+import blogify.util.Sr
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.JoinType

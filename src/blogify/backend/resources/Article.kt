@@ -5,7 +5,7 @@ import reflectr.annotations.check
 import blogify.backend.search.annotations.*
 import reflectr.computed.compound
 import reflectr.computed.models.Computed
-import blogify.database.annotations.SqlTable
+import krate.annotations.SqlTable
 import blogify.backend.database.tables.Articles
 import blogify.backend.database.tables.Comments
 import blogify.backend.entity.Resource

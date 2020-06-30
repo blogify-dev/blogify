@@ -1,8 +1,8 @@
 package blogify.backend.util
 
-import blogify.common.util.letCatchingOrNull
-import blogify.common.util.Sr
-import blogify.common.util.WrapBlocking
+import blogify.util.letCatchingOrNull
+import blogify.util.Sr
+import blogify.util.WrapBlocking
 import reflectr.models.Mapped
 import reflectr.models.PropMap
 import reflectr.entity.mappedByHandles

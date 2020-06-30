@@ -1,7 +1,7 @@
 package blogify.backend.resources.user
 
 import reflectr.annotations.Hidden
-import blogify.database.annotations.SqlTable
+import krate.annotations.SqlTable
 import reflectr.annotations.Undisplayed
 import blogify.backend.search.annotations.DelegatedSearchReceiver
 import blogify.backend.search.annotations.QueryByField

@@ -1,13 +1,13 @@
 package blogify.backend.database.tables
 
-import blogify.common.util.Sr
-import blogify.common.util.Wrap
-import blogify.database.extensions.parentKey
-import blogify.database.extensions.weakKeyFrom
-import blogify.database.handling.query
-import blogify.database.handling.unwrappedQuery
-import blogify.database.QueryContext
-import blogify.database.EntityTable
+import blogify.util.Sr
+import blogify.util.Wrap
+import krate.extensions.parentKey
+import krate.extensions.weakKeyFrom
+import krate.handling.query
+import krate.handling.unwrappedQuery
+import krate.QueryContext
+import krate.EntityTable
 import blogify.backend.resources.user.User
 import blogify.backend.resources.static.models.StaticFile
 import blogify.backend.resources.user.UserSettings

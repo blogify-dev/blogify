@@ -1,12 +1,12 @@
 package blogify.backend.database.tables
 
-import blogify.common.util.Sr
-import blogify.common.util.Wrap
-import blogify.common.util.never
+import blogify.util.Sr
+import blogify.util.Wrap
+import blogify.util.never
 import reflectr.sanitize
-import blogify.database.extensions.parentKey
-import blogify.database.handling.query
-import blogify.database.QueryContext
+import krate.extensions.parentKey
+import krate.handling.query
+import krate.QueryContext
 import blogify.backend.events.models.Event
 import blogify.backend.resources.models.ResourceIdSerializer
 

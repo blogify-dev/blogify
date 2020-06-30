@@ -1,10 +1,10 @@
 package blogify.backend.routing.handling
 
-import blogify.common.util.Wrap
-import blogify.common.util.assertGet
-import blogify.common.util.never
+import blogify.util.Wrap
+import blogify.util.assertGet
+import blogify.util.never
 import reflectr.util.Dto
-import blogify.database.handling.query
+import krate.handling.query
 import reflectr.entity.mappedByHandles
 import blogify.backend.annotations.BlogifyDsl
 import blogify.backend.auth.handling.authenticated

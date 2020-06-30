@@ -1,15 +1,15 @@
 package blogify.backend.pipelines.wrapping
 
-import blogify.database.QueryContext
+import krate.QueryContext
 import blogify.backend.entity.Resource
-import blogify.database.persistence.models.Repository
-import blogify.common.util.MapCache
-import blogify.common.util.Sr
-import blogify.common.util.Wrap
-import blogify.common.util.WrapBlocking
+import krate.persistence.models.Repository
+import krate.util.MapCache
+import blogify.util.Sr
+import blogify.util.Wrap
+import blogify.util.WrapBlocking
 import reflectr.entity.Entity
-import blogify.database.DatabaseContext
-import blogify.database.extensions.repository
+import krate.DatabaseContext
+import krate.extensions.repository
 
 import io.ktor.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext

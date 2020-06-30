@@ -5,7 +5,7 @@ import reflectr.entity.Entity
 import blogify.backend.events.models.EventEmitter
 import blogify.backend.events.models.EventSource
 import blogify.backend.pipelines.wrapping.RequestContext
-import blogify.common.util.never
+import blogify.util.never
 
 import java.util.*
 

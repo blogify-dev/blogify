@@ -6,9 +6,9 @@ import blogify.backend.pipelines.optionalParam
 import blogify.backend.pipelines.requestContext
 import blogify.backend.resources.user.User
 import blogify.backend.util.getOrPipelineError
-import blogify.common.util.toUUID
+import blogify.util.toUUID
 import blogify.devend.utils.user
-import blogify.database.handling.query
+import krate.handling.query
 import com.github.kittinunf.result.coroutines.getOrNull
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond

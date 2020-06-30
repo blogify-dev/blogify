@@ -1,4 +1,4 @@
-package blogify.common.util
+package blogify.util
 
 import com.andreapivetta.kolor.red
 import kotlin.system.exitProcess

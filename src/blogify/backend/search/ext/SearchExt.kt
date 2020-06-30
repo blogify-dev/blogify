@@ -1,9 +1,9 @@
 package blogify.backend.search.ext
 
-import blogify.common.util.toUUID
-import blogify.common.util.Sr
+import blogify.util.toUUID
+import blogify.util.Sr
 import reflectr.sanitize
-import blogify.database.persistence.models.Repository
+import krate.persistence.models.Repository
 import blogify.backend.pipelines.wrapping.RequestContext
 import blogify.backend.entity.Resource
 import blogify.backend.search.models.Search

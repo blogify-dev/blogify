@@ -1,4 +1,4 @@
-package blogify.common.util
+package blogify.util
 
 fun <T, R> T.letCatchingOrNull(block: (T) -> R): R? {
     return try {

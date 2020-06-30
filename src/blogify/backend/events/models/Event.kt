@@ -1,6 +1,6 @@
 package blogify.backend.events.models
 
-import blogify.common.util.assertGet
+import blogify.util.assertGet
 import reflectr.models.Mapped
 import blogify.backend.database.tables.Events
 import blogify.backend.pipelines.wrapping.RequestContext

@@ -4,12 +4,12 @@ import reflectr.entity.Entity
 import blogify.backend.push.PushServer.ClosingCodes.INVALID_TOKEN
 import blogify.backend.appContext
 import blogify.backend.auth.jwt.validateJwt
-import blogify.database.QueryContext
+import krate.QueryContext
 import blogify.backend.push.PushServer
 import blogify.backend.push.PushServer.ResponseCodes.AUTH_OK
 import blogify.backend.resources.user.User
-import blogify.common.util.MapCache
-import blogify.database.DatabaseContext
+import krate.util.MapCache
+import krate.DatabaseContext
 
 import com.github.kittinunf.result.coroutines.getOrNull
 

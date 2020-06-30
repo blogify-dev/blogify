@@ -27,8 +27,8 @@
 
 package blogify.backend.routing.handling
 
-import blogify.common.util.*
-import blogify.common.util.filterThenMapValues
+import blogify.util.*
+import blogify.util.filterThenMapValues
 import reflectr.*
 import reflectr.computed.models.BasicComputedProperty
 import reflectr.computed.resolveComputedProps
@@ -37,7 +37,7 @@ import reflectr.models.Mapped
 import reflectr.models.PropMap
 import reflectr.models.extensions.ok
 import reflectr.entity.mappedByHandles
-import blogify.database.handling.query
+import krate.handling.query
 import blogify.backend.database.tables.Uploadables
 import blogify.backend.resources.user.User
 import blogify.backend.entity.Resource

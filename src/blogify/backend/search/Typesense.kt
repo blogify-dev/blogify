@@ -1,7 +1,7 @@
 package blogify.backend.search
 
 import blogify.backend.appContext
-import blogify.common.util.short
+import blogify.util.short
 import reflectr.models.PropMap
 import reflectr.sanitize
 import reflectr.util.Dto

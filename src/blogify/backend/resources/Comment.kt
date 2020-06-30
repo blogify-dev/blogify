@@ -3,7 +3,7 @@ package blogify.backend.resources
 import reflectr.annotations.Hidden
 import reflectr.computed.compound
 import reflectr.computed.models.Computed
-import blogify.database.annotations.SqlTable
+import krate.annotations.SqlTable
 import blogify.backend.database.tables.Comments
 import blogify.backend.database.countReferredToBy
 import blogify.backend.pipelines.wrapping.RequestContext

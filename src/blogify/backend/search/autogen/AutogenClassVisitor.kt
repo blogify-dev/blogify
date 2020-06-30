@@ -6,7 +6,7 @@ import blogify.backend.entity.Resource
 import reflectr.propMap
 import reflectr.models.extensions.ok
 import blogify.backend.search.models.Template
-import blogify.common.util.filterThenMapValues
+import blogify.util.filterThenMapValues
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
